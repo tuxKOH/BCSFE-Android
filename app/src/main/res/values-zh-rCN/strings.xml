@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="transfer_regions"><item>en</item><item>jp</item><item>tw</item><item>kr</item></string-array>
+    <string name="app_name">BCSFE Android</string>
+    <string name="about">关于</string>
+    <string name="about_title">关于 BCSFE Android</string>
+    <string name="supported_versions_notice">完整编辑面向 JP、EN、TW、KR 的 15.5 存档；版本转换支持 14.0 和 14.3–15.5。更早的存档格式不提供完整编辑支持。</string>
+    <string name="language">语言</string><string name="change_language">切换语言</string><string name="choose_language">选择语言</string>
+    <string-array name="language_options"><item>English</item><item>简体中文</item></string-array>
+    <string name="choose_category">选择编辑分类</string>
+    <string name="exit_editor">退出编辑器</string><string name="exit_confirm_title">是否退出？</string><string name="exit_confirm_message">当前工作存档已永久保存。上传、退出 App 或重启手机都不会清除它。</string><string name="exit_keep">退出并保留会话</string><string name="discard_session">丢弃会话</string><string name="discard_confirm">确定丢弃缓存中的工作存档吗？只有此操作会清除当前会话，且无法撤销。</string><string name="session_restored">已恢复工作存档。</string><string name="session_save_failed">无法永久保存当前工作存档，App 将保持打开。</string><string name="session_discard_failed">无法清除缓存的会话。</string>
+    <string name="home_heading">在手机上编辑存档</string>
+    <string name="home_subtitle">打开猫咪大战争存档，在本机查看和编辑。</string>
+    <string name="open_save">打开存档文件</string>
+    <string name="receive_transfer">使用转移码接收存档</string>
+    <string name="upload_transfer">上传存档并输出转移码</string>
+    <string name="enter_transfer">转移码</string>
+    <string name="enter_pin">确认码</string>
+    <string name="transfer_region">存档地区</string>
+    <string name="receiving">正在接收存档……</string>
+    <string name="receive_failed">无法接收存档，请检查转移码、地区和网络。</string>
+    <string name="upload_not_ready">上传功能可在当前编辑会话中使用。</string>
+    <string name="upload_warning">这将上传当前工作副本并创建新的转移。是否继续？</string><string name="upload_confirm">上传</string><string name="uploading">正在上传存档……</string><string name="upload_failed">上传失败，本地存档未被替换。</string><string name="upload_success">转移已创建</string><string name="transfer_result">转移码：%1$s\n确认码：%2$s</string><string name="copy_codes">复制</string>
+    <string name="editor_areas">编辑功能</string>
+    <string name="safety_notice">请保留一份未经修改的备份。游戏服务器可能拒绝修改后的存档，或对账号进行限制。</string>
+    <string name="search_features">搜索功能</string>
+    <string name="export_save">导出工作副本</string>
+    <string name="version_format">版本 %1$s</string>
+    <string name="attribution">本 Android 移植版参考并改编自 fieryhenry/BCSFE-Python。感谢 fieryhenry 及其贡献者提供原始存档编辑器。</string>
+    <string name="android_repository">GitHub：tuxKOH/BCSFE-Android</string>
+    <string name="reference_repository">GitHub：fieryhenry/BCSFE-Python</string>
+    <string name="license_notice">本项目采用 GNU GPL v3 或更高版本授权，且不提供任何担保。源代码与许可证详情可在下方仓库查看。</string>
+    <string name="file_summary">%1$s\n%2$s · SHA-256 %3$s</string>
+    <string name="bytes_format">%1$d 字节</string>
+    <string name="read_failed">无法读取此文件。</string>
+    <string name="exported">工作副本已导出。</string>
+    <string name="export_failed">无法导出工作副本。</string>
+    <string name="invalid_feature">无法识别此功能入口。</string>
+    <string name="close">关闭</string>
+    <string name="catfood_label">猫罐头</string>
+    <string name="xp_label">经验值</string>
+    <string name="tutorial_label">教学进度</string>
+    <string name="invalid_number">请输入有效数字。</string>
+    <string name="tickets_title">扭蛋券</string>
+    <string name="advanced_items_title">进阶道具</string>
+    <string name="unsupported_save_version">此编辑器尚未针对当前存档版本完成验证。</string>
+    <string name="playtime_label">游玩时间帧数</string><string name="playtime_title">编辑游玩时间</string><string name="playtime_hours_label">小时</string><string name="playtime_minutes_label">分钟</string><string name="playtime_seconds_label">秒</string><string name="gamatoto_xp_label">加码多多经验</string><string name="challenge_score_label">挑战分数</string><string name="seeds_title">扭蛋种子</string>
+    <string-array name="seed_labels"><item>稀有种子</item><item>普通种子</item><item>活动种子</item></string-array>
+    <string name="fix_applied">修复已应用。</string>
+    <string-array name="ticket_labels"><item>普通券</item><item>稀有券</item><item>白金券</item><item>传说券</item><item>稀有券兑换</item></string-array><string name="rare_trade_title">稀有券兑换</string><string name="rare_trade_amount">准备兑换的稀有券数量</string>
+    <string-array name="advanced_item_labels"><item>白金碎片</item><item>NP</item><item>统率力</item><item>重置黄金猫型电脑数量</item></string-array>
+    <string name="battle_items_title">战斗道具</string><string name="battle_item_label">战斗道具 %1$d</string>
+    <string name="consumables_title">升级消耗品</string><string name="catseyes_title">猫眼石</string><string name="catseye_label">猫眼石 %1$d</string>
+    <string name="catfruit_title">猫薄荷</string><string name="catfruit_label">猫薄荷 %1$d</string><string name="catamins_title">喵力达</string><string name="catamin_label">喵力达 %1$d</string>
+    <string name="treasure_items_title">票券与宝物</string><string name="treasure_chests_title">宝箱</string><string name="treasure_chest_label">宝箱 %1$d</string><string name="hundred_million_ticket_label">一亿下载纪念券</string>
+    <string-array name="consumable_groups"><item>猫眼石</item><item>猫薄荷</item><item>喵力达</item></string-array>
+    <string-array name="treasure_groups"><item>宝箱</item><item>一亿下载纪念券</item></string-array>
+    <string name="cats_title">角色</string><string name="forms_title">角色形态</string><string name="edit_applied">修改已应用。</string>
+    <string name="cat_reset_title">重置角色数据？</string><string name="cat_reset_confirm">这会移除该角色，并清除等级、形态、图鉴奖励、猫眼、本能和关联掉落解锁。</string><string name="cat_reset_all_confirm">这会移除全部角色，并清除全部等级、形态、图鉴奖励、猫眼、本能和关联掉落解锁。</string><string name="cat_reset_action">重置</string>
+    <string-array name="cat_actions"><item>解锁全部角色</item><item>移除全部角色（保留养成）</item><item>移除并重置全部角色</item></string-array>
+    <string-array name="form_actions"><item>解锁可用三阶形态</item><item>强制解锁全部三阶形态</item><item>移除三阶形态</item><item>解锁可用四阶形态</item><item>强制解锁全部四阶形态</item><item>移除四阶形态</item></string-array>
+    <string name="back">返回</string>
+    <string name="yes">是</string><string name="no">否</string><string name="cat_id_label">猫咪 ID</string><string name="cat_number">猫咪 %1$d</string><string name="index_range">有效范围：0–%1$d</string>
+    <string-array name="cat_editor_actions"><item>按 ID 编辑猫咪</item><item>获取所有可正常获得的猫咪</item><item>解锁全部猫咪</item><item>移除全部猫咪（保留养成）</item><item>设置全部基础等级</item><item>设置全部加值等级</item><item>移除并完整重置全部猫咪</item></string-array><string name="all_cat_base_level">全部猫咪的基础等级</string><string name="all_cat_plus_level">全部猫咪的加值等级</string>
+    <string-array name="cat_detail_labels"><item>已解锁</item><item>基础等级</item><item>加值等级</item><item>移除并完整重置这只猫</item></string-array>
+    <string name="cat_extras_title">本能与猫咪图鉴</string><string-array name="cat_extra_actions"><item>按猫咪 ID 切换图鉴奖励状态</item><item>按猫咪 ID 编辑本能</item><item>领取全部猫咪图鉴奖励</item><item>移除全部猫咪图鉴奖励</item><item>最大化全部可用本能</item></string-array><string name="all_talent_level">全部可用本能的等级</string>
+    <string name="talents_title">本能</string><string name="no_talents">这只猫没有本能记录。</string><string name="talent_row">本能 %1$d · 等级 %2$d</string><string name="talent_id">本能 %1$d</string>
+    <string name="special_skills_title">基础升级</string><string name="special_skill_row">%1$s（ID %2$d）· 基础 %3$d · 加值 %4$d</string><string-array name="special_skill_names"><item>攻击力</item><item>射程</item><item>充电</item><item>工作</item><item>钱包</item><item>耐力</item><item>研究</item><item>会计</item><item>学习</item><item>统率力</item></string-array><string-array name="skill_level_labels"><item>基础等级</item><item>加值等级</item></string-array>
+    <string name="other_guide_title">游玩时间与敌人图鉴</string><string name="current_energy_label">当前统率力</string><string name="enemy_id_label">敌人 ID</string><string name="enemy_id_hint">有效范围：%1$d–%2$d</string><string-array name="other_guide_actions"><item>编辑游玩时间</item><item>切换单个敌人图鉴</item><item>解锁全部敌人图鉴</item><item>重置全部敌人图鉴</item></string-array>
+    <string name="rewards_title">用户等级奖励</string><string name="reward_id_label">奖励 ID</string><string name="reward_not_unlocked">该奖励高于当前用户等级。</string><string-array name="reward_actions"><item>领取一个已解锁奖励</item><item>取消领取一个已解锁奖励</item><item>修复高于当前等级的错误领取状态</item></string-array>
+    <string name="story_title">教学与主线</string><string name="chapter_id_label">章节 ID</string><string name="stage_id_label">关卡 ID</string><string name="clear_times_label">通关次数</string>
+    <string-array name="story_actions"><item>完成教学</item><item>编辑单个主线关卡</item><item>通关一个主线章节</item><item>重置一个主线章节</item><item>允许宇宙神关卡再次通关</item></string-array>
+    <string name="treasure_aku_title">宝物与魔界篇</string><string name="treasure_grade_label">宝物等级（0–9999）</string><string name="aku_chapter_label">魔界篇章节 ID</string><string name="star_id_label">星级难度 ID</string><string name="aku_title">魔界篇</string><string name="no_aku_data">此存档没有魔界篇数据。</string><string name="aku_progress_label">魔界篇进度（0–49）</string>
+    <string-array name="treasure_aku_actions"><item>编辑单个主线宝物</item><item>设置章节内全部宝物</item><item>编辑不死生物袭击</item><item>解锁魔界篇</item><item>编辑魔界篇进度</item></string-array><string-array name="clear_reset_actions"><item>通关全部关卡</item><item>重置全部关卡</item></string-array>
+    <string name="outbreak_chapter_label">不死生物袭击章节</string><string name="outbreak_chapter_title">不死生物袭击章节 ID %1$d</string><string name="outbreak_stage_label">不死生物袭击关卡</string><string name="outbreak_chapter_row">章节 ID %1$d · %2$d 个关卡</string><string name="outbreak_stage_row">关卡 ID %1$d · %2$s</string><string name="state_cleared">已完成</string><string name="state_uncleared">未完成</string><string-array name="outbreak_actions"><item>切换单个袭击状态</item><item>完成本章全部袭击</item><item>重置本章全部袭击</item></string-array>
+    <string name="rewards_missions_title">奖励、勋章与任务</string><string-array name="reward_mission_actions"><item>用户等级奖励</item><item>迷宫勋章</item><item>任务</item><item>游戏勋章</item></string-array><string name="labyrinth_medals_title">迷宫勋章</string><string name="labyrinth_medal_label">勋章 %1$d</string><string name="game_medals_title">游戏勋章</string><string-array name="game_medal_actions"><item>按 ID 新增勋章</item><item>移除已有勋章</item></string-array><string name="game_medal_id_label">勋章 ID</string><string name="game_medal_row">勋章 %1$d</string><string name="no_game_medals">此存档没有已获得的游戏勋章。</string>
+    <string name="missions_title">任务（%1$d 条记录）</string><string name="mission_id_label">任务 ID</string><string name="mission_id_hint">输入此存档中已有的 ID</string><string name="invalid_mission_id">此存档中没有该任务 ID。</string><string-array name="mission_actions"><item>完成，待领取奖励</item><item>完成，已领取奖励</item><item>设为未完成</item></string-array>
+    <string name="challenge_dojo_title">挑战与猫咪道场</string><string name="dojo_score_label">猫咪道场分数</string><string name="timed_score_label">未来篇限时分数</string><string-array name="challenge_actions"><item>编辑挑战分数</item><item>编辑猫咪道场分数</item><item>编辑未来篇限时分数</item><item>编辑猫咪道场晋段测验</item></string-array>
+    <string name="enigma_gauntlet_title">发掘关卡与强袭</string><string name="enigma_stages_title">当前发掘关卡</string><string name="no_enigma_stages">当前没有发掘关卡记录。</string><string name="enigma_stage_row">关卡 %1$d · 等级 %2$d</string><string-array name="enigma_gauntlet_actions"><item>按 ID 添加发掘关卡（0-72）</item><item>清空当前发掘关卡</item><item>编辑强袭关卡</item><item>编辑联动强袭</item><item>编辑已通关的发掘地图</item></string-array>
+    <string name="map_editor_title">地图编辑器</string><string name="map_id_label">地图 ID</string><string name="number_range">有效范围：%1$d-%2$d</string><string name="no_map_data">此存档没有该地图类型的数据。</string><string-array name="stage_map_actions"><item>编辑单个关卡</item><item>通关此地图</item><item>重置此地图</item></string-array>
+    <string-array name="gauntlet_map_names"><item>强袭关卡</item><item>联动强袭</item></string-array><string-array name="uncanny_map_names"><item>真传奇</item><item>猫薄荷关卡</item><item>超兽讨伐</item></string-array><string name="event_maps_name">传奇故事与活动地图</string><string-array name="event_map_types"><item>传奇故事</item><item>活动地图</item><item>联动地图</item></string-array><string-array name="legend_map_names"><item>传说寻宝</item><item>传说之塔</item><item>零传奇</item></string-array>
+    <string name="gamatoto_title">加码多多</string><string name="gamatoto_level_label">加码多多等级（1–130）</string><string name="gamatoto_helpers_title">加码多多助手</string><string name="helper_amount_label">助手数量</string><string name="invalid_helper_amounts">请输入五个非负数量，总数最多为 10。</string><string-array name="gamatoto_helper_rarities"><item>小角色</item><item>中坚</item><item>老手</item><item>精英</item><item>传说</item></string-array><string-array name="gamatoto_actions"><item>编辑等级</item><item>编辑经验</item><item>编辑各稀有度助手数量</item></string-array>
+    <string name="ototo_title">城堡开发队</string><string name="material_id_label">素材 ID</string><string name="material_amount_label">素材数量</string><string name="material_row">%1$s（ID %2$d）: %3$d</string><string-array name="base_material_names"><item>红砖</item><item>羽毛</item><item>备长炭</item><item>钢制齿轮</item><item>黄金</item><item>宇宙石</item><item>神秘骨头</item><item>菊石</item><item>红砖 Z</item><item>羽毛 Z</item><item>备长炭 Z</item><item>钢制齿轮 Z</item><item>黄金 Z</item><item>宇宙石 Z</item><item>神秘骨头 Z</item><item>菊石 Z</item></string-array><string name="engineers_label">工程师数量</string><string-array name="ototo_actions"><item>编辑城堡素材</item><item>编辑工程师</item><item>编辑猫炮</item></string-array>
+    <string name="cannons_title">猫咪炮</string><string name="cannon_row">%1$s（ID %2$d）· 开发：%3$s</string><string name="cannon_row_parts">%1$s（ID %2$d）· 仅部件等级</string><string name="cannon_development_label">开发状态</string><string name="cannon_part_row">%1$s（部件 ID %2$d）· 等级 %3$d</string><string name="cannon_part_label">%1$s（部件 ID %2$d）等级</string>
+    <string-array name="cannon_names"><item>猫咪炮</item><item>缓速炮</item><item>铁壁炮</item><item>闪雷炮</item><item>水铁炮</item><item>天使炮</item><item>斩盾炮</item><item>诅咒炮</item></string-array>
+    <string-array name="cannon_development_names"><item>无</item><item>基座</item><item>装饰</item><item>主炮效果</item></string-array>
+    <string-array name="cannon_part_names"><item>猫咪炮威力</item><item>缓速效果</item><item>飘浮敌人减伤</item><item>缓速抗性</item><item>铁壁效果</item><item>黑色敌人减伤</item><item>波动减伤</item><item>停止效果</item><item>天使敌人减伤</item><item>停止抗性</item><item>钢铁敌人伤害</item><item>红色敌人减伤</item><item>烈波减伤</item><item>不死生物效果</item><item>不死生物减伤</item><item>降攻抗性</item><item>破坏护盾效果</item><item>异星战士减伤</item><item>毒击减伤</item><item>诅咒效果</item><item>古代种减伤</item><item>诅咒抗性</item></string-array>
+    <string name="shrine_title">猫咪神社</string><string name="shrine_level_label">神社等级（1–70）</string><string name="shrine_xp_label">神社经验</string><string-array name="shrine_actions"><item>编辑神社等级</item><item>编辑神社经验</item><item>显示神社</item><item>隐藏神社</item></string-array>
+    <string-array name="battle_item_actions"><item>编辑道具数量</item><item>编辑无限道具时长</item></string-array><string name="battle_item_id_label">战斗道具 ID</string><string name="endless_duration_title">无限道具时长</string><string name="endless_duration_label">分钟数（或 infinity）</string><string name="endless_all_action">设置全部六项</string><string name="endless_one_action">设置单项</string><string name="endless_item_row">道具 %1$d：%2$s 分钟</string><string name="infinity">infinity</string>
+    <string name="orb_material_title">本能玉与城堡素材</string><string-array name="orb_material_actions"><item>编辑已有本能玉</item><item>编辑城堡素材</item></string-array><string name="talent_orbs_title">本能玉</string><string-array name="talent_orb_actions"><item>新增本能玉</item><item>编辑本能玉数量</item><item>移除本能玉</item></string-array><string name="talent_orb_add">新增本能玉</string><string name="talent_orb_id_label">本能玉 ID</string><string name="talent_orb_amount_label">数量</string><string name="no_talent_orbs">此存档没有可编辑的本能玉持有记录。</string><string name="talent_orb_row">本能玉 %1$d · 数量 %2$d</string>
+    <string name="event_items_title">活动道具</string><string-array name="event_item_actions"><item>编辑活动券</item><item>编辑幸运券</item><item>编辑宝箱与下载纪念券</item><item>编辑 Scheme 活动道具</item></string-array><string name="scheme_items_title">Scheme 活动道具</string><string-array name="scheme_item_actions"><item>标记为待领取</item><item>移除道具状态</item></string-array><string name="scheme_item_id_label">Scheme 道具 ID</string><string name="event_ticket_id_label">活动券 ID</string><string name="lucky_ticket_id_label">幸运券 ID</string><string name="ticket_amount_label">持有数量</string>
+    <string name="lineups_title">阵型</string><string-array name="lineup_actions"><item>编辑已解锁阵型数</item><item>编辑阵型中的猫咪槽位</item></string-array><string name="unlocked_lineups_label">已解锁阵型数</string><string name="lineup_id_label">阵型 ID</string><string name="lineup_slot_label">槽位 ID</string><string name="lineup_cat_label">猫咪 ID（-1 为空）</string>
+    <string name="lineup_gambling_title">阵型与抽奖活动</string><string-array name="lineup_gambling_actions"><item>编辑阵型</item><item>重置全部抽奖活动</item></string-array><string name="gambling_title">抽奖活动</string><string-array name="gambling_tables"><item>野生猫咪转蛋</item><item>猫咪刮刮乐</item></string-array><string-array name="gambling_actions"><item>新增或替换开始日期</item><item>编辑开始日期</item><item>移除开始日期</item><item>重置全部活动数据</item></string-array><string name="gambling_add">新增活动开始日期</string><string name="gambling_event_id">活动 ID</string><string name="gambling_date_label">开始日期（YYYYMMDD）</string><string name="gambling_row">活动 %1$d · 开始日期 %2$d</string><string name="no_gambling_records">没有可编辑的现有抽奖活动记录。</string>
+    <string name="pass_restart_title">金会员与重启礼包</string><string-array name="pass_restart_actions"><item>获得 30 天金会员</item><item>移除金会员</item><item>获得重启礼包</item></string-array>
+    <string name="save_management_title">存档管理</string><string-array name="save_management_actions"><item>导出工作副本</item><item>上传并创建转移码</item><item>退出编辑器</item></string-array>
+    <string name="convert_region_title">转换地区</string><string name="convert_region_warning">此操作会在目标地区创建新账号并更新工作存档。继续前请先导出备份。</string><string name="current_suffix">（当前）</string><string name="converting_region">正在转换地区并创建账号…</string><string name="convert_region_success">地区已转换，新账号已永久保存。</string><string name="convert_region_failed">地区转换失败，工作存档未更改。</string><string name="jp_conversion_unavailable">JP 地区转换目前要求存档版本为 15.5，工作存档未更改。</string>
+    <string name="game_version_title">游戏版本</string><string name="game_version_warning">更改序列化游戏版本会重写版本相关字段，请先导出备份再继续。</string><string name="game_version_success">游戏版本已转换并永久缓存。</string><string name="game_version_failed">游戏版本转换失败，工作存档未更改。</string><string name="game_version_message">当前序列化版本：%1$d。支持 14.0，以及 14.3 至 15.5 版本之间转换。</string>
+    <string name="account_info_title">账号凭据</string><string-array name="account_info_actions"><item>查看查询码</item><item>编辑查询码</item><item>查看密码刷新令牌</item><item>编辑密码刷新令牌</item></string-array><string name="invalid_credential_length">替换凭据的编码长度必须与原值完全相同。</string>
+    <string name="account_operations_title">账号操作</string><string-array name="account_operation_actions"><item>创建替代账号</item><item>仅上传托管道具</item></string-array><string name="account_operations_warning">此操作会创建新的服务器账号，并替换工作存档中的查询码和刷新令牌。可用于将存档迁离无法使用或受限制的账号，原账号本身不会被修改。</string><string name="create_account_confirm">创建账号</string><string name="creating_account">正在创建替代账号…</string><string name="create_account_success">替代账号已创建并永久保存。</string><string name="create_account_failed">无法创建替代账号，工作存档未被更改。</string><string name="upload_managed_items">上传托管道具</string><string name="upload_managed_warning">此操作会认证当前账号，并同步猫罐头、稀有券、白金券和传说券，不会创建转移码。</string><string name="uploading_managed_items">正在上传托管道具…</string><string name="upload_managed_success">托管道具已上传，刷新后的凭据已永久保存。</string><string name="upload_managed_failed">托管道具上传失败，工作存档仍保留在缓存中。</string>
+    <string name="storage_skills_title">储藏库与基础升级</string><string-array name="storage_skill_actions"><item>向储藏库添加猫咪</item><item>向储藏库添加基础升级</item><item>移除储藏库项目</item><item>清空储藏库</item><item>编辑基础升级等级</item></string-array><string name="storage_title">储藏库</string><string name="storage_full">储藏库已满。</string><string name="storage_empty">储藏库为空。</string><string name="storage_quantity_label">数量</string><string name="storage_add_cats">添加猫咪</string><string name="storage_add_skills">添加基础升级</string><string name="storage_remove">移除储藏库项目</string><string name="storage_item_row">类型 %1$d · ID %2$d</string><string name="special_skill_id_label">基础升级 ID（0-9）</string>
+    <string name="fix_title">修复</string><string-array name="crash_fix_actions"><item>修复加码多多皮肤</item><item>重置城堡炮台数值</item><item>重置时间错误时间戳</item></string-array><string-array name="menu_fix_actions"><item>解锁天赋玉菜单</item><item>重置干部通行证状态</item></string-array>
+
+    <string-array name="category_names">
+        <item>存档管理</item><item>基础信息</item><item>角色与基础升级</item>
+        <item>关卡与地图</item><item>加码多多与猫咪城开发队</item><item>账号</item>
+        <item>扭蛋种子</item><item>修复</item><item>其他</item>
+    </string-array>
+    <string-array name="feature_names">
+        <item>存档管理 · 保存、导出与载入</item><item>存档管理 · 转换地区</item><item>存档管理 · 转换游戏版本</item><item>存档管理 · 上传及设备传输</item>
+        <item>道具 · 猫罐头</item><item>道具 · XP 经验值</item><item>道具 · 普通、稀有、白金与传说券</item><item>道具 · 白金碎片、NP 与统率力</item><item>道具 · 战斗道具及无限道具</item><item>道具 · 猫眼石、猫薄荷与喵力达</item><item>道具 · 本能玉与城堡素材</item><item>道具 · 活动券与宝箱</item>
+        <item>角色 · 解锁、移除与升级</item><item>角色 · 三阶与四阶进化</item><item>角色 · 本能与图鉴</item><item>角色 · 储藏库与基础升级</item>
+        <item>关卡 · 教学与主线</item><item>关卡 · 宝物、不死生物袭击与魔界篇</item><item>关卡 · 挑战与道场分数</item><item>关卡 · 发掘关卡与强袭</item><item>关卡 · 传奇故事与活动</item><item>关卡 · 真传奇、猫薄荷关卡与超兽讨伐</item><item>关卡 · 传奇任务、塔与零传奇</item>
+        <item>加码多多 · XP、等级与助手</item><item>猫咪城开发队 · 工程师、材料与猫咪炮</item><item>加码多多 · 猫神社</item>
+        <item>账号 · 查询码与刷新令牌</item><item>账号 · 解除封禁与托管道具上传</item>
+        <item>扭蛋 · 稀有、普通与活动种子</item>
+        <item>修复 · 加码多多、猫咪城开发队与时间错误</item><item>修复 · 装备菜单与军官通行证</item>
+        <item>其他 · 编队栏与抽奖活动</item><item>其他 · 游玩时间与敌人图鉴</item><item>其他 · 用户等级奖励、勋章与任务</item><item>其他 · 黄金会员与重启礼包</item>
+    </string-array>
+    <string name="field_parse_failed">当前存档版本的该字段解析失败。</string>
+    <string-array name="catseye_names"><item>特殊猫眼石</item><item>稀有猫眼石</item><item>激稀有猫眼石</item><item>超激稀有猫眼石</item><item>传说稀有猫眼石</item><item>暗黑猫眼石</item></string-array>
+    <string-array name="catamin_names"><item>喵力达 A</item><item>喵力达 B</item><item>喵力达 C</item></string-array>
+    <string-array name="catfruit_names"><item>紫色猫薄荷种子</item><item>红色猫薄荷种子</item><item>蓝色猫薄荷种子</item><item>绿色猫薄荷种子</item><item>黄色猫薄荷种子</item><item>紫色猫薄荷</item><item>红色猫薄荷</item><item>蓝色猫薄荷</item><item>绿色猫薄荷</item><item>黄色猫薄荷</item><item>彩虹猫薄荷</item><item>古代猫薄荷种子</item><item>古代猫薄荷</item><item>彩虹猫薄荷种子</item><item>黄金猫薄荷</item><item>恶猫薄荷种子</item><item>恶猫薄荷</item><item>黄金猫薄荷种子</item><item>紫兽石</item><item>红兽石</item><item>苍兽石</item><item>翠兽石</item><item>黄兽石</item><item>紫兽结晶</item><item>红兽结晶</item><item>苍兽结晶</item><item>翠兽结晶</item><item>黄兽结晶</item><item>彩虹兽石</item></string-array>
+    <string name="sessions">会话</string>
+    <string name="import_new_session">新会话</string>
+    <string name="session_long_press_hint">长按会话可重命名或删除。</string>
+    <string name="session_actions">会话操作</string>
+    <string name="rename_session">重命名会话</string>
+    <string name="delete_session">删除会话</string>
+    <string name="delete_session_confirm">删除这个编辑会话？其工作副本将无法恢复。</string>
+    <string name="session_name">会话名称</string>
+    <string name="session_switch_failed">无法打开此会话。</string>
+    <string name="shared_import_failed">分享的文件不是有效的猫咪大战争存档。</string>
+    <string name="invalid_save_file">所选文件不是有效的猫咪大战争存档。</string>
+    <string name="shared_import_success">已将分享的存档作为新会话打开。</string>
+</resources>
