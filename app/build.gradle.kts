@@ -1,6 +1,21 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
 }
+
+val envValues = rootProject.file(".env").takeIf { it.isFile }?.readLines()?.mapNotNull { line ->
+    val clean = line.substringBefore('#').trim()
+    if (clean.isEmpty() || !clean.contains('=')) null else clean.substringBefore('=').trim() to clean.substringAfter('=').trim()
+}?.toMap().orEmpty()
+val adsEnabled = envValues["Ads"]?.equals("true", ignoreCase = true) == true
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.isFile) file.inputStream().use { load(it) }
+}
+val adsterraScriptUrl = localProperties.getProperty("adsterra.scriptUrl", "").trim()
+require(!adsEnabled || adsterraScriptUrl.startsWith("https://")) { "Ads=True requires an https:// adsterra.scriptUrl in local.properties" }
+fun quotedBuildConfig(value: String) = "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
 val generatedOffsetsDir = layout.buildDirectory.dir("generated/source/offsets/java")
 val generateOffsets by tasks.registering {
@@ -45,6 +60,8 @@ android {
         versionName = "0.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("boolean", "ADS_ENABLED", adsEnabled.toString())
+        buildConfigField("String", "ADSTERRA_SCRIPT_URL", quotedBuildConfig(adsterraScriptUrl))
     }
 
     buildFeatures { buildConfig = true }

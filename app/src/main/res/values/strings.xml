@@ -20,7 +20,7 @@
     <string name="receiving">Receiving save…</string>
     <string name="receive_failed">Could not receive the save. Check the codes, region and network.</string>
     <string name="upload_not_ready">Upload is available from the active editor session.</string>
-    <string name="upload_warning">This uploads the current working copy and creates a new transfer. Continue?</string><string name="upload_confirm">Upload</string><string name="uploading">Uploading save…</string><string name="upload_failed">Upload failed. The save was not replaced locally.</string><string name="upload_success">Transfer created</string><string name="transfer_result">Transfer code: %1$s\nConfirmation code: %2$s</string><string name="copy_codes">Copy</string>
+    <string name="upload_warning">This uploads the current working copy and creates a new transfer. Continue?</string><string name="upload_warning_with_ad">This uploads the current working copy and creates a new transfer. Continue?\n\nPressing Upload will open a pop-up ad to support me. Do not trust the ad content. The upload will continue in the background.</string><string name="upload_confirm">Upload</string><string name="uploading">Uploading save…</string><string name="upload_failed">Upload failed. The save was not replaced locally.</string><string name="upload_success">Transfer created</string><string name="transfer_result">Transfer code: %1$s\nConfirmation code: %2$s</string><string name="copy_codes">Copy</string>
     <string name="editor_areas">Editor areas</string>
     <string name="safety_notice">Keep an untouched backup. Modified saves may be rejected by the game server or result in account restrictions.</string>
     <string name="search_features">Search features</string>

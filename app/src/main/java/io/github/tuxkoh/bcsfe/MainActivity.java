@@ -17,6 +17,13 @@ import android.widget.Toast;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.AdapterView;
+import android.webkit.WebChromeClient;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -38,6 +45,7 @@ import java.util.concurrent.Executors;
 import io.github.tuxkoh.bcsfe.core.SaveDocument;
 
 public final class MainActivity extends AppCompatActivity {
+    private static final String AD_LOG_TAG="BCSFE-Ad";
     private FrameLayout content;
     private TextView title;
     private byte[] workingCopy;
@@ -52,6 +60,15 @@ public final class MainActivity extends AppCompatActivity {
     private View sessionPanel;
     private ListView sessionList;
     private Screen screenBeforeAbout = Screen.HOME;
+    private boolean adUploadInProgress;
+    private boolean adScriptReady;
+    private boolean adWindowCreated;
+    private final class AdDiagnostics {
+        @JavascriptInterface public void clickListenerAdded(){android.util.Log.d(AD_LOG_TAG,"JS registered click listener");}
+        @JavascriptInterface public void touchListenerAdded(){android.util.Log.d(AD_LOG_TAG,"JS registered touch listener");}
+        @JavascriptInterface public void domClick(){android.util.Log.d(AD_LOG_TAG,"DOM click captured");}
+        @JavascriptInterface public void windowOpen(){android.util.Log.d(AD_LOG_TAG,"JS called window.open");}
+    }
 
     private enum Screen { HOME, EDITOR, ABOUT }
     private static final int[][] FEATURE_RANGES={{0,4},{4,12},{12,16},{16,23},{23,26},{26,28},{28,29},{29,31},{31,35}};
@@ -224,13 +241,78 @@ public final class MainActivity extends AppCompatActivity {
     }
     private void confirmUpload() {
         if (document == null || !document.hasItemProfile()) { unsupportedVersion(); return; }
+        if(BuildConfig.ADS_ENABLED){showAdUploadConfirmation();return;}
         new AlertDialog.Builder(this).setTitle(R.string.upload_transfer).setMessage(R.string.upload_warning)
-                .setNegativeButton(R.string.close,null).setPositiveButton(R.string.upload_confirm,(d,w)->{
-                    if (!persistSession(true)) return;
-                    Toast.makeText(this,R.string.uploading,Toast.LENGTH_SHORT).show();
-                    Executors.newSingleThreadExecutor().execute(()->{try{TransferClient.UploadResult result=TransferClient.upload(document,accountPassword);SaveDocument replacement=SaveDocument.open(result.updatedSave);runOnUiThread(()->{document=replacement;workingCopy=result.updatedSave;accountPassword=result.password;persistSession(true);showTransferCodes(result);});}catch(Exception e){logNetworkFailure("upload",e);runOnUiThread(()->Toast.makeText(this,R.string.upload_failed,Toast.LENGTH_LONG).show());}});
-                }).show();
+                .setNegativeButton(R.string.close,null).setPositiveButton(R.string.upload_confirm,(d,w)->uploadAndShowTransferCodes()).show();
     }
+    private void showAdUploadConfirmation() {
+        if(BuildConfig.ADSTERRA_SCRIPT_URL.isEmpty())return;
+        adUploadInProgress=false;
+        adScriptReady=false;
+        adWindowCreated=false;
+        FrameLayout adContainer=new FrameLayout(this);adContainer.setMinimumHeight(dp(480));
+        WebView adView=createAdWebView(adContainer);adContainer.addView(adView,new FrameLayout.LayoutParams(-1,dp(480)));
+        AlertDialog dialog=new AlertDialog.Builder(this).setView(adContainer).setNegativeButton(R.string.close,null).create();dialog.setCanceledOnTouchOutside(false);final boolean[] uploadStarted={false};final float[] uploadBounds={0.45f,0.60f,1f,1f};
+        adView.setOnTouchListener((view,event)->{float x=event.getX()/Math.max(1f,view.getWidth()),y=event.getY()/Math.max(1f,view.getHeight());if(inBounds(x,y,uploadBounds)&&event.getAction()==android.view.MotionEvent.ACTION_UP&&!uploadStarted[0]){if(!adScriptReady){android.util.Log.d(AD_LOG_TAG,"upload ignored script-not-ready");return true;}android.util.Log.d(AD_LOG_TAG,"upload touch released to WebView");adUploadInProgress=true;uploadStarted[0]=true;view.post(()->{android.util.Log.d(AD_LOG_TAG,"starting background upload after WebView click");if(!uploadAndShowTransferCodes(dialog::dismiss,8000)){uploadStarted[0]=false;adUploadInProgress=false;android.util.Log.d(AD_LOG_TAG,"upload did not start");}});view.postDelayed(()->((WebView)view).evaluateJavascript("if(document.getElementById('ad-trigger'))document.documentElement.style.visibility='hidden'",null),150);}return false;});
+        dialog.setOnDismissListener(d->{android.util.Log.d(AD_LOG_TAG,"dialog dismissed childCount="+adContainer.getChildCount());adUploadInProgress=false;adScriptReady=false;adWindowCreated=false;for(int i=0;i<adContainer.getChildCount();i++){View child=adContainer.getChildAt(i);if(child instanceof WebView){((WebView)child).stopLoading();((WebView)child).destroy();}}adContainer.removeAllViews();});
+        dialog.show();
+        String scriptUrl=android.text.TextUtils.htmlEncode(BuildConfig.ADSTERRA_SCRIPT_URL),titleText=android.text.TextUtils.htmlEncode(getString(R.string.upload_transfer)),messageText=android.text.TextUtils.htmlEncode(getString(R.string.upload_warning_with_ad)),uploadText=android.text.TextUtils.htmlEncode(getString(R.string.upload_confirm)),closeText=android.text.TextUtils.htmlEncode(getString(R.string.close));
+        String diagnostics="<script>(function(){var a=EventTarget.prototype.addEventListener,o=window.open;EventTarget.prototype.addEventListener=function(t,l,x){if(t==='click')AdDiag.clickListenerAdded();else if(t==='touchstart'||t==='mousedown')AdDiag.touchListenerAdded();return a.call(this,t,l,x)};document.addEventListener('click',function(){AdDiag.domClick()},true);window.open=function(){AdDiag.windowOpen();return o.apply(window,arguments)}})()</script>";
+        String html="<!doctype html><html><head><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>html,body{width:100%;height:100%;margin:0;background:#fff;color:#202124;font-family:sans-serif}body{box-sizing:border-box;padding:28px;display:flex;flex-direction:column}h1{font-size:22px;margin:0 0 22px}p{font-size:16px;line-height:1.5;white-space:pre-line;margin:0;flex:1}.actions{display:flex;justify-content:flex-end;align-items:center;margin-top:24px}#ad-trigger{box-sizing:border-box;min-height:48px;padding:14px 20px;border-radius:6px;font-size:15px;font-weight:600;background:#1f5eff;color:#fff;cursor:pointer}#ad-trigger.disabled{opacity:.45}</style>"+diagnostics+"</head><body><h1>"+titleText+"</h1><p>"+messageText+"</p><div class=\"actions\"><div id=\"ad-trigger\" class=\"disabled\" role=\"button\" aria-disabled=\"true\">"+uploadText+"</div></div><script src=\""+scriptUrl+"\"></script></body></html>";
+        adView.loadDataWithBaseURL("https://appassets.androidplatform.net/",html,"text/html","UTF-8",null);
+        adView.postDelayed(()->readUploadBounds(adView,uploadBounds),500);
+    }
+    private static boolean inBounds(float x,float y,float[] bounds){return x>=bounds[0]&&y>=bounds[1]&&x<=bounds[2]&&y<=bounds[3];}
+    private void readUploadBounds(WebView view,float[] uploadBounds){
+        String js="(function(){var e=document.getElementById('ad-trigger'),b=e.getBoundingClientRect();return [b.left/innerWidth,b.top/innerHeight,b.right/innerWidth,b.bottom/innerHeight]})()";
+        view.evaluateJavascript(js,value->{try{org.json.JSONArray a=new org.json.JSONArray(value);for(int i=0;i<4;i++)uploadBounds[i]=(float)a.getDouble(i);}catch(Exception ignored){}});
+    }
+    private WebView createAdWebView(FrameLayout container) {
+        WebView webView=new WebView(this);webView.setWebViewClient(new WebViewClient(){
+            @Override public WebResourceResponse shouldInterceptRequest(WebView view,WebResourceRequest request){if(BuildConfig.ADSTERRA_SCRIPT_URL.equals(request.getUrl().toString()))android.util.Log.d(AD_LOG_TAG,"ad script resource requested");return super.shouldInterceptRequest(view,request);}
+            @Override public boolean shouldOverrideUrlLoading(WebView view,WebResourceRequest request){return handleAdNavigation(view,request.getUrl().toString());}
+            @Override public boolean shouldOverrideUrlLoading(WebView view,String url){return handleAdNavigation(view,url);}
+            @Override public void onPageStarted(WebView view,String url,android.graphics.Bitmap favicon){android.util.Log.d(AD_LOG_TAG,"page started scheme="+safeScheme(url));}
+            @Override public void onPageFinished(WebView view,String url){android.util.Log.d(AD_LOG_TAG,"page finished scheme="+safeScheme(url));if(!adUploadInProgress){adScriptReady=true;view.evaluateJavascript("var b=document.getElementById('ad-trigger');if(b){b.classList.remove('disabled');b.setAttribute('aria-disabled','false')}",null);android.util.Log.d(AD_LOG_TAG,"script ready");}promoteAdPageIfReady(container,view,url);}
+            @Override public void onReceivedError(WebView view,WebResourceRequest request,WebResourceError error){android.util.Log.w(AD_LOG_TAG,"resource error main="+request.isForMainFrame()+" code="+error.getErrorCode()+" scheme="+safeScheme(request.getUrl().toString()));}
+            @Override public void onReceivedHttpError(WebView view,WebResourceRequest request,WebResourceResponse response){android.util.Log.w(AD_LOG_TAG,"resource HTTP main="+request.isForMainFrame()+" status="+response.getStatusCode()+" scheme="+safeScheme(request.getUrl().toString()));}
+        });
+        webView.addJavascriptInterface(new AdDiagnostics(),"AdDiag");
+        webView.getSettings().setJavaScriptEnabled(true);webView.getSettings().setDomStorageEnabled(true);webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);webView.getSettings().setSupportMultipleWindows(true);webView.getSettings().setAllowFileAccess(false);webView.getSettings().setAllowContentAccess(false);
+        webView.setWebChromeClient(new WebChromeClient(){@Override public boolean onCreateWindow(WebView view,boolean isDialog,boolean isUserGesture,android.os.Message resultMsg){android.util.Log.d(AD_LOG_TAG,"window requested userGesture="+isUserGesture);if(!isUserGesture||adWindowCreated){android.util.Log.d(AD_LOG_TAG,"window rejected");return false;}adWindowCreated=true;WebView popup=createAdWebView(container);popup.setAlpha(0f);container.addView(popup,new FrameLayout.LayoutParams(-1,dp(480)));WebView.WebViewTransport transport=(WebView.WebViewTransport)resultMsg.obj;transport.setWebView(popup);resultMsg.sendToTarget();return true;}});
+        return webView;
+    }
+    private void promoteAdPageIfReady(FrameLayout container,WebView candidate,String url){
+        if(!adUploadInProgress||url==null)return;
+        String scheme=Uri.parse(url).getScheme();if(!"http".equalsIgnoreCase(scheme)&&!"https".equalsIgnoreCase(scheme))return;
+        candidate.evaluateJavascript("document.getElementById('ad-trigger')!==null",value->{android.util.Log.d(AD_LOG_TAG,"page classified warning="+value);if(!adUploadInProgress||!"false".equals(value))return;for(int i=0;i<container.getChildCount();i++){View child=container.getChildAt(i);if(child instanceof WebView)child.setAlpha(child==candidate?1f:0f);}candidate.bringToFront();android.util.Log.d(AD_LOG_TAG,"ad page promoted");});
+    }
+    private static String safeScheme(String url){if(url==null)return "none";String scheme=Uri.parse(url).getScheme();return scheme==null?"none":scheme;}
+    private boolean handleAdNavigation(WebView view,String url) {
+        if(url==null)return true;
+        Uri uri=Uri.parse(url);String scheme=uri.getScheme();
+        if(scheme==null||scheme.equalsIgnoreCase("http")||scheme.equalsIgnoreCase("https")||scheme.equalsIgnoreCase("about")||scheme.equalsIgnoreCase("data"))return false;
+        android.util.Log.d(AD_LOG_TAG,"blocked navigation scheme="+scheme);
+        if(scheme.equalsIgnoreCase("intent")){
+            try{
+                Intent intent=Intent.parseUri(url,Intent.URI_INTENT_SCHEME);
+                String fallback=intent.getStringExtra("browser_fallback_url");
+                if(fallback!=null&&"https".equalsIgnoreCase(Uri.parse(fallback).getScheme()))view.loadUrl(fallback);
+            }catch(Exception ignored){}
+        }
+        return true;
+    }
+    private boolean uploadAndShowTransferCodes() {
+        return uploadAndShowTransferCodes(null,0);
+    }
+    private boolean uploadAndShowTransferCodes(Runnable completed,long minimumDisplayMillis) {
+        if(!persistSession(true))return false;
+        long startedAt=android.os.SystemClock.elapsedRealtime();
+        Toast.makeText(this,R.string.uploading,Toast.LENGTH_SHORT).show();
+        Executors.newSingleThreadExecutor().execute(()->{try{TransferClient.UploadResult result=TransferClient.upload(document,accountPassword);SaveDocument replacement=SaveDocument.open(result.updatedSave);runAfterMinimumDelay(startedAt,minimumDisplayMillis,()->{document=replacement;workingCopy=result.updatedSave;accountPassword=result.password;persistSession(true);if(completed!=null)completed.run();showTransferCodes(result);});}catch(Exception e){logNetworkFailure("upload",e);runAfterMinimumDelay(startedAt,minimumDisplayMillis,()->{if(completed!=null)completed.run();Toast.makeText(this,R.string.upload_failed,Toast.LENGTH_LONG).show();});}});
+        return true;
+    }
+    private void runAfterMinimumDelay(long startedAt,long minimumDelayMillis,Runnable action){long elapsed=android.os.SystemClock.elapsedRealtime()-startedAt;content.postDelayed(action,Math.max(0,minimumDelayMillis-elapsed));}
     private void showTransferCodes(TransferClient.UploadResult result) {
         String text=getString(R.string.transfer_result,result.transferCode,result.pin);
         new AlertDialog.Builder(this).setTitle(R.string.upload_success).setMessage(text).setNegativeButton(R.string.close,null)
