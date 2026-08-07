@@ -99,6 +99,27 @@ public final class TransferClientTest {
         }
     }
 
+    @Test public void replacementUploadRetriesWithoutMutatingSource() throws Exception {
+        Path template=Path.of("src/main/assets/new_saves/tw.save");
+        SaveDocument document=SaveDocument.open(Files.readAllBytes(template));byte[] before=document.toBytes();
+        try(MockWebServer server=server()){
+            server.enqueue(json(500,"{}"));
+            server.enqueue(json(200,"{\"accountId\":\"987654321\"}"));
+            server.enqueue(json(200,"{\"statusCode\":1,\"timestamp\":1700000002,\"payload\":{\"accountCode\":\"987654321\",\"passwordRefreshToken\":\"9876543210987654321098765432109876543210\",\"password\":\"replacement-password\"}}"));
+            server.enqueue(json(200,"{\"statusCode\":1,\"payload\":{\"token\":\"replacement-token\"}}"));
+            server.enqueue(json(200,"{\"statusCode\":1,\"payload\":{}}"));
+            server.enqueue(json(200,"{\"statusCode\":1,\"payload\":{\"key\":\"replacement-save-key\"}}"));
+            server.enqueue(json(200,"{\"statusCode\":1,\"payload\":{\"token\":\"upload-token\"}}"));
+            server.enqueue(json(200,"{\"statusCode\":1,\"payload\":{\"url\":\""+server.url("/s3")+"\",\"key\":\"save-key\",\"policy\":\"policy\"}}"));
+            server.enqueue(new MockResponse().setResponseCode(204));
+            server.enqueue(json(200,"{\"statusCode\":1,\"payload\":{\"transferCode\":\"TRANSFER\",\"pin\":\"4321\"}}"));
+            TransferClient.UploadResult result=TransferClient.uploadWithReplacementAccount(document);
+            assertEquals("TRANSFER",result.transferCode);assertEquals("4321",result.pin);assertArrayEquals(before,document.toBytes());
+            assertEquals("/?action=createAccount&referenceId=",take(server).getPath());
+            assertEquals("/?action=createAccount&referenceId=",take(server).getPath());
+        }
+    }
+
     private static byte[] fixture() throws Exception {Path path=Path.of("/tmp/bcsfe-transfer-tw.save");Assume.assumeTrue(Files.isRegularFile(path));return Files.readAllBytes(path);}
     private static MockWebServer server()throws Exception{MockWebServer server=new MockWebServer();server.start();String base=server.url("/").toString();TransferClient.setEndpointsForTests(new TransferClient.Endpoints(base,base,base,base));return server;}
     private static MockResponse json(int status,String body){return new MockResponse().setResponseCode(status).setHeader("Content-Type","application/json").setBody(body);}

@@ -13,6 +13,7 @@ public class SaveDocumentTest {
             SaveDocument document=SaveDocument.open(java.nio.file.Files.readAllBytes(templates.resolve(region.code()+".save")));
             assertEquals(region,document.region());
             assertEquals(150500,document.gameVersion());
+            assertEquals(861,document.catCount());
             assertTrue(document.checksumValid());
             assertEquals("000000000",document.inquiryCode());
             assertEquals("________________________________________",document.passwordRefreshToken());
@@ -30,6 +31,24 @@ public class SaveDocumentTest {
         for(int chapter=0;chapter<treasures.storyChapterCount();chapter++)treasures.setStoryChapterTreasures(chapter,3);
         for(int chapter=0;chapter<treasures.storyChapterCount();chapter++)for(int stage=0;stage<treasures.storyStageCount();stage++)assertEquals(3,treasures.storyTreasure(chapter,stage));
         assertTrue(treasures.checksumValid());
+    }
+
+    @Test public void battleItemsUseThe155ArrayAndBulkCatsStayInsideTheirArray() throws Exception {
+        byte[] original=java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
+        SaveDocument battle=SaveDocument.open(original);battle.setBattleItem(0,1000);battle.setBattleItem(5,1005);byte[] battleBytes=battle.toBytes();
+        assertEquals(1000,littleInt(battleBytes,18862));assertEquals(1005,littleInt(battleBytes,18882));
+        SaveDocument cats=SaveDocument.open(original);assertEquals(861,cats.catCount());int end=8402+cats.catCount()*4;
+        byte[] following=java.util.Arrays.copyOfRange(original,end,end+48);cats.removeAllCats();
+        assertArrayEquals(following,java.util.Arrays.copyOfRange(cats.toBytes(),end,end+48));assertTrue(cats.checksumValid());
+    }
+
+    @Test public void endlessBattleDurationIncludesStoredItemTime() throws Exception {
+        SaveDocument document=SaveDocument.open(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save")));
+        document.setEndlessBattleDurationMinutes(0,90);
+        java.lang.reflect.Method offsetMethod=SaveDocument.class.getDeclaredMethod("endlessBattleOffset",int.class);offsetMethod.setAccessible(true);
+        java.lang.reflect.Field bytesField=SaveDocument.class.getDeclaredField("bytes");bytesField.setAccessible(true);
+        int offset=(int)offsetMethod.invoke(document,0);byte[] bytes=(byte[])bytesField.get(document);bytes[offset+2]=2;
+        assertEquals(450,document.endlessBattleDurationMinutes(0),0.0001);
     }
 
     @Test public void editsPreserveLengthAndRefreshChecksum() throws Exception {
@@ -527,7 +546,7 @@ public class SaveDocumentTest {
             SaveDocument d=SaveDocument.open(java.nio.file.Files.readAllBytes(path));
             assertTrue(code,d.hasItemProfile());
             assertEquals(code,150500,d.gameVersion());
-            assertEquals(code,873,d.catCount());
+            assertEquals(code,861,d.catCount());
             assertEquals(code,82,d.stageMapCount(SaveDocument.StageMap.GAUNTLETS));
             assertEquals(code,28,d.stageMapCount(SaveDocument.StageMap.COLLAB_GAUNTLETS));
             int old=d.treasureChests()[38];d.setTreasureChest(38,old+1);
@@ -626,7 +645,7 @@ public class SaveDocumentTest {
         java.nio.file.Path source=java.nio.file.Path.of("/tmp/bcsfe-transfer-tw.save");Assume.assumeTrue(java.nio.file.Files.isRegularFile(source));
         SaveDocument document=SaveDocument.open(java.nio.file.Files.readAllBytes(source));document.removeAllCats();document.unlockAllObtainableCats();
         int obtainable=0;for(int id=0;id<document.catCount();id++){if(GameDataRules.catObtainable(id)){assertTrue("obtainable cat "+id,document.catUnlocked(id));obtainable++;}else assertFalse("hidden cat "+id,document.catUnlocked(id));}
-        assertEquals(766,obtainable);assertTrue(document.checksumValid());
+        assertEquals(759,obtainable);assertTrue(document.checksumValid());
     }
 
     @Test public void goldPassOperationMatchesUpstreamAndHandlesClaimDictionary() throws Exception {
@@ -718,7 +737,7 @@ public class SaveDocumentTest {
     private static byte[] fixture(SaveDocument.Region region, int start, int size) throws Exception {
         byte[] bytes = new byte[size];
         putInt(bytes, 0, size == 507008 ? 150500 : 120200); putInt(bytes, start + 2, 100); putInt(bytes, start + 71, 200);
-        if(size==507008){int cannon=405173;putInt(bytes,cannon,8);cannon+=4;for(int i=0;i<8;i++){putInt(bytes,cannon,i);putInt(bytes,cannon+4,i==7?10:5);cannon+=8+(i==7?10:5)*4;}bytes[cannon]=1;bytes[463000]=1;bytes[463002]=7;putInt(bytes,463004,20260715);bytes[499600]=7;bytes[499601]=91;}
+        if(size==507008){putInt(bytes,8398,861);int cannon=405173;putInt(bytes,cannon,8);cannon+=4;for(int i=0;i<8;i++){putInt(bytes,cannon,i);putInt(bytes,cannon+4,i==7?10:5);cannon+=8+(i==7?10:5)*4;}bytes[cannon]=1;bytes[463000]=1;bytes[463002]=7;putInt(bytes,463004,20260715);bytes[499600]=7;bytes[499601]=91;}
         String salt=region==SaveDocument.Region.EN?"battlecatsen":region==SaveDocument.Region.TW?"battlecatstw":"battlecats";
         MessageDigest md = MessageDigest.getInstance("MD5"); md.update(salt.getBytes(StandardCharsets.UTF_8)); md.update(bytes, 0, bytes.length - 32);
         String hash = hex(md.digest()); System.arraycopy(hash.getBytes(StandardCharsets.US_ASCII), 0, bytes, bytes.length - 32, 32); return bytes;
