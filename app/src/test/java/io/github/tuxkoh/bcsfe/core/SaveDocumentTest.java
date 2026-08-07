@@ -20,6 +20,11 @@ public class SaveDocumentTest {
         SaveDocument converted=SaveDocument.open(java.nio.file.Files.readAllBytes(templates.resolve("tw.save")));
         converted.convertRegion(SaveDocument.Region.JP);
         assertEquals(SaveDocument.Region.JP,SaveDocument.open(converted.toBytes()).region());
+
+        SaveDocument cleared=SaveDocument.open(java.nio.file.Files.readAllBytes(templates.resolve("tw.save")));
+        for(int chapter=0;chapter<cleared.storyChapterCount();chapter++)cleared.clearStoryChapter(chapter,true);
+        for(int chapter=0;chapter<cleared.storyChapterCount();chapter++)for(int stage=0;stage<cleared.storyStageCount();stage++)assertEquals(1,cleared.storyClearTimes(chapter,stage));
+        assertTrue(cleared.checksumValid());
     }
 
     @Test public void editsPreserveLengthAndRefreshChecksum() throws Exception {

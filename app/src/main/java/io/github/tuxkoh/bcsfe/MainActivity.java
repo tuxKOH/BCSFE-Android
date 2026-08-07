@@ -357,7 +357,8 @@ public final class MainActivity extends AppCompatActivity {
         if(!persistSession(true))return false;
         long startedAt=android.os.SystemClock.elapsedRealtime();
         Toast.makeText(this,R.string.uploading,Toast.LENGTH_SHORT).show();
-        Executors.newSingleThreadExecutor().execute(()->{try{TransferClient.UploadResult result=TransferClient.upload(document,accountPassword);SaveDocument replacement=SaveDocument.open(result.updatedSave);runAfterMinimumDelay(startedAt,minimumDisplayMillis,()->{document=replacement;workingCopy=result.updatedSave;accountPassword=result.password;persistSession(true);if(completed!=null)completed.run();showTransferCodes(result);});}catch(Exception e){logNetworkFailure("upload",e);runAfterMinimumDelay(startedAt,minimumDisplayMillis,()->{if(completed!=null)completed.run();Toast.makeText(this,R.string.upload_failed,Toast.LENGTH_LONG).show();});}});
+        byte[] source=document.toBytes();
+        networkExecutor.execute(()->{try{SaveDocument uploadSource=SaveDocument.open(source);TransferClient.UploadResult result=TransferClient.uploadWithReplacementAccount(uploadSource);SaveDocument replacement=SaveDocument.open(result.updatedSave);runAfterMinimumDelay(startedAt,minimumDisplayMillis,()->{document=replacement;workingCopy=result.updatedSave;accountPassword=result.password;persistSession(true);if(completed!=null)completed.run();showTransferCodes(result);});}catch(Exception e){logNetworkFailure("upload",e);runAfterMinimumDelay(startedAt,minimumDisplayMillis,()->{if(completed!=null)completed.run();Toast.makeText(this,R.string.upload_failed,Toast.LENGTH_LONG).show();});}});
         return true;
     }
     private void runAfterMinimumDelay(long startedAt,long minimumDelayMillis,Runnable action){long elapsed=android.os.SystemClock.elapsedRealtime()-startedAt;content.postDelayed(action,Math.max(0,minimumDelayMillis-elapsed));}
@@ -545,10 +546,11 @@ public final class MainActivity extends AppCompatActivity {
         String[] actions=getResources().getStringArray(R.array.story_actions);
         new AlertDialog.Builder(this).setTitle(R.string.story_title).setItems(actions,(d,choice)->{
             if(choice==0){document.clearTutorial();persistApplied();}
-            else if(choice==4){document.enableFilibusterStage(new java.util.Random().nextInt(48));persistApplied();}
+            else if(choice==1){for(int chapter=0;chapter<document.storyChapterCount();chapter++)document.clearStoryChapter(chapter,true);persistApplied();}
+            else if(choice==5){document.enableFilibusterStage(new java.util.Random().nextInt(48));persistApplied();}
             else chooseStoryChapter(chapter->{
-                if(choice==1)requestIndex(R.string.stage_id_label,document.storyStageCount(),stage->editNumberText(getString(R.string.clear_times_label),document.storyClearTimes(chapter,stage),v->document.setStoryClearTimes(chapter,stage,v)));
-                else {document.clearStoryChapter(chapter,choice==2);persistApplied();}
+                if(choice==2)requestIndex(R.string.stage_id_label,document.storyStageCount(),stage->editNumberText(getString(R.string.clear_times_label),document.storyClearTimes(chapter,stage),v->document.setStoryClearTimes(chapter,stage,v)));
+                else {document.clearStoryChapter(chapter,choice==3);persistApplied();}
             });
         }).setNegativeButton(R.string.close,null).show();
     }

@@ -106,6 +106,11 @@ final class TransferClient {
         JSONObject result=postTransferJson(endpoints.save+"/v2/transfers",metadata,headers);
         JSONObject out=result.optJSONObject("payload"); if(out==null)throw new IllegalStateException("Transfer code request failed");String transfer=out.optString("transferCode"),pin=out.optString("pin");if(transfer.isEmpty()||pin.isEmpty())throw new IllegalStateException("Transfer code request failed");return new UploadResult(transfer,pin,authentication.password,replacement.toBytes());
     }
+    static UploadResult uploadWithReplacementAccount(io.github.tuxkoh.bcsfe.core.SaveDocument document) throws Exception {
+        io.github.tuxkoh.bcsfe.core.SaveDocument replacement=io.github.tuxkoh.bcsfe.core.SaveDocument.open(document.toBytes());
+        AccountResult account=createNewAccount(replacement);
+        return upload(replacement,account.password);
+    }
     static ManagedUploadResult uploadManagedItems(io.github.tuxkoh.bcsfe.core.SaveDocument document,String password) throws Exception {
         io.github.tuxkoh.bcsfe.core.SaveDocument replacement=io.github.tuxkoh.bcsfe.core.SaveDocument.open(document.toBytes());
         Authentication authentication=authenticate(replacement,password);synchronizeManagedItems(replacement,authentication.token);return new ManagedUploadResult(authentication.password,replacement.toBytes());
