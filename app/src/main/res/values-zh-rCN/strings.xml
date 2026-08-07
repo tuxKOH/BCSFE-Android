@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="transfer_regions"><item>en</item><item>jp</item><item>tw</item><item>kr</item></string-array>
+    <string-array name="transfer_regions"><item>美版</item><item>日版</item><item>台版</item><item>韩版</item></string-array>
     <string name="app_name">BCSFE Android</string>
     <string name="about">关于</string>
     <string name="about_title">关于 BCSFE Android</string>
@@ -17,6 +17,7 @@
     <string name="home_subtitle">打开猫咪大战争存档，在本机查看和编辑。</string>
     <string name="open_save">打开存档文件</string>
     <string name="receive_transfer">使用转移码接收存档</string>
+    <string name="create_new_save">创建新存档</string><string name="choose_new_save_region">选择新存档的地区</string><string name="creating_new_save">正在创建新账号……</string><string name="create_new_save_failed">无法创建新存档，请检查网络后重试。</string><string name="new_save_session_name">新存档（%1$s）</string>
     <string name="upload_transfer">上传存档并输出转移码</string>
     <string name="enter_transfer">转移码</string>
     <string name="enter_pin">确认码</string>
@@ -53,7 +54,7 @@
     <string name="fix_applied">修复已应用。</string>
     <string-array name="ticket_labels"><item>普通券</item><item>稀有券</item><item>白金券</item><item>传说券</item><item>稀有券兑换</item></string-array><string name="rare_trade_title">稀有券兑换</string><string name="rare_trade_amount">准备兑换的稀有券数量</string>
     <string-array name="advanced_item_labels"><item>白金碎片</item><item>NP</item><item>统率力</item><item>重置黄金猫型电脑数量</item></string-array>
-    <string name="battle_items_title">战斗道具</string><string name="battle_item_label">战斗道具 %1$d</string>
+    <string name="battle_items_title">战斗道具</string><string name="battle_item_label">战斗道具 %1$d</string><string-array name="battle_item_names"><item>加速</item><item>宝物雷达</item><item>土豪猫</item><item>猫型电脑</item><item>洞悉先机</item><item>狙击手</item></string-array>
     <string name="consumables_title">升级消耗品</string><string name="catseyes_title">猫眼石</string><string name="catseye_label">猫眼石 %1$d</string>
     <string name="catfruit_title">猫薄荷</string><string name="catfruit_label">猫薄荷 %1$d</string><string name="catamins_title">喵力达</string><string name="catamin_label">喵力达 %1$d</string>
     <string name="treasure_items_title">票券与宝物</string><string name="treasure_chests_title">宝箱</string><string name="treasure_chest_label">宝箱 %1$d</string><string name="hundred_million_ticket_label">一亿下载纪念券</string>
@@ -72,7 +73,7 @@
     <string name="special_skills_title">基础升级</string><string name="special_skill_row">%1$s（ID %2$d）· 基础 %3$d · 加值 %4$d</string><string-array name="special_skill_names"><item>攻击力</item><item>射程</item><item>充电</item><item>工作</item><item>钱包</item><item>耐力</item><item>研究</item><item>会计</item><item>学习</item><item>统率力</item></string-array><string-array name="skill_level_labels"><item>基础等级</item><item>加值等级</item></string-array>
     <string name="other_guide_title">游玩时间与敌人图鉴</string><string name="current_energy_label">当前统率力</string><string name="enemy_id_label">敌人 ID</string><string name="enemy_id_hint">有效范围：%1$d–%2$d</string><string-array name="other_guide_actions"><item>编辑游玩时间</item><item>切换单个敌人图鉴</item><item>解锁全部敌人图鉴</item><item>重置全部敌人图鉴</item></string-array>
     <string name="rewards_title">用户等级奖励</string><string name="reward_id_label">奖励 ID</string><string name="reward_not_unlocked">该奖励高于当前用户等级。</string><string-array name="reward_actions"><item>领取一个已解锁奖励</item><item>取消领取一个已解锁奖励</item><item>修复高于当前等级的错误领取状态</item></string-array>
-    <string name="story_title">教学与主线</string><string name="chapter_id_label">章节 ID</string><string name="stage_id_label">关卡 ID</string><string name="clear_times_label">通关次数</string>
+    <string name="story_title">教学与主线</string><string name="chapter_id_label">章节</string><string name="stage_id_label">关卡 ID</string><string name="clear_times_label">通关次数</string><string-array name="story_chapter_names"><item>世界篇 第1章</item><item>世界篇 第2章</item><item>世界篇 第3章</item><item>未来篇 第1章</item><item>未来篇 第2章</item><item>未来篇 第3章</item><item>宇宙篇 第1章</item><item>宇宙篇 第2章</item><item>宇宙篇 第3章</item></string-array>
     <string-array name="story_actions"><item>完成教学</item><item>编辑单个主线关卡</item><item>通关一个主线章节</item><item>重置一个主线章节</item><item>允许宇宙神关卡再次通关</item></string-array>
     <string name="treasure_aku_title">宝物与魔界篇</string><string name="treasure_grade_label">宝物等级（0–9999）</string><string name="aku_chapter_label">魔界篇章节 ID</string><string name="star_id_label">星级难度 ID</string><string name="aku_title">魔界篇</string><string name="no_aku_data">此存档没有魔界篇数据。</string><string name="aku_progress_label">魔界篇进度（0–49）</string>
     <string-array name="treasure_aku_actions"><item>编辑单个主线宝物</item><item>设置章节内全部宝物</item><item>编辑不死生物袭击</item><item>解锁魔界篇</item><item>编辑魔界篇进度</item></string-array><string-array name="clear_reset_actions"><item>通关全部关卡</item><item>重置全部关卡</item></string-array>

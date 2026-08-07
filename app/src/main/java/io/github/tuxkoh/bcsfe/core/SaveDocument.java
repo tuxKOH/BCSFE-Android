@@ -94,9 +94,9 @@ public final class SaveDocument {
     private void transformInternationalToJp() {
         if (region == Region.EN) throw new IllegalStateException("EN block must be normalized first");
 
-        int marker120700 = findIntNear(120700, lateOffset(Offsets.offsets_2), 16);
+        int marker120700 = findIntNearOrAny(120700, lateOffset(Offsets.offsets_2), 16);
         putInt(marker120700, 130000);
-        int marker130600 = findIntNear(130600, lateOffset(Offsets.offsets_3), 16);
+        int marker130600 = findIntNearOrAny(130600, lateOffset(Offsets.offsets_3), 16);
         byte[] movedStamp = Arrays.copyOfRange(bytes, fixed(Offsets.offsets_4), fixed(Offsets.offsets_4) + 8);
         byte[] movedShort = Arrays.copyOfRange(bytes, marker130600 - 2, marker130600);
         byte energyNotification = bytes[fixed(Offsets.offsets_5)];
@@ -123,9 +123,9 @@ public final class SaveDocument {
     }
 
     private void transformJpToInternational() {
-        int marker130000 = findIntNear(130000, lateOffset(Offsets.offsets_2), 16);
+        int marker130000 = findIntNearOrAny(130000, lateOffset(Offsets.offsets_2), 16);
         putInt(marker130000, 120700);
-        int marker130600 = findIntNear(130600, lateOffset(Offsets.offsets_3), 16);
+        int marker130600 = findIntNearOrAny(130600, lateOffset(Offsets.offsets_3), 16);
         byte[] movedShort = Arrays.copyOfRange(bytes, marker130600 + 4, marker130600 + 6);
         int movedStampOffset = fixed(Offsets.offsets_9) - 8;
         byte[] movedStamp = Arrays.copyOfRange(bytes, movedStampOffset, movedStampOffset + 8);
@@ -182,7 +182,7 @@ public final class SaveDocument {
         if(source<140300||source>150500||target<140300||target>150500)throw new UnsupportedOperationException("Version conversion is supported from 14.3 through 15.5, plus downgrade to 14.0");
         convert140500EmbeddedLayout(source,target);
         convert140500RecordLayout(source,target);
-        int marker=findIntNear(140200,bytes.length-406,96);
+        int marker=findIntNearOrAny(140200,bytes.length-406,96);
         int listCount=byteAt(marker+4),fields=marker+5+listCount;
         int sourceExtra=source>=150500?6:source>=150300?5:0;
         int targetExtra=target>=150500?6:target>=150300?5:0;
@@ -580,6 +580,7 @@ public final class SaveDocument {
         return (bytes[offset] & 255) | ((bytes[offset + 1] & 255) << 8) | ((bytes[offset + 2] & 255) << 16) | (bytes[offset + 3] << 24);
     }
     private int findIntNear(int value,int estimate,int radius) { int from=Math.max(0,estimate-radius),to=Math.min(bytes.length-36,estimate+radius);for(int offset=from;offset<=to;offset++)if(intAt(offset)==value)return offset;throw new IllegalStateException("Save marker is unavailable: "+value); }
+    private int findIntNearOrAny(int value,int estimate,int radius) { try{return findIntNear(value,estimate,radius);}catch(IllegalStateException outsideEstimate){return findInt(value);} }
     private int findInt(int value) { for(int offset=4;offset<bytes.length-35;offset++)if(intAt(offset)==value)return offset;throw new IllegalStateException("Save marker is unavailable: "+value); }
     private static void writeInt(byte[] target,int offset,int value) { target[offset]=(byte)value;target[offset+1]=(byte)(value>>8);target[offset+2]=(byte)(value>>16);target[offset+3]=(byte)(value>>24); }
     private enum ProfileField { NORMAL_TICKETS, RARE_TICKETS, PLATINUM_TICKETS, LEGEND_TICKETS, PLATINUM_SHARDS, NP, LEADERSHIP }

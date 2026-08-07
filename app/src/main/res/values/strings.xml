@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="transfer_regions"><item>en</item><item>jp</item><item>tw</item><item>kr</item></string-array>
+    <string-array name="transfer_regions"><item>EN</item><item>JP</item><item>TW</item><item>KR</item></string-array>
     <string name="app_name">BCSFE Android</string>
     <string name="about">About</string>
     <string name="about_title">About BCSFE Android</string>
@@ -17,6 +17,7 @@
     <string name="home_subtitle">Open a Battle Cats save to inspect and edit it locally.</string>
     <string name="open_save">Open save file</string>
     <string name="receive_transfer">Receive save with transfer code</string>
+    <string name="create_new_save">Create new save</string><string name="choose_new_save_region">Choose the region for the new save</string><string name="creating_new_save">Creating a new account…</string><string name="create_new_save_failed">Could not create the new save. Check the network and try again.</string><string name="new_save_session_name">New Save (%1$s)</string>
     <string name="upload_transfer">Upload save and output transfer codes</string>
     <string name="enter_transfer">Transfer code</string>
     <string name="enter_pin">Confirmation code</string>
@@ -53,7 +54,7 @@
     <string name="fix_applied">Fix applied.</string>
     <string-array name="ticket_labels"><item>Normal Tickets</item><item>Rare Tickets</item><item>Platinum Tickets</item><item>Legend Tickets</item><item>Rare Ticket Trade</item></string-array><string name="rare_trade_title">Rare Ticket Trade</string><string name="rare_trade_amount">Rare Tickets to prepare</string>
     <string-array name="advanced_item_labels"><item>Platinum Shards</item><item>NP</item><item>Leadership</item><item>Reset Golden Cat CPU count</item></string-array>
-    <string name="battle_items_title">Battle Items</string><string name="battle_item_label">Battle Item %1$d</string>
+    <string name="battle_items_title">Battle Items</string><string name="battle_item_label">Battle Item %1$d</string><string-array name="battle_item_names"><item>Speed Up</item><item>Treasure Radar</item><item>Rich Cat</item><item>Cat CPU</item><item>Sniper the Recruit</item><item>Sniper the Cat</item></string-array>
     <string name="consumables_title">Upgrade consumables</string><string name="catseyes_title">Catseyes</string><string name="catseye_label">Catseye %1$d</string>
     <string name="catfruit_title">Catfruit</string><string name="catfruit_label">Catfruit %1$d</string><string name="catamins_title">Catamins</string><string name="catamin_label">Catamin %1$d</string>
     <string name="treasure_items_title">Tickets and treasure</string><string name="treasure_chests_title">Treasure Chests</string><string name="treasure_chest_label">Treasure Chest %1$d</string><string name="hundred_million_ticket_label">100 Million Download Tickets</string>
@@ -72,7 +73,7 @@
     <string name="special_skills_title">Basic upgrades</string><string name="special_skill_row">%1$s (ID %2$d) · Base %3$d · Plus %4$d</string><string-array name="special_skill_names"><item>Attack</item><item>Range</item><item>Recharge</item><item>Worker</item><item>Wallet</item><item>Endurance</item><item>Research</item><item>Accounting</item><item>Study</item><item>Leadership</item></string-array><string-array name="skill_level_labels"><item>Base level</item><item>Plus level</item></string-array>
     <string name="other_guide_title">Playtime and Enemy Guide</string><string name="current_energy_label">Current energy</string><string name="enemy_id_label">Enemy ID</string><string name="enemy_id_hint">Valid range: %1$d–%2$d</string><string-array name="other_guide_actions"><item>Edit playtime</item><item>Toggle one Enemy Guide entry</item><item>Unlock all Enemy Guide entries</item><item>Reset all Enemy Guide entries</item></string-array>
     <string name="rewards_title">User Rank rewards</string><string name="reward_id_label">Reward ID</string><string name="reward_not_unlocked">That reward is above the current User Rank.</string><string-array name="reward_actions"><item>Claim an unlocked reward</item><item>Unclaim an unlocked reward</item><item>Fix rewards claimed above current rank</item></string-array>
-    <string name="story_title">Tutorial and Story</string><string name="chapter_id_label">Chapter ID</string><string name="stage_id_label">Stage ID</string><string name="clear_times_label">Clear count</string>
+    <string name="story_title">Tutorial and Story</string><string name="chapter_id_label">Chapter</string><string name="stage_id_label">Stage ID</string><string name="clear_times_label">Clear count</string><string-array name="story_chapter_names"><item>Empire of Cats Chapter 1</item><item>Empire of Cats Chapter 2</item><item>Empire of Cats Chapter 3</item><item>Into the Future Chapter 1</item><item>Into the Future Chapter 2</item><item>Into the Future Chapter 3</item><item>Cats of the Cosmos Chapter 1</item><item>Cats of the Cosmos Chapter 2</item><item>Cats of the Cosmos Chapter 3</item></string-array>
     <string-array name="story_actions"><item>Clear tutorial</item><item>Edit one story stage</item><item>Clear a story chapter</item><item>Reset a story chapter</item><item>Allow Filibuster stage reclearing</item></string-array>
     <string name="treasure_aku_title">Treasures and Aku Realm</string><string name="treasure_grade_label">Treasure grade (0–9999)</string><string name="aku_chapter_label">Aku chapter ID</string><string name="star_id_label">Star difficulty ID</string><string name="aku_title">Aku Realm</string><string name="no_aku_data">This save has no Aku Realm data.</string><string name="aku_progress_label">Aku progress (0–49)</string>
     <string-array name="treasure_aku_actions"><item>Edit one story treasure</item><item>Set all treasures in a chapter</item><item>Edit Zombie Outbreaks</item><item>Unlock Aku Realm</item><item>Edit Aku Realm progress</item></string-array><string-array name="clear_reset_actions"><item>Clear all stages</item><item>Reset all stages</item></string-array>

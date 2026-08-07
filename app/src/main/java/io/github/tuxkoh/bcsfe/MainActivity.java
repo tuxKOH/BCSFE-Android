@@ -42,6 +42,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 import io.github.tuxkoh.bcsfe.core.SaveDocument;
 
 public final class MainActivity extends AppCompatActivity {
@@ -63,6 +64,8 @@ public final class MainActivity extends AppCompatActivity {
     private boolean adUploadInProgress;
     private boolean adScriptReady;
     private boolean adWindowCreated;
+    private final ExecutorService networkExecutor=Executors.newSingleThreadExecutor();
+    private boolean newSaveInProgress;
     private final class AdDiagnostics {
         @JavascriptInterface public void clickListenerAdded(){android.util.Log.d(AD_LOG_TAG,"JS registered click listener");}
         @JavascriptInterface public void touchListenerAdded(){android.util.Log.d(AD_LOG_TAG,"JS registered touch listener");}
@@ -109,6 +112,7 @@ public final class MainActivity extends AppCompatActivity {
         View view = inflate(R.layout.screen_home);
         view.findViewById(R.id.openButton).setOnClickListener(v -> openDocument.launch(new String[]{"*/*"}));
         view.findViewById(R.id.receiveButton).setOnClickListener(v -> receiveTransfer());
+        view.findViewById(R.id.createSaveButton).setOnClickListener(v -> chooseNewSaveRegion());
         var categories = (android.widget.LinearLayout) view.findViewById(R.id.categories);
         for (String category : getResources().getStringArray(R.array.category_names)) {
             TextView row = new TextView(this);
@@ -121,6 +125,38 @@ public final class MainActivity extends AppCompatActivity {
             params.bottomMargin = dp(8);
             categories.addView(row, params);
         }
+    }
+
+    private void chooseNewSaveRegion() {
+        if(newSaveInProgress)return;
+        String[] regions=getResources().getStringArray(R.array.transfer_regions);
+        new AlertDialog.Builder(this).setTitle(R.string.choose_new_save_region).setItems(regions,(dialog,index)->createNewSave(SaveDocument.Region.values()[index],regions[index])).setNegativeButton(R.string.close,null).show();
+    }
+
+    private void createNewSave(SaveDocument.Region region,String regionName) {
+        if(newSaveInProgress)return;
+        newSaveInProgress=true;
+        Toast.makeText(this,R.string.creating_new_save,Toast.LENGTH_LONG).show();
+        networkExecutor.execute(()->{
+            try(InputStream input=getAssets().open("new_saves/"+region.code()+".save")){
+                SaveDocument replacement=SaveDocument.open(io.github.tuxkoh.bcsfe.core.IoStreams.readAll(input));
+                TransferClient.AccountResult account=TransferClient.createNewAccount(replacement);
+                byte[] data=replacement.toBytes();
+                runOnUiThread(()->{
+                    if(!activityActive())return;
+                    try{
+                        String name=getString(R.string.new_save_session_name,regionName);
+                        SessionStore.Session session=sessionStore.create(data,name,account.password);
+                        sessionId=session.id;document=replacement;workingCopy=data;openedName=name;accountPassword=account.password;
+                        showEditor();refreshSessionList();
+                    }catch(Exception error){logNetworkFailure("new-save-open",error);Toast.makeText(this,R.string.create_new_save_failed,Toast.LENGTH_LONG).show();}
+                    finally{newSaveInProgress=false;}
+                });
+            }catch(Exception error){
+                logNetworkFailure("new-save",error);
+                runOnUiThread(()->{if(activityActive())Toast.makeText(this,R.string.create_new_save_failed,Toast.LENGTH_LONG).show();newSaveInProgress=false;});
+            }
+        });
     }
 
     private void loadDocument(Uri uri) {
@@ -227,6 +263,7 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     private void receiveTransfer() {
+        final String[] regionCodes = {"en", "jp", "tw", "kr"};
         LinearLayout form = new LinearLayout(this); form.setOrientation(LinearLayout.VERTICAL); form.setPadding(dp(24), dp(8), dp(24), 0);
         EditText transfer = new EditText(this); transfer.setHint(R.string.enter_transfer); transfer.setSingleLine(true);
         transfer.setKeyListener(android.text.method.DigitsKeyListener.getInstance("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"));
@@ -240,14 +277,16 @@ public final class MainActivity extends AppCompatActivity {
         new AlertDialog.Builder(this).setTitle(R.string.receive_transfer).setView(form).setNegativeButton(R.string.close, null)
                 .setPositiveButton(R.string.receive_transfer, (dialog, which) -> {
                     Toast.makeText(this, R.string.receiving, Toast.LENGTH_SHORT).show();
-                    Executors.newSingleThreadExecutor().execute(() -> {
+                    networkExecutor.execute(() -> {
                         try {
-                            TransferClient.ReceivedSave received = TransferClient.receive(transfer.getText().toString().trim(), pin.getText().toString().trim(), (String) region.getSelectedItem());
-                            runOnUiThread(() -> { String stage="open";try { SaveDocument replacement = SaveDocument.open(received.data);stage="token";if(received.passwordRefreshToken!=null&&!received.passwordRefreshToken.isEmpty())replacement.setPasswordRefreshToken(received.passwordRefreshToken);stage="serialize";byte[] replacementBytes=replacement.toBytes();stage="cache";accountPassword=received.password;SessionStore.Session session=sessionStore.create(replacementBytes,"SAVE_DATA",accountPassword);sessionId=session.id;document=replacement;workingCopy=replacementBytes;openedName="SAVE_DATA";stage="editor";showEditor();refreshSessionList(); } catch (Exception error) { logNetworkFailure("receive-"+stage,error);Toast.makeText(this, R.string.receive_failed, Toast.LENGTH_LONG).show(); } });
-                        } catch (Exception error) { logNetworkFailure("receive",error);runOnUiThread(() -> Toast.makeText(this, R.string.receive_failed, Toast.LENGTH_LONG).show()); }
+                            TransferClient.ReceivedSave received = TransferClient.receive(transfer.getText().toString().trim(), pin.getText().toString().trim(), regionCodes[region.getSelectedItemPosition()]);
+                            runOnUiThread(() -> { if(!activityActive())return;String stage="open";try { SaveDocument replacement = SaveDocument.open(received.data);stage="token";if(received.passwordRefreshToken!=null&&!received.passwordRefreshToken.isEmpty())replacement.setPasswordRefreshToken(received.passwordRefreshToken);stage="serialize";byte[] replacementBytes=replacement.toBytes();stage="cache";accountPassword=received.password;SessionStore.Session session=sessionStore.create(replacementBytes,"SAVE_DATA",accountPassword);sessionId=session.id;document=replacement;workingCopy=replacementBytes;openedName="SAVE_DATA";stage="editor";showEditor();refreshSessionList(); } catch (Exception error) { logNetworkFailure("receive-"+stage,error);Toast.makeText(this, R.string.receive_failed, Toast.LENGTH_LONG).show(); } });
+                        } catch (Exception error) { logNetworkFailure("receive",error);runOnUiThread(() -> {if(activityActive())Toast.makeText(this, R.string.receive_failed, Toast.LENGTH_LONG).show();}); }
                     });
                 }).show();
     }
+    private boolean activityActive(){return !isFinishing()&&!isDestroyed();}
+    @Override protected void onDestroy(){networkExecutor.shutdownNow();super.onDestroy();}
     private void confirmUpload() {
         if (document == null || !document.hasItemProfile()) { unsupportedVersion(); return; }
         if(BuildConfig.ADS_ENABLED){showAdUploadConfirmation();return;}
@@ -328,7 +367,7 @@ public final class MainActivity extends AppCompatActivity {
                 .setPositiveButton(R.string.copy_codes,(d,w)->{((android.content.ClipboardManager)getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(android.content.ClipData.newPlainText(getString(R.string.upload_success),text));}).show();
     }
     private void editSaveManagement() { String[] actions=getResources().getStringArray(R.array.save_management_actions);new AlertDialog.Builder(this).setTitle(R.string.save_management_title).setItems(actions,(d,i)->{if(i==0)createDocument.launch("EDITED_"+(openedName==null?"SAVE_DATA":openedName));else if(i==1)confirmUpload();else confirmExit();}).setNegativeButton(R.string.close,null).show(); }
-    private void editRegion() { SaveDocument.Region[] regions=SaveDocument.Region.values();String[] labels=new String[regions.length];for(int i=0;i<labels.length;i++)labels[i]=regions[i].code().toUpperCase(Locale.ROOT)+(regions[i]==document.region()?getString(R.string.current_suffix):"");new AlertDialog.Builder(this).setTitle(R.string.convert_region_title).setItems(labels,(d,i)->new AlertDialog.Builder(this).setTitle(R.string.convert_region_title).setMessage(R.string.convert_region_warning).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(x,w)->convertRegion(regions[i])).show()).show(); }
+    private void editRegion() { SaveDocument.Region[] regions=SaveDocument.Region.values();String[] names=getResources().getStringArray(R.array.transfer_regions);String[] labels=new String[regions.length];for(int i=0;i<labels.length;i++)labels[i]=(i<names.length?names[i]:regions[i].code().toUpperCase(Locale.ROOT))+(regions[i]==document.region()?getString(R.string.current_suffix):"");new AlertDialog.Builder(this).setTitle(R.string.convert_region_title).setItems(labels,(d,i)->new AlertDialog.Builder(this).setTitle(R.string.convert_region_title).setMessage(R.string.convert_region_warning).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(x,w)->convertRegion(regions[i])).show()).show(); }
     private void convertRegion(SaveDocument.Region target) {
         if (target == document.region()) return;
         Toast.makeText(this,R.string.converting_region,Toast.LENGTH_SHORT).show();
@@ -507,7 +546,7 @@ public final class MainActivity extends AppCompatActivity {
         new AlertDialog.Builder(this).setTitle(R.string.story_title).setItems(actions,(d,choice)->{
             if(choice==0){document.clearTutorial();persistApplied();}
             else if(choice==4){document.enableFilibusterStage(new java.util.Random().nextInt(48));persistApplied();}
-            else requestIndex(R.string.chapter_id_label,document.storyChapterCount(),chapter->{
+            else chooseStoryChapter(chapter->{
                 if(choice==1)requestIndex(R.string.stage_id_label,document.storyStageCount(),stage->editNumberText(getString(R.string.clear_times_label),document.storyClearTimes(chapter,stage),v->document.setStoryClearTimes(chapter,stage,v)));
                 else {document.clearStoryChapter(chapter,choice==2);persistApplied();}
             });
@@ -516,11 +555,17 @@ public final class MainActivity extends AppCompatActivity {
     private void editTreasuresAndAku() {
         String[] actions=getResources().getStringArray(R.array.treasure_aku_actions);
         new AlertDialog.Builder(this).setTitle(R.string.treasure_aku_title).setItems(actions,(d,choice)->runFieldAction(()->{
-            if(choice<2)requestIndex(R.string.chapter_id_label,document.storyChapterCount(),chapter->{
+            if(choice<2)chooseStoryChapter(chapter->{
                 if(choice==0)requestIndex(R.string.stage_id_label,document.storyStageCount(),stage->editNumberText(getString(R.string.treasure_grade_label),document.storyTreasure(chapter,stage),v->document.setStoryTreasure(chapter,stage,v)));
                 else editNumberText(getString(R.string.treasure_grade_label),3,v->{document.setStoryChapterTreasures(chapter,v);});
             }); else if(choice==2)editOutbreaks();else if(choice==3){document.unlockAkuRealm();persistApplied();}else editAkuProgress();
         })).setNegativeButton(R.string.close,null).show();
+    }
+    private void chooseStoryChapter(IndexChange change) {
+        String[] names=getResources().getStringArray(R.array.story_chapter_names);
+        int count=Math.min(document.storyChapterCount(),names.length);
+        String[] shown=Arrays.copyOf(names,count);
+        new AlertDialog.Builder(this).setTitle(R.string.chapter_id_label).setItems(shown,(dialog,chapter)->change.apply(chapter)).setNegativeButton(R.string.close,null).show();
     }
     private void editOutbreaks() { int chapters=document.outbreakChapterCount();String[] chapterRows=new String[chapters];for(int i=0;i<chapters;i++)chapterRows[i]=getString(R.string.outbreak_chapter_row,document.outbreakChapterId(i),document.outbreakStageCount(i));new AlertDialog.Builder(this).setTitle(R.string.outbreak_chapter_label).setItems(chapterRows,(dialog,chapter)->{String[] actions=getResources().getStringArray(R.array.outbreak_actions);new AlertDialog.Builder(this).setTitle(getString(R.string.outbreak_chapter_title,document.outbreakChapterId(chapter))).setItems(actions,(d,i)->{if(i==0)editOutbreakStage(chapter);else{document.setOutbreakChapterCleared(chapter,i==1);persistApplied();}}).setNegativeButton(R.string.close,null).show();}).setNegativeButton(R.string.close,null).show(); }
     private void editOutbreakStage(int chapter) { int stages=document.outbreakStageCount(chapter);String[] rows=new String[stages];for(int i=0;i<stages;i++)rows[i]=getString(R.string.outbreak_stage_row,document.outbreakStageId(chapter,i),getString(document.outbreakCleared(chapter,i)?R.string.state_cleared:R.string.state_uncleared));new AlertDialog.Builder(this).setTitle(R.string.outbreak_stage_label).setItems(rows,(d,stage)->{document.setOutbreakCleared(chapter,stage,!document.outbreakCleared(chapter,stage));persistApplied();}).setNegativeButton(R.string.close,null).show(); }
@@ -635,14 +680,17 @@ public final class MainActivity extends AppCompatActivity {
         String[] rows=new String[values.length]; for(int i=0;i<values.length;i++){String name=itemName(title,i,itemLabel);rows[i]=name+" (ID "+i+"): "+values[i];}
         new AlertDialog.Builder(this).setTitle(title).setItems(rows,(d,index)->editNumberText(itemName(title,index,itemLabel)+" (ID "+index+")",values[index],value->change.apply(index,value))).setNegativeButton(R.string.close,null).show();
     }
-    private String itemName(int title,int index,int fallback) { int array=title==R.string.catseyes_title?R.array.catseye_names:title==R.string.catfruit_title?R.array.catfruit_names:title==R.string.catamins_title?R.array.catamin_names:0;if(array!=0){String[] names=getResources().getStringArray(array);if(index<names.length)return names[index];}return getString(fallback,index+1); }
+    private String itemName(int title,int index,int fallback) { int array=title==R.string.battle_items_title?R.array.battle_item_names:title==R.string.catseyes_title?R.array.catseye_names:title==R.string.catfruit_title?R.array.catfruit_names:title==R.string.catamins_title?R.array.catamin_names:0;if(array!=0){String[] names=getResources().getStringArray(array);if(index<names.length)return names[index];}return getString(fallback,index+1); }
     private void editNumber(int label, int current, NumberChange change) {
         editNumberText(getString(label), current, change);
     }
     private void editNumberText(String label, int current, NumberChange change) {
         EditText field = new EditText(this); field.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_SIGNED); field.setText(String.valueOf(current));
         AlertDialog dialog = new AlertDialog.Builder(this).setTitle(label).setView(field).setNegativeButton(R.string.close, null).setPositiveButton(android.R.string.ok, (window, which) -> {
-            try { change.apply(Integer.parseInt(field.getText().toString().trim())); workingCopy = document.toBytes(); persistSession(); } catch (NumberFormatException ignored) { Toast.makeText(this, R.string.invalid_number, Toast.LENGTH_SHORT).show(); } catch (RuntimeException error) { showFieldError(); }
+            final int value;
+            try { value=Integer.parseInt(field.getText().toString().trim()); } catch (NumberFormatException ignored) { Toast.makeText(this,R.string.invalid_number,Toast.LENGTH_SHORT).show();return; }
+            try { change.apply(value); } catch (IllegalArgumentException ignored) { Toast.makeText(this,R.string.invalid_number,Toast.LENGTH_SHORT).show();return; } catch (RuntimeException error) { showFieldError(error);return; }
+            try { workingCopy=document.toBytes();persistSession(); } catch (RuntimeException error) { showFieldError(error); }
         }).create();
         dialog.setOnShowListener(ignored -> field.post(() -> {
             field.requestFocus();

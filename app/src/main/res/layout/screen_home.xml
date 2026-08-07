@@ -13,6 +13,9 @@
         <com.google.android.material.button.MaterialButton android:id="@+id/receiveButton"
             style="@style/Widget.Material3.Button.OutlinedButton" android:layout_width="match_parent" android:layout_height="56dp"
             android:layout_marginTop="10dp" android:text="@string/receive_transfer" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/createSaveButton"
+            style="@style/Widget.Material3.Button.OutlinedButton" android:layout_width="match_parent" android:layout_height="56dp"
+            android:layout_marginTop="10dp" android:text="@string/create_new_save" />
         <TextView android:id="@+id/recentTitle" android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:layout_marginTop="32dp" android:text="@string/editor_areas" android:textColor="@color/ink"
             android:textSize="18sp" android:textStyle="bold" />

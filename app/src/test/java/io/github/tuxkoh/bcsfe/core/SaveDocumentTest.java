@@ -7,6 +7,21 @@ import org.junit.Test;
 import org.junit.Assume;
 
 public class SaveDocumentTest {
+    @Test public void bundledNewSaveTemplatesAreValid155Saves() throws Exception {
+        java.nio.file.Path templates=java.nio.file.Path.of("src/main/assets/new_saves");
+        for(SaveDocument.Region region:SaveDocument.Region.values()){
+            SaveDocument document=SaveDocument.open(java.nio.file.Files.readAllBytes(templates.resolve(region.code()+".save")));
+            assertEquals(region,document.region());
+            assertEquals(150500,document.gameVersion());
+            assertTrue(document.checksumValid());
+            assertEquals("000000000",document.inquiryCode());
+            assertEquals("________________________________________",document.passwordRefreshToken());
+        }
+        SaveDocument converted=SaveDocument.open(java.nio.file.Files.readAllBytes(templates.resolve("tw.save")));
+        converted.convertRegion(SaveDocument.Region.JP);
+        assertEquals(SaveDocument.Region.JP,SaveDocument.open(converted.toBytes()).region());
+    }
+
     @Test public void editsPreserveLengthAndRefreshChecksum() throws Exception {
         byte[] bytes = fixture(SaveDocument.Region.EN, 5);
         SaveDocument document = SaveDocument.open(bytes);
