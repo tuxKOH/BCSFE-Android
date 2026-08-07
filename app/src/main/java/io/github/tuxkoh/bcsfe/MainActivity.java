@@ -127,7 +127,7 @@ public final class MainActivity extends AppCompatActivity {
         if (uri == null) return;
         try (InputStream input = getContentResolver().openInputStream(uri)) {
             if (input == null) throw new IllegalStateException("No stream");
-            SaveDocument replacement = SaveDocument.open(input.readAllBytes());
+            SaveDocument replacement = SaveDocument.open(io.github.tuxkoh.bcsfe.core.IoStreams.readAll(input));
             String replacementName = displayName(uri);
             byte[] replacementBytes = replacement.toBytes();
             accountPassword=null;SessionStore.Session session=sessionStore.create(replacementBytes,replacementName,accountPassword);sessionId=session.id;
@@ -147,7 +147,7 @@ public final class MainActivity extends AppCompatActivity {
         if(intent==null||!Intent.ACTION_SEND.equals(intent.getAction()))return false;Uri uri=intent.getParcelableExtra(Intent.EXTRA_STREAM);if(uri==null&&intent.getClipData()!=null&&intent.getClipData().getItemCount()>0)uri=intent.getClipData().getItemAt(0).getUri();if(uri==null){Toast.makeText(this,R.string.shared_import_failed,Toast.LENGTH_LONG).show();return true;}loadSharedDocument(uri);intent.setAction(null);return true;
     }
     private void loadSharedDocument(Uri uri){
-        try(InputStream input=getContentResolver().openInputStream(uri)){if(input==null)throw new IllegalStateException();SaveDocument replacement=SaveDocument.open(input.readAllBytes());byte[] data=replacement.toBytes();String name=displayName(uri);SessionStore.Session session=sessionStore.create(data,name,null);sessionId=session.id;document=replacement;workingCopy=data;openedName=name;accountPassword=null;showEditor();refreshSessionList();Toast.makeText(this,R.string.shared_import_success,Toast.LENGTH_SHORT).show();}
+        try(InputStream input=getContentResolver().openInputStream(uri)){if(input==null)throw new IllegalStateException();SaveDocument replacement=SaveDocument.open(io.github.tuxkoh.bcsfe.core.IoStreams.readAll(input));byte[] data=replacement.toBytes();String name=displayName(uri);SessionStore.Session session=sessionStore.create(data,name,null);sessionId=session.id;document=replacement;workingCopy=data;openedName=name;accountPassword=null;showEditor();refreshSessionList();Toast.makeText(this,R.string.shared_import_success,Toast.LENGTH_SHORT).show();}
         catch(Exception error){Toast.makeText(this,R.string.shared_import_failed,Toast.LENGTH_LONG).show();}
     }
 

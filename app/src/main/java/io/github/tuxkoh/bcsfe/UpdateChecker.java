@@ -34,7 +34,7 @@ final class UpdateChecker {
         try{
             if(connection.getResponseCode()!=200)throw new java.io.IOException("Release endpoint unavailable");
             try(InputStream input=connection.getInputStream()){
-                JSONObject release=new JSONObject(new String(input.readAllBytes(),StandardCharsets.UTF_8));
+                JSONObject release=new JSONObject(new String(io.github.tuxkoh.bcsfe.core.IoStreams.readAll(input),StandardCharsets.UTF_8));
                 String version=release.optString("tag_name","").trim(),pageUrl=release.optString("html_url","").trim();
                 if(!isNewer(version,currentVersion)||!pageUrl.startsWith("https://github.com/"))return null;
                 return new Result(version,pageUrl);
