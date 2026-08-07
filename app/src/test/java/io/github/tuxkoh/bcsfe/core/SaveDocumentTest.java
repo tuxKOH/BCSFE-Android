@@ -25,6 +25,11 @@ public class SaveDocumentTest {
         for(int chapter=0;chapter<cleared.storyChapterCount();chapter++)cleared.clearStoryChapter(chapter,true);
         for(int chapter=0;chapter<cleared.storyChapterCount();chapter++)for(int stage=0;stage<cleared.storyStageCount();stage++)assertEquals(1,cleared.storyClearTimes(chapter,stage));
         assertTrue(cleared.checksumValid());
+
+        SaveDocument treasures=SaveDocument.open(java.nio.file.Files.readAllBytes(templates.resolve("tw.save")));
+        for(int chapter=0;chapter<treasures.storyChapterCount();chapter++)treasures.setStoryChapterTreasures(chapter,3);
+        for(int chapter=0;chapter<treasures.storyChapterCount();chapter++)for(int stage=0;stage<treasures.storyStageCount();stage++)assertEquals(3,treasures.storyTreasure(chapter,stage));
+        assertTrue(treasures.checksumValid());
     }
 
     @Test public void editsPreserveLengthAndRefreshChecksum() throws Exception {

@@ -560,7 +560,7 @@ public final class MainActivity extends AppCompatActivity {
             if(choice<2)chooseStoryChapter(chapter->{
                 if(choice==0)requestIndex(R.string.stage_id_label,document.storyStageCount(),stage->editNumberText(getString(R.string.treasure_grade_label),document.storyTreasure(chapter,stage),v->document.setStoryTreasure(chapter,stage,v)));
                 else editNumberText(getString(R.string.treasure_grade_label),3,v->{document.setStoryChapterTreasures(chapter,v);});
-            }); else if(choice==2)editOutbreaks();else if(choice==3){document.unlockAkuRealm();persistApplied();}else editAkuProgress();
+            }); else if(choice==2){for(int chapter=0;chapter<document.storyChapterCount();chapter++)document.setStoryChapterTreasures(chapter,3);persistApplied();}else if(choice==3)editOutbreaks();else if(choice==4){document.unlockAkuRealm();persistApplied();}else editAkuProgress();
         })).setNegativeButton(R.string.close,null).show();
     }
     private void chooseStoryChapter(IndexChange change) {
