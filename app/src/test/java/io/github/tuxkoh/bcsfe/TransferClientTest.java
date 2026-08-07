@@ -38,9 +38,9 @@ public final class TransferClientTest {
         byte[] save=fixture();
         try(MockWebServer server=server()){
             server.enqueue(new MockResponse().setResponseCode(200).setHeader("Content-Type","application/octet-stream").setHeader("Nyanko-Password-Refresh-Token","refresh-from-server").setHeader("Nyanko-Password","password-from-server").setBody(new okio.Buffer().write(save)));
-            TransferClient.ReceivedSave result=TransferClient.receive("ABC123","1234","tw");
+            TransferClient.ReceivedSave result=TransferClient.receive("ABC 123","1234","tw");
             RecordedRequest request=take(server);String body=request.getBody().readUtf8();
-            assertEquals("/v2/transfers/ABC123/reception",request.getPath());assertTrue(body.contains("\"countryCode\":\"tw\""));assertTrue(body.contains("\"version\":150500"));assertTrue(body.contains("\"pin\":\"1234\""));
+            assertEquals("/v2/transfers/ABC+123/reception",request.getPath());assertTrue(body.contains("\"countryCode\":\"tw\""));assertTrue(body.contains("\"version\":150500"));assertTrue(body.contains("\"pin\":\"1234\""));
             assertArrayEquals(save,result.data);assertEquals("refresh-from-server",result.passwordRefreshToken);assertEquals("password-from-server",result.password);
         }
     }

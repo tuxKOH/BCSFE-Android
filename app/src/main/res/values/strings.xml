@@ -4,6 +4,10 @@
     <string name="app_name">BCSFE Android</string>
     <string name="about">About</string>
     <string name="about_title">About BCSFE Android</string>
+    <string name="update_available">Update available</string>
+    <string name="update_available_message">Installed: %1$s\nLatest: %2$s</string>
+    <string name="view_release">View release</string>
+    <string name="open_release_failed">Could not open the release page.</string>
     <string name="supported_versions_notice">Full editing targets 15.5 saves for JP, EN, TW, and KR. Version conversion supports 14.0 and 14.3–15.5. Earlier save formats are not supported for full editing.</string>
     <string name="language">Language</string><string name="change_language">Change language</string><string name="choose_language">Choose language</string>
     <string-array name="language_options"><item>English</item><item>简体中文</item></string-array>

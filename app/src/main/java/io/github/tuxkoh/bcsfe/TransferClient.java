@@ -78,7 +78,7 @@ final class TransferClient {
 
     static ReceivedSave receive(String transfer, String pin, String region) throws Exception {
         String urlText = endpoints.save+"/v2/transfers/" +
-                java.net.URLEncoder.encode(transfer, StandardCharsets.UTF_8) + "/reception";
+                java.net.URLEncoder.encode(transfer, StandardCharsets.UTF_8.name()) + "/reception";
         JSONObject client = new JSONObject().put("clientInfo", new JSONObject()
                 .put("client", new JSONObject().put("countryCode", region.equals("jp") ? "ja" : region).put("version", 150500))
                 .put("device", new JSONObject().put("model", "SM-G955F"))

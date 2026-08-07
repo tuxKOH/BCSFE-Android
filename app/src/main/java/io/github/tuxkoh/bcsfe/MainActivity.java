@@ -90,6 +90,15 @@ public final class MainActivity extends AppCompatActivity {
         configureSessionList();
         findViewById(R.id.aboutButton).setOnClickListener(v -> showAbout());
         if (!handleSharedIntent(getIntent())&&!restoreSession()) showHome();
+        if(state==null)checkForUpdates();
+    }
+
+    private void checkForUpdates(){
+        Executors.newSingleThreadExecutor().execute(()->{try{UpdateChecker.Result release=UpdateChecker.latest(BuildConfig.VERSION_NAME);if(release!=null)runOnUiThread(()->showUpdateAvailable(release));}catch(Exception ignored){}});
+    }
+    private void showUpdateAvailable(UpdateChecker.Result release){
+        if(isFinishing()||isDestroyed())return;
+        new AlertDialog.Builder(this).setTitle(R.string.update_available).setMessage(getString(R.string.update_available_message,BuildConfig.VERSION_NAME,release.version)).setNegativeButton(R.string.close,null).setPositiveButton(R.string.view_release,(dialog,which)->{try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(release.pageUrl)));}catch(Exception error){Toast.makeText(this,R.string.open_release_failed,Toast.LENGTH_LONG).show();}}).show();
     }
 
     @Override protected void onNewIntent(Intent intent){super.onNewIntent(intent);setIntent(intent);handleSharedIntent(intent);}

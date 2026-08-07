@@ -4,6 +4,10 @@
     <string name="app_name">BCSFE Android</string>
     <string name="about">关于</string>
     <string name="about_title">关于 BCSFE Android</string>
+    <string name="update_available">发现新版本</string>
+    <string name="update_available_message">当前版本：%1$s\n最新版本：%2$s</string>
+    <string name="view_release">查看 Release</string>
+    <string name="open_release_failed">无法打开 Release 页面。</string>
     <string name="supported_versions_notice">完整编辑面向 JP、EN、TW、KR 的 15.5 存档；版本转换支持 14.0 和 14.3–15.5。更早的存档格式不提供完整编辑支持。</string>
     <string name="language">语言</string><string name="change_language">切换语言</string><string name="choose_language">选择语言</string>
     <string-array name="language_options"><item>English</item><item>简体中文</item></string-array>
