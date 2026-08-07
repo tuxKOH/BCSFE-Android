@@ -86,8 +86,8 @@ public final class SaveDocument {
         if (gameVersion() >= 100600 && bytes.length > Offsets.offsets_143) {
             int offset = afterCannonsWithoutRegion(Offsets.offsets_1);
             splice(offset, 0, 5);
-            putInt(offset, 100600);
-            bytes[offset + 4] = 0;
+            bytes[offset] = 0;
+            putInt(offset + 1, 100600);
         }
     }
 
@@ -131,7 +131,8 @@ public final class SaveDocument {
         byte[] movedStamp = Arrays.copyOfRange(bytes, movedStampOffset, movedStampOffset + 8);
         byte energyNotification = bytes[fixed(Offsets.offsets_7) - 1];
         byte[] internationalBlock = new byte[33];
-        internationalBlock[26] = energyNotification;
+        internationalBlock[28] = energyNotification;
+        writeInt(internationalBlock, 29, gameVersion());
 
         splice(marker130600 + 4, 2, 0);
         splice(marker130600, 0, 2);
@@ -306,7 +307,7 @@ public final class SaveDocument {
     public int catPlusLevel(int index) { checkCat(index); return ushortAt(fixed(Offsets.offsets_40)+index*4); }
     public boolean catUnlocked(int index) { checkCat(index); return intAt(fixed(Offsets.offsets_38)+index*4)!=0; }
     public int catCurrentForm(int index) { checkCat(index); return intAt(fixed(Offsets.offsets_55)+index*4); }
-    public int catUnlockedForms(int index) { checkCat(index); return byteAt(Offsets.offsets_133+index*4); }
+    public int catUnlockedForms(int index) { checkCat(index); return intAt(fixed(Offsets.offsets_133)+index*4); }
     public int catFourthForm(int index) { checkCat(index); return intAt(fixed(Offsets.offsets_56)+index*4); }
     public boolean catGuideCollected(int index) { checkCat(index); return byteAt(fixed(Offsets.offsets_57)+index)!=0; }
     public void setCatBaseLevel(int index,int value) { checkCat(index);if(value<1||value>GameDataRules.catMaxBase(index))throw new IllegalArgumentException("Invalid cat base level");syncCatRankLimits(index);unlockCatRaw(index);putShort(fixed(Offsets.offsets_39)+index*4,value-1);touchRankUpSale();refreshHash(); }
@@ -315,7 +316,7 @@ public final class SaveDocument {
     public void setCatCurrentForm(int index,int value) { checkCat(index); if(value<0||value>3)throw new IllegalArgumentException("Invalid form");unlockCatRaw(index);putInt(fixed(Offsets.offsets_55)+index*4,value);touchRankUpSale();refreshHash(); }
     public void setCatUnlockedForms(int index,int value) { checkCat(index);if(value<0||value>3)throw new IllegalArgumentException("Invalid unlocked forms");unlockCatRaw(index);putFormValue(index,value);touchRankUpSale();refreshHash(); }
     public void setCatFourthForm(int index,int value) { checkCat(index);if(value<0||value>2)throw new IllegalArgumentException("Invalid fourth form");unlockCatRaw(index);putInt(fixed(Offsets.offsets_56)+index*4,value);touchRankUpSale();refreshHash(); }
-    public void resetCat(int index) { checkCat(index);putInt(fixed(Offsets.offsets_38)+index*4,0);putShort(fixed(Offsets.offsets_40)+index*4,0);putShort(fixed(Offsets.offsets_39)+index*4,0);putInt(fixed(Offsets.offsets_55)+index*4,0);putInt(fixed(Offsets.offsets_58)+index*4,0);putFormValue(index,0);bytes[fixed(Offsets.offsets_57)+index]=0;putInt(fixed(Offsets.offsets_56)+index*4,0);putFourthValue(index,0);putInt(Offsets.offsets_63+index*4,0);resetCharaNewFlag(index);int talents=catTalents(index).size();for(int i=0;i<talents;i++)setCatTalentLevel(index,i,0);for(int i=0;i<GameDataRules.dropPairCount();i++)if(GameDataRules.dropCat(i)==index)putInt(fixed(Offsets.offsets_59)+GameDataRules.dropSlot(i)*4,0);touchRankUpSale();refreshHash(); }
+    public void resetCat(int index) { checkCat(index);putInt(fixed(Offsets.offsets_38)+index*4,0);putShort(fixed(Offsets.offsets_40)+index*4,0);putShort(fixed(Offsets.offsets_39)+index*4,0);putInt(fixed(Offsets.offsets_55)+index*4,0);putInt(fixed(Offsets.offsets_58)+index*4,0);putFormValue(index,0);bytes[fixed(Offsets.offsets_57)+index]=0;putInt(fixed(Offsets.offsets_56)+index*4,0);putFourthValue(index,0);putInt(fixed(Offsets.offsets_63)+index*4,0);resetCharaNewFlag(index);int talents=catTalents(index).size();for(int i=0;i<talents;i++)setCatTalentLevel(index,i,0);for(int i=0;i<GameDataRules.dropPairCount();i++)if(GameDataRules.dropCat(i)==index)putInt(fixed(Offsets.offsets_59)+GameDataRules.dropSlot(i)*4,0);touchRankUpSale();refreshHash(); }
     public void setCatGuideCollected(int index,boolean value) { checkCat(index);if(value)unlockCatRaw(index);bytes[fixed(Offsets.offsets_57)+index]=(byte)(value?1:0);touchRankUpSale();refreshHash(); }
     public int specialSkillCount() { ensureCatProfile(); return 10; }
     public int specialSkillBaseLevel(int index) { return ushortAt(specialSkillUpgradeOffset(index)+2)+1; }
@@ -548,7 +549,7 @@ public final class SaveDocument {
     public void unlockAllCats() { ensureCatProfile();for(int i=0;i<catCount();i++)unlockCatRaw(i);touchRankUpSale();refreshHash(); }
     public void unlockAllObtainableCats() { ensureCatProfile();for(int i=0;i<catCount();i++)if(GameDataRules.catObtainable(i))unlockCatRaw(i);touchRankUpSale();refreshHash(); }
     public void removeAllCats() { ensureCatProfile(); for(int i=0;i<catCount();i++) putInt(fixed(Offsets.offsets_38)+i*4,0);touchRankUpSale();refreshHash(); }
-    public void resetAllCats() { ensureCatProfile();for(int i=0;i<catCount();i++){putInt(fixed(Offsets.offsets_38)+i*4,0);putShort(fixed(Offsets.offsets_40)+i*4,0);putShort(fixed(Offsets.offsets_39)+i*4,0);putInt(fixed(Offsets.offsets_55)+i*4,0);putInt(fixed(Offsets.offsets_58)+i*4,0);putFormValue(i,0);bytes[fixed(Offsets.offsets_57)+i]=0;putFourthValue(i,0);putInt(Offsets.offsets_63+i*4,0);}resetAllCharaNewFlags();int table=talentTableOffset(),records=intAt(table),talents=table+4;for(int r=0;r<records;r++){int count=intAt(talents+4);talents+=8;for(int i=0;i<count;i++)putInt(talents+i*8+4,0);talents+=count*8;}for(int i=0;i<GameDataRules.dropPairCount();i++)putInt(fixed(Offsets.offsets_59)+GameDataRules.dropSlot(i)*4,0);touchRankUpSale();refreshHash(); }
+    public void resetAllCats() { ensureCatProfile();for(int i=0;i<catCount();i++){putInt(fixed(Offsets.offsets_38)+i*4,0);putShort(fixed(Offsets.offsets_40)+i*4,0);putShort(fixed(Offsets.offsets_39)+i*4,0);putInt(fixed(Offsets.offsets_55)+i*4,0);putInt(fixed(Offsets.offsets_58)+i*4,0);putFormValue(i,0);bytes[fixed(Offsets.offsets_57)+i]=0;putFourthValue(i,0);putInt(fixed(Offsets.offsets_63)+i*4,0);}resetAllCharaNewFlags();int table=talentTableOffset(),records=intAt(table),talents=table+4;for(int r=0;r<records;r++){int count=intAt(talents+4);talents+=8;for(int i=0;i<count;i++)putInt(talents+i*8+4,0);talents+=count*8;}for(int i=0;i<GameDataRules.dropPairCount();i++)putInt(fixed(Offsets.offsets_59)+GameDataRules.dropSlot(i)*4,0);touchRankUpSale();refreshHash(); }
     public void unlockTrueForms() { setTrueForms(false); }
     public void forceTrueForms() { setTrueForms(true); }
     private void setTrueForms(boolean force) { ensureCatProfile();for(int i=0;i<catCount();i++){int forms=GameDataRules.totalForms(i),value=(force||forms>=3)?3:0;if(value>0)unlockCatRaw(i);putFormValue(i,value);putInt(fixed(Offsets.offsets_55)+i*4,force||forms>=3?2:forms==2?1:0);}touchRankUpSale();refreshHash(); }
@@ -617,7 +618,7 @@ public final class SaveDocument {
         for(int offset=Offsets.offsets_134;offset<end;offset++)if(rawIntAt(offset)==9&&asciiAlphaNumeric(offset+4,9))return offset;
         throw new IllegalStateException("Inquiry code field is unavailable");
     }
-    private int accountCreatedAtOffset() { return findIntNear(60,fixed(Offsets.offsets_90),2048)-8; }
+    private int accountCreatedAtOffset() { return findIntNear(60,fixed(Offsets.offsets_90),64)-8; }
     private int passwordRefreshTokenOffset() {
         int end=bytes.length-Offsets.offsets_130-67;
         for(int offset=Math.max(0,end-100000);offset<=end;offset++){
@@ -778,8 +779,8 @@ public final class SaveDocument {
     private void unlockCatRaw(int index) { putInt(fixed(Offsets.offsets_38)+index*4,1);putInt(fixed(Offsets.offsets_58)+index*4,1);putInt(fixed(Offsets.offsets_54),Math.max(1,intAt(fixed(Offsets.offsets_54))));for(int i=0;i<GameDataRules.dropPairCount();i++)if(GameDataRules.dropCat(i)==index)putInt(fixed(Offsets.offsets_59)+GameDataRules.dropSlot(i)*4,1); }
     private void unlockCatForUpgrade(int index) { putInt(fixed(Offsets.offsets_38)+index*4,1); putInt(fixed(Offsets.offsets_58)+index*4,1); putInt(fixed(Offsets.offsets_54),Math.max(1,intAt(fixed(Offsets.offsets_54)))); for(int i=0;i<GameDataRules.dropPairCount();i++) if(GameDataRules.dropCat(i)==index) putInt(fixed(Offsets.offsets_59)+GameDataRules.dropSlot(i)*4,1); }
     private void putIntBE(int offset,int value){bytes[offset]=(byte)(value>>>24);bytes[offset+1]=(byte)(value>>>16);bytes[offset+2]=(byte)(value>>>8);bytes[offset+3]=(byte)value;}
-    private void putFormValue(int index,int value){int o=Offsets.offsets_87+index*4;bytes[o]=0;bytes[o+1]=(byte)value;bytes[o+2]=0;bytes[o+3]=0;}
-    private void putFourthValue(int index,int value){int o=Offsets.offsets_103+index*4;bytes[o]=(byte)value;bytes[o+1]=0;bytes[o+2]=0;bytes[o+3]=0;}
+    private void putFormValue(int index,int value){putInt(fixed(Offsets.offsets_87)+index*4,value);}
+    private void putFourthValue(int index,int value){putInt(fixed(Offsets.offsets_103)+index*4,value);}
     private void checkCat(int index) { ensureCatProfile();if(index<0||index>=catCount())throw new IndexOutOfBoundsException(); }
     private void checkLevel(int value) { if(value<0||value>65535)throw new IllegalArgumentException("Invalid level"); }
     private void checkAmount(String field,int value,int maximum) { if(value<0||value>maximum)throw new IllegalArgumentException(field+" must be between 0 and "+maximum); }
@@ -856,15 +857,15 @@ public final class SaveDocument {
     private int outbreakTableOffset() { return findOutbreakTable(fixed(Offsets.offsets_111),true); }
     private int currentOutbreakTableOffset() { return findOutbreakTable(fixed(Offsets.offsets_112),false); }
     private int findOutbreakTable(int expected,boolean fullTable) { for(int delta=0;delta<=32;delta++){int[] candidates=delta==0?new int[]{expected}:new int[]{expected+delta,expected-delta};for(int candidate:candidates)if(validOutbreakTable(candidate,fullTable))return candidate;}throw new IllegalStateException("Outbreak table is unavailable"); }
-    private boolean validOutbreakTable(int table,boolean fullTable) { if(table<0||table+4>bytes.length-Offsets.offsets_130)return false;int chapters=intAt(table);if(chapters<=0||chapters>32)return false;int offset=table+4,previous=-1,totalStages=0;for(int chapter=0;chapter<chapters;chapter++){if(offset+8>bytes.length-Offsets.offsets_130)return false;int id=intAt(offset),stages=intAt(offset+4);if(id<0||id>1000||id<=previous||stages<=0||stages>100){return false;}previous=id;offset+=8;for(int stage=0;stage<stages;stage++){if(offset+5>bytes.length-Offsets.offsets_130)return false;int stageId=intAt(offset),state=byteAt(offset+4);if(stageId<0||stageId>1000||state>1)return false;if(fullTable&&stageId!=stage)return false;offset+=5;}totalStages+=stages;}return fullTable?totalStages>=chapters*40:totalStages>=chapters; }
+    private boolean validOutbreakTable(int table,boolean fullTable) { if(table<0||table+4>bytes.length-Offsets.offsets_130)return false;int chapters=intAt(table);if(chapters<=0||chapters>32)return false;int offset=table+4,previous=-1,totalStages=0;for(int chapter=0;chapter<chapters;chapter++){if(offset+8>bytes.length-Offsets.offsets_130)return false;int id=intAt(offset),stages=intAt(offset+4);if(id<0||id>1000||id<=previous||stages<=0||stages>100){return false;}previous=id;offset+=8;int previousStage=-1;for(int stage=0;stage<stages;stage++){if(offset+5>bytes.length-Offsets.offsets_130)return false;int stageId=intAt(offset),state=byteAt(offset+4);if(stageId<0||stageId>1000||stageId<=previousStage||state>1)return false;previousStage=stageId;offset+=5;}totalStages+=stages;}return totalStages>=chapters; }
     private MapLayout mapLayout(StageMap type) { ensureItemProfile();return switch(type){
         case CHALLENGE -> standardLayout(challengeTableOffset(),true);
         case UNCANNY -> standardLayout(standardTableOffset(afterCannons(Offsets.offsets_113),49),false);
         case CATAMIN -> standardLayout(standardTableOffset(afterCannons(Offsets.offsets_114),52),false);
         case TOWER -> standardLayout(afterCannons(Offsets.offsets_115),true);
-        case GAUNTLETS -> compactLayout(compactTableOffset(afterWildcat(Offsets.offsets_116),82));
+        case GAUNTLETS -> compactLayout(compactTableOffset(afterWildcat(Offsets.offsets_116),81));
         case ENIGMA_CLEARS -> compactLayout(findInt(90300)+4);
-        case COLLAB_GAUNTLETS -> compactLayout(compactTableOffset(afterEnigma(Offsets.offsets_117),28));
+        case COLLAB_GAUNTLETS -> compactLayout(compactTableOffset(afterEnigma(Offsets.offsets_117),26));
         case EVENT -> eventLayout(eventTableOffset());
         case BEHEMOTH -> compactLayout(findInt(110000)+4);
         case LEGEND_QUEST -> legendQuestLayout(legendQuestTableOffset());

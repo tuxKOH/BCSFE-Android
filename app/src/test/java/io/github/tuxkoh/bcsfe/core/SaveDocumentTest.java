@@ -18,9 +18,23 @@ public class SaveDocumentTest {
             assertEquals("000000000",document.inquiryCode());
             assertEquals("________________________________________",document.passwordRefreshToken());
         }
-        SaveDocument converted=SaveDocument.open(java.nio.file.Files.readAllBytes(templates.resolve("tw.save")));
-        converted.convertRegion(SaveDocument.Region.JP);
-        assertEquals(SaveDocument.Region.JP,SaveDocument.open(converted.toBytes()).region());
+        for(SaveDocument.Region target:SaveDocument.Region.values()){
+            SaveDocument converted=SaveDocument.open(java.nio.file.Files.readAllBytes(templates.resolve("tw.save")));
+            assertEquals(81,converted.stageMapCount(SaveDocument.StageMap.GAUNTLETS));
+            assertEquals(26,converted.stageMapCount(SaveDocument.StageMap.COLLAB_GAUNTLETS));
+            assertEquals(9,converted.outbreakChapterCount());
+            converted.accountCreatedAt();converted.convertRegion(target);
+            assertArrayEquals(java.nio.file.Files.readAllBytes(templates.resolve(target.code()+".save")),converted.toBytes());
+            converted.convertRegion(SaveDocument.Region.TW);
+            assertEquals(SaveDocument.Region.TW,SaveDocument.open(converted.toBytes()).region());
+            assertTrue(converted.checksumValid());
+            if(target!=SaveDocument.Region.JP)assertArrayEquals(java.nio.file.Files.readAllBytes(templates.resolve("tw.save")),converted.toBytes());
+        }
+
+        SaveDocument jpCats=SaveDocument.open(java.nio.file.Files.readAllBytes(templates.resolve("jp.save")));
+        jpCats.setCatUnlockedForms(12,3);jpCats.setCatFourthForm(12,2);
+        assertEquals(3,jpCats.catUnlockedForms(12));assertEquals(2,jpCats.catFourthForm(12));
+        assertTrue(jpCats.checksumValid());
 
         SaveDocument cleared=SaveDocument.open(java.nio.file.Files.readAllBytes(templates.resolve("tw.save")));
         for(int chapter=0;chapter<cleared.storyChapterCount();chapter++)cleared.clearStoryChapter(chapter,true);
@@ -133,12 +147,12 @@ public class SaveDocumentTest {
     }
 
     @Test public void verifiedTwProfileEditsMajorFields() throws Exception {
-        byte[] bytes = fixture(SaveDocument.Region.TW, 5, 507008);
+        byte[] bytes = java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
         SaveDocument document = SaveDocument.open(bytes);
         document.setRareSeed(123); document.setNormalSeed(456); document.setEventSeed(789);
         document.setGamatotoXp(321); document.setChallengeScore(654);
         document.fixGamatotoCrash(); document.unlockEquipMenu();
-        assertEquals(7,document.goldenCpuCount());document.resetGoldenCpuCount();assertEquals(0,document.goldenCpuCount());assertEquals(91,document.toBytes()[499601]&255);document.enableFilibusterStage(23);assertTrue(document.filibusterStageEnabled());assertEquals(23,document.filibusterStageId());
+        document.resetGoldenCpuCount();assertEquals(0,document.goldenCpuCount());document.enableFilibusterStage(23);assertTrue(document.filibusterStageEnabled());assertEquals(23,document.filibusterStageId());
         assertEquals(123, document.rareSeed()); assertEquals(456, document.normalSeed());
         assertEquals(789, document.eventSeed()); assertEquals(321, document.gamatotoXp());
         assertEquals(654, document.challengeScore()); assertTrue(document.checksumValid());
@@ -166,21 +180,20 @@ public class SaveDocumentTest {
     }
 
     @Test public void verifiedTwProfileEditsCatsGuidesAndRewards() throws Exception {
-        byte[] bytes = fixture(SaveDocument.Region.TW, 5, 507008);
-        putInt(bytes, 313906, 400);
-        refreshHash(bytes, SaveDocument.Region.TW);
+        byte[] bytes = java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
         SaveDocument document = SaveDocument.open(bytes);
         document.setCatUnlocked(12, true);
         document.setCatBaseLevel(12, 50);
         document.setCatPlusLevel(12, 0);
+        document.setCatUnlockedForms(12, 3);
         document.setCatGuideCollected(12, true);
         document.setSpecialSkillBaseLevel(0, 7);
         document.setEnemyGuideUnlocked(801, true);
-        document.setUserRankRewardClaimed(399, true);
+        int reward=document.userRankRewardCount()-1;document.setUserRankRewardClaimed(reward, true);
         assertTrue(document.catUnlocked(12)); assertEquals(50,document.catBaseLevel(12));
-        assertEquals(0,document.catPlusLevel(12)); assertTrue(document.catGuideCollected(12));
+        assertEquals(0,document.catPlusLevel(12)); assertEquals(3,document.catUnlockedForms(12)); assertTrue(document.catGuideCollected(12));
         assertEquals(7,document.specialSkillBaseLevel(0)); assertTrue(document.enemyGuideUnlocked(801));
-        assertTrue(document.userRankRewardClaimed(399)); assertTrue(document.checksumValid());
+        assertTrue(document.userRankRewardClaimed(reward)); assertTrue(document.checksumValid());
     }
 
     @Test public void basicUpgradeLimitsMatchUpstreamAbilityData() throws Exception {
