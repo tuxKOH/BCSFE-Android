@@ -316,7 +316,7 @@ public final class SaveDocument {
     public void setCatCurrentForm(int index,int value) { checkCat(index); if(value<0||value>3)throw new IllegalArgumentException("Invalid form");unlockCatRaw(index);putInt(fixed(Offsets.offsets_55)+index*4,value);touchRankUpSale();refreshHash(); }
     public void setCatUnlockedForms(int index,int value) { checkCat(index);if(value<0||value>3)throw new IllegalArgumentException("Invalid unlocked forms");unlockCatRaw(index);putFormValue(index,value);touchRankUpSale();refreshHash(); }
     public void setCatFourthForm(int index,int value) { checkCat(index);if(value<0||value>2)throw new IllegalArgumentException("Invalid fourth form");unlockCatRaw(index);putInt(fixed(Offsets.offsets_56)+index*4,value);touchRankUpSale();refreshHash(); }
-    public void resetCat(int index) { checkCat(index);putInt(fixed(Offsets.offsets_38)+index*4,0);putShort(fixed(Offsets.offsets_40)+index*4,0);putShort(fixed(Offsets.offsets_39)+index*4,0);putInt(fixed(Offsets.offsets_55)+index*4,0);putInt(fixed(Offsets.offsets_58)+index*4,0);putFormValue(index,0);bytes[fixed(Offsets.offsets_57)+index]=0;putInt(fixed(Offsets.offsets_56)+index*4,0);putFourthValue(index,0);putInt(fixed(Offsets.offsets_63)+index*4,0);resetCharaNewFlag(index);int talents=catTalents(index).size();for(int i=0;i<talents;i++)setCatTalentLevel(index,i,0);for(int i=0;i<GameDataRules.dropPairCount();i++)if(GameDataRules.dropCat(i)==index)putInt(fixed(Offsets.offsets_59)+GameDataRules.dropSlot(i)*4,0);touchRankUpSale();refreshHash(); }
+    public void resetCat(int index) { checkCat(index);putInt(fixed(Offsets.offsets_38)+index*4,0);putShort(fixed(Offsets.offsets_40)+index*4,0);putShort(fixed(Offsets.offsets_39)+index*4,0);putInt(fixed(Offsets.offsets_55)+index*4,0);putInt(fixed(Offsets.offsets_58)+index*4,0);putFormValue(index,0);bytes[fixed(Offsets.offsets_57)+index]=0;putInt(fixed(Offsets.offsets_56)+index*4,0);putFourthValue(index,0);putInt(fixed(Offsets.offsets_63)+index*4,0);resetCharaNewFlag(index);int[] record=talentRecord(index);for(int i=0;i<record[1];i++)putInt(record[0]+i*8+4,0);for(int i=0;i<GameDataRules.dropPairCount();i++)if(GameDataRules.dropCat(i)==index)putInt(fixed(Offsets.offsets_59)+GameDataRules.dropSlot(i)*4,0);touchRankUpSale();refreshHash(); }
     public void setCatGuideCollected(int index,boolean value) { checkCat(index);if(value)unlockCatRaw(index);bytes[fixed(Offsets.offsets_57)+index]=(byte)(value?1:0);touchRankUpSale();refreshHash(); }
     public int specialSkillCount() { ensureCatProfile(); return 10; }
     public int specialSkillBaseLevel(int index) { return ushortAt(specialSkillUpgradeOffset(index)+2)+1; }
@@ -337,22 +337,31 @@ public final class SaveDocument {
         ensureCatProfile();
         if (value < 1 || value > 60) throw new IllegalArgumentException("Invalid cat base level");
         for (int i = 0; i < catCount(); i++) {
-            syncCatRankLimits(i); unlockCatForUpgrade(i);
+            syncCatRankLimits(i);
             int target = Math.min(value, GameDataRules.catMaxBase(i));
             int maxUp = GameDataRules.catRankLimitBase(i, id -> true), base = 0, catseyes = 0;
-            int catseyeLimit = Math.max(0, GameDataRules.catMaxCatseye(i) - GameDataRules.catMaxNoCatseye(i));
+            int originalMax = GameDataRules.catOriginalMaxBase(i);
+            int maxNoCatseye = GameDataRules.catMaxNoCatseye(i);
+            int maxCatseye = GameDataRules.catMaxCatseye(i);
+            int rarity = GameDataRules.catRarity(i);
+            // The stored base value is level - 1; PowerUpHelper compares
+            // the displayed level (base + 1) with its current maximum.
             for (int step = 0; step < target - 1; step++) {
-                int currentMax = Math.min(GameDataRules.catOriginalMaxBase(i) + maxUp, GameDataRules.catMaxCatseye(i));
-                boolean useEye = base >= currentMax && GameDataRules.catRarity(i) != 0 && base >= GameDataRules.catMaxNoCatseye(i)
-                        && base < GameDataRules.catMaxCatseye(i) && catseyes < catseyeLimit;
+                int currentLevel = base + 1;
+                int currentMax = Math.min(originalMax + maxUp, maxCatseye);
+                boolean useEye = currentLevel >= currentMax && rarity != 0 && maxNoCatseye != -1
+                        && currentLevel >= maxNoCatseye && currentLevel < maxCatseye
+                        && maxNoCatseye <= currentMax;
                 if (useEye) { base++; maxUp++; catseyes++; }
-                else if (base < currentMax) base++;
+                else if (currentLevel < currentMax) base++;
                 else break;
             }
-            int finalMax = Math.min(GameDataRules.catOriginalMaxBase(i) + maxUp, GameDataRules.catMaxCatseye(i));
-            if (catseyes >= catseyeLimit && catseyeLimit > 0) { maxUp++; catseyes++; }
-            if (catseyeLimit > 0 && maxUp < GameDataRules.catMaxNoCatseye(i)) maxUp = GameDataRules.catMaxNoCatseye(i);
-            if (GameDataRules.catMaxCatseye(i) >= 60 && catseyeLimit > 0) maxUp++;
+            // PowerUpHelper only unlocks a cat from cat.upgrade_base() after
+            // an actual upgrade succeeds.  In particular, records whose
+            // maximum base level is already 1 must remain locked when the
+            // requested level is 1; pre-unlocking every record changes the
+            // separate unlocked/gatya-seen fields in a batch-only way.
+            if (base > 0) unlockCatForUpgrade(i);
             putShort(fixed(Offsets.offsets_39) + i * 4, base);
             putShort(fixed(Offsets.offsets_62) + i * 4, maxUp);
             int noEye = GameDataRules.catMaxNoCatseye(i);
@@ -363,7 +372,7 @@ public final class SaveDocument {
         }
         touchRankUpSale(); refreshHash();
     }
-    public void setAllCatPlusLevels(int value) { ensureCatProfile();if(value<0||value>90)throw new IllegalArgumentException("Invalid cat plus level");for(int i=0;i<catCount();i++){syncCatRankLimits(i);unlockCatRaw(i);putShort(fixed(Offsets.offsets_40)+i*4,Math.min(value,GameDataRules.catMaxPlus(i)));}touchRankUpSale();refreshHash(); }
+    public void setAllCatPlusLevels(int value) { ensureCatProfile();if(value<0||value>90)throw new IllegalArgumentException("Invalid cat plus level");for(int i=0;i<catCount();i++){unlockCatRaw(i);putShort(fixed(Offsets.offsets_40)+i*4,value);}touchRankUpSale();refreshHash(); }
     public void setAllCatGuideCollected(boolean value) { ensureCatProfile();for(int i=0;i<catCount();i++){if(value)unlockCatRaw(i);bytes[fixed(Offsets.offsets_57)+i]=(byte)(value?1:0);}touchRankUpSale();refreshHash(); }
     public void maxAllCatTalents() { ensureItemProfile();int table=talentTableOffset(),records=intAt(table),offset=table+4;for(int r=0;r<records;r++){int cat=intAt(offset),count=intAt(offset+4);offset+=8;boolean edited=false;for(int i=0;i<count;i++){int max=GameDataRules.talentMaxLevel(cat,intAt(offset+i*8));if(max>0){putInt(offset+i*8+4,max);edited=true;}}if(edited&&cat>=0&&cat<catCount())unlockCatRaw(cat);offset+=count*8;}touchRankUpSale();refreshHash(); }
     public static final class TalentValue { public final int id; public final int level; public final int maxLevel; TalentValue(int id,int level,int maxLevel){this.id=id;this.level=level;this.maxLevel=maxLevel;} }
@@ -382,10 +391,10 @@ public final class SaveDocument {
     public int storyChapterCount() { ensureItemProfile(); return 9; }
     public int storyStageCount() { ensureItemProfile(); return 48; }
     public int storyClearTimes(int chapter,int stage) { int raw=storyInternalChapter(chapter);checkStoryStage(stage);return intAt(fixed(Offsets.offsets_28)+(raw*51+stage)*4); }
-    public int storyTreasure(int chapter,int stage) { int raw=storyInternalChapter(chapter),stored=storyTreasureStorageStage(stage);return intAt(fixed(Offsets.offsets_67)+(raw*49+stored)*4); }
+    public int storyTreasure(int chapter,int stage) { int raw=storyInternalChapter(chapter);checkStoryStage(stage);return intAt(fixed(Offsets.offsets_67)+(raw*49+stage)*4); }
     public void setStoryClearTimes(int chapter,int stage,int value) { int raw=storyInternalChapter(chapter);checkStoryStage(stage);if(value<0||value>32767)throw new IllegalArgumentException("Invalid clears");putInt(fixed(Offsets.offsets_28)+(raw*51+stage)*4,value);putInt(fixed(Offsets.offsets_68)+raw*4,stage+1);refreshHash(); }
-    public void setStoryTreasure(int chapter,int stage,int value) { int raw=storyInternalChapter(chapter),stored=storyTreasureStorageStage(stage);if(value<0||value>9999)throw new IllegalArgumentException("Invalid treasure");putInt(fixed(Offsets.offsets_67)+(raw*49+stored)*4,value);refreshHash(); }
-    public void clearStoryChapter(int chapter,boolean cleared) { int raw=storyInternalChapter(chapter);for(int i=0;i<48;i++)putInt(fixed(Offsets.offsets_28)+(raw*51+i)*4,cleared?1:0);putInt(fixed(Offsets.offsets_68)+raw*4,48);refreshHash(); }
+    public void setStoryTreasure(int chapter,int stage,int value) { int raw=storyInternalChapter(chapter);checkStoryStage(stage);if(value<0||value>9999)throw new IllegalArgumentException("Invalid treasure");putInt(fixed(Offsets.offsets_67)+(raw*49+stage)*4,value);refreshHash(); }
+    public void clearStoryChapter(int chapter,boolean cleared) { int raw=storyInternalChapter(chapter);for(int i=0;i<48;i++)putInt(fixed(Offsets.offsets_28)+(raw*51+i)*4,cleared?1:0);putInt(fixed(Offsets.offsets_68)+raw*4,cleared?48:0);refreshHash(); }
     public void setStoryChapterTreasures(int chapter,int value) { int raw=storyInternalChapter(chapter);if(value<0||value>9999)throw new IllegalArgumentException("Invalid treasure");for(int i=0;i<48;i++)putInt(fixed(Offsets.offsets_67)+(raw*49+i)*4,value);refreshHash(); }
     public int akuChapterCount() { ensureItemProfile(); return ushortAt(akuTableOffset()); }
     public int akuStageCount() { ensureItemProfile(); return byteAt(akuTableOffset()+2); }
@@ -406,7 +415,7 @@ public final class SaveDocument {
     public int stageMapStageCount(StageMap type,int map,int star) { MapLayout l=mapLayout(type);checkVisibleMap(type,l,map,star,0,false);return l.stagesAt(map,star); }
     public int stageMapClearTimes(StageMap type,int map,int star,int stage) { MapLayout l=mapLayout(type);checkVisibleMap(type,l,map,star,stage,true);return l.shortValues?ushortAt(l.stageOffset(map,star,stage)):intAt(l.stageOffset(map,star,stage)); }
     public void setStageMapClearTimes(StageMap type,int map,int star,int stage,int value) { MapLayout l=mapLayout(type);checkVisibleMap(type,l,map,star,stage,true);if(value<0||(l.shortValues&&value>65535))throw new IllegalArgumentException("Invalid clears");if(l.shortValues)putShort(l.stageOffset(map,star,stage),value);else putInt(l.stageOffset(map,star,stage),value);if(l.mirrorStageBase>=0)putShort(l.mirrorOffset(map,star,stage),value);l.updateProgress(map,star,stage,value);refreshHash(); }
-    public void clearStageMap(StageMap type,int map,boolean cleared) { MapLayout l=mapLayout(type);checkMap(l,map,0,0,false);int stars=stageMapStarCount(type,map);for(int star=0;star<stars;star++){int total=l.stagesAt(map,star);for(int stage=0;stage<total;stage++){int offset=l.stageOffset(map,star,stage),current=l.shortValues?ushortAt(offset):intAt(offset),value=cleared?(star==stars-1||current==0?1:current):0;if(l.shortValues)putShort(offset,value);else putInt(offset,value);if(cleared&&l.mirrorStageBase>=0){int mirror=l.mirrorOffset(map,star,stage),tries=ushortAt(mirror);putShort(mirror,tries==0?1:tries);}}l.setProgress(map,star,cleared?total:0);if(cleared)l.setUnlock(map,star,3);}if(cleared&&l.cascadeCompletion&&l.hasNextMap(map))l.setUnlock(map+1,0,1);refreshHash(); }
+    public void clearStageMap(StageMap type,int map,boolean cleared) { MapLayout l=mapLayout(type);checkMap(l,map,0,0,false);int stars=stageMapStarCount(type,map);for(int star=0;star<stars;star++){int total=l.stagesAt(map,star);for(int stage=0;stage<total;stage++){int offset=l.stageOffset(map,star,stage),current=l.shortValues?ushortAt(offset):intAt(offset),value=cleared?(current==0?1:current):0;if(l.shortValues)putShort(offset,value);else putInt(offset,value);if(cleared&&l.mirrorStageBase>=0){int mirror=l.mirrorOffset(map,star,stage),tries=ushortAt(mirror);putShort(mirror,tries==0?1:tries);}}l.setProgress(map,star,cleared?total:0);if(cleared)l.setUnlock(map,star,3);}if(cleared&&l.cascadeCompletion&&l.hasNextMap(map))l.setUnlock(map+1,0,1);refreshHash(); }
     public void unlockAkuRealm() { ensureItemProfile();for(int id:new int[]{255,256,257,258,265,266,268})clearEventMap(1,id,0);refreshHash(); }
     public int gamatotoDestination() { ensureItemProfile();return intAt(fixed(Offsets.offsets_70)); }
     public int gamatotoLevel() { int xp=gamatotoXp();for(int i=0;i<129;i++)if(xp<GameDataRules.GAMATOTO_XP[i])return i+1;return 130; }
@@ -791,7 +800,6 @@ public final class SaveDocument {
     private int endlessBattleOffset(int index) { if(index<0||index>=6)throw new IndexOutOfBoundsException();return afterOrbs(Offsets.offsets_104)+index*19; }
     private int storyInternalChapter(int chapter) { ensureItemProfile();if(chapter<0||chapter>=9)throw new IndexOutOfBoundsException();return chapter<3?chapter:chapter+1; }
     private void checkStoryStage(int stage) { if(stage<0||stage>=48)throw new IndexOutOfBoundsException(); }
-    private int storyTreasureStorageStage(int stage) { checkStoryStage(stage);return stage>=46?stage:45-stage; }
     private int akuTableOffset() {
         int expected=lateOffset(Offsets.offsets_105),markerEstimate=expected-4;
         int best=-1,distance=Integer.MAX_VALUE;
@@ -883,7 +891,7 @@ public final class SaveDocument {
     private MapLayout compactLayout(int base){MapLayout l=new MapLayout();l.maps=ushortAt(base);l.stages=byteAt(base+2);l.stars=byteAt(base+3);if(l.maps<0||l.maps>1000||l.stages<0||l.stages>100||l.stars<0||l.stars>16)throw new IllegalStateException("Invalid compact map data");l.progressBase=base+4+l.maps*l.stars;l.stageBase=l.progressBase+l.maps*l.stars;l.unlockBase=l.stageBase+l.maps*l.stages*l.stars*2;l.shortValues=true;l.stageMajor=true;return l;}
     private MapLayout variableLayout(int base){MapLayout l=new MapLayout();l.maps=ushortAt(base);if(l.maps<0||l.maps>1000)throw new IllegalStateException("Invalid variable map data");l.variable=true;l.shortValues=true;l.variableStageOffsets=new int[l.maps][];l.variableProgressOffsets=new int[l.maps][];int p=base+2;for(int map=0;map<l.maps;map++){p++;int starCount=byteAt(p++);l.variableStageOffsets[map]=new int[starCount];l.variableProgressOffsets[map]=new int[starCount];for(int star=0;star<starCount;star++){p++;l.variableProgressOffsets[map][star]=p++;p++;int count=ushortAt(p);p+=2;l.variableStageOffsets[map][star]=p;p+=count*2;}}return l;}
     private MapLayout eventLayout(int base){MapLayout l=new MapLayout();int types=byteAt(base),subchapters=ushortAt(base+1);l.maps=types*subchapters;l.mapGroupSize=subchapters;l.stars=byteAt(base+3);l.stages=byteAt(base+4);l.progressBase=base+5+l.maps*l.stars;l.stageBase=l.progressBase+l.maps*l.stars;l.unlockBase=l.stageBase+l.maps*l.stages*l.stars*2;l.shortValues=true;l.stageMajor=true;l.valueWidth=2;l.cascadeCompletion=true;return l;}
-    private void clearEventMap(int type,int map,int star) { int base=eventTableOffset(),types=byteAt(base),subchapters=ushortAt(base+1),stars=byteAt(base+3),stages=byteAt(base+4);if(type<0||type>=types||map<0||map>=subchapters||star<0||star>=stars)throw new IndexOutOfBoundsException();int flat=type*subchapters+map,progress=base+5+types*subchapters*stars,stageBase=progress+types*subchapters*stars,unlockBase=stageBase+types*subchapters*stages*stars*2;bytes[progress+flat*stars+star]=(byte)stages;for(int stage=0;stage<stages;stage++)putShort(stageBase+((flat*stages+stage)*stars+star)*2,1);bytes[unlockBase+flat*stars+star]=3;if(star+1<stars)bytes[unlockBase+flat*stars+star+1]=1;if(map+1<subchapters)bytes[unlockBase+(flat+1)*stars]=1; }
+    private void clearEventMap(int type,int map,int star) { int base=eventTableOffset(),types=byteAt(base),subchapters=ushortAt(base+1),stars=byteAt(base+3),stages=byteAt(base+4);if(type<0||type>=types||map<0||map>=subchapters||star<0||star>=stars)throw new IndexOutOfBoundsException();int flat=type*subchapters+map,progress=base+5+types*subchapters*stars,stageBase=progress+types*subchapters*stars,unlockBase=stageBase+types*subchapters*stages*stars*2;bytes[progress+flat*stars+star]=(byte)stages;for(int stage=0;stage<stages;stage++){int offset=stageBase+((flat*stages+stage)*stars+star)*2;int current=ushortAt(offset);putShort(offset,current==0?1:current);}bytes[unlockBase+flat*stars+star]=3;if(star+1<stars)bytes[unlockBase+flat*stars+star+1]=1;if(map+1<subchapters)bytes[unlockBase+(flat+1)*stars]=1; }
     private MapLayout legendQuestLayout(int base){MapLayout l=new MapLayout();l.maps=byteAt(base);l.stages=byteAt(base+1);l.stars=byteAt(base+2);l.progressBase=base+3+l.maps*l.stars;l.stageBase=l.progressBase+l.maps*l.stars;l.mirrorStageBase=l.stageBase+l.maps*l.stages*l.stars*2;l.unlockBase=l.mirrorStageBase+l.maps*l.stages*l.stars*2;l.shortValues=true;l.stageMajor=true;l.valueWidth=2;return l;}
     private final class MapLayout {
         int maps,stars,stages,stageBase,progressBase,valueWidth=2,mirrorStageBase=-1,unlockBase=-1,unlockValueWidth=1,mapGroupSize;boolean shortValues,variable,stageMajor,cascadeCompletion;

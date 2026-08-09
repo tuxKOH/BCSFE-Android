@@ -677,6 +677,53 @@ public class SaveDocumentTest {
         assertFalse(reopened.catUnlocked(cat));assertEquals(1,reopened.catBaseLevel(cat));assertEquals(0,reopened.catPlusLevel(cat));assertEquals(0,reopened.catCurrentForm(cat));assertEquals(0,reopened.catUnlockedForms(cat));assertEquals(0,reopened.catFourthForm(cat));assertFalse(reopened.catGuideCollected(cat));assertEquals(0x7fffffff,reopened.rankUpSaleValue());assertTrue(reopened.checksumValid());
     }
 
+    @Test public void bulkCatLevelsKeepRankLimitsAndResetDoesNotRelockThenRelock() throws Exception {
+        byte[] original=java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
+        SaveDocument levels=SaveDocument.open(original);levels.setAllCatBaseLevels(1);byte[] levelBytes=levels.toBytes();
+        assertEquals(0,littleUshort(levelBytes,Offsets.offsets_62));
+        assertEquals(GameDataRules.catRankLimitBase(9,id->true),littleUshort(levelBytes,Offsets.offsets_62+9*4));
+        assertEquals(GameDataRules.catRankLimitBase(34,id->true),littleUshort(levelBytes,Offsets.offsets_62+34*4));
+        assertEquals(0,littleInt(levelBytes,Offsets.offsets_63+9*4));
+        assertEquals(0,littleInt(levelBytes,Offsets.offsets_63+34*4));
+        SaveDocument high=SaveDocument.open(original);high.setAllCatBaseLevels(50);byte[] highBytes=high.toBytes();
+        assertEquals(30,littleUshort(highBytes,Offsets.offsets_62+9*4));assertEquals(20,littleInt(highBytes,Offsets.offsets_63+9*4));
+        assertEquals(30,littleUshort(highBytes,Offsets.offsets_62+34*4));assertEquals(20,littleInt(highBytes,Offsets.offsets_63+34*4));
+
+        SaveDocument reset=SaveDocument.open(original);reset.setCatUnlocked(9,true);reset.setCatTalentLevel(9,0,5);reset.resetCat(9);
+        assertFalse(reset.catUnlocked(9));assertEquals(0,littleInt(reset.toBytes(),Offsets.offsets_58+9*4));
+        for(SaveDocument.TalentValue talent:reset.catTalents(9))assertEquals(0,talent.level);
+        assertTrue(reset.checksumValid());
+    }
+
+    @Test public void bulkStoryOperationsUseDirectUpstreamStageFields() throws Exception {
+        byte[] original=java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
+        SaveDocument d=SaveDocument.open(original);d.setStoryTreasure(3,0,3);byte[] treasure=d.toBytes();int rawChapter=4;
+        assertEquals(3,littleInt(treasure,Offsets.offsets_67+(rawChapter*49)*4));
+        assertEquals(0,littleInt(treasure,Offsets.offsets_67+(rawChapter*49+45)*4));
+        d.clearStoryChapter(3,false);assertEquals(0,d.storyClearTimes(3,0));assertEquals(0,littleInt(d.toBytes(),Offsets.offsets_68+rawChapter*4));
+        assertTrue(d.checksumValid());
+    }
+
+    @Test public void akuRealmBulkUnlockPreservesExistingClearCounts() throws Exception {
+        byte[] original=java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
+        SaveDocument d=SaveDocument.open(original);d.setStageMapClearTimes(SaveDocument.StageMap.EVENT,755,0,0,4);d.unlockAkuRealm();
+        assertEquals(4,d.stageMapClearTimes(SaveDocument.StageMap.EVENT,755,0,0));assertTrue(d.checksumValid());
+    }
+
+    @Test public void bulkPlusLevelsOnlyTouchPlusFields() throws Exception {
+        byte[] original=java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
+        SaveDocument d=SaveDocument.open(original);int baseLimit=littleUshort(original,Offsets.offsets_62),plusLimit=littleUshort(original,Offsets.offsets_102);
+        d.setAllCatPlusLevels(0);byte[] out=d.toBytes();
+        assertEquals(0,littleUshort(out,Offsets.offsets_40));assertEquals(baseLimit,littleUshort(out,Offsets.offsets_62));assertEquals(plusLimit,littleUshort(out,Offsets.offsets_102));assertTrue(d.checksumValid());
+    }
+
+    @Test public void clearingAStageMapDoesNotLowerExistingClearCounts() throws Exception {
+        byte[] original=java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
+        SaveDocument d=SaveDocument.open(original);SaveDocument.StageMap type=SaveDocument.StageMap.GAUNTLETS;
+        d.setStageMapClearTimes(type,0,0,0,7);d.clearStageMap(type,0,true);
+        assertEquals(7,d.stageMapClearTimes(type,0,0,0));assertTrue(d.checksumValid());
+    }
+
     @Test public void replacementAccountCanClearBanMessageFlag() throws Exception {
         java.nio.file.Path source=java.nio.file.Path.of("/tmp/bcsfe-tw.save");Assume.assumeTrue(java.nio.file.Files.isRegularFile(source));SaveDocument d=SaveDocument.open(java.nio.file.Files.readAllBytes(source));
         d.setShowBanMessage(true);assertTrue(d.showBanMessage());d.setShowBanMessage(false);SaveDocument reopened=SaveDocument.open(d.toBytes());assertFalse(reopened.showBanMessage());assertTrue(reopened.checksumValid());
@@ -756,6 +803,7 @@ public class SaveDocumentTest {
         String hash = hex(md.digest()); System.arraycopy(hash.getBytes(StandardCharsets.US_ASCII), 0, bytes, bytes.length - 32, 32); return bytes;
     }
     private static void putInt(byte[] bytes, int offset, int value) { bytes[offset] = (byte)value; bytes[offset+1] = (byte)(value>>8); bytes[offset+2] = (byte)(value>>16); bytes[offset+3] = (byte)(value>>24); }
+    private static int littleUshort(byte[] bytes,int offset) { return (bytes[offset]&255)|((bytes[offset+1]&255)<<8); }
     private static int littleInt(byte[] bytes,int offset) { return (bytes[offset]&255)|((bytes[offset+1]&255)<<8)|((bytes[offset+2]&255)<<16)|(bytes[offset+3]<<24); }
     private static void refreshHash(byte[] bytes, SaveDocument.Region region) throws Exception { String salt=region==SaveDocument.Region.EN?"battlecatsen":region==SaveDocument.Region.TW?"battlecatstw":"battlecats";MessageDigest md=MessageDigest.getInstance("MD5");md.update(salt.getBytes(StandardCharsets.UTF_8));md.update(bytes,0,bytes.length-32);String hash=hex(md.digest());System.arraycopy(hash.getBytes(StandardCharsets.US_ASCII),0,bytes,bytes.length-32,32); }
     private static String hex(byte[] bytes) { StringBuilder out = new StringBuilder(); for (byte b : bytes) out.append(String.format("%02x", b)); return out.toString(); }
