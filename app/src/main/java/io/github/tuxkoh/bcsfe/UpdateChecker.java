@@ -17,7 +17,8 @@ final class UpdateChecker {
     static final class Result {
         final String version;
         final String pageUrl;
-        Result(String version,String pageUrl){this.version=version;this.pageUrl=pageUrl;}
+        final String body;
+        Result(String version,String pageUrl,String body){this.version=version;this.pageUrl=pageUrl;this.body=body;}
     }
 
     static Result latest(String currentVersion)throws Exception{
@@ -34,12 +35,21 @@ final class UpdateChecker {
         try{
             if(connection.getResponseCode()!=200)throw new java.io.IOException("Release endpoint unavailable");
             try(InputStream input=connection.getInputStream()){
-                JSONObject release=new JSONObject(new String(io.github.tuxkoh.bcsfe.core.IoStreams.readAll(input),StandardCharsets.UTF_8));
-                String version=release.optString("tag_name","").trim(),pageUrl=release.optString("html_url","").trim();
-                if(!isNewer(version,currentVersion)||!pageUrl.startsWith("https://github.com/"))return null;
-                return new Result(version,pageUrl);
+                return parseRelease(new String(io.github.tuxkoh.bcsfe.core.IoStreams.readAll(input),StandardCharsets.UTF_8),currentVersion);
             }
         }finally{connection.disconnect();}
+    }
+
+    static Result parseRelease(String json,String currentVersion) {
+        try {
+            JSONObject release=new JSONObject(json);
+            String version=release.optString("tag_name","").trim(),pageUrl=release.optString("html_url","").trim();
+            String body=release.optString("body","").trim();
+            if(!isNewer(version,currentVersion)||!pageUrl.startsWith("https://github.com/"))return null;
+            return new Result(version,pageUrl,body);
+        } catch (org.json.JSONException malformedJson) {
+            return null;
+        }
     }
 
     static boolean isNewer(String candidate,String current){

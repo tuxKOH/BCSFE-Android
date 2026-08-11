@@ -58,6 +58,7 @@ public final class MainActivity extends AppCompatActivity {
     private SessionStore sessionStore;
     private String accountPassword;
     private String sessionId;
+    private String unsupportedWarningKey;
     private View sessionPanel;
     private ListView sessionList;
     private Screen screenBeforeAbout = Screen.HOME;
@@ -101,7 +102,10 @@ public final class MainActivity extends AppCompatActivity {
     }
     private void showUpdateAvailable(UpdateChecker.Result release){
         if(isFinishing()||isDestroyed())return;
-        new AlertDialog.Builder(this).setTitle(R.string.update_available).setMessage(getString(R.string.update_available_message,BuildConfig.VERSION_NAME,release.version)).setNegativeButton(R.string.close,null).setPositiveButton(R.string.view_release,(dialog,which)->{try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(release.pageUrl)));}catch(Exception error){Toast.makeText(this,R.string.open_release_failed,Toast.LENGTH_LONG).show();}}).show();
+        String notes=release.body==null?"":release.body.trim();
+        if(notes.isEmpty())notes=getString(R.string.update_notes_unavailable);
+        if(notes.length()>6000)notes=notes.substring(0,6000)+"\n…";
+        new AlertDialog.Builder(this).setTitle(R.string.update_available).setMessage(getString(R.string.update_available_message,BuildConfig.VERSION_NAME,release.version,notes)).setNegativeButton(R.string.close,null).setPositiveButton(R.string.view_release,(dialog,which)->{try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(release.pageUrl)));}catch(Exception error){Toast.makeText(this,R.string.open_release_failed,Toast.LENGTH_LONG).show();}}).show();
     }
 
     @Override protected void onNewIntent(Intent intent){super.onNewIntent(intent);setIntent(intent);handleSharedIntent(intent);}
@@ -198,6 +202,19 @@ public final class MainActivity extends AppCompatActivity {
                 getString(R.string.bytes_format, workingCopy.length), hash));
 
         showEditorCategories(view);
+        showUnsupportedImportWarningIfNeeded();
+    }
+
+    private void showUnsupportedImportWarningIfNeeded() {
+        if (document == null || !document.needsUnsupportedImportWarning()) return;
+        String key=String.valueOf(sessionId)+":"+document.region().code()+":"+document.gameVersion();
+        if (key.equals(unsupportedWarningKey)) return;
+        unsupportedWarningKey=key;
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.unsupported_import_warning_title)
+                .setMessage(R.string.unsupported_import_warning)
+                .setPositiveButton(R.string.close,null)
+                .show();
     }
 
     private void showEditorCategories(View view) throws Exception {
@@ -622,7 +639,7 @@ public final class MainActivity extends AppCompatActivity {
                 else runFieldAction(()->{if(usesExpandedCrownRange(type,map))document.clearStageMap(type,map,false,document.stageMapMaxStarCount(type,map));else document.clearStageMap(type,map,false);persistApplied();});
             }).setNegativeButton(R.string.close,null).show();
     }
-    private boolean usesExpandedCrownRange(SaveDocument.StageMap type,int map) { return type==SaveDocument.StageMap.UNCANNY||type==SaveDocument.StageMap.ZERO_LEGENDS||(type==SaveDocument.StageMap.EVENT&&map>=1&&map<=48); }
+    private boolean usesExpandedCrownRange(SaveDocument.StageMap type,int map) { return type==SaveDocument.StageMap.UNCANNY||(type==SaveDocument.StageMap.EVENT&&map>=1&&map<=48); }
     private int completionCrownLimit(SaveDocument.StageMap type,int map) {
         if(usesExpandedCrownRange(type,map))return document.stageMapMaxStarCount(type,map);
         return document.stageMapStarCount(type,map);
@@ -658,9 +675,10 @@ public final class MainActivity extends AppCompatActivity {
         catch(RuntimeException error){showFieldError(error);return;}
         if(maximum<=0){Toast.makeText(this,R.string.no_batch_map_data,Toast.LENGTH_SHORT).show();return;}
         String[] options=new String[maximum];for(int i=0;i<maximum;i++)options[i]=getString(R.string.crown_count_option,i+1);
-        new AlertDialog.Builder(this).setTitle(getString(R.string.crown_count_title)+" · "+name).setItems(options,(d,index)->runFieldAction(()->{document.clearStageMaps(type,firstMap,lastMap,true,index+1);persistApplied();})).setNegativeButton(R.string.close,null).show();
+        new AlertDialog.Builder(this).setTitle(getString(R.string.crown_count_title)+" · "+name).setItems(options,(d,index)->runFieldAction(()->{if(type==SaveDocument.StageMap.ZERO_LEGENDS)document.clearStageMapsUpToConfiguredCrowns(type,firstMap,lastMap,true,index+1);else document.clearStageMaps(type,firstMap,lastMap,true,index+1);persistApplied();})).setNegativeButton(R.string.close,null).show();
     }
     private int completionCrownRangeLimit(SaveDocument.StageMap type,int firstMap,int lastMap) {
+        if(type==SaveDocument.StageMap.ZERO_LEGENDS){int maximum=0;for(int map=firstMap;map<=lastMap;map++)maximum=Math.max(maximum,completionCrownLimit(type,map));return maximum;}
         int maximum=16;for(int map=firstMap;map<=lastMap;map++)maximum=Math.min(maximum,completionCrownLimit(type,map));return maximum;
     }
     private void editGamatoto() {

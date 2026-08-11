@@ -661,6 +661,25 @@ public class SaveDocumentTest {
         assertEquals(759,obtainable);assertTrue(document.checksumValid());
     }
 
+    @Test public void obtainableCatRulesAreRegionSpecific() {
+        assertTrue(GameDataRules.catObtainable(SaveDocument.Region.JP,150500,28));
+        assertFalse(GameDataRules.catObtainable(SaveDocument.Region.TW,150500,28));
+        assertFalse(GameDataRules.catObtainable(SaveDocument.Region.EN,150500,77));
+        assertTrue(GameDataRules.catObtainable(SaveDocument.Region.TW,150500,77));
+        assertFalse(GameDataRules.catObtainable(SaveDocument.Region.JP,150101,28));
+    }
+
+    @Test public void each155RegionUnlocksItsOwnObtainableCatSubset() throws Exception {
+        int[] expected={737,816,759,758};
+        SaveDocument.Region[] regions=SaveDocument.Region.values();
+        for(int i=0;i<regions.length;i++){
+            SaveDocument document=SaveDocument.open(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/"+regions[i].code()+".save")));
+            document.removeAllCats();document.unlockAllObtainableCats();int unlocked=0;
+            for(int cat=0;cat<document.catCount();cat++)if(document.catUnlocked(cat))unlocked++;
+            assertEquals(regions[i].code(),expected[i],unlocked);assertTrue(document.checksumValid());
+        }
+    }
+
     @Test public void goldPassOperationMatchesUpstreamAndHandlesClaimDictionary() throws Exception {
         java.nio.file.Path source=java.nio.file.Path.of("/tmp/bcsfe-transfer-tw.save"),expected=java.nio.file.Path.of("/tmp/bcsfe-upstream-gold-pass.save"),claims=java.nio.file.Path.of("/tmp/bcsfe-tw-gold-claims.save");
         Assume.assumeTrue(java.nio.file.Files.isRegularFile(source)&&java.nio.file.Files.isRegularFile(expected)&&java.nio.file.Files.isRegularFile(claims));
@@ -806,6 +825,31 @@ public class SaveDocumentTest {
         SaveDocument zero=SaveDocument.open(original);assertEquals(4,zero.stageMapMaxStarCount(SaveDocument.StageMap.ZERO_LEGENDS,1));
         zero.clearStageMaps(SaveDocument.StageMap.ZERO_LEGENDS,1,2,true,4);
         assertEquals(1,zero.stageMapClearTimes(SaveDocument.StageMap.ZERO_LEGENDS,1,0,0));assertTrue(zero.checksumValid());
+    }
+
+    @Test public void zeroLegendsBatchUsesUpstreamCrownAvailability() throws Exception {
+        byte[] original=java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
+        SaveDocument zero=SaveDocument.open(original);
+        assertEquals(2,zero.stageMapStarCount(SaveDocument.StageMap.ZERO_LEGENDS,0));
+        assertEquals(2,zero.stageMapStarCount(SaveDocument.StageMap.ZERO_LEGENDS,10));
+        assertEquals(1,zero.stageMapStarCount(SaveDocument.StageMap.ZERO_LEGENDS,11));
+        int[] supportedSecond=new int[zero.stageMapCount(SaveDocument.StageMap.ZERO_LEGENDS)];
+        int[] unsupportedSecond=new int[supportedSecond.length];
+        for(int map=0;map<supportedSecond.length;map++){
+            supportedSecond[map]=mapStageOffset(zero,SaveDocument.StageMap.ZERO_LEGENDS,map,1,0);
+            unsupportedSecond[map]=mapStageOffset(zero,SaveDocument.StageMap.ZERO_LEGENDS,map,2,0);
+        }
+        zero.clearStageMaps(SaveDocument.StageMap.ZERO_LEGENDS,0,supportedSecond.length-1,true);
+        for(int map=0;map<supportedSecond.length;map++){
+            byte[] bytes=zero.toBytes();
+            assertEquals(map<11?1:0,(bytes[supportedSecond[map]]&255)|((bytes[supportedSecond[map]+1]&255)<<8));
+            assertEquals(0,(bytes[unsupportedSecond[map]]&255)|((bytes[unsupportedSecond[map]+1]&255)<<8));
+        }
+        assertTrue(zero.checksumValid());
+
+        SaveDocument requestedTwo=SaveDocument.open(original);
+        requestedTwo.clearStageMapsUpToConfiguredCrowns(SaveDocument.StageMap.ZERO_LEGENDS,0,supportedSecond.length-1,true,2);
+        assertArrayEquals("Upstream zero-legends crown-capped batch",zero.toBytes(),requestedTwo.toBytes());
     }
 
     @Test public void challengeAndDojoScoreOperationsMatchUpstream() throws Exception {

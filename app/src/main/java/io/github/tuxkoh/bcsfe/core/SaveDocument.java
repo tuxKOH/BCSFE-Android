@@ -55,6 +55,10 @@ public final class SaveDocument {
 
     public byte[] toBytes() { return bytes.clone(); }
     public Region region() { return region; }
+    /** Full editor validation currently covers the 15.5 save layout. */
+    public boolean isOfficiallySupportedVersion() { return gameVersion() == 150500; }
+    /** Import is intentionally allowed for these saves, but editing is not certified. */
+    public boolean needsUnsupportedImportWarning() { return !isOfficiallySupportedVersion(); }
     public void convertRegion(Region target) {
         if (target == null) throw new IllegalArgumentException("Missing region");
         if (target == region) return;
@@ -439,6 +443,20 @@ public final class SaveDocument {
         for(int map=firstMap;map<=lastMap;map++)clearStageMapInternal(l,map,cleared,crownCount);
         refreshHash();
     }
+    /**
+     * Clears a range up to the requested crown count without touching crown
+     * records that the current game version does not expose for a map.
+     * This is used by the UI when a range contains maps with different
+     * Map_option crown limits (notably Zero Legends).
+     */
+    public void clearStageMapsUpToConfiguredCrowns(StageMap type,int firstMap,int lastMap,boolean cleared,int crownCount) {
+        MapLayout l=mapLayout(type);validateMapRange(l,firstMap,lastMap);if(crownCount<1)throw new IllegalArgumentException("Invalid crown count");
+        for(int map=firstMap;map<=lastMap;map++){
+            int crowns=Math.min(crownCount,stageMapStarCount(type,map));
+            clearStageMapInternal(l,map,cleared,crowns);
+        }
+        refreshHash();
+    }
     public void unlockAkuRealm() { ensureItemProfile();for(int id:new int[]{255,256,257,258,265,266,268})clearEventMap(1,id,0);refreshHash(); }
     public int gamatotoDestination() { ensureItemProfile();return intAt(fixed(Offsets.offsets_70)); }
     public int gamatotoLevel() { int xp=gamatotoXp();for(int i=0;i<129;i++)if(xp<GameDataRules.GAMATOTO_XP[i])return i+1;return 130; }
@@ -579,7 +597,7 @@ public final class SaveDocument {
     public void setOutbreakCleared(int chapterIndex,int stageIndex,boolean value) { int[] c=outbreakChapter(chapterIndex);if(stageIndex<0||stageIndex>=c[2])throw new IndexOutOfBoundsException();bytes[c[1]+12+stageIndex*5]=(byte)(value?1:0);if(value)clearCurrentOutbreak(c[0],outbreakStageId(chapterIndex,stageIndex));refreshHash(); }
     public void setOutbreakChapterCleared(int chapterIndex,boolean value) { int[] c=outbreakChapter(chapterIndex);for(int i=0;i<c[2];i++){bytes[c[1]+12+i*5]=(byte)(value?1:0);if(value)clearCurrentOutbreak(c[0],outbreakStageId(chapterIndex,i));}refreshHash(); }
     public void unlockAllCats() { ensureCatProfile();for(int i=0;i<catCount();i++)unlockCatRaw(i);touchRankUpSale();refreshHash(); }
-    public void unlockAllObtainableCats() { ensureCatProfile();for(int i=0;i<catCount();i++)if(GameDataRules.catObtainable(i))unlockCatRaw(i);touchRankUpSale();refreshHash(); }
+    public void unlockAllObtainableCats() { ensureCatProfile();for(int i=0;i<catCount();i++)if(GameDataRules.catObtainable(region,gameVersion(),i))unlockCatRaw(i);touchRankUpSale();refreshHash(); }
     public void removeAllCats() { ensureCatProfile(); for(int i=0;i<catCount();i++) putInt(fixed(Offsets.offsets_38)+i*4,0);touchRankUpSale();refreshHash(); }
     public void resetAllCats() { ensureCatProfile();for(int i=0;i<catCount();i++){putInt(fixed(Offsets.offsets_38)+i*4,0);putShort(fixed(Offsets.offsets_40)+i*4,0);putShort(fixed(Offsets.offsets_39)+i*4,0);putInt(fixed(Offsets.offsets_55)+i*4,0);putInt(fixed(Offsets.offsets_58)+i*4,0);putFormValue(i,0);bytes[fixed(Offsets.offsets_57)+i]=0;putFourthValue(i,0);putInt(fixed(Offsets.offsets_63)+i*4,0);}resetAllCharaNewFlags();int table=talentTableOffset(),records=intAt(table),talents=table+4;for(int r=0;r<records;r++){int count=intAt(talents+4);talents+=8;for(int i=0;i<count;i++)putInt(talents+i*8+4,0);talents+=count*8;}for(int i=0;i<GameDataRules.dropPairCount();i++)putInt(fixed(Offsets.offsets_59)+GameDataRules.dropSlot(i)*4,0);touchRankUpSale();refreshHash(); }
     public void unlockTrueForms() { setTrueForms(false); }
@@ -866,7 +884,19 @@ public final class SaveDocument {
             case CATAMIN -> map<52?1:0;
             case LEGEND_QUEST -> map==0?1:0;
             case TOWER -> map<12?1:0;
-            case ZERO_LEGENDS -> map<23?1:map<34?2:0;
+            /*
+             * Zero Legends keeps four records in the save for every map, but
+             * Map_option.csv controls how many crowns the current game
+             * version actually exposes.  The upstream editor uses that
+             * configured count instead of the physical record count.  The
+             * second crown was introduced for the first nine maps in 15.4
+             * and the first eleven maps in 15.5; older versions expose one
+             * crown only.
+             */
+            case ZERO_LEGENDS -> {
+                int twoCrownMaps = gameVersion() >= 150500 ? 11 : gameVersion() >= 150400 ? 9 : 0;
+                yield map < twoCrownMaps ? 2 : 1;
+            }
             case GAUNTLETS -> map<82?1:0;
             case ENIGMA_CLEARS -> map<73?1:0;
             case COLLAB_GAUNTLETS -> map<28?1:0;
