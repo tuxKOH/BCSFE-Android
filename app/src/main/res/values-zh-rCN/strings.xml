@@ -137,4 +137,13 @@
     <string name="shared_import_failed">分享的文件不是有效的猫咪大战争存档。</string>
     <string name="invalid_save_file">所选文件不是有效的猫咪大战争存档。</string>
     <string name="shared_import_success">已将分享的存档作为新会话打开。</string>
+    <string-array name="map_scope_actions"><item>编辑单个地图</item><item>批量修改地图</item><item>一键通关全部地图</item></string-array>
+    <string-array name="stage_map_batch_actions"><item>批量通关所选地图</item><item>批量重置所选地图</item></string-array>
+    <string name="batch_map_title">批量编辑%1$s</string>
+    <string name="batch_start_map">起始地图 ID</string>
+    <string name="batch_end_map">结束地图 ID</string>
+    <string name="crown_count_title">通关皇冠数量</string>
+    <string name="crown_count_option">%1$d 皇冠</string>
+    <string name="invalid_map_range">请输入有效的地图范围。</string>
+    <string name="no_batch_map_data">所选范围没有可编辑的地图数据。</string>
 </resources>

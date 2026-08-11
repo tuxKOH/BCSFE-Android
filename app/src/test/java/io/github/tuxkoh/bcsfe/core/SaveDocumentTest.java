@@ -788,12 +788,36 @@ public class SaveDocumentTest {
         d.setStageMapClearTimes(SaveDocument.StageMap.GAUNTLETS,1,0,0,3);d.clearStageMap(SaveDocument.StageMap.GAUNTLETS,1,true);assertEquals(1,d.stageMapClearTimes(SaveDocument.StageMap.GAUNTLETS,1,0,0));assertTrue(d.checksumValid());
     }
 
+    @Test public void selectedCrownsAndBatchMapWritesUseOnlyValidatedRecords() throws Exception {
+        byte[] original=java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
+        SaveDocument d=SaveDocument.open(original);
+        assertEquals(4,d.stageMapMaxStarCount(SaveDocument.StageMap.EVENT,1));
+        int[] crownOffsets=new int[4];for(int star=0;star<4;star++)crownOffsets[star]=mapStageOffset(d,SaveDocument.StageMap.EVENT,1,star,0);
+        d.setStageMapClearTimes(SaveDocument.StageMap.EVENT,1,0,0,7);
+        d.clearStageMap(SaveDocument.StageMap.EVENT,1,true,4);
+        assertEquals(7,d.stageMapClearTimes(SaveDocument.StageMap.EVENT,1,0,0));
+        byte[] cleared=d.toBytes();for(int offset:crownOffsets)assertTrue(((cleared[offset]&255)|((cleared[offset+1]&255)<<8))>0);
+        assertTrue(d.checksumValid());
+
+        byte[] beforeInvalid=d.toBytes();
+        assertThrows(IllegalArgumentException.class,()->d.clearStageMaps(SaveDocument.StageMap.EVENT,1,2,true,5));
+        assertArrayEquals(beforeInvalid,d.toBytes());
+
+        SaveDocument zero=SaveDocument.open(original);assertEquals(4,zero.stageMapMaxStarCount(SaveDocument.StageMap.ZERO_LEGENDS,1));
+        zero.clearStageMaps(SaveDocument.StageMap.ZERO_LEGENDS,1,2,true,4);
+        assertEquals(1,zero.stageMapClearTimes(SaveDocument.StageMap.ZERO_LEGENDS,1,0,0));assertTrue(zero.checksumValid());
+    }
+
     @Test public void challengeAndDojoScoreOperationsMatchUpstream() throws Exception {
         java.nio.file.Path source=java.nio.file.Path.of("/tmp/bcsfe-tw.save"),challenge=java.nio.file.Path.of("/tmp/bcsfe-upstream-challenge-score.save"),dojo=java.nio.file.Path.of("/tmp/bcsfe-upstream-dojo-score.save");Assume.assumeTrue(java.nio.file.Files.isRegularFile(source)&&java.nio.file.Files.isRegularFile(challenge)&&java.nio.file.Files.isRegularFile(dojo));
         SaveDocument c=SaveDocument.open(java.nio.file.Files.readAllBytes(source));c.setChallengeScore(123456);assertArrayEquals(java.nio.file.Files.readAllBytes(challenge),c.toBytes());SaveDocument d=SaveDocument.open(java.nio.file.Files.readAllBytes(source));assertEquals(0,d.dojoScore());d.setDojoScore(654321);assertEquals(654321,d.dojoScore());assertArrayEquals(java.nio.file.Files.readAllBytes(dojo),d.toBytes());assertEquals(654321,SaveDocument.open(d.toBytes()).dojoScore());
     }
 
     private static byte[] fixture(SaveDocument.Region region, int start) throws Exception { return fixture(region,start,256); }
+    private static int mapStageOffset(SaveDocument document,SaveDocument.StageMap type,int map,int star,int stage) throws Exception {
+        java.lang.reflect.Method layoutMethod=SaveDocument.class.getDeclaredMethod("mapLayout",SaveDocument.StageMap.class);layoutMethod.setAccessible(true);Object layout=layoutMethod.invoke(document,type);
+        java.lang.reflect.Method offsetMethod=layout.getClass().getDeclaredMethod("stageOffset",int.class,int.class,int.class);offsetMethod.setAccessible(true);return (Integer)offsetMethod.invoke(layout,map,star,stage);
+    }
     private static byte[] fixture(SaveDocument.Region region, int start, int size) throws Exception {
         byte[] bytes = new byte[size];
         putInt(bytes, 0, size == 507008 ? 150500 : 120200); putInt(bytes, start + 2, 100); putInt(bytes, start + 71, 200);

@@ -599,18 +599,69 @@ public final class MainActivity extends AppCompatActivity {
     private void editEventMaps() {
         String[] names=getResources().getStringArray(R.array.event_map_types);
         int[] first={1,0,0},last={48,435,272},storageType={0,1,2};
-        new AlertDialog.Builder(this).setTitle(R.string.event_maps_name).setItems(names,(d,index)->requestNumberRange(R.string.map_id_label,first[index],last[index],map->editStageMapAt(SaveDocument.StageMap.EVENT,storageType[index]*500+map,names[index]))).setNegativeButton(R.string.close,null).show();
+        new AlertDialog.Builder(this).setTitle(R.string.event_maps_name).setItems(names,(d,index)->chooseStageMapScope(SaveDocument.StageMap.EVENT,names[index],first[index],last[index],storageType[index]*500)).setNegativeButton(R.string.close,null).show();
     }
     private void editStageMap(SaveDocument.StageMap type,String name) {
         int maps=document.stageMapCount(type);if(maps==0){Toast.makeText(this,R.string.no_map_data,Toast.LENGTH_SHORT).show();return;}
-        requestIndex(R.string.map_id_label,maps,map->editStageMapAt(type,map,name));
+        chooseStageMapScope(type,name,0,maps-1,0);
+    }
+    private void chooseStageMapScope(SaveDocument.StageMap type,String name,int min,int max,int mapBase) {
+        if(max<min){Toast.makeText(this,R.string.no_map_data,Toast.LENGTH_SHORT).show();return;}
+        String[] actions=getResources().getStringArray(R.array.map_scope_actions);
+        new AlertDialog.Builder(this).setTitle(name).setItems(actions,(d,choice)->{
+            if(choice==0)requestNumberRange(R.string.map_id_label,min,max,id->editStageMapAt(type,mapBase+id,name));
+            else if(choice==1)editStageMapBatch(type,name,min,max,mapBase);
+            else chooseBatchCrownCount(type,name,mapBase+min,mapBase+max);
+        }).setNegativeButton(R.string.close,null).show();
     }
     private void editStageMapAt(SaveDocument.StageMap type,int map,String name) {
             String[] actions=getResources().getStringArray(R.array.stage_map_actions);
             new AlertDialog.Builder(this).setTitle(name).setItems(actions,(d,choice)->{
                 if(choice==0)requestIndex(R.string.star_id_label,document.stageMapStarCount(type,map),star->requestIndex(R.string.stage_id_label,document.stageMapStageCount(type,map,star),stage->editNumberText(getString(R.string.clear_times_label),document.stageMapClearTimes(type,map,star,stage),v->document.setStageMapClearTimes(type,map,star,stage,v))));
-                else {document.clearStageMap(type,map,choice==1);persistApplied();}
+                else if(choice==1)chooseMapCrownCount(type,map,name);
+                else runFieldAction(()->{if(usesExpandedCrownRange(type,map))document.clearStageMap(type,map,false,document.stageMapMaxStarCount(type,map));else document.clearStageMap(type,map,false);persistApplied();});
             }).setNegativeButton(R.string.close,null).show();
+    }
+    private boolean usesExpandedCrownRange(SaveDocument.StageMap type,int map) { return type==SaveDocument.StageMap.UNCANNY||type==SaveDocument.StageMap.ZERO_LEGENDS||(type==SaveDocument.StageMap.EVENT&&map>=1&&map<=48); }
+    private int completionCrownLimit(SaveDocument.StageMap type,int map) {
+        if(usesExpandedCrownRange(type,map))return document.stageMapMaxStarCount(type,map);
+        return document.stageMapStarCount(type,map);
+    }
+    private void chooseMapCrownCount(SaveDocument.StageMap type,int map,String name) {
+        int maximum;
+        try { maximum=completionCrownLimit(type,map); } catch(RuntimeException error){showFieldError(error);return;}
+        if(maximum<=0){Toast.makeText(this,R.string.no_map_data,Toast.LENGTH_SHORT).show();return;}
+        String[] options=new String[maximum];for(int i=0;i<maximum;i++)options[i]=getString(R.string.crown_count_option,i+1);
+        new AlertDialog.Builder(this).setTitle(getString(R.string.crown_count_title)+" · "+name).setItems(options,(d,index)->runFieldAction(()->{document.clearStageMap(type,map,true,index+1);persistApplied();})).setNegativeButton(R.string.close,null).show();
+    }
+    private void editStageMapBatch(SaveDocument.StageMap type,String name,int min,int max,int mapBase) {
+        String[] actions=getResources().getStringArray(R.array.stage_map_batch_actions);
+        new AlertDialog.Builder(this).setTitle(getString(R.string.batch_map_title,name)).setItems(actions,(d,choice)->requestBatchMapRange(name,min,max,(first,last)->{
+            int actualFirst=mapBase+first,actualLast=mapBase+last;
+            if(choice==0)chooseBatchCrownCount(type,name,actualFirst,actualLast);
+            else runFieldAction(()->{if(usesExpandedCrownRange(type,actualFirst)){int crowns=completionCrownRangeLimit(type,actualFirst,actualLast);document.clearStageMaps(type,actualFirst,actualLast,false,crowns);}else document.clearStageMaps(type,actualFirst,actualLast,false);persistApplied();});
+        })).setNegativeButton(R.string.close,null).show();
+    }
+    private interface MapRangeChange { void apply(int first,int last); }
+    private void requestBatchMapRange(String name,int min,int max,MapRangeChange change) {
+        LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(24),dp(8),dp(24),0);
+        EditText first=numberField(R.string.batch_start_map,Integer.toString(min));EditText last=numberField(R.string.batch_end_map,Integer.toString(max));form.addView(first);form.addView(last);
+        new AlertDialog.Builder(this).setTitle(getString(R.string.batch_map_title,name)).setView(form).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{
+            try { int from=Integer.parseInt(first.getText().toString().trim()),to=Integer.parseInt(last.getText().toString().trim());if(from<min||to>max||from>to)throw new NumberFormatException();change.apply(from,to); }
+            catch(NumberFormatException error){Toast.makeText(this,R.string.invalid_map_range,Toast.LENGTH_SHORT).show();}
+            catch(RuntimeException error){showFieldError(error);}
+        }).show();
+    }
+    private void chooseBatchCrownCount(SaveDocument.StageMap type,String name,int firstMap,int lastMap) {
+        int maximum;
+        try { maximum=completionCrownRangeLimit(type,firstMap,lastMap); }
+        catch(RuntimeException error){showFieldError(error);return;}
+        if(maximum<=0){Toast.makeText(this,R.string.no_batch_map_data,Toast.LENGTH_SHORT).show();return;}
+        String[] options=new String[maximum];for(int i=0;i<maximum;i++)options[i]=getString(R.string.crown_count_option,i+1);
+        new AlertDialog.Builder(this).setTitle(getString(R.string.crown_count_title)+" · "+name).setItems(options,(d,index)->runFieldAction(()->{document.clearStageMaps(type,firstMap,lastMap,true,index+1);persistApplied();})).setNegativeButton(R.string.close,null).show();
+    }
+    private int completionCrownRangeLimit(SaveDocument.StageMap type,int firstMap,int lastMap) {
+        int maximum=16;for(int map=firstMap;map<=lastMap;map++)maximum=Math.min(maximum,completionCrownLimit(type,map));return maximum;
     }
     private void editGamatoto() {
         String[] actions=getResources().getStringArray(R.array.gamatoto_actions);

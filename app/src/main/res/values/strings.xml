@@ -137,4 +137,13 @@
     <string name="shared_import_failed">The shared file is not a valid Battle Cats save.</string>
     <string name="invalid_save_file">The selected file is not a valid Battle Cats save.</string>
     <string name="shared_import_success">Shared save opened in a new session.</string>
+    <string-array name="map_scope_actions"><item>Edit one map</item><item>Batch edit maps</item><item>One-click clear all maps</item></string-array>
+    <string-array name="stage_map_batch_actions"><item>Clear selected maps</item><item>Reset selected maps</item></string-array>
+    <string name="batch_map_title">Batch edit %1$s</string>
+    <string name="batch_start_map">First map ID</string>
+    <string name="batch_end_map">Last map ID</string>
+    <string name="crown_count_title">Crowns to clear</string>
+    <string name="crown_count_option">%1$d crowns</string>
+    <string name="invalid_map_range">Enter a valid map range.</string>
+    <string name="no_batch_map_data">The selected range has no editable map data.</string>
 </resources>

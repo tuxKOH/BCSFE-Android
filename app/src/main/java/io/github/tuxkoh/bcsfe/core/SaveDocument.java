@@ -412,10 +412,33 @@ public final class SaveDocument {
     public void setMissionCompletion(int missionId,int state) { if(state!=0&&state!=2&&state!=4)throw new IllegalArgumentException("Invalid mission state");int target=GameDataRules.missionTarget(missionId);if(target<0)throw new IllegalArgumentException("Unknown mission condition");int clear=missionDictionaryOffset(0);dictionaryValue(clear,missionId);setDictionaryValue(clear,missionId,state);int requirements=missionDictionaryOffset(1);if(state==0){if(dictionaryContains(requirements,missionId))setDictionaryValue(requirements,missionId,0);}else upsertDictionaryValue(requirements,missionId,target);refreshHash(); }
     public int stageMapCount(StageMap type) { return mapLayout(type).maps; }
     public int stageMapStarCount(StageMap type,int map) { MapLayout l=mapLayout(type);checkMap(l,map,0,0,false);return Math.min(l.starsAt(map),configuredCrownCount(type,map)); }
+    /** Returns the number of crown records physically present for this map. */
+    public int stageMapMaxStarCount(StageMap type,int map) { MapLayout l=mapLayout(type);checkMap(l,map,0,0,false);return l.starsAt(map); }
     public int stageMapStageCount(StageMap type,int map,int star) { MapLayout l=mapLayout(type);checkVisibleMap(type,l,map,star,0,false);return l.stagesAt(map,star); }
     public int stageMapClearTimes(StageMap type,int map,int star,int stage) { MapLayout l=mapLayout(type);checkVisibleMap(type,l,map,star,stage,true);return l.shortValues?ushortAt(l.stageOffset(map,star,stage)):intAt(l.stageOffset(map,star,stage)); }
     public void setStageMapClearTimes(StageMap type,int map,int star,int stage,int value) { MapLayout l=mapLayout(type);checkVisibleMap(type,l,map,star,stage,true);if(value<0||(l.shortValues&&value>65535))throw new IllegalArgumentException("Invalid clears");if(l.shortValues)putShort(l.stageOffset(map,star,stage),value);else putInt(l.stageOffset(map,star,stage),value);if(l.mirrorStageBase>=0)putShort(l.mirrorOffset(map,star,stage),value);l.updateProgress(map,star,stage,value);refreshHash(); }
-    public void clearStageMap(StageMap type,int map,boolean cleared) { MapLayout l=mapLayout(type);checkMap(l,map,0,0,false);int stars=stageMapStarCount(type,map);for(int star=0;star<stars;star++){int total=l.stagesAt(map,star);for(int stage=0;stage<total;stage++){int offset=l.stageOffset(map,star,stage),current=l.shortValues?ushortAt(offset):intAt(offset),value=cleared?(current==0?1:current):0;if(l.shortValues)putShort(offset,value);else putInt(offset,value);if(cleared&&l.mirrorStageBase>=0){int mirror=l.mirrorOffset(map,star,stage),tries=ushortAt(mirror);putShort(mirror,tries==0?1:tries);}}l.setProgress(map,star,cleared?total:0);if(cleared)l.setUnlock(map,star,3);}if(cleared&&l.cascadeCompletion&&l.hasNextMap(map))l.setUnlock(map+1,0,1);refreshHash(); }
+    public void clearStageMap(StageMap type,int map,boolean cleared) { MapLayout l=mapLayout(type);checkMap(l,map,0,0,false);clearStageMapInternal(l,map,cleared,stageMapStarCount(type,map));refreshHash(); }
+    /** Clears or resets the first {@code crownCount} crowns of one map. */
+    public void clearStageMap(StageMap type,int map,boolean cleared,int crownCount) {
+        MapLayout l=mapLayout(type);checkMap(l,map,0,0,false);validateCrownCount(l,map,crownCount);
+        clearStageMapInternal(l,map,cleared,crownCount);refreshHash();
+    }
+    /** Batch counterpart of the legacy per-map operation.  Each map keeps its configured crown limit. */
+    public void clearStageMaps(StageMap type,int firstMap,int lastMap,boolean cleared) {
+        MapLayout l=mapLayout(type);validateMapRange(l,firstMap,lastMap);
+        for(int map=firstMap;map<=lastMap;map++){
+            int crowns=stageMapStarCount(type,map);
+            clearStageMapInternal(l,map,cleared,crowns);
+        }
+        refreshHash();
+    }
+    /** Atomically clears or resets a range using the requested number of crowns. */
+    public void clearStageMaps(StageMap type,int firstMap,int lastMap,boolean cleared,int crownCount) {
+        MapLayout l=mapLayout(type);validateMapRange(l,firstMap,lastMap);
+        for(int map=firstMap;map<=lastMap;map++)validateCrownCount(l,map,crownCount);
+        for(int map=firstMap;map<=lastMap;map++)clearStageMapInternal(l,map,cleared,crownCount);
+        refreshHash();
+    }
     public void unlockAkuRealm() { ensureItemProfile();for(int id:new int[]{255,256,257,258,265,266,268})clearEventMap(1,id,0);refreshHash(); }
     public int gamatotoDestination() { ensureItemProfile();return intAt(fixed(Offsets.offsets_70)); }
     public int gamatotoLevel() { int xp=gamatotoXp();for(int i=0;i<129;i++)if(xp<GameDataRules.GAMATOTO_XP[i])return i+1;return 130; }
@@ -820,6 +843,21 @@ public final class SaveDocument {
     private void upsertDictionaryValue(int offset,int key,int value) { int count=intAt(offset);for(int i=0;i<count;i++)if(intAt(offset+4+i*8)==key){putInt(offset+8+i*8,value);return;}int end=offset+4+count*8;splice(end,0,8);putInt(offset,count+1);putInt(end,key);putInt(end+4,value); }
     private void setDictionaryValue(int offset,int key,int value) { int count=intAt(offset);for(int i=0;i<count;i++)if(intAt(offset+4+i*8)==key){putInt(offset+8+i*8,value);return;}throw new IllegalArgumentException("Unknown key"); }
     private void checkMap(MapLayout l,int map,int star,int stage,boolean checkStage) { if(map<0||map>=l.maps||star<0||star>=l.starsAt(map)||(checkStage&&(stage<0||stage>=l.stagesAt(map,star))))throw new IndexOutOfBoundsException(); }
+    private void validateMapRange(MapLayout l,int firstMap,int lastMap) { if(firstMap<0||lastMap<firstMap||lastMap>=l.maps)throw new IndexOutOfBoundsException(); }
+    private void validateCrownCount(MapLayout l,int map,int crownCount) { if(crownCount<1||crownCount>l.starsAt(map))throw new IllegalArgumentException("Invalid crown count"); }
+    private void clearStageMapInternal(MapLayout l,int map,boolean cleared,int crowns) {
+        for(int star=0;star<crowns;star++){
+            int total=l.stagesAt(map,star);
+            for(int stage=0;stage<total;stage++){
+                int offset=l.stageOffset(map,star,stage),current=l.shortValues?ushortAt(offset):intAt(offset),value=cleared?(current==0?1:current):0;
+                if(l.shortValues)putShort(offset,value);else putInt(offset,value);
+                if(cleared&&l.mirrorStageBase>=0){int mirror=l.mirrorOffset(map,star,stage),tries=ushortAt(mirror);putShort(mirror,tries==0?1:tries);}
+            }
+            l.setProgress(map,star,cleared?total:0);
+            if(cleared)l.setUnlock(map,star,3);
+        }
+        if(cleared&&l.cascadeCompletion&&l.hasNextMap(map))l.setUnlock(map+1,0,1);
+    }
     private void checkVisibleMap(StageMap type,MapLayout l,int map,int star,int stage,boolean checkStage) { checkMap(l,map,star,stage,checkStage);if(star>=configuredCrownCount(type,map))throw new IndexOutOfBoundsException(); }
     private int configuredCrownCount(StageMap type,int map) {
         return switch(type){
