@@ -270,6 +270,8 @@ public final class SaveDocument {
     public void setCatseye(int index, int value) { checkAmount("Catseye",value,9999);setArrayInt(fixed(Offsets.offsets_32), 6, index, value); }
     public void setCatamin(int index, int value) { checkAmount("Catamin",value,9999);setArrayInt(fixed(Offsets.offsets_33), 3, index, value); }
     public void setCatfruit(int index, int value) { checkAmount("Catfruit",value,gameVersion()<110400?128:998);setArrayInt(fixed(Offsets.offsets_34), 29, index, value); }
+    public int catfruitLimit() { return gameVersion()<110400?128:998; }
+    public void setAllCatfruit(int value) { checkAmount("Catfruit",value,catfruitLimit());int offset=fixed(Offsets.offsets_34);ensureItemProfile();for(int index=0;index<29;index++)putInt(offset+index*4,value);refreshHash(); }
     public void setTreasureChest(int index, int value) { checkAmount("Treasure Chest",value,9999);setArrayInt(treasureChestOffset(), 39, index, value); }
     public void setLabyrinthMedal(int index, int value) { ensureItemProfile();if(index<0||index>=4)throw new IndexOutOfBoundsException();checkAmount("Labyrinth Medal",value,9999);putShort(findInt(111000)-8+index*2,value);refreshHash(); }
     public void setHundredMillionTicket(int value) { ensureItemProfile();checkAmount("100 Million Download Tickets",value,9999);putInt(findInt(140200)-4,value);refreshHash(); }

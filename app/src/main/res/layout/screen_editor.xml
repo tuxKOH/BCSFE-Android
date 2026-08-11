@@ -7,6 +7,9 @@
         android:layout_marginTop="12dp" android:hint="@string/search_features" android:inputType="text" android:singleLine="true" />
     <ListView android:id="@+id/featureList" android:layout_width="match_parent" android:layout_height="0dp"
         android:layout_weight="1" android:divider="@color/divider" android:dividerHeight="1dp" />
+    <com.google.android.material.button.MaterialButton android:id="@+id/historyButton"
+        style="@style/Widget.Material3.Button.OutlinedButton" android:layout_width="match_parent"
+        android:layout_height="48dp" android:text="@string/history_title" />
     <com.google.android.material.button.MaterialButton android:id="@+id/exportButton"
         android:layout_width="match_parent" android:layout_height="52dp" android:text="@string/export_save" />
     <com.google.android.material.button.MaterialButton android:id="@+id/uploadButton"

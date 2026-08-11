@@ -53,4 +53,30 @@ public class SessionStoreTest {
         store.setCurrent(first.id);assertArrayEquals(new byte[]{1},store.load().save);store.rename(first.id,"renamed");assertEquals("renamed",store.load(first.id).name);
         store.delete(first.id);assertNull(store.load(first.id));assertEquals(second.id,store.load().id);assertEquals("two",store.load().password);
     }
+
+    @Test public void historyKeepsInitialStateAndOnlyFiftyLaterSteps() throws Exception {
+        java.io.File directory=Files.createTempDirectory("bcsfe-history-limit").toFile();SessionStore store=new SessionStore(directory);
+        SessionStore.Session session=store.create(new byte[]{0},"save",null);
+        for(int i=1;i<=55;i++)store.save(session.id,new byte[]{(byte)i},"save",null,"step "+i);
+        SessionStore.History history=store.history(session.id);
+        assertEquals(51,history.entries.size());assertTrue(history.entries.get(0).initial);assertEquals(50,history.currentIndex);
+        assertEquals("step 6",history.entries.get(1).label);assertEquals("step 55",history.entries.get(50).label);
+        assertArrayEquals(new byte[]{0},store.restoreHistory(session.id,0).save);
+    }
+
+    @Test public void historySurvivesRestartAndNewEditDropsRedoBranch() throws Exception {
+        java.io.File directory=Files.createTempDirectory("bcsfe-history-branch").toFile();SessionStore store=new SessionStore(directory);
+        SessionStore.Session session=store.create(new byte[]{1},"save","one-password");store.save(session.id,new byte[]{2},"save","two-password","two");store.save(session.id,new byte[]{3},"save","three-password","three");
+        store=new SessionStore(directory);assertEquals(2,store.history(session.id).currentIndex);SessionStore.Session restored=store.restoreHistory(session.id,1);assertArrayEquals(new byte[]{2},restored.save);assertEquals("two-password",restored.password);
+        store.save(session.id,new byte[]{9},"save","nine-password","nine");SessionStore.History history=store.history(session.id);
+        assertEquals(3,history.entries.size());assertEquals(2,history.currentIndex);assertEquals("nine",history.entries.get(2).label);assertArrayEquals(new byte[]{1},store.restoreHistory(session.id,0).save);
+        assertEquals("one-password",store.load(session.id).password);
+        store.delete(session.id);assertNull(store.load(session.id));
+    }
+
+    @Test public void metadataOnlySaveDoesNotCreateHistoryStep() throws Exception {
+        java.io.File directory=Files.createTempDirectory("bcsfe-history-metadata").toFile();SessionStore store=new SessionStore(directory);
+        SessionStore.Session session=store.create(new byte[]{4},"before",null);store.rename(session.id,"after");
+        assertEquals(1,store.history(session.id).entries.size());
+    }
 }

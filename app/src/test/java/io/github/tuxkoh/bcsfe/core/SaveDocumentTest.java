@@ -109,7 +109,7 @@ public class SaveDocumentTest {
         Assume.assumeTrue(java.nio.file.Files.isRegularFile(path));
         SaveDocument document=SaveDocument.open(java.nio.file.Files.readAllBytes(path));
         document.setBattleItem(5,9999);document.setCatseye(5,9999);document.setCatamin(2,9999);
-        document.setCatfruit(28,998);document.setTreasureChest(38,9999);
+        document.setCatfruit(28,998);document.setAllCatfruit(document.catfruitLimit());document.setTreasureChest(38,9999);
         document.setLabyrinthMedal(3,9999);document.setHundredMillionTicket(9999);
         document.setBaseMaterial(document.baseMaterialCount()-1,9999);
         document.setLuckyTicket(document.luckyTicketCount()-1,9999);
@@ -119,6 +119,7 @@ public class SaveDocumentTest {
         assertThrows(IllegalArgumentException.class,()->document.setCatseye(0,-1));
         assertThrows(IllegalArgumentException.class,()->document.setCatamin(0,10000));
         assertThrows(IllegalArgumentException.class,()->document.setCatfruit(0,999));
+        assertThrows(IllegalArgumentException.class,()->document.setAllCatfruit(document.catfruitLimit()+1));
         assertThrows(IllegalArgumentException.class,()->document.setTreasureChest(0,10000));
         assertThrows(IllegalArgumentException.class,()->document.setLabyrinthMedal(0,10000));
         assertThrows(IllegalArgumentException.class,()->document.setHundredMillionTicket(10000));
@@ -126,6 +127,7 @@ public class SaveDocumentTest {
         assertThrows(IllegalArgumentException.class,()->document.setLuckyTicket(0,10000));
         assertThrows(IllegalArgumentException.class,()->document.setEventTicket(0,10000));
         assertThrows(IllegalArgumentException.class,()->document.setTalentOrbAmount(document.talentOrbCount()-1,999));
+        for(int value:document.catfruit())assertEquals(document.catfruitLimit(),value);
         assertTrue(document.checksumValid());
     }
 
