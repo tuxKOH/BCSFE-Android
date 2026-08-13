@@ -56,6 +56,456 @@ public class SaveDocumentTest {
         assertArrayEquals(following,java.util.Arrays.copyOfRange(cats.toBytes(),end,end+48));assertTrue(cats.checksumValid());
     }
 
+    @Test public void battleItemsWorkInEveryBundledRegionLayout() throws Exception {
+        for (SaveDocument.Region region : SaveDocument.Region.values()) {
+            byte[] source=java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/"+region.code()+".save"));
+            SaveDocument document=SaveDocument.open(source);
+            document.setBattleItem(0,1234);document.setBattleItem(5,5678);
+            SaveDocument reopened=SaveDocument.open(document.toBytes());
+            assertArrayEquals(region.code(),new int[]{1234,0,0,0,0,5678},reopened.battleItems());
+            assertTrue(reopened.checksumValid());
+        }
+    }
+
+    @Test public void legacySyntheticVariableCatProfilesKeepBattleItemsEditable() throws Exception {
+        String[] names={"synthetic-800.save","synthetic-860.save","synthetic-862.save",
+                "synthetic-jp-800.save","synthetic-jp-860.save","synthetic-jp-862.save"};
+        for(String name:names){
+            java.nio.file.Path path=java.nio.file.Path.of("/tmp",name);
+            Assume.assumeTrue(java.nio.file.Files.isRegularFile(path));
+            SaveDocument document=SaveDocument.open(java.nio.file.Files.readAllBytes(path));
+            document.setBattleItem(0,1234);
+            assertEquals(1234,document.battleItems()[0]);
+            assertTrue(document.checksumValid());
+        }
+    }
+
+    @Test public void transferCodeBattleItemsUseTheShiftedSerializedTable() throws Exception {
+        java.nio.file.Path path=java.nio.file.Path.of("/tmp/device-transfer-507617.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(path));
+        byte[] original=java.nio.file.Files.readAllBytes(path);
+        SaveDocument document=SaveDocument.open(original);
+        assertArrayEquals(new int[]{501,498,496,500,496,496},document.battleItems());
+        document.setBattleItem(0,1234);document.setBattleItem(5,5678);
+        byte[] edited=document.toBytes();
+        assertEquals(1234,littleInt(edited,19006));assertEquals(5678,littleInt(edited,19026));
+        assertEquals(31,littleInt(edited,19030));
+        SaveDocument reopened=SaveDocument.open(edited);
+        assertArrayEquals(new int[]{1234,498,496,500,496,5678},reopened.battleItems());
+        assertTrue(reopened.checksumValid());
+    }
+
+    @Test public void transferCodeBulkBaseLevelsMatchUpstreamIncludingDynamicDrops() throws Exception {
+        java.nio.file.Path source=java.nio.file.Path.of("/tmp/device-transfer-507617.save"), expected=java.nio.file.Path.of("/tmp/upstream-batch-transfer-base-20.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(source)&&java.nio.file.Files.isRegularFile(expected));
+        SaveDocument document=SaveDocument.open(java.nio.file.Files.readAllBytes(source));
+        document.setAllCatBaseLevels(20);
+        assertArrayEquals(java.nio.file.Files.readAllBytes(expected),document.toBytes());
+    }
+
+    @Test public void jpTransferBaseLevelsUseJpDropCharaMapping() throws Exception {
+        java.nio.file.Path source=java.nio.file.Path.of("/tmp/device-session-561d5a87-c556-437b-93d1-5d69a56b64d0.save");
+        java.nio.file.Path fresh=java.nio.file.Path.of("/tmp/fresh-op-now2/device-session-561d5a87-c556-437b-93d1-5d69a56b64d0-base20.save");
+        java.nio.file.Path expected=java.nio.file.Files.isRegularFile(fresh) ? fresh : java.nio.file.Path.of("/tmp/correct-device-session-561d5a87-c556-437b-93d1-5d69a56b64d0-base20.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(source)&&java.nio.file.Files.isRegularFile(expected));
+        SaveDocument document=SaveDocument.open(java.nio.file.Files.readAllBytes(source));
+        document.setAllCatBaseLevels(20);
+        assertArrayEquals(java.nio.file.Files.readAllBytes(expected),document.toBytes());
+        SaveDocument reopened=SaveDocument.open(document.toBytes());
+        assertEquals(861,reopened.catCount());
+        assertTrue(reopened.checksumValid());
+    }
+
+    @Test public void jpReceivedSingleCatFieldEditsMatchUpstream() throws Exception {
+        java.nio.file.Path source=java.nio.file.Path.of("/tmp/device-session-561d5a87-c556-437b-93d1-5d69a56b64d0.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(source));
+        SaveDocument forms=SaveDocument.open(java.nio.file.Files.readAllBytes(source));
+        forms.setCatUnlockedForms(0,3);
+        assertEquals(3,forms.catUnlockedForms(0));
+        assertEquals(0,forms.catCurrentForm(0));
+        assertTrue(forms.catUnlocked(0));
+        SaveDocument fourth=SaveDocument.open(java.nio.file.Files.readAllBytes(source));
+        fourth.setCatFourthForm(0,2);
+        assertEquals(2,fourth.catFourthForm(0));
+        assertEquals(0,fourth.catCurrentForm(0));
+        assertEquals(0,fourth.catUnlockedForms(0));
+        assertTrue(fourth.catUnlocked(0));
+        SaveDocument current=SaveDocument.open(java.nio.file.Files.readAllBytes(source));
+        current.setCatCurrentForm(0,2);
+        assertEquals(2,current.catCurrentForm(0));
+        assertEquals(3,current.catUnlockedForms(0));
+        assertTrue(current.catUnlocked(0));
+        SaveDocument plus=SaveDocument.open(java.nio.file.Files.readAllBytes(source));
+        plus.setCatPlusLevel(0,5);
+        assertEquals(5,plus.catPlusLevel(0));
+        assertTrue(plus.catUnlocked(0));
+    }
+
+    @Test public void receivedSessionBattleItemsMatchUpstreamAcrossRegions() throws Exception {
+        String[] names={
+                "device-session-21a7a90f-4478-4fac-841b-7fd8c56b4b4c",
+                "device-session-561d5a87-c556-437b-93d1-5d69a56b64d0",
+                "device-session-64ee34a8-99d8-456b-b80c-3e5e5a207d97",
+                "device-session-842951b9-e594-4856-983b-c722da97075f",
+                "device-session-9bdbe0c3-1621-4924-823f-83ce6731f802"};
+        for(String name:names){
+            java.nio.file.Path source=java.nio.file.Path.of("/tmp/"+name+".save");
+            java.nio.file.Path expected=java.nio.file.Path.of("/tmp/correct-"+name+"-battle5.save");
+            Assume.assumeTrue(java.nio.file.Files.isRegularFile(source)&&java.nio.file.Files.isRegularFile(expected));
+            SaveDocument document=SaveDocument.open(java.nio.file.Files.readAllBytes(source));
+            document.setBattleItem(5,5678);
+            assertArrayEquals(java.nio.file.Files.readAllBytes(expected),document.toBytes());
+            assertEquals(5678,SaveDocument.open(document.toBytes()).battleItems()[5]);
+        }
+    }
+
+    @Test public void receivedSessionBatchBaseLevelsMatchUpstreamMatrix() throws Exception {
+        String[] names={
+                "device-session-21a7a90f-4478-4fac-841b-7fd8c56b4b4c",
+                "device-session-561d5a87-c556-437b-93d1-5d69a56b64d0",
+                "device-session-64ee34a8-99d8-456b-b80c-3e5e5a207d97",
+                "device-session-842951b9-e594-4856-983b-c722da97075f",
+                "device-session-9bdbe0c3-1621-4924-823f-83ce6731f802",
+                "device-session-c22c3b53-5b7f-46de-86f9-551da352e4d0",
+                "device-session-fb88deae-3897-4150-b111-b4d478d5bbc5",
+                "device-transfer-507617"};
+        int[] targets={1,5,10,20,30,40,60};
+        for(String name:names) {
+            java.nio.file.Path source=java.nio.file.Path.of("/tmp/"+name+".save");
+            Assume.assumeTrue(java.nio.file.Files.isRegularFile(source));
+            for(int target:targets) {
+                java.nio.file.Path expected=java.nio.file.Path.of("/tmp/correct-"+name+"-base"+target+".save");
+                Assume.assumeTrue(java.nio.file.Files.isRegularFile(expected));
+                SaveDocument document=SaveDocument.open(java.nio.file.Files.readAllBytes(source));
+                document.setAllCatBaseLevels(target);
+                assertArrayEquals(name+" base"+target,
+                        java.nio.file.Files.readAllBytes(expected),document.toBytes());
+                SaveDocument reopened=SaveDocument.open(document.toBytes());
+                assertEquals(name+" base"+target,document.catCount(),reopened.catCount());
+                assertTrue(name+" base"+target,reopened.checksumValid());
+            }
+        }
+    }
+
+    @Test public void transferCodeDynamicItemsUseSerializedListLocations() throws Exception {
+        java.nio.file.Path source=java.nio.file.Path.of("/tmp/device-transfer-507617.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(source));
+        SaveDocument d=SaveDocument.open(java.nio.file.Files.readAllBytes(source));
+        d.setCatfruit(0,777); d.setCatseye(0,778); d.setCatamin(0,779);
+        byte[] edited=d.toBytes();
+        assertEquals(777,littleInt(edited,386138));
+        assertEquals(778,littleInt(edited,393250));
+        assertEquals(779,littleInt(edited,393278));
+        assertTrue(d.checksumValid());
+    }
+
+    @Test public void transferCodeLateFieldsUseSerializedStructureLocations() throws Exception {
+        java.nio.file.Path source=java.nio.file.Path.of("/tmp/device-transfer-507617.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(source));
+        SaveDocument d=SaveDocument.open(java.nio.file.Files.readAllBytes(source));
+        d.setRareSeed(1234); d.setNormalSeed(1235); d.setEventSeed(1236);
+        d.setGamatotoXp(1237); d.setGamatotoDestination(7);
+        d.setLuckyTicket(0,1238); d.setEventTicket(0,1239);
+        d.setDojoRanking(1240); d.setOfficerPassCatId(1241); d.setOfficerPassCatForm(2);
+        d.setBaseMaterial(0,1242);
+        byte[] out=d.toBytes();
+        assertEquals(1234,littleInt(out,296555));
+        assertEquals(1235,littleInt(out,296559));
+        assertEquals(1236,littleInt(out,383598));
+        assertEquals(1237,littleInt(out,393299));
+        assertEquals(7,littleInt(out,393303));
+        assertEquals(1238,littleInt(out,450796));
+        assertEquals(1239,littleInt(out,383606));
+        assertEquals(1240,littleInt(out,421603));
+        assertEquals(1241,littleUshort(out,462247));
+        assertEquals(2,littleUshort(out,462249));
+        assertEquals(1242,littleInt(out,406998));
+        SaveDocument reopened=SaveDocument.open(out);
+        assertEquals(1234,reopened.rareSeed()); assertEquals(1235,reopened.normalSeed());
+        assertEquals(1236,reopened.eventSeed()); assertEquals(1237,reopened.gamatotoXp());
+        assertEquals(7,reopened.gamatotoDestination()); assertEquals(1238,reopened.luckyTicket(0));
+        assertEquals(1239,reopened.eventTicket(0)); assertEquals(1240,reopened.dojoRanking());
+        assertEquals(1241,reopened.officerPassCatId()); assertEquals(2,reopened.officerPassCatForm());
+        assertEquals(1242,reopened.baseMaterial(0)); assertTrue(reopened.checksumValid());
+    }
+
+    @Test public void transferCodeChallengeMapUsesRepeatedChapterHeaders() throws Exception {
+        java.nio.file.Path source=java.nio.file.Path.of("/tmp/device-transfer-507617.save"), expected=java.nio.file.Path.of("/tmp/upstream-transfer-stage-challenge.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(source)&&java.nio.file.Files.isRegularFile(expected));
+        SaveDocument document=SaveDocument.open(java.nio.file.Files.readAllBytes(source));
+        assertEquals(1,document.stageMapCount(SaveDocument.StageMap.CHALLENGE));
+        assertEquals(4,document.stageMapStarCount(SaveDocument.StageMap.CHALLENGE,0));
+        assertEquals(50,document.stageMapStageCount(SaveDocument.StageMap.CHALLENGE,0,0));
+        document.setStageMapClearTimes(SaveDocument.StageMap.CHALLENGE,0,0,7,1);
+        assertArrayEquals(java.nio.file.Files.readAllBytes(expected),document.toBytes());
+        SaveDocument reopened=SaveDocument.open(document.toBytes());
+        assertEquals(1,reopened.stageMapClearTimes(SaveDocument.StageMap.CHALLENGE,0,0,7));
+        assertTrue(reopened.checksumValid());
+    }
+
+    @Test public void transferCodeLegendQuestUsesByteSizedVariableLayout() throws Exception {
+        java.nio.file.Path source=java.nio.file.Path.of("/tmp/device-transfer-507617.save"), expected=java.nio.file.Path.of("/tmp/upstream-transfer-stage-legend.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(source)&&java.nio.file.Files.isRegularFile(expected));
+        SaveDocument document=SaveDocument.open(java.nio.file.Files.readAllBytes(source));
+        assertEquals(1,document.stageMapCount(SaveDocument.StageMap.LEGEND_QUEST));
+        assertEquals(1,document.stageMapStarCount(SaveDocument.StageMap.LEGEND_QUEST,0));
+        assertEquals(48,document.stageMapStageCount(SaveDocument.StageMap.LEGEND_QUEST,0,0));
+        document.setStageMapClearTimes(SaveDocument.StageMap.LEGEND_QUEST,0,0,0,7);
+        assertArrayEquals(java.nio.file.Files.readAllBytes(expected),document.toBytes());
+        assertEquals(7,SaveDocument.open(document.toBytes()).stageMapClearTimes(SaveDocument.StageMap.LEGEND_QUEST,0,0,0));
+    }
+
+    @Test public void transferCodeRareTicketTradeUsesDynamicGatyaLocation() throws Exception {
+        java.nio.file.Path source=java.nio.file.Path.of("/tmp/device-transfer-507617.save"), expected=java.nio.file.Path.of("/tmp/upstream-transfer-rare-trade-operation.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(source)&&java.nio.file.Files.isRegularFile(expected));
+        SaveDocument document=SaveDocument.open(java.nio.file.Files.readAllBytes(source));
+        document.tradeRareTickets(1234);
+        assertArrayEquals(java.nio.file.Files.readAllBytes(expected),document.toBytes());
+        assertEquals(6170,document.rareTicketTradeProgress());
+    }
+
+    @Test public void transferCodeTalentOrbMutationsMatchUpstream() throws Exception {
+        java.nio.file.Path source=java.nio.file.Path.of("/tmp/device-transfer-507617.save");
+        java.nio.file.Path set=java.nio.file.Path.of("/tmp/upstream-transfer-orb-set.save"), add=java.nio.file.Path.of("/tmp/upstream-transfer-orb-add.save"), remove=java.nio.file.Path.of("/tmp/upstream-transfer-orb-remove.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(source)&&java.nio.file.Files.isRegularFile(set)&&java.nio.file.Files.isRegularFile(add)&&java.nio.file.Files.isRegularFile(remove));
+        SaveDocument a=SaveDocument.open(java.nio.file.Files.readAllBytes(source));a.setTalentOrbAmount(0,123);assertArrayEquals(java.nio.file.Files.readAllBytes(set),a.toBytes());
+        SaveDocument b=SaveDocument.open(java.nio.file.Files.readAllBytes(source));b.addTalentOrb(999,44);assertArrayEquals(java.nio.file.Files.readAllBytes(add),b.toBytes());
+        SaveDocument c=SaveDocument.open(java.nio.file.Files.readAllBytes(source));c.removeTalentOrb(0);assertArrayEquals(java.nio.file.Files.readAllBytes(remove),c.toBytes());
+    }
+
+    @Test public void transferCodeLateMapLayoutsMatchUpstream() throws Exception {
+        java.nio.file.Path source=java.nio.file.Path.of("/tmp/device-transfer-507617.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(source));
+        String[] names={"challenge","gauntlets","enigma","collab","event","uncanny","catamin","behemoth","legend","tower","zero","dojo"};
+        SaveDocument.StageMap[] types={SaveDocument.StageMap.CHALLENGE,SaveDocument.StageMap.GAUNTLETS,SaveDocument.StageMap.ENIGMA_CLEARS,SaveDocument.StageMap.COLLAB_GAUNTLETS,SaveDocument.StageMap.EVENT,SaveDocument.StageMap.UNCANNY,SaveDocument.StageMap.CATAMIN,SaveDocument.StageMap.BEHEMOTH,SaveDocument.StageMap.LEGEND_QUEST,SaveDocument.StageMap.TOWER,SaveDocument.StageMap.ZERO_LEGENDS,SaveDocument.StageMap.DOJO};
+        byte[] original=java.nio.file.Files.readAllBytes(source);
+        for(int i=0;i<names.length;i++) {
+            java.nio.file.Path expected=java.nio.file.Path.of("/tmp/upstream-transfer-stage-"+names[i]+".save");
+            Assume.assumeTrue(java.nio.file.Files.isRegularFile(expected));
+            SaveDocument d=SaveDocument.open(original);
+            int map=names[i].equals("event")?0:0;
+            int stage=names[i].equals("challenge")?7:0;
+            d.setStageMapClearTimes(types[i],map,0,stage,names[i].equals("challenge")?1:7);
+            assertArrayEquals("map="+names[i],java.nio.file.Files.readAllBytes(expected),d.toBytes());
+        }
+    }
+
+    @Test public void transferCodeEventMapUsesStageMajorSerialization() throws Exception {
+        java.nio.file.Path source=java.nio.file.Path.of("/tmp/device-transfer-507617.save");
+        java.nio.file.Path expected=java.nio.file.Path.of("/tmp/upstream-transfer-stage-event.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(source)&&java.nio.file.Files.isRegularFile(expected));
+        SaveDocument document=SaveDocument.open(java.nio.file.Files.readAllBytes(source));
+        document.setStageMapClearTimes(SaveDocument.StageMap.EVENT,0,0,0,7);
+        assertArrayEquals(java.nio.file.Files.readAllBytes(expected),document.toBytes());
+        SaveDocument reopened=SaveDocument.open(document.toBytes());
+        assertEquals(7,reopened.stageMapClearTimes(SaveDocument.StageMap.EVENT,0,0,0));
+        assertTrue(reopened.checksumValid());
+    }
+
+    @Test public void transferCodeRemainingVariableSectionsMatchUpstream() throws Exception {
+        java.nio.file.Path source=java.nio.file.Path.of("/tmp/device-transfer-507617.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(source));
+        String[] names={"story-clear","story-treasure","aku","mission","cannon","cannon-part","storage","medal"};
+        byte[] original=java.nio.file.Files.readAllBytes(source);
+        for(String name:names) {
+            java.nio.file.Path expected=java.nio.file.Path.of("/tmp/upstream-transfer-"+name+".save");
+            Assume.assumeTrue(java.nio.file.Files.isRegularFile(expected));
+            SaveDocument d=SaveDocument.open(original);
+            switch(name) {
+                case "story-clear" -> d.setStoryClearTimes(0,0,7);
+                case "story-treasure" -> d.setStoryTreasure(0,0,7);
+                case "aku" -> d.setAkuClearTimes(0,0,0,7);
+                case "mission" -> d.setMissionCompletion(d.missionIds()[0],2);
+                case "cannon" -> d.setCannonDevelopment(1,3);
+                case "cannon-part" -> d.setCannonPartLevel(1,0,7);
+                case "storage" -> d.setStorageItem(0,1,7);
+                case "medal" -> d.addMedal(1);
+            }
+            assertArrayEquals("section="+name,java.nio.file.Files.readAllBytes(expected),d.toBytes());
+        }
+    }
+
+    @Test public void transferCodeOutbreakTablesAreLocatedAfterReceivedProfileShift() throws Exception {
+        java.nio.file.Path source=java.nio.file.Path.of("/tmp/device-transfer-507617.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(source));
+        SaveDocument d=SaveDocument.open(java.nio.file.Files.readAllBytes(source));
+        assertEquals(9,d.outbreakChapterCount());
+        assertEquals(48,d.outbreakStageCount(0));
+        d.setOutbreakCleared(0,0,true);
+        java.nio.file.Path expected=java.nio.file.Path.of("/tmp/upstream-transfer-outbreak-clear.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(expected));
+        assertArrayEquals(java.nio.file.Files.readAllBytes(expected),d.toBytes());
+        SaveDocument whole=SaveDocument.open(java.nio.file.Files.readAllBytes(source));
+        whole.setOutbreakChapterCleared(0,true);
+        expected=java.nio.file.Path.of("/tmp/upstream-transfer-outbreak-whole-clear.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(expected));
+        assertArrayEquals(java.nio.file.Files.readAllBytes(expected),whole.toBytes());
+    }
+
+    @Test public void receivedProfilesKeepVariableTailTablesAligned() throws Exception {
+        java.nio.file.Path tw=java.nio.file.Path.of("/tmp/device-transfer-507617.save");
+        java.nio.file.Path jp=java.nio.file.Path.of("/tmp/device-session-561d5a87-c556-437b-93d1-5d69a56b64d0.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(tw)&&java.nio.file.Files.isRegularFile(jp));
+        SaveDocument twDoc=SaveDocument.open(java.nio.file.Files.readAllBytes(tw));
+        SaveDocument jpDoc=SaveDocument.open(java.nio.file.Files.readAllBytes(jp));
+        assertEquals(39,twDoc.treasureChests().length); assertEquals(30,jpDoc.treasureChests().length);
+        assertEquals(873,twDoc.catCount()); assertEquals(861,jpDoc.catCount());
+        twDoc.resetAllCats(); jpDoc.resetAllCats();
+        assertEquals(39,SaveDocument.open(twDoc.toBytes()).treasureChests().length);
+        assertEquals(30,SaveDocument.open(jpDoc.toBytes()).treasureChests().length);
+        assertTrue(twDoc.checksumValid()); assertTrue(jpDoc.checksumValid());
+    }
+
+    @Test public void transferCodeBulkPlusAndUnlockMatchUpstreamWhenSamplesAreAvailable() throws Exception {
+        java.nio.file.Path source=java.nio.file.Path.of("/tmp/device-transfer-507617.save");
+        java.nio.file.Path plus=java.nio.file.Path.of("/tmp/upstream-transfer-plus-5.save");
+        java.nio.file.Path unlock=java.nio.file.Path.of("/tmp/upstream-transfer-unlock-all.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(source)
+                && java.nio.file.Files.isRegularFile(plus)
+                && java.nio.file.Files.isRegularFile(unlock));
+        SaveDocument plusDocument=SaveDocument.open(java.nio.file.Files.readAllBytes(source));
+        plusDocument.setAllCatPlusLevels(5);
+        assertArrayEquals(java.nio.file.Files.readAllBytes(plus),plusDocument.toBytes());
+        SaveDocument unlockDocument=SaveDocument.open(java.nio.file.Files.readAllBytes(source));
+        unlockDocument.unlockAllCats();
+        assertArrayEquals(java.nio.file.Files.readAllBytes(unlock),unlockDocument.toBytes());
+    }
+
+    @Test public void transferCodeSingleCatBaseAndBattleItemsMatchUpstream() throws Exception {
+        java.nio.file.Path source=java.nio.file.Path.of("/tmp/device-transfer-507617.save");
+        java.nio.file.Path base=java.nio.file.Path.of("/tmp/upstream-transfer-single-base20.save");
+        java.nio.file.Path battle=java.nio.file.Path.of("/tmp/upstream-transfer-single-battle_item_5.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(source)&&java.nio.file.Files.isRegularFile(base)&&java.nio.file.Files.isRegularFile(battle));
+        SaveDocument cat=SaveDocument.open(java.nio.file.Files.readAllBytes(source));cat.setCatBaseLevel(0,20);
+        assertArrayEquals(java.nio.file.Files.readAllBytes(base),cat.toBytes());
+        SaveDocument item=SaveDocument.open(java.nio.file.Files.readAllBytes(source));item.setBattleItem(5,1234);
+        assertArrayEquals(java.nio.file.Files.readAllBytes(battle),item.toBytes());
+    }
+
+    @Test public void transferCodeAllBattleItemsMatchUpstreamWhenSamplesAreAvailable() throws Exception {
+        java.nio.file.Path source=java.nio.file.Path.of("/tmp/device-transfer-507617.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(source));
+        byte[] original=java.nio.file.Files.readAllBytes(source);
+        for(int index=0;index<6;index++) {
+            java.nio.file.Path expected=java.nio.file.Path.of("/tmp/upstream-transfer-single-battle_item_"+index+".save");
+            Assume.assumeTrue(java.nio.file.Files.isRegularFile(expected));
+            SaveDocument document=SaveDocument.open(original);
+            document.setBattleItem(index,1234);
+            assertArrayEquals(java.nio.file.Files.readAllBytes(expected),document.toBytes());
+        }
+    }
+
+    @Test public void transferCodeBaseUpgradeUsesDynamicMaxTableForRepresentativeCats() throws Exception {
+        java.nio.file.Path source=java.nio.file.Path.of("/tmp/device-transfer-507617.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(source));
+        byte[] original=java.nio.file.Files.readAllBytes(source);
+        // These cover normal, special, rare, collaboration and late-game
+        // records.  Received saves commonly have a zeroed max-upgrade table;
+        // every edit must rebuild the same companion record as upstream.
+        int[] cats={0,1,12,100,400,700,859,860,861,872};
+        for(int cat:cats){
+            SaveDocument document=SaveDocument.open(original);
+            document.setCatBaseLevel(cat,20);
+            SaveDocument reopened=SaveDocument.open(document.toBytes());
+            assertEquals("cat="+cat,20,reopened.catBaseLevel(cat));
+            assertTrue("cat="+cat,reopened.checksumValid());
+        }
+    }
+
+    @Test public void transferCodeBattleItemsRoundTripPreservesTrailingStructure() throws Exception {
+        java.nio.file.Path source=java.nio.file.Path.of("/tmp/device-transfer-507617.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(source));
+        byte[] original=java.nio.file.Files.readAllBytes(source);
+        SaveDocument document=SaveDocument.open(original);
+        int[] expected={101,202,303,404,505,606};
+        for(int i=0;i<expected.length;i++) document.setBattleItem(i,expected[i]);
+        byte[] edited=document.toBytes();
+        // The serialized list header and the first lock/date records follow
+        // immediately after the six amounts and must remain untouched.
+        assertEquals(31,littleInt(edited,19030));
+        assertEquals(2,littleInt(edited,19034));
+        assertEquals(2026,littleInt(edited,19254));
+        SaveDocument reopened=SaveDocument.open(edited);
+        assertArrayEquals(expected,reopened.battleItems());
+        assertTrue(reopened.checksumValid());
+    }
+
+    @Test public void transferCodeCredentialRefreshPreservesDynamicProfiles() throws Exception {
+        java.nio.file.Path source=java.nio.file.Path.of("/tmp/device-transfer-507617.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(source));
+        SaveDocument document=SaveDocument.open(java.nio.file.Files.readAllBytes(source));
+        int base=document.catBaseLevel(0), plus=document.catPlusLevel(0), fruit=document.catfruit()[0];
+        int[] battle=document.battleItems();
+        document.setPasswordRefreshToken("0123456789012345678901234567890123456789");
+        SaveDocument reopened=SaveDocument.open(document.toBytes());
+        assertEquals(base,reopened.catBaseLevel(0));
+        assertEquals(plus,reopened.catPlusLevel(0));
+        assertEquals(fruit,reopened.catfruit()[0]);
+        assertArrayEquals(battle,reopened.battleItems());
+        assertEquals(31,reopened.normalTickets());
+        assertEquals(20,reopened.catBaseLevel(0));
+        assertEquals("0123456789012345678901234567890123456789",reopened.passwordRefreshToken());
+        assertTrue(reopened.checksumValid());
+    }
+
+    @Test public void transferCodeVariableCoreFieldsUseUpstreamLocations() throws Exception {
+        java.nio.file.Path source=java.nio.file.Path.of("/tmp/device-transfer-507617.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(source));
+        SaveDocument d=SaveDocument.open(java.nio.file.Files.readAllBytes(source));
+        assertFalse(d.showBanMessage());
+        assertEquals(2147483647,d.rankUpSaleValue());
+        assertEquals(400,d.userRankRewardCount());
+        d.setShowBanMessage(true); d.fixGamatotoCrash(); d.unlockEquipMenu();
+        d.setUserRankRewardClaimed(399,true); d.fixTimeErrors(1700000000L);
+        byte[] out=d.toBytes();
+        assertEquals(1,out[385182]&255); assertEquals(2,littleInt(out,398318));
+        assertEquals(2,littleInt(out,18942)); assertEquals(1,out[310265+399]&255);
+        java.time.ZonedDateTime now=java.time.Instant.ofEpochSecond(1700000000L).atZone(java.time.ZoneId.systemDefault());
+        assertEquals(now.getYear(),littleInt(out,19479)); assertEquals(now.getMonthValue(),littleInt(out,19483));
+        assertEquals(now.getDayOfMonth(),littleInt(out,19487)); assertEquals(1700000000.0,littleDouble(out,39),0.0);
+        assertEquals(1700000000.0,littleDouble(out,400514),0.0);
+        SaveDocument reopened=SaveDocument.open(out); assertTrue(reopened.showBanMessage());
+        assertTrue(reopened.userRankRewardClaimed(399)); assertEquals(1700000000L,reopened.accountCreatedAt());
+        assertTrue(reopened.checksumValid());
+    }
+
+    @Test public void transferCodeGoldPassMutationKeepsVariableProfileIntact() throws Exception {
+        java.nio.file.Path source=java.nio.file.Path.of("/tmp/device-transfer-507617.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(source));
+        byte[] original=java.nio.file.Files.readAllBytes(source);
+        SaveDocument document=SaveDocument.open(original);
+        document.grantGoldPass(12345,1700000000L,30);
+        assertEquals("Gold Pass must not consume unrelated transfer payload",original.length,document.toBytes().length);
+        SaveDocument granted=SaveDocument.open(document.toBytes());
+        assertEquals(12345,granted.goldPassOfficerId());
+        assertEquals(2,granted.goldPassRenewals());
+        assertEquals(1700000000L,granted.goldPassDate(0));
+        assertTrue(granted.checksumValid());
+        granted.removeGoldPass();
+        SaveDocument removed=SaveDocument.open(granted.toBytes());
+        assertEquals(-1,removed.goldPassOfficerId());
+        assertEquals(original.length,removed.toBytes().length);
+        assertTrue(removed.checksumValid());
+    }
+
+    @Test public void transferCodeSpecialSkillAndEnemyGuideUseSerializedLocations() throws Exception {
+        java.nio.file.Path source=java.nio.file.Path.of("/tmp/device-transfer-507617.save");
+        java.nio.file.Path skillPlus=java.nio.file.Path.of("/tmp/upstream-transfer-ui-skill-plus.save");
+        java.nio.file.Path skillBase=java.nio.file.Path.of("/tmp/upstream-transfer-ui-skill-base.save");
+        java.nio.file.Path enemy=java.nio.file.Path.of("/tmp/upstream-transfer-single-enemy_guide_0.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(source)
+                && java.nio.file.Files.isRegularFile(skillPlus)
+                && java.nio.file.Files.isRegularFile(skillBase)
+                && java.nio.file.Files.isRegularFile(enemy));
+        byte[] original=java.nio.file.Files.readAllBytes(source);
+        SaveDocument plus=SaveDocument.open(original);plus.setSpecialSkillPlusLevel(0,7);
+        assertArrayEquals(java.nio.file.Files.readAllBytes(skillPlus),plus.toBytes());
+        SaveDocument base=SaveDocument.open(original);base.setSpecialSkillBaseLevel(0,8);
+        assertArrayEquals(java.nio.file.Files.readAllBytes(skillBase),base.toBytes());
+        SaveDocument enemyDocument=SaveDocument.open(original);enemyDocument.setEnemyGuideUnlocked(0,true);
+        assertArrayEquals(java.nio.file.Files.readAllBytes(enemy),enemyDocument.toBytes());
+    }
+
     @Test public void endlessBattleDurationIncludesStoredItemTime() throws Exception {
         SaveDocument document=SaveDocument.open(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save")));
         document.setEndlessBattleDurationMinutes(0,90);
@@ -875,6 +1325,7 @@ public class SaveDocumentTest {
     private static void putInt(byte[] bytes, int offset, int value) { bytes[offset] = (byte)value; bytes[offset+1] = (byte)(value>>8); bytes[offset+2] = (byte)(value>>16); bytes[offset+3] = (byte)(value>>24); }
     private static int littleUshort(byte[] bytes,int offset) { return (bytes[offset]&255)|((bytes[offset+1]&255)<<8); }
     private static int littleInt(byte[] bytes,int offset) { return (bytes[offset]&255)|((bytes[offset+1]&255)<<8)|((bytes[offset+2]&255)<<16)|(bytes[offset+3]<<24); }
+    private static double littleDouble(byte[] bytes,int offset) { long value=0;for(int i=7;i>=0;i--)value=(value<<8)|(bytes[offset+i]&255L);return Double.longBitsToDouble(value); }
     private static void refreshHash(byte[] bytes, SaveDocument.Region region) throws Exception { String salt=region==SaveDocument.Region.EN?"battlecatsen":region==SaveDocument.Region.TW?"battlecatstw":"battlecats";MessageDigest md=MessageDigest.getInstance("MD5");md.update(salt.getBytes(StandardCharsets.UTF_8));md.update(bytes,0,bytes.length-32);String hash=hex(md.digest());System.arraycopy(hash.getBytes(StandardCharsets.US_ASCII),0,bytes,bytes.length-32,32); }
     private static String hex(byte[] bytes) { StringBuilder out = new StringBuilder(); for (byte b : bytes) out.append(String.format("%02x", b)); return out.toString(); }
 }
