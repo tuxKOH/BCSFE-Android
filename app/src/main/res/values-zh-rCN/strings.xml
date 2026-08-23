@@ -21,6 +21,7 @@
     <string name="open_save">打开存档文件</string>
     <string name="receive_transfer">使用转移码接收存档</string>
     <string name="create_new_save">创建新存档</string><string name="choose_new_save_region">选择新存档的地区</string><string name="creating_new_save">正在创建新账号……</string><string name="create_new_save_failed">无法创建新存档，请检查网络后重试。</string><string name="new_save_session_name">新存档（%1$s）</string>
+    <string name="root_load_save">从本机游戏储存直接获取存档（需要 root）</string><string name="root_write_save">直接加载进手机内对应版本游戏（需 root）</string><string name="root_not_detected">未检测到 root！</string><string name="root_checking">正在检测 root…</string><string name="root_no_game">无法检测到%1$s版本的猫战存在于手机！</string><string name="root_choose_game">请点击并加载在本机已检测到的版本：</string><string name="root_no_save">无法检测游戏内存档！可能为新号，是否创建新存档？</string><string name="root_load_failed">无法读取游戏内存档。</string><string name="root_load_success">已将本机游戏存档作为新会话打开。</string><string name="root_write_confirm">这将删除游戏内 SAVE_DATA、SAVE_DATA.OLD 以及 cache 下的 JSON 文件，并把当前存档写入%1$s游戏。是否继续？</string><string name="root_writing">正在写入游戏存档…</string><string name="root_write_success">存档已加载进手机内游戏。</string><string name="root_write_failed">无法写入游戏内存档。</string><string name="root_ad_warning">按下继续会出现一个弹窗广告来支持我，请勿相信广告内容，存档会在后台写入。</string><string name="root_ad_action">继续</string><string name="force_load_title">版本未被正式支持！</string><string name="force_load_message">这看起来是日版 15.5.1 存档。可以强行加载以供查看，但部分字段可能偏移或显示乱码。看到乱码值请勿修改，否则可能触发游戏数据异常。</string><string name="force_load_confirm">强行加载</string>
     <string name="upload_transfer">上传存档并输出转移码</string>
     <string name="enter_transfer">转移码</string>
     <string name="enter_pin">确认码</string>
@@ -173,4 +174,5 @@
     <string name="no_matching_talent_orb">没有符合此等级和属性的本能玉。</string>
     <string name="talent_orb_set_all">批量设置全部本能玉</string>
     <string name="talent_orb_batch_grade_title">选择要批量修改的等级</string><string name="talent_orb_all_grade">全部本能玉</string><string name="talent_orb_grade_label">%1$d 级本能玉</string>
+    <string name="root_no_any_game">无法检测到任何地区版本的猫战存在于手机！</string>
 </resources>

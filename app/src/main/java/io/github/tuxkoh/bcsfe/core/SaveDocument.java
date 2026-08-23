@@ -18,12 +18,21 @@ public final class SaveDocument {
         private final String salt;
         Region(String code, String salt) { this.code = code; this.salt = salt; }
         public String code() { return code; }
+        public String packageSuffix() { return salt; }
+        public static Region fromCode(String value) {
+            if (value == null) return null;
+            for (Region region : values()) if (region.code.equalsIgnoreCase(value)) return region;
+            return null;
+        }
         String salt() { return salt; }
     }
 
     private byte[] bytes;
     private Region region;
     private final int integerStart;
+    private final int gameVersionOffset;
+    private final int hashOffset;
+    private final boolean forcedUnsupported;
     private int cannonBaseCache = -1;
     private int goldPassBaseCache = -1;
     private int talentTableBaseCache = -1;
@@ -78,9 +87,16 @@ public final class SaveDocument {
 
 
     private SaveDocument(byte[] source, Region region, int integerStart) {
+        this(source, region, integerStart, Offsets.offsets_23, -1, false);
+    }
+
+    private SaveDocument(byte[] source, Region region, int integerStart, int gameVersionOffset, int hashOffset, boolean forcedUnsupported) {
         this.bytes = source;
         this.region = region;
         this.integerStart = integerStart;
+        this.gameVersionOffset = gameVersionOffset;
+        this.hashOffset = hashOffset;
+        this.forcedUnsupported = forcedUnsupported;
     }
 
     public static SaveDocument open(byte[] source) {
@@ -99,10 +115,28 @@ public final class SaveDocument {
         return new SaveDocument(source.clone(), region, start);
     }
 
+    /**
+     * Opens a save whose checksum/layout belongs to a newer game revision.
+     * This path is deliberately explicit: callers must show the unsupported
+     * version warning before allowing the user to continue.
+     */
+    public static SaveDocument openForInspection(byte[] source, Region hint) {
+        if (source == null || source.length < 48) throw new IllegalArgumentException("Save is too small");
+        int versionOffset = findUnsupportedVersionOffset(source);
+        if (versionOffset < 0) throw new IllegalArgumentException("Unsupported save format");
+        for (Region candidate : Region.values()) {
+            int hash = findHashOffset(source, candidate);
+            if (hash >= 0) return new SaveDocument(source.clone(), candidate, Offsets.offsets_122, versionOffset, hash, true);
+        }
+        Region region = hint == null ? Region.JP : hint;
+        return new SaveDocument(source.clone(), region, Offsets.offsets_122, versionOffset,
+                source.length - Offsets.offsets_130, true);
+    }
+
     public byte[] toBytes() { return bytes.clone(); }
     public Region region() { return region; }
     /** Full editor validation currently covers the 15.5 save layout. */
-    public boolean isOfficiallySupportedVersion() { return gameVersion() == 150500; }
+    public boolean isOfficiallySupportedVersion() { return !forcedUnsupported && gameVersion() == 150500; }
     /** Import is intentionally allowed for these saves, but editing is not certified. */
     public boolean needsUnsupportedImportWarning() { return !isOfficiallySupportedVersion(); }
     public void convertRegion(Region target) {
@@ -209,7 +243,7 @@ public final class SaveDocument {
         bytes[Offsets.offsets_22] = 0;
         region = Region.TW;
     }
-    public int gameVersion() { return intAt(Offsets.offsets_23); }
+    public int gameVersion() { return intAt(gameVersionOffset); }
     public void convertGameVersion(int target) {
         int source=gameVersion();
         if(source==target)return;
@@ -217,7 +251,7 @@ public final class SaveDocument {
             if(source>=140500)convert140500EmbeddedLayout(source,140000);
             if(source>=140100){int marker90500=findInt(90500);splice(marker90500-2,2,0);}
             int start=findInt(140000)+4,end=findInt(140300)+4;splice(start,end-start,0);
-            putInt(Offsets.offsets_23,target);refreshHash();return;
+            putInt(gameVersionOffset,target);refreshHash();return;
         }
         if(source==140000&&target>=140300&&target<=150500){
             if(target>=140500)convert140500EmbeddedLayout(source,target);
@@ -228,7 +262,7 @@ public final class SaveDocument {
             tail[p++]=0;tail[p++]=0;p+=4;writeInt(tail,p,140200);p+=4;
             tail[p++]=0;p+=extra;tail[p++]=0;tail[p++]=0;p+=4;p+=2;tail[p++]=0;writeInt(tail,p,140300);
             splice(marker140000+4,0,tail.length);System.arraycopy(tail,0,bytes,marker140000+4,tail.length);
-            putInt(Offsets.offsets_23,target);refreshHash();return;
+            putInt(gameVersionOffset,target);refreshHash();return;
         }
         if(source<140300||source>150500||target<140300||target>150500)throw new UnsupportedOperationException("Version conversion is supported from 14.3 through 15.5, plus downgrade to 14.0");
         convert140500EmbeddedLayout(source,target);
@@ -239,7 +273,7 @@ public final class SaveDocument {
         int targetExtra=target>=150500?6:target>=150300?5:0;
         if(targetExtra<sourceExtra)splice(fields+targetExtra,sourceExtra-targetExtra,0);
         else if(targetExtra>sourceExtra){splice(fields+sourceExtra,0,targetExtra-sourceExtra);Arrays.fill(bytes,fields+sourceExtra,fields+targetExtra,(byte)0);}
-        putInt(Offsets.offsets_23,target);
+        putInt(gameVersionOffset,target);
         refreshHash();
     }
     private void convert140500EmbeddedLayout(int source,int target) {
@@ -768,8 +802,8 @@ public final class SaveDocument {
     }
     public void removeFourthForms() { ensureCatProfile();CatLayout l=catLayout(); for(int i=0;i<l.count;i++){ int current=intAt(l.currentFormStart+i*4); putInt(l.currentFormStart+i*4,Math.min(current,2)); putInt(l.fourthStart+i*4,0); }touchRankUpSale();refreshHash(); }
 
-    public boolean checksumValid() { return hasValidHash(bytes, region, integerStart); }
-    public String checksum() { return new String(bytes, bytes.length-Offsets.offsets_130, 32, java.nio.charset.StandardCharsets.US_ASCII); }
+    public boolean checksumValid() { return hasValidHashAt(bytes, region, hashPosition()); }
+    public String checksum() { return new String(bytes, hashPosition(), 32, java.nio.charset.StandardCharsets.US_ASCII); }
 
     private static boolean hasValidHash(byte[] source, Region region, int start) {
         if (start + 44 > source.length || source.length < 32) return false;
@@ -778,12 +812,56 @@ public final class SaveDocument {
         return expected.equalsIgnoreCase(actual);
     }
 
+    private static boolean hasValidHashAt(byte[] source, Region region, int hashOffset) {
+        if (hashOffset < 0 || hashOffset + 32 > source.length) return false;
+        String expected = md5(region.salt(), source, 0, hashOffset);
+        String actual = new String(source, hashOffset, 32, java.nio.charset.StandardCharsets.US_ASCII);
+        return expected.equalsIgnoreCase(actual);
+    }
+
+    private static int findHashOffset(byte[] source, Region region) {
+        int from = Math.max(0, source.length - 4096);
+        for (int offset = from; offset + 32 <= source.length; offset++) {
+            boolean hex = true;
+            for (int i = 0; i < 32; i++) {
+                int value = source[offset + i] & 255;
+                if (!((value >= '0' && value <= '9') || (value >= 'a' && value <= 'f')
+                        || (value >= 'A' && value <= 'F'))) { hex = false; break; }
+            }
+            if (hex && hasValidHashAt(source, region, offset)) return offset;
+        }
+        return -1;
+    }
+
+    private static int rawIntAt(byte[] source, int offset) {
+        if (offset < 0 || offset + 4 > source.length) return Integer.MIN_VALUE;
+        return (source[offset] & 255) | ((source[offset + 1] & 255) << 8)
+                | ((source[offset + 2] & 255) << 16) | (source[offset + 3] << 24);
+    }
+
+    private static int findUnsupportedVersionOffset(byte[] source) {
+        int from = Math.max(0, Offsets.offsets_23 - 8192);
+        int to = Math.min(source.length - 36, Offsets.offsets_23 + 8192);
+        int best = -1, distance = Integer.MAX_VALUE;
+        for (int offset = from; offset <= to; offset++) {
+            int value = rawIntAt(source, offset);
+            if (value >= 150501 && value <= 150599) {
+                int currentDistance = Math.abs(offset - Offsets.offsets_23);
+                if (currentDistance < distance) { best = offset; distance = currentDistance; }
+            }
+        }
+        return best;
+    }
+
     private void refreshHash() {
-        byte[] digestInput = Arrays.copyOf(bytes, bytes.length-Offsets.offsets_130);
+        int position = hashPosition();
+        byte[] digestInput = Arrays.copyOf(bytes, position);
         byte[] digest = md5Bytes(region.salt(), digestInput);
         String value = hex(digest);
-        System.arraycopy(value.getBytes(java.nio.charset.StandardCharsets.US_ASCII), 0, bytes, bytes.length-Offsets.offsets_130, 32);
+        System.arraycopy(value.getBytes(java.nio.charset.StandardCharsets.US_ASCII), 0, bytes, position, 32);
     }
+
+    private int hashPosition() { return hashOffset >= 0 ? hashOffset : bytes.length - Offsets.offsets_130; }
 
     private int intAt(int offset) {
         if (offset < 0 || offset + 4 > bytes.length-Offsets.offsets_130) throw new IllegalStateException("Save field is unavailable");

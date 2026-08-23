@@ -69,6 +69,10 @@ public final class MainActivity extends AppCompatActivity {
     private boolean adWindowCreated;
     private final ExecutorService networkExecutor=Executors.newSingleThreadExecutor();
     private boolean newSaveInProgress;
+    private volatile boolean rootAvailable;
+    private boolean rootCheckRunning;
+    private View rootLoadButton;
+    private View rootWriteButton;
     private int activeFeatureId=-1;
     private final class AdDiagnostics {
         @JavascriptInterface public void clickListenerAdded(){android.util.Log.d(AD_LOG_TAG,"JS registered click listener");}
@@ -120,6 +124,10 @@ public final class MainActivity extends AppCompatActivity {
         view.findViewById(R.id.openButton).setOnClickListener(v -> openDocument.launch(new String[]{"*/*"}));
         view.findViewById(R.id.receiveButton).setOnClickListener(v -> receiveTransfer());
         view.findViewById(R.id.createSaveButton).setOnClickListener(v -> chooseNewSaveRegion());
+        rootLoadButton = view.findViewById(R.id.rootLoadButton);
+        updateRootButton(rootLoadButton);
+        rootLoadButton.setOnClickListener(v -> { if (rootAvailable) chooseLocalSave(); else Toast.makeText(this, R.string.root_not_detected, Toast.LENGTH_SHORT).show(); });
+        checkRootAccess();
         var categories = (android.widget.LinearLayout) view.findViewById(R.id.categories);
         for (String category : getResources().getStringArray(R.array.category_names)) {
             TextView row = new TextView(this);
@@ -132,6 +140,28 @@ public final class MainActivity extends AppCompatActivity {
             params.bottomMargin = dp(8);
             categories.addView(row, params);
         }
+    }
+
+    private void updateRootButton(View button) {
+        if (button == null) return;
+        // Keep it clickable when root is missing so the user gets the
+        // explicit diagnostic instead of a silent disabled control.
+        button.setEnabled(true);
+        button.setAlpha(rootAvailable ? 1f : 0.55f);
+    }
+
+    private void checkRootAccess() {
+        if (rootCheckRunning) return;
+        rootCheckRunning = true;
+        Executors.newSingleThreadExecutor().execute(() -> {
+            boolean available = RootAccess.isAvailable();
+            runOnUiThread(() -> {
+                rootCheckRunning = false;
+                rootAvailable = available;
+                updateRootButton(rootLoadButton);
+                updateRootButton(rootWriteButton);
+            });
+        });
     }
 
     private void chooseNewSaveRegion() {
@@ -170,17 +200,7 @@ public final class MainActivity extends AppCompatActivity {
         if (uri == null) return;
         try (InputStream input = getContentResolver().openInputStream(uri)) {
             if (input == null) throw new IllegalStateException("No stream");
-            SaveDocument replacement = SaveDocument.open(io.github.tuxkoh.bcsfe.core.IoStreams.readAll(input));
-            String replacementName = displayName(uri);
-            byte[] replacementBytes = replacement.toBytes();
-            accountPassword=null;SessionStore.Session session=sessionStore.create(replacementBytes,replacementName,accountPassword);sessionId=session.id;
-            document = replacement;
-            workingCopy = replacementBytes;
-            openedName = replacementName;
-            showEditor();
-            refreshSessionList();
-        } catch (IllegalArgumentException invalidSave) {
-            Toast.makeText(this, R.string.invalid_save_file, Toast.LENGTH_LONG).show();
+            openImportedBytes(io.github.tuxkoh.bcsfe.core.IoStreams.readAll(input), displayName(uri), null, null, R.string.invalid_save_file);
         } catch (Exception error) {
             Toast.makeText(this, R.string.read_failed, Toast.LENGTH_LONG).show();
         }
@@ -190,8 +210,100 @@ public final class MainActivity extends AppCompatActivity {
         if(intent==null||!Intent.ACTION_SEND.equals(intent.getAction()))return false;Uri uri=intent.getParcelableExtra(Intent.EXTRA_STREAM);if(uri==null&&intent.getClipData()!=null&&intent.getClipData().getItemCount()>0)uri=intent.getClipData().getItemAt(0).getUri();if(uri==null){Toast.makeText(this,R.string.shared_import_failed,Toast.LENGTH_LONG).show();return true;}loadSharedDocument(uri);intent.setAction(null);return true;
     }
     private void loadSharedDocument(Uri uri){
-        try(InputStream input=getContentResolver().openInputStream(uri)){if(input==null)throw new IllegalStateException();SaveDocument replacement=SaveDocument.open(io.github.tuxkoh.bcsfe.core.IoStreams.readAll(input));byte[] data=replacement.toBytes();String name=displayName(uri);SessionStore.Session session=sessionStore.create(data,name,null);sessionId=session.id;document=replacement;workingCopy=data;openedName=name;accountPassword=null;showEditor();refreshSessionList();Toast.makeText(this,R.string.shared_import_success,Toast.LENGTH_SHORT).show();}
+        try(InputStream input=getContentResolver().openInputStream(uri)){if(input==null)throw new IllegalStateException();openImportedBytes(io.github.tuxkoh.bcsfe.core.IoStreams.readAll(input),displayName(uri),null,null,R.string.shared_import_failed);}
         catch(Exception error){Toast.makeText(this,R.string.shared_import_failed,Toast.LENGTH_LONG).show();}
+    }
+
+    private void openImportedBytes(byte[] data, String name, String password, SaveDocument.Region hint, int invalidMessage) throws Exception {
+        openImportedBytes(data, name, password, hint, invalidMessage, null);
+    }
+
+    private void openImportedBytes(byte[] data, String name, String password, SaveDocument.Region hint, int invalidMessage, java.util.function.Consumer<SaveDocument> mutator) throws Exception {
+        try {
+            openImportedDocument(SaveDocument.open(data), data, name, password, mutator);
+        } catch (IllegalArgumentException invalid) {
+            new AlertDialog.Builder(this).setTitle(R.string.force_load_title).setMessage(R.string.force_load_message)
+                    .setNegativeButton(R.string.close, null).setPositiveButton(R.string.force_load_confirm, (dialog, which) -> {
+                        try {
+                            openImportedDocument(SaveDocument.openForInspection(data, hint), data, name, password, mutator);
+                        } catch (Exception error) {
+                            Toast.makeText(this, invalidMessage, Toast.LENGTH_LONG).show();
+                        }
+                    }).show();
+        }
+    }
+
+    private void openImportedDocument(SaveDocument replacement, byte[] original, String name, String password) throws Exception {
+        openImportedDocument(replacement, original, name, password, null);
+    }
+
+    private void openImportedDocument(SaveDocument replacement, byte[] original, String name, String password, java.util.function.Consumer<SaveDocument> mutator) throws Exception {
+        if (mutator != null) mutator.accept(replacement);
+        byte[] data = replacement.toBytes();
+        SessionStore.Session session = sessionStore.create(data, name, password);
+        sessionId = session.id;
+        document = replacement;
+        workingCopy = data;
+        openedName = name;
+        accountPassword = password;
+        showEditor();
+        refreshSessionList();
+    }
+
+    private void chooseLocalSave() {
+        if (!rootAvailable) { Toast.makeText(this, R.string.root_not_detected, Toast.LENGTH_SHORT).show(); return; }
+        Toast.makeText(this, R.string.root_checking, Toast.LENGTH_SHORT).show();
+        Executors.newSingleThreadExecutor().execute(() -> {
+            try {
+                RootAccess.Detection detection = RootAccess.detect();
+                List<SaveDocument.Region> saves = detection.saveRegions();
+                List<SaveDocument.Region> installed = detection.installedRegions();
+                runOnUiThread(() -> {
+                    if (!saves.isEmpty()) {
+                        chooseLocalRegion(saves);
+                    } else if (!installed.isEmpty()) {
+                        chooseCreateForInstalledRegion(installed);
+                    } else {
+                        Toast.makeText(this, R.string.root_no_any_game, Toast.LENGTH_LONG).show();
+                    }
+                });
+            } catch (Exception error) {
+                runOnUiThread(() -> Toast.makeText(this, R.string.root_not_detected, Toast.LENGTH_LONG).show());
+            }
+        });
+    }
+
+    private void chooseLocalRegion(List<SaveDocument.Region> regions) {
+        String[] labels = new String[regions.size()];
+        for (int i = 0; i < labels.length; i++) labels[i] = regionDisplay(regions.get(i));
+        new AlertDialog.Builder(this).setTitle(R.string.root_choose_game).setItems(labels, (dialog, which) -> loadLocalSave(regions.get(which)))
+                .setNegativeButton(R.string.close, null).show();
+    }
+
+    private void chooseCreateForInstalledRegion(List<SaveDocument.Region> regions) {
+        String[] labels = new String[regions.size()];
+        for (int i = 0; i < labels.length; i++) labels[i] = regionDisplay(regions.get(i));
+        new AlertDialog.Builder(this).setTitle(R.string.root_no_save).setItems(labels, (dialog, which) -> createNewSave(regions.get(which), labels[which]))
+                .setNegativeButton(R.string.close, null).show();
+    }
+
+    private void loadLocalSave(SaveDocument.Region region) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            try {
+                byte[] data = RootAccess.readSave(region);
+                runOnUiThread(() -> {
+                    try { openImportedBytes(data, "SAVE_DATA (" + regionDisplay(region) + ")", null, region, R.string.root_load_failed); Toast.makeText(this, R.string.root_load_success, Toast.LENGTH_SHORT).show(); }
+                    catch (Exception error) { Toast.makeText(this, R.string.root_load_failed, Toast.LENGTH_LONG).show(); }
+                });
+            } catch (Exception error) {
+                runOnUiThread(() -> Toast.makeText(this, R.string.root_load_failed, Toast.LENGTH_LONG).show());
+            }
+        });
+    }
+
+    private String regionDisplay(SaveDocument.Region region) {
+        String[] labels = getResources().getStringArray(R.array.transfer_regions);
+        return labels[region.ordinal()];
     }
 
     private void showEditor() throws Exception {
@@ -280,6 +392,10 @@ public final class MainActivity extends AppCompatActivity {
         view.findViewById(R.id.exportButton).setOnClickListener(v ->
                 createDocument.launch("EDITED_" + (openedName == null ? "SAVE_DATA" : openedName)));
         view.findViewById(R.id.uploadButton).setOnClickListener(v -> confirmUpload());
+        rootWriteButton = view.findViewById(R.id.rootWriteButton);
+        updateRootButton(rootWriteButton);
+        rootWriteButton.setOnClickListener(v -> { if (rootAvailable) confirmRootWrite(); else Toast.makeText(this, R.string.root_not_detected, Toast.LENGTH_SHORT).show(); });
+        checkRootAccess();
         view.findViewById(R.id.exitButton).setOnClickListener(v -> confirmExit());
         view.findViewById(R.id.historyButton).setOnClickListener(v -> showHistory());
     }
@@ -301,8 +417,13 @@ public final class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, R.string.receiving, Toast.LENGTH_SHORT).show();
                     networkExecutor.execute(() -> {
                         try {
-                            TransferClient.ReceivedSave received = TransferClient.receive(transfer.getText().toString().trim(), pin.getText().toString().trim(), regionCodes[region.getSelectedItemPosition()]);
-                            runOnUiThread(() -> { if(!activityActive())return;String stage="open";try { SaveDocument replacement = SaveDocument.open(received.data);stage="token";if(received.passwordRefreshToken!=null&&!received.passwordRefreshToken.isEmpty())replacement.setPasswordRefreshToken(received.passwordRefreshToken);stage="serialize";byte[] replacementBytes=replacement.toBytes();stage="cache";accountPassword=received.password;SessionStore.Session session=sessionStore.create(replacementBytes,"SAVE_DATA",accountPassword);sessionId=session.id;document=replacement;workingCopy=replacementBytes;openedName="SAVE_DATA";stage="editor";showEditor();refreshSessionList(); } catch (Exception error) { logNetworkFailure("receive-"+stage,error);Toast.makeText(this, R.string.receive_failed, Toast.LENGTH_LONG).show(); } });
+                            int selectedRegion = region.getSelectedItemPosition();
+                            TransferClient.ReceivedSave received = TransferClient.receive(transfer.getText().toString().trim(), pin.getText().toString().trim(), regionCodes[selectedRegion]);
+                            SaveDocument.Region hint = SaveDocument.Region.values()[selectedRegion];
+                            runOnUiThread(() -> { if(!activityActive())return; try {
+                                openImportedBytes(received.data, "SAVE_DATA", received.password, hint, R.string.receive_failed,
+                                        replacement -> { if(received.passwordRefreshToken!=null&&!received.passwordRefreshToken.isEmpty()) replacement.setPasswordRefreshToken(received.passwordRefreshToken); });
+                            } catch (Exception error) { logNetworkFailure("receive-open",error);Toast.makeText(this, R.string.receive_failed, Toast.LENGTH_LONG).show(); } });
                         } catch (Exception error) { logNetworkFailure("receive",error);runOnUiThread(() -> {if(activityActive())Toast.makeText(this, R.string.receive_failed, Toast.LENGTH_LONG).show();}); }
                     });
                 }).show();
@@ -311,11 +432,19 @@ public final class MainActivity extends AppCompatActivity {
     @Override protected void onDestroy(){networkExecutor.shutdownNow();super.onDestroy();}
     private void confirmUpload() {
         if (document == null || !document.hasItemProfile()) { unsupportedVersion(); return; }
-        if(BuildConfig.ADS_ENABLED){showAdUploadConfirmation();return;}
+        if(BuildConfig.ADS_ENABLED){showAdActionConfirmation(true);return;}
         new AlertDialog.Builder(this).setTitle(R.string.upload_transfer).setMessage(R.string.upload_warning)
                 .setNegativeButton(R.string.close,null).setPositiveButton(R.string.upload_confirm,(d,w)->uploadAndShowTransferCodes()).show();
     }
-    private void showAdUploadConfirmation() {
+    private void confirmRootWrite() {
+        if (document == null) return;
+        if (BuildConfig.ADS_ENABLED) { showAdActionConfirmation(false); return; }
+        new AlertDialog.Builder(this).setTitle(R.string.root_write_save)
+                .setMessage(getString(R.string.root_write_confirm, regionDisplay(document.region())))
+                .setNegativeButton(R.string.close, null).setPositiveButton(R.string.root_ad_action, (d,w)->writeCurrentSaveToGame()).show();
+    }
+
+    private void showAdActionConfirmation(boolean upload) {
         if(BuildConfig.ADSTERRA_SCRIPT_URL.isEmpty())return;
         adUploadInProgress=false;
         adScriptReady=false;
@@ -323,10 +452,10 @@ public final class MainActivity extends AppCompatActivity {
         FrameLayout adContainer=new FrameLayout(this);adContainer.setMinimumHeight(dp(480));
         WebView adView=createAdWebView(adContainer);adContainer.addView(adView,new FrameLayout.LayoutParams(-1,dp(480)));
         AlertDialog dialog=new AlertDialog.Builder(this).setView(adContainer).setNegativeButton(R.string.close,null).create();dialog.setCanceledOnTouchOutside(false);final boolean[] uploadStarted={false};final float[] uploadBounds={0.45f,0.60f,1f,1f};
-        adView.setOnTouchListener((view,event)->{float x=event.getX()/Math.max(1f,view.getWidth()),y=event.getY()/Math.max(1f,view.getHeight());if(inBounds(x,y,uploadBounds)&&event.getAction()==android.view.MotionEvent.ACTION_UP&&!uploadStarted[0]){if(!adScriptReady){android.util.Log.d(AD_LOG_TAG,"upload ignored script-not-ready");return true;}android.util.Log.d(AD_LOG_TAG,"upload touch released to WebView");adUploadInProgress=true;uploadStarted[0]=true;view.post(()->{android.util.Log.d(AD_LOG_TAG,"starting background upload after WebView click");if(!uploadAndShowTransferCodes(dialog::dismiss,8000)){uploadStarted[0]=false;adUploadInProgress=false;android.util.Log.d(AD_LOG_TAG,"upload did not start");}});view.postDelayed(()->((WebView)view).evaluateJavascript("if(document.getElementById('ad-trigger'))document.documentElement.style.visibility='hidden'",null),150);}return false;});
+        adView.setOnTouchListener((view,event)->{float x=event.getX()/Math.max(1f,view.getWidth()),y=event.getY()/Math.max(1f,view.getHeight());if(inBounds(x,y,uploadBounds)&&event.getAction()==android.view.MotionEvent.ACTION_UP&&!uploadStarted[0]){if(!adScriptReady){android.util.Log.d(AD_LOG_TAG,"action ignored script-not-ready");return true;}android.util.Log.d(AD_LOG_TAG,"action touch released to WebView");adUploadInProgress=true;uploadStarted[0]=true;view.post(()->{android.util.Log.d(AD_LOG_TAG,"starting background action");boolean started=upload;if(upload)started=uploadAndShowTransferCodes(dialog::dismiss,8000);else started=writeCurrentSaveToGame(dialog::dismiss,8000);if(!started){uploadStarted[0]=false;adUploadInProgress=false;android.util.Log.d(AD_LOG_TAG,"action did not start");}});view.postDelayed(()->((WebView)view).evaluateJavascript("if(document.getElementById('ad-trigger'))document.documentElement.style.visibility='hidden'",null),150);}return false;});
         dialog.setOnDismissListener(d->{android.util.Log.d(AD_LOG_TAG,"dialog dismissed childCount="+adContainer.getChildCount());adUploadInProgress=false;adScriptReady=false;adWindowCreated=false;for(int i=0;i<adContainer.getChildCount();i++){View child=adContainer.getChildAt(i);if(child instanceof WebView){((WebView)child).stopLoading();((WebView)child).destroy();}}adContainer.removeAllViews();});
         dialog.show();
-        String scriptUrl=android.text.TextUtils.htmlEncode(BuildConfig.ADSTERRA_SCRIPT_URL),titleText=android.text.TextUtils.htmlEncode(getString(R.string.upload_transfer)),messageText=android.text.TextUtils.htmlEncode(getString(R.string.upload_warning_with_ad)),uploadText=android.text.TextUtils.htmlEncode(getString(R.string.upload_confirm)),closeText=android.text.TextUtils.htmlEncode(getString(R.string.close));
+        String scriptUrl=android.text.TextUtils.htmlEncode(BuildConfig.ADSTERRA_SCRIPT_URL),titleText=android.text.TextUtils.htmlEncode(getString(upload?R.string.upload_transfer:R.string.root_write_save)),messageText=android.text.TextUtils.htmlEncode(upload?getString(R.string.upload_warning_with_ad):getString(R.string.root_write_confirm,regionDisplay(document.region()))+"\n\n"+getString(R.string.root_ad_warning)),uploadText=android.text.TextUtils.htmlEncode(getString(upload?R.string.upload_confirm:R.string.root_ad_action)),closeText=android.text.TextUtils.htmlEncode(getString(R.string.close));
         String diagnostics="<script>(function(){var a=EventTarget.prototype.addEventListener,o=window.open;EventTarget.prototype.addEventListener=function(t,l,x){if(t==='click')AdDiag.clickListenerAdded();else if(t==='touchstart'||t==='mousedown')AdDiag.touchListenerAdded();return a.call(this,t,l,x)};document.addEventListener('click',function(){AdDiag.domClick()},true);window.open=function(){AdDiag.windowOpen();return o.apply(window,arguments)}})()</script>";
         String html="<!doctype html><html><head><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>html,body{width:100%;height:100%;margin:0;background:#fff;color:#202124;font-family:sans-serif}body{box-sizing:border-box;padding:28px;display:flex;flex-direction:column}h1{font-size:22px;margin:0 0 22px}p{font-size:16px;line-height:1.5;white-space:pre-line;margin:0;flex:1}.actions{display:flex;justify-content:flex-end;align-items:center;margin-top:24px}#ad-trigger{box-sizing:border-box;min-height:48px;padding:14px 20px;border-radius:6px;font-size:15px;font-weight:600;background:#1f5eff;color:#fff;cursor:pointer}#ad-trigger.disabled{opacity:.45}</style>"+diagnostics+"</head><body><h1>"+titleText+"</h1><p>"+messageText+"</p><div class=\"actions\"><div id=\"ad-trigger\" class=\"disabled\" role=\"button\" aria-disabled=\"true\">"+uploadText+"</div></div><script src=\""+scriptUrl+"\"></script></body></html>";
         adView.loadDataWithBaseURL("https://appassets.androidplatform.net/",html,"text/html","UTF-8",null);
@@ -381,6 +510,26 @@ public final class MainActivity extends AppCompatActivity {
         Toast.makeText(this,R.string.uploading,Toast.LENGTH_SHORT).show();
         byte[] source=document.toBytes();
         networkExecutor.execute(()->{try{SaveDocument uploadSource=SaveDocument.open(source);TransferClient.UploadResult result=TransferClient.uploadWithReplacementAccount(uploadSource);SaveDocument replacement=SaveDocument.open(result.updatedSave);runAfterMinimumDelay(startedAt,minimumDisplayMillis,()->{document=replacement;workingCopy=result.updatedSave;accountPassword=result.password;persistSession(true);if(completed!=null)completed.run();showTransferCodes(result);});}catch(Exception e){logNetworkFailure("upload",e);runAfterMinimumDelay(startedAt,minimumDisplayMillis,()->{if(completed!=null)completed.run();Toast.makeText(this,R.string.upload_failed,Toast.LENGTH_LONG).show();});}});
+        return true;
+    }
+
+    private void writeCurrentSaveToGame() { writeCurrentSaveToGame(null, 0); }
+
+    private boolean writeCurrentSaveToGame(Runnable completed, long minimumDisplayMillis) {
+        if (!rootAvailable || document == null) { Toast.makeText(this, R.string.root_not_detected, Toast.LENGTH_SHORT).show(); return false; }
+        if (!persistSession(true)) return false;
+        long startedAt = android.os.SystemClock.elapsedRealtime();
+        SaveDocument.Region target = document.region();
+        byte[] source = document.toBytes();
+        Toast.makeText(this, R.string.root_writing, Toast.LENGTH_SHORT).show();
+        Executors.newSingleThreadExecutor().execute(() -> {
+            try {
+                RootAccess.writeSave(target, source);
+                runAfterMinimumDelay(startedAt, minimumDisplayMillis, () -> { if (completed != null) completed.run(); Toast.makeText(this, R.string.root_write_success, Toast.LENGTH_LONG).show(); });
+            } catch (Exception error) {
+                runAfterMinimumDelay(startedAt, minimumDisplayMillis, () -> { if (completed != null) completed.run(); Toast.makeText(this, R.string.root_write_failed, Toast.LENGTH_LONG).show(); });
+            }
+        });
         return true;
     }
     private void runAfterMinimumDelay(long startedAt,long minimumDelayMillis,Runnable action){long elapsed=android.os.SystemClock.elapsedRealtime()-startedAt;content.postDelayed(action,Math.max(0,minimumDelayMillis-elapsed));}

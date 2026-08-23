@@ -7,6 +7,19 @@ import org.junit.Test;
 import org.junit.Assume;
 
 public class SaveDocumentTest {
+    @Test public void jp1551CanBeExplicitlyForceLoadedForInspection() throws Exception {
+        byte[] source = java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/jp.save"));
+        source[Offsets.offsets_23] = (byte) 0xE5;
+        source[Offsets.offsets_23 + 1] = (byte) 0x4B;
+        source[Offsets.offsets_23 + 2] = (byte) 0x02;
+        source[Offsets.offsets_23 + 3] = 0;
+        SaveDocument document = SaveDocument.openForInspection(source, SaveDocument.Region.JP);
+        assertEquals(SaveDocument.Region.JP, document.region());
+        assertEquals(150501, document.gameVersion());
+        assertTrue(document.needsUnsupportedImportWarning());
+        assertFalse(document.isOfficiallySupportedVersion());
+    }
+
     @Test public void bundledNewSaveTemplatesAreValid155Saves() throws Exception {
         java.nio.file.Path templates=java.nio.file.Path.of("src/main/assets/new_saves");
         for(SaveDocument.Region region:SaveDocument.Region.values()){
