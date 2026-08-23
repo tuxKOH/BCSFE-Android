@@ -73,6 +73,7 @@ public final class MainActivity extends AppCompatActivity {
     private boolean rootCheckRunning;
     private View rootLoadButton;
     private View rootWriteButton;
+    private boolean errorReportShowing;
     private int activeFeatureId=-1;
     private final class AdDiagnostics {
         @JavascriptInterface public void clickListenerAdded(){android.util.Log.d(AD_LOG_TAG,"JS registered click listener");}
@@ -202,6 +203,7 @@ public final class MainActivity extends AppCompatActivity {
             if (input == null) throw new IllegalStateException("No stream");
             openImportedBytes(io.github.tuxkoh.bcsfe.core.IoStreams.readAll(input), displayName(uri), null, null, R.string.invalid_save_file);
         } catch (Exception error) {
+            reportError("document-read", error);
             Toast.makeText(this, R.string.read_failed, Toast.LENGTH_LONG).show();
         }
     }
@@ -211,7 +213,7 @@ public final class MainActivity extends AppCompatActivity {
     }
     private void loadSharedDocument(Uri uri){
         try(InputStream input=getContentResolver().openInputStream(uri)){if(input==null)throw new IllegalStateException();openImportedBytes(io.github.tuxkoh.bcsfe.core.IoStreams.readAll(input),displayName(uri),null,null,R.string.shared_import_failed);}
-        catch(Exception error){Toast.makeText(this,R.string.shared_import_failed,Toast.LENGTH_LONG).show();}
+        catch(Exception error){reportError("shared-import", error);Toast.makeText(this,R.string.shared_import_failed,Toast.LENGTH_LONG).show();}
     }
 
     private void openImportedBytes(byte[] data, String name, String password, SaveDocument.Region hint, int invalidMessage) throws Exception {
@@ -222,11 +224,13 @@ public final class MainActivity extends AppCompatActivity {
         try {
             openImportedDocument(SaveDocument.open(data), data, name, password, mutator);
         } catch (IllegalArgumentException invalid) {
+            captureError("save-parse", invalid, data);
             new AlertDialog.Builder(this).setTitle(R.string.force_load_title).setMessage(R.string.force_load_message)
                     .setNegativeButton(R.string.close, null).setPositiveButton(R.string.force_load_confirm, (dialog, which) -> {
                         try {
                             openImportedDocument(SaveDocument.openForInspection(data, hint), data, name, password, mutator);
                         } catch (Exception error) {
+                            reportError("save-force-import", error, data);
                             Toast.makeText(this, invalidMessage, Toast.LENGTH_LONG).show();
                         }
                     }).show();
@@ -268,6 +272,7 @@ public final class MainActivity extends AppCompatActivity {
                     }
                 });
             } catch (Exception error) {
+                reportError("root-detect", error);
                 runOnUiThread(() -> Toast.makeText(this, R.string.root_not_detected, Toast.LENGTH_LONG).show());
             }
         });
@@ -293,9 +298,10 @@ public final class MainActivity extends AppCompatActivity {
                 byte[] data = RootAccess.readSave(region);
                 runOnUiThread(() -> {
                     try { openImportedBytes(data, "SAVE_DATA (" + regionDisplay(region) + ")", null, region, R.string.root_load_failed); Toast.makeText(this, R.string.root_load_success, Toast.LENGTH_SHORT).show(); }
-                    catch (Exception error) { Toast.makeText(this, R.string.root_load_failed, Toast.LENGTH_LONG).show(); }
+                    catch (Exception error) { reportError("root-save-parse", error, data); Toast.makeText(this, R.string.root_load_failed, Toast.LENGTH_LONG).show(); }
                 });
             } catch (Exception error) {
+                reportError("root-save-read", error);
                 runOnUiThread(() -> Toast.makeText(this, R.string.root_load_failed, Toast.LENGTH_LONG).show());
             }
         });
@@ -423,7 +429,7 @@ public final class MainActivity extends AppCompatActivity {
                             runOnUiThread(() -> { if(!activityActive())return; try {
                                 openImportedBytes(received.data, "SAVE_DATA", received.password, hint, R.string.receive_failed,
                                         replacement -> { if(received.passwordRefreshToken!=null&&!received.passwordRefreshToken.isEmpty()) replacement.setPasswordRefreshToken(received.passwordRefreshToken); });
-                            } catch (Exception error) { logNetworkFailure("receive-open",error);Toast.makeText(this, R.string.receive_failed, Toast.LENGTH_LONG).show(); } });
+                            } catch (Exception error) { logNetworkFailure("receive-open",error,received.data);Toast.makeText(this, R.string.receive_failed, Toast.LENGTH_LONG).show(); } });
                         } catch (Exception error) { logNetworkFailure("receive",error);runOnUiThread(() -> {if(activityActive())Toast.makeText(this, R.string.receive_failed, Toast.LENGTH_LONG).show();}); }
                     });
                 }).show();
@@ -527,6 +533,7 @@ public final class MainActivity extends AppCompatActivity {
                 RootAccess.writeSave(target, source);
                 runAfterMinimumDelay(startedAt, minimumDisplayMillis, () -> { if (completed != null) completed.run(); Toast.makeText(this, R.string.root_write_success, Toast.LENGTH_LONG).show(); });
             } catch (Exception error) {
+                reportError("root-save-write", error, source);
                 runAfterMinimumDelay(startedAt, minimumDisplayMillis, () -> { if (completed != null) completed.run(); Toast.makeText(this, R.string.root_write_failed, Toast.LENGTH_LONG).show(); });
             }
         });
@@ -553,20 +560,26 @@ public final class MainActivity extends AppCompatActivity {
             } catch (UnsupportedOperationException error) {
                 runOnUiThread(()->new AlertDialog.Builder(this).setTitle(R.string.convert_region_title).setMessage(R.string.jp_conversion_unavailable).setPositiveButton(R.string.close,null).show());
             } catch (Exception error) {
+                reportError("region-convert", error, source);
                 runOnUiThread(()->Toast.makeText(this,R.string.convert_region_failed,Toast.LENGTH_LONG).show());
             }
         });
     }
     private void editVersion() { int[] versions={150500,150400,150300,150200,150100,150000,140700,140500,140300,140000};String[] labels=new String[versions.length];for(int i=0;i<labels.length;i++)labels[i]=formatVersion(versions[i])+(versions[i]==document.gameVersion()?getString(R.string.current_suffix):"");new AlertDialog.Builder(this).setTitle(R.string.game_version_title).setItems(labels,(d,i)->{if(versions[i]==document.gameVersion())return;new AlertDialog.Builder(this).setTitle(R.string.game_version_title).setMessage(R.string.game_version_warning).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(x,w)->convertVersion(versions[i])).show();}).setNegativeButton(R.string.close,null).show(); }
-    private void convertVersion(int target) { try{SaveDocument replacement=SaveDocument.open(document.toBytes());replacement.convertGameVersion(target);sessionStore.save(replacement.toBytes(),openedName,accountPassword);document=replacement;workingCopy=replacement.toBytes();showEditor();Toast.makeText(this,R.string.game_version_success,Toast.LENGTH_LONG).show();}catch(UnsupportedOperationException error){new AlertDialog.Builder(this).setTitle(R.string.game_version_title).setMessage(getString(R.string.game_version_message,document.gameVersion())).setPositiveButton(R.string.close,null).show();}catch(Exception error){Toast.makeText(this,R.string.game_version_failed,Toast.LENGTH_LONG).show();} }
+    private void convertVersion(int target) { try{SaveDocument replacement=SaveDocument.open(document.toBytes());replacement.convertGameVersion(target);sessionStore.save(replacement.toBytes(),openedName,accountPassword);document=replacement;workingCopy=replacement.toBytes();showEditor();Toast.makeText(this,R.string.game_version_success,Toast.LENGTH_LONG).show();}catch(UnsupportedOperationException error){new AlertDialog.Builder(this).setTitle(R.string.game_version_title).setMessage(getString(R.string.game_version_message,document.gameVersion())).setPositiveButton(R.string.close,null).show();}catch(Exception error){reportError("version-convert",error);Toast.makeText(this,R.string.game_version_failed,Toast.LENGTH_LONG).show();} }
     private static String formatVersion(int value) { return (value/10000)+"."+((value/100)%100)+"."+(value%100); }
     private void editAccountInfo() { String[] actions=getResources().getStringArray(R.array.account_info_actions);new AlertDialog.Builder(this).setTitle(R.string.account_info_title).setItems(actions,(d,i)->{boolean inquiry=i<2;String value=inquiry?document.inquiryCode():document.passwordRefreshToken();if(i%2==1)editString(actions[i],value,inquiry?document::setInquiryCode:document::setPasswordRefreshToken);else new AlertDialog.Builder(this).setTitle(actions[i]).setMessage(value).setNegativeButton(R.string.close,null).setPositiveButton(R.string.copy_codes,(x,w)->((android.content.ClipboardManager)getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(android.content.ClipData.newPlainText(actions[i],value))).show();}).setNegativeButton(R.string.close,null).show(); }
     private void showAccountOperations() { String[] actions=getResources().getStringArray(R.array.account_operation_actions);new AlertDialog.Builder(this).setTitle(R.string.account_operations_title).setItems(actions,(d,i)->{if(i==0)new AlertDialog.Builder(this).setTitle(R.string.account_operations_title).setMessage(R.string.account_operations_warning).setNegativeButton(R.string.close,null).setPositiveButton(R.string.create_account_confirm,(x,w)->createNewAccount()).show();else new AlertDialog.Builder(this).setTitle(R.string.upload_managed_items).setMessage(R.string.upload_managed_warning).setNegativeButton(R.string.close,null).setPositiveButton(R.string.upload_confirm,(x,w)->uploadManagedItems()).show();}).setNegativeButton(R.string.close,null).show(); }
     private void createNewAccount() { Toast.makeText(this,R.string.creating_account,Toast.LENGTH_SHORT).show();byte[] source=document.toBytes();Executors.newSingleThreadExecutor().execute(()->{try{SaveDocument replacement=SaveDocument.open(source);TransferClient.AccountResult account=TransferClient.createNewAccount(replacement);runOnUiThread(()->{document=replacement;accountPassword=account.password;workingCopy=replacement.toBytes();persistSession(true);Toast.makeText(this,R.string.create_account_success,Toast.LENGTH_LONG).show();});}catch(Exception error){logNetworkFailure("create-account",error);runOnUiThread(()->Toast.makeText(this,R.string.create_account_failed,Toast.LENGTH_LONG).show());}}); }
     private void uploadManagedItems() { if(!persistSession(true))return;Toast.makeText(this,R.string.uploading_managed_items,Toast.LENGTH_SHORT).show();Executors.newSingleThreadExecutor().execute(()->{try{TransferClient.ManagedUploadResult result=TransferClient.uploadManagedItems(document,accountPassword);SaveDocument replacement=SaveDocument.open(result.updatedSave);runOnUiThread(()->{document=replacement;workingCopy=result.updatedSave;accountPassword=result.password;persistSession(true);Toast.makeText(this,R.string.upload_managed_success,Toast.LENGTH_LONG).show();});}catch(Exception error){logNetworkFailure("managed-items",error);runOnUiThread(()->Toast.makeText(this,R.string.upload_managed_failed,Toast.LENGTH_LONG).show());}}); }
 
-    private static void logNetworkFailure(String action,Exception error) {
+    private void logNetworkFailure(String action,Exception error) {
+        logNetworkFailure(action,error,null);
+    }
+
+    private void logNetworkFailure(String action,Exception error,byte[] save) {
         android.util.Log.e("BCSFE-Network",action+" failed: "+TransferClient.safeError(error));
+        reportError("network-"+action,error,save);
     }
 
     private void writeDocument(Uri uri) {
@@ -576,6 +589,7 @@ public final class MainActivity extends AppCompatActivity {
             output.write(document == null ? workingCopy : document.toBytes());
             Toast.makeText(this, R.string.exported, Toast.LENGTH_SHORT).show();
         } catch (Exception error) {
+            reportError("document-export", error, workingCopy);
             Toast.makeText(this, R.string.export_failed, Toast.LENGTH_LONG).show();
         }
     }
@@ -928,7 +942,7 @@ public final class MainActivity extends AppCompatActivity {
         AlertDialog dialog = new AlertDialog.Builder(this).setTitle(label).setView(field).setNegativeButton(R.string.close, null).setPositiveButton(android.R.string.ok, (window, which) -> {
             final int value;
             try { value=Integer.parseInt(field.getText().toString().trim()); } catch (NumberFormatException ignored) { Toast.makeText(this,R.string.invalid_number,Toast.LENGTH_SHORT).show();return; }
-            try { change.apply(value); } catch (IllegalArgumentException ignored) { Toast.makeText(this,R.string.invalid_number,Toast.LENGTH_SHORT).show();return; } catch (RuntimeException error) { showFieldError(error);return; }
+            try { change.apply(value); } catch (IllegalArgumentException error) { reportError("editor-value", error); Toast.makeText(this,R.string.invalid_number,Toast.LENGTH_SHORT).show();return; } catch (RuntimeException error) { showFieldError(error);return; }
             try { workingCopy=document.toBytes();persistSession(false,label); } catch (RuntimeException error) { showFieldError(error); }
         }).create();
         dialog.setOnShowListener(ignored -> field.post(() -> {
@@ -938,8 +952,53 @@ public final class MainActivity extends AppCompatActivity {
         }));
         dialog.show();
     }
-    private void showFieldError() { Toast.makeText(this,R.string.field_parse_failed,Toast.LENGTH_LONG).show(); }
-    private void showFieldError(Throwable error) { android.util.Log.e("BCSFE-Editor","Editor operation failed",error);showFieldError(); }
+    private void showFieldError() { showFieldError(new IllegalStateException("Save field parsing failed")); }
+    private void showFieldError(Throwable error) {
+        reportError("editor-field", error);
+        Toast.makeText(this,R.string.field_parse_failed,Toast.LENGTH_LONG).show();
+    }
+
+    private void captureError(String operation, Throwable error) {
+        captureError(operation, error, document == null ? workingCopy : document.toBytes());
+    }
+
+    private void captureError(String operation, Throwable error, byte[] save) {
+        DebugReporter.record(operation, error, save);
+    }
+
+    private void reportError(String operation, Throwable error) {
+        reportError(operation, error, document == null ? workingCopy : document.toBytes());
+    }
+
+    private void reportError(String operation, Throwable error, byte[] save) {
+        captureError(operation, error, save);
+        if (!activityActive()) return;
+        runOnUiThread(this::offerErrorReport);
+    }
+
+    private void offerErrorReport() {
+        if (!activityActive() || errorReportShowing) return;
+        errorReportShowing = true;
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.debug_error_title)
+                .setMessage(R.string.debug_error_message)
+                .setNegativeButton(R.string.close, null)
+                .setPositiveButton(R.string.debug_copy_log, (d, which) -> copyDebugReport())
+                .create();
+        dialog.setOnDismissListener(ignored -> errorReportShowing = false);
+        dialog.show();
+    }
+
+    private void copyDebugReport() {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            String report = DebugReporter.report();
+            runOnUiThread(() -> {
+                android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                clipboard.setPrimaryClip(android.content.ClipData.newPlainText(getString(R.string.debug_copy_log), report));
+                Toast.makeText(this, R.string.debug_log_copied, Toast.LENGTH_LONG).show();
+            });
+        });
+    }
     private void editString(String label,String current,StringChange change) { EditText field=new EditText(this);field.setSingleLine(true);field.setText(current);new AlertDialog.Builder(this).setTitle(label).setView(field).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{try{change.apply(field.getText().toString());workingCopy=document.toBytes();persistSession(false,label);}catch(Exception e){Toast.makeText(this,R.string.invalid_credential_length,Toast.LENGTH_LONG).show();}}).show(); }
 
     private void showHistory() {
@@ -952,11 +1011,11 @@ public final class MainActivity extends AppCompatActivity {
             ListView list=new ListView(this);list.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,rows));layout.addView(list,new LinearLayout.LayoutParams(-1,dp(320)));
             AlertDialog dialog=new AlertDialog.Builder(this).setTitle(R.string.history_title).setView(layout).setNegativeButton(R.string.close,null).create();
             undo.setEnabled(history.currentIndex>0);redo.setEnabled(history.currentIndex<history.entries.size()-1);undo.setOnClickListener(v->restoreHistoryState(history.currentIndex-1,dialog));redo.setOnClickListener(v->restoreHistoryState(history.currentIndex+1,dialog));list.setOnItemClickListener((parent,row,position,id)->{if(position!=history.currentIndex)restoreHistoryState(position,dialog);});dialog.show();
-        } catch(Exception error){Toast.makeText(this,R.string.history_restore_failed,Toast.LENGTH_LONG).show();}
+        } catch(Exception error){reportError("history-list",error);Toast.makeText(this,R.string.history_restore_failed,Toast.LENGTH_LONG).show();}
     }
     private void restoreHistoryState(int index,AlertDialog dialog) {
         try {SessionStore.Session restored=sessionStore.restoreHistory(sessionId,index);document=SaveDocument.open(restored.save);workingCopy=restored.save;openedName=restored.name;accountPassword=restored.password;dialog.dismiss();showEditor();refreshSessionList();Toast.makeText(this,R.string.history_restored,Toast.LENGTH_SHORT).show();}
-        catch(Exception error){android.util.Log.e("BCSFE-History","History restore failed",error);Toast.makeText(this,R.string.history_restore_failed,Toast.LENGTH_LONG).show();}
+        catch(Exception error){reportError("history-restore",error);Toast.makeText(this,R.string.history_restore_failed,Toast.LENGTH_LONG).show();}
     }
     private String historyDisplayLabel(String label) {
         if(label!=null&&label.startsWith("feature:")){try{int id=Integer.parseInt(label.substring(8));String[] features=getResources().getStringArray(R.array.feature_names);if(id>=0&&id<features.length)return features[id];}catch(NumberFormatException ignored){}}
@@ -993,8 +1052,8 @@ public final class MainActivity extends AppCompatActivity {
     private void deleteSession(SessionStore.Session session){new AlertDialog.Builder(this).setTitle(R.string.delete_session).setMessage(R.string.delete_session_confirm).setNegativeButton(R.string.close,null).setPositiveButton(R.string.delete_session,(d,w)->{try{boolean current=session.id.equals(sessionId);sessionStore.delete(session.id);if(current){sessionId=null;document=null;workingCopy=null;openedName=null;accountPassword=null;SessionStore.Session next=sessionStore.load();if(next==null)showHome();else openSession(next);}refreshSessionList();}catch(Exception error){Toast.makeText(this,R.string.session_discard_failed,Toast.LENGTH_LONG).show();}}).show();}
     private boolean persistSession() { return persistSession(false,null); }
     private boolean persistSession(boolean reportFailure) { return persistSession(reportFailure,null); }
-    private boolean persistSession(boolean reportFailure,String historyLabel) { if(document==null)return true;try{workingCopy=document.toBytes();if(sessionId==null){SessionStore.Session session=sessionStore.create(workingCopy,openedName,accountPassword);sessionId=session.id;}else sessionStore.save(sessionId,workingCopy,openedName,accountPassword,stableHistoryLabel(historyLabel));refreshSessionList();return true;}catch(Exception error){if(reportFailure)Toast.makeText(this,R.string.session_save_failed,Toast.LENGTH_LONG).show();return false;} }
-    private boolean restoreSession() { try { SessionStore.Session session=sessionStore.load();if(session==null)return false;sessionId=session.id;workingCopy=session.save;document=SaveDocument.open(workingCopy);openedName=session.name;accountPassword=session.password;showEditor();refreshSessionList();Toast.makeText(this,R.string.session_restored,Toast.LENGTH_SHORT).show();return true;}catch(Exception e){return false;} }
+    private boolean persistSession(boolean reportFailure,String historyLabel) { if(document==null)return true;try{workingCopy=document.toBytes();if(sessionId==null){SessionStore.Session session=sessionStore.create(workingCopy,openedName,accountPassword);sessionId=session.id;}else sessionStore.save(sessionId,workingCopy,openedName,accountPassword,stableHistoryLabel(historyLabel));refreshSessionList();return true;}catch(Exception error){if(reportFailure){reportError("session-save",error,workingCopy);Toast.makeText(this,R.string.session_save_failed,Toast.LENGTH_LONG).show();}return false;} }
+    private boolean restoreSession() { try { SessionStore.Session session=sessionStore.load();if(session==null)return false;sessionId=session.id;workingCopy=session.save;document=SaveDocument.open(workingCopy);openedName=session.name;accountPassword=session.password;showEditor();refreshSessionList();Toast.makeText(this,R.string.session_restored,Toast.LENGTH_SHORT).show();return true;}catch(Exception e){reportError("session-restore",e,workingCopy);return false;} }
     private void confirmExit() { new AlertDialog.Builder(this).setTitle(R.string.exit_confirm_title).setMessage(R.string.exit_confirm_message).setNegativeButton(R.string.close,null).setPositiveButton(R.string.exit_keep,(d,w)->{if(persistSession(true))finishAndRemoveTask();}).setNeutralButton(R.string.discard_session,(d,w)->confirmDiscard()).show(); }
     private void confirmDiscard() { new AlertDialog.Builder(this).setTitle(R.string.discard_session).setMessage(R.string.discard_confirm).setNegativeButton(R.string.close,null).setPositiveButton(R.string.discard_session,(d,w)->{try{if(sessionId!=null)sessionStore.delete(sessionId);sessionId=null;document=null;workingCopy=null;openedName=null;accountPassword=null;SessionStore.Session next=sessionStore.load();if(next==null)showHome();else openSession(next);refreshSessionList();}catch(Exception error){Toast.makeText(this,R.string.session_discard_failed,Toast.LENGTH_LONG).show();}}).show(); }
     private View inflate(int layout) { content.removeAllViews(); View v = LayoutInflater.from(this).inflate(layout, content, false);v.setAlpha(0f);v.setTranslationY(dp(12));content.addView(v);v.animate().alpha(1f).translationY(0f).setDuration(200).start();return v; }

@@ -80,6 +80,19 @@ public class SaveDocumentTest {
         }
     }
 
+    @Test public void cataminEditUsesTheSerializedListAndRemainsParsable() throws Exception {
+        byte[] source = java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
+        SaveDocument document = SaveDocument.open(source);
+        int[] before = document.catamins();
+        assertTrue(before.length > 0);
+        document.setCatamin(before.length - 1, 1234);
+        SaveDocument reopened = SaveDocument.open(document.toBytes());
+        int[] after = reopened.catamins();
+        assertEquals(before.length, after.length);
+        assertEquals(1234, after[after.length - 1]);
+        assertTrue(reopened.checksumValid());
+    }
+
     @Test public void legacySyntheticVariableCatProfilesKeepBattleItemsEditable() throws Exception {
         String[] names={"synthetic-800.save","synthetic-860.save","synthetic-862.save",
                 "synthetic-jp-800.save","synthetic-jp-860.save","synthetic-jp-862.save"};

@@ -127,6 +127,10 @@
         <item>其他 · 编队栏与抽奖活动</item><item>其他 · 游玩时间与敌人图鉴</item><item>其他 · 用户等级奖励、勋章与任务</item><item>其他 · 黄金会员与重启礼包</item>
     </string-array>
     <string name="field_parse_failed">当前存档版本的该字段解析失败。</string>
+    <string name="debug_error_title">发生错误</string>
+    <string name="debug_error_message">是否复制日志？注意不要把日志发给非信任人士！</string>
+    <string name="debug_copy_log">复制日志</string>
+    <string name="debug_log_copied">日志已复制，请仅发送给可信任的人。</string>
     <string-array name="catseye_names"><item>特殊猫眼石</item><item>稀有猫眼石</item><item>激稀有猫眼石</item><item>超激稀有猫眼石</item><item>传说稀有猫眼石</item><item>暗黑猫眼石</item></string-array>
     <string-array name="catamin_names"><item>喵力达 A</item><item>喵力达 B</item><item>喵力达 C</item></string-array>
     <string-array name="catfruit_names"><item>紫色猫薄荷种子</item><item>红色猫薄荷种子</item><item>蓝色猫薄荷种子</item><item>绿色猫薄荷种子</item><item>黄色猫薄荷种子</item><item>紫色猫薄荷</item><item>红色猫薄荷</item><item>蓝色猫薄荷</item><item>绿色猫薄荷</item><item>黄色猫薄荷</item><item>彩虹猫薄荷</item><item>古代猫薄荷种子</item><item>古代猫薄荷</item><item>彩虹猫薄荷种子</item><item>黄金猫薄荷</item><item>恶猫薄荷种子</item><item>恶猫薄荷</item><item>黄金猫薄荷种子</item><item>紫兽石</item><item>红兽石</item><item>苍兽石</item><item>翠兽石</item><item>黄兽石</item><item>紫兽结晶</item><item>红兽结晶</item><item>苍兽结晶</item><item>翠兽结晶</item><item>黄兽结晶</item><item>彩虹兽石</item></string-array>

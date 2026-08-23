@@ -127,6 +127,10 @@
         <item>Other · Lineup slots and gambling events</item><item>Other · Playtime and Enemy Guide</item><item>Other · User Rank rewards, medals and missions</item><item>Other · Gold Pass and restart pack</item>
     </string-array>
     <string name="field_parse_failed">This field could not be parsed for the current save version.</string>
+    <string name="debug_error_title">An error occurred</string>
+    <string name="debug_error_message">Copy the diagnostic log? Do not send this log to untrusted people.</string>
+    <string name="debug_copy_log">Copy diagnostic log</string>
+    <string name="debug_log_copied">Diagnostic log copied. Share it only with trusted people.</string>
     <string-array name="catseye_names"><item>Special Catseye</item><item>Rare Catseye</item><item>Super Rare Catseye</item><item>Uber Rare Catseye</item><item>Legend Catseye</item><item>Dark Catseye</item></string-array>
     <string-array name="catamin_names"><item>Catamin A</item><item>Catamin B</item><item>Catamin C</item></string-array>
     <string-array name="catfruit_names"><item>Purple Catfruit Seed</item><item>Red Catfruit Seed</item><item>Blue Catfruit Seed</item><item>Green Catfruit Seed</item><item>Yellow Catfruit Seed</item><item>Purple Catfruit</item><item>Red Catfruit</item><item>Blue Catfruit</item><item>Green Catfruit</item><item>Yellow Catfruit</item><item>Epic Catfruit</item><item>Elder Catfruit Seed</item><item>Elder Catfruit</item><item>Epic Catfruit Seed</item><item>Gold Catfruit</item><item>Aku Catfruit Seed</item><item>Aku Catfruit</item><item>Gold Catfruit Seed</item><item>Purple Behemoth Stone</item><item>Red Behemoth Stone</item><item>Blue Behemoth Stone</item><item>Green Behemoth Stone</item><item>Yellow Behemoth Stone</item><item>Purple Behemoth Gem</item><item>Red Behemoth Gem</item><item>Blue Behemoth Gem</item><item>Green Behemoth Gem</item><item>Yellow Behemoth Gem</item><item>Epic Behemoth Stone</item></string-array>

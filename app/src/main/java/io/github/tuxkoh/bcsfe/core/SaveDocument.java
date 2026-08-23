@@ -370,7 +370,7 @@ public final class SaveDocument {
     public boolean hasItemProfile() { return profileOffset(ProfileField.NORMAL_TICKETS) >= 0; }
     public int[] battleItems() { return intArray(battleItemsOffset(), 6); }
     public int[] catseyes() { CatLayout l=catLayout(); return intArray(l.catseyesStart, 6); }
-    public int[] catamins() { CatLayout l=catLayout(); return intArray(l.cataminsStart, 3); }
+    public int[] catamins() { CatLayout l=catLayout(); return intArray(l.cataminsStart, cataminCount(l)); }
     public int[] catfruit() { CatLayout l=catLayout(); return intArray(l.catfruitStart, 29); }
     public int[] treasureChests() { int[] table=treasureChestTable(); return intArray(table[0], table[1]); }
     public int[] labyrinthMedals() { ensureItemProfile(); int marker=findInt(111000),count=byteAt(marker-9);if(count!=4)throw new IllegalStateException("Invalid labyrinth medals");return new int[]{ushortAt(marker-8),ushortAt(marker-6),ushortAt(marker-4),ushortAt(marker-2)}; }
@@ -378,7 +378,7 @@ public final class SaveDocument {
     public int goldenCpuCount() { ensureItemProfile(); return byteAt(lateOffset(Offsets.offsets_35)); }
     public void setBattleItem(int index, int value) { checkAmount("Battle Item",value,9999);setArrayInt(battleItemsOffset(), 6, index, value); }
     public void setCatseye(int index, int value) { checkAmount("Catseye",value,9999);setArrayInt(catLayout().catseyesStart, 6, index, value); }
-    public void setCatamin(int index, int value) { checkAmount("Catamin",value,9999);setArrayInt(catLayout().cataminsStart, 3, index, value); }
+    public void setCatamin(int index, int value) { CatLayout l=catLayout(); checkAmount("Catamin",value,9999);setArrayInt(l.cataminsStart, cataminCount(l), index, value); }
     public void setCatfruit(int index, int value) { checkAmount("Catfruit",value,gameVersion()<110400?128:998);setArrayInt(catLayout().catfruitStart, 29, index, value); }
     public int catfruitLimit() { return gameVersion()<110400?128:998; }
     public void setAllCatfruit(int value) { checkAmount("Catfruit",value,catfruitLimit());int offset=catLayout().catfruitStart;ensureItemProfile();for(int index=0;index<29;index++)putInt(offset+index*4,value);refreshHash(); }
@@ -864,7 +864,7 @@ public final class SaveDocument {
     private int hashPosition() { return hashOffset >= 0 ? hashOffset : bytes.length - Offsets.offsets_130; }
 
     private int intAt(int offset) {
-        if (offset < 0 || offset + 4 > bytes.length-Offsets.offsets_130) throw new IllegalStateException("Save field is unavailable");
+        if (offset < 0 || offset + 4 > bytes.length-Offsets.offsets_130) throw new IllegalStateException("Save field is unavailable at offset=" + offset + " length=" + bytes.length);
         return (bytes[offset] & 255) | ((bytes[offset + 1] & 255) << 8) | ((bytes[offset + 2] & 255) << 16) | (bytes[offset + 3] << 24);
     }
     private int findIntNear(int value,int estimate,int radius) { int from=Math.max(0,estimate-radius),to=Math.min(bytes.length-36,estimate+radius);for(int offset=from;offset<=to;offset++)if(intAt(offset)==value)return offset;throw new IllegalStateException("Save marker is unavailable: "+value); }
@@ -886,14 +886,14 @@ public final class SaveDocument {
             return -1;
         }
     }
-    private int byteAt(int offset) { if (offset < 0 || offset >= bytes.length-Offsets.offsets_130) throw new IllegalStateException("Save field is unavailable"); return bytes[offset] & 255; }
+    private int byteAt(int offset) { if (offset < 0 || offset >= bytes.length-Offsets.offsets_130) throw new IllegalStateException("Save byte is unavailable at offset=" + offset + " length=" + bytes.length); return bytes[offset] & 255; }
     private void putInt(int offset, int value) { bytes[offset] = (byte) value; bytes[offset + 1] = (byte) (value >> 8); bytes[offset + 2] = (byte) (value >> 16); bytes[offset + 3] = (byte) (value >> 24); }
     private int ushortAt(int offset) { return (bytes[offset]&255)|((bytes[offset+1]&255)<<8); }
     private long longAt(int offset) { long value=0; for(int i=7;i>=0;i--) value=(value<<8)|(bytes[offset+i]&255L); return (long) Double.longBitsToDouble(value); }
     private long rawLongAt(int offset) { long value=0;for(int i=7;i>=0;i--)value=(value<<8)|(bytes[offset+i]&255L);return value; }
     private double rawDoubleAt(int offset) { return Double.longBitsToDouble(rawLongAt(offset)); }
     private void putLong(int offset,long value) { for(int i=0;i<8;i++){bytes[offset+i]=(byte)value;value>>=8;} }
-    private String stringAt(int offset) { int length=intAt(offset); if(length<0||length>256||offset+4+length>bytes.length-Offsets.offsets_130)throw new IllegalStateException("Invalid save string"); return new String(bytes,offset+4,length,java.nio.charset.StandardCharsets.UTF_8); }
+    private String stringAt(int offset) { int length=intAt(offset); if(length<0||length>256||offset+4+length>bytes.length-Offsets.offsets_130)throw new IllegalStateException("Invalid save string at offset="+offset+" length="+length); return new String(bytes,offset+4,length,java.nio.charset.StandardCharsets.UTF_8); }
     private void putFixedString(int offset,String value) { if(value==null)throw new IllegalArgumentException("Missing string");byte[] encoded=value.getBytes(java.nio.charset.StandardCharsets.UTF_8);int length=intAt(offset);if(encoded.length!=length)throw new IllegalArgumentException("String length must remain "+length);System.arraycopy(encoded,0,bytes,offset+4,length); }
     private void putShort(int offset,int value) { bytes[offset]=(byte)value; bytes[offset+1]=(byte)(value>>8); }
     private int inquiryCodeOffset() {
@@ -1365,7 +1365,7 @@ public final class SaveDocument {
         if (twOffset >= Offsets.offsets_132) return twOffset - 1;
         return twOffset;
     }
-    private void splice(int offset,int remove,int insert) { if(offset<0||remove<0||insert<0||offset+remove>bytes.length-Offsets.offsets_130)throw new IllegalArgumentException("Invalid splice");byte[] out=new byte[bytes.length-remove+insert];System.arraycopy(bytes,0,out,0,offset);System.arraycopy(bytes,offset+remove,out,offset+insert,bytes.length-offset-remove);bytes=out;catLayoutCache=null;battleItemsBaseCache=-1;unitDropsBaseCache=-1;if(cannonBaseCache>=0&&offset<cannonBaseCache)cannonBaseCache+=insert-remove;if(goldPassBaseCache>=0&&offset<goldPassBaseCache)goldPassBaseCache+=insert-remove;if(talentTableBaseCache>=0&&offset<talentTableBaseCache)talentTableBaseCache+=insert-remove;if(storageTableBaseCache>=0&&offset<storageTableBaseCache)storageTableBaseCache+=insert-remove;if(enigmaBaseCache>=0&&offset<enigmaBaseCache)enigmaBaseCache+=insert-remove;if(eventTableBaseCache>=0&&offset<eventTableBaseCache)eventTableBaseCache+=insert-remove; }
+    private void splice(int offset,int remove,int insert) { if(offset<0||remove<0||insert<0||offset+remove>bytes.length-Offsets.offsets_130)throw new IllegalArgumentException("Invalid splice at offset="+offset+" remove="+remove+" insert="+insert+" length="+bytes.length);byte[] out=new byte[bytes.length-remove+insert];System.arraycopy(bytes,0,out,0,offset);System.arraycopy(bytes,offset+remove,out,offset+insert,bytes.length-offset-remove);bytes=out;catLayoutCache=null;battleItemsBaseCache=-1;unitDropsBaseCache=-1;if(cannonBaseCache>=0&&offset<cannonBaseCache)cannonBaseCache+=insert-remove;if(goldPassBaseCache>=0&&offset<goldPassBaseCache)goldPassBaseCache+=insert-remove;if(talentTableBaseCache>=0&&offset<talentTableBaseCache)talentTableBaseCache+=insert-remove;if(storageTableBaseCache>=0&&offset<storageTableBaseCache)storageTableBaseCache+=insert-remove;if(enigmaBaseCache>=0&&offset<enigmaBaseCache)enigmaBaseCache+=insert-remove;if(eventTableBaseCache>=0&&offset<eventTableBaseCache)eventTableBaseCache+=insert-remove; }
     private void ensureItemProfile() { if (!hasItemProfile()) throw new UnsupportedOperationException("No item profile for this save version"); }
     private void ensureCatProfile() { ensureItemProfile(); }
     private int charaNewFlagsOffset() {
@@ -1580,8 +1580,13 @@ public final class SaveDocument {
         catfruitCount = recoverCountAnchor(catfruitCount, 29, 32768, 0, 3);
         fourthCount = recoverCountAnchor(fourthCount, count, 32768, 0, 4);
         eyesUsedCount = recoverCountAnchor(eyesUsedCount, count, 32768, 0, 5);
-        eyesCount = recoverCountAnchor(eyesCount, 6, 32768, 0, 6);
-        aminsCount = recoverCountAnchor(aminsCount, 3, 32768, 0, 6);
+        eyesCount = recoverCatseyesCountAnchor(eyesCount);
+        // Upstream reads catseyes and then immediately reads catamins as two
+        // consecutive int lists.  Catamins is not guaranteed to contain
+        // exactly three records (the list follows the region's item table),
+        // so derive its count word from the recovered catseye list instead of
+        // searching for a coincidental integer equal to 3.
+        aminsCount = eyesCount + 4 + 6 * 4;
         if (intAt(gatyaCount) != count) {
             int recovered = recoverCountAnchor(fixedStatic(Offsets.offsets_58) - 4 + 3 * d + headDelta,
                     count, 16384, 0, 7);
@@ -1590,7 +1595,7 @@ public final class SaveDocument {
         if(intAt(upgradeCount)!=count||intAt(currentCount)!=count||intAt(gatyaCount)!=count||
                 intAt(maxCount)!=count||intAt(formsCount)!=count||intAt(guideCount)!=count||
                 intAt(catfruitCount)!=29||intAt(fourthCount)!=count||intAt(eyesUsedCount)!=count||
-                intAt(eyesCount)!=6||intAt(aminsCount)!=3) {
+                intAt(eyesCount)!=6||!validCataminList(aminsCount)) {
             // A handful of old diagnostic/profile fixtures (and saves made
             // before the variable-list migration) contain the modern cat
             // count at the first list, but omit the count word before each
@@ -1815,6 +1820,29 @@ public final class SaveDocument {
         return best >= 0 ? best : expected;
     }
 
+    /** Recover catseyes only when the immediately following catamin list is
+     * also structurally valid.  A transfer save can contain unrelated `6`
+     * integers near the template estimate; accepting one of those shifts the
+     * catamin write into Gamatoto and makes the server reject the save. */
+    private int recoverCatseyesCountAnchor(int expected) {
+        int radius = 32768;
+        int start = Math.max(0, expected - radius);
+        int end = Math.min(bytes.length - Offsets.offsets_130 - 4, expected + radius);
+        int best = -1, distance = Integer.MAX_VALUE;
+        for (int delta = 0; delta <= radius; delta++) {
+            int[] candidates = delta == 0 ? new int[]{expected} : new int[]{expected + delta, expected - delta};
+            for (int candidate : candidates) {
+                if (candidate < start || candidate > end || intAt(candidate) != 6) continue;
+                if (!validCatList(candidate + 4, 6, 6)) continue;
+                int cataminCount = candidate + 4 + 6 * 4;
+                if (!validCataminList(cataminCount)) continue;
+                int distanceNow = Math.abs(candidate - expected);
+                if (distanceNow < distance) { best = candidate; distance = distanceNow; }
+            }
+        }
+        return best >= 0 ? best : expected;
+    }
+
     private boolean validCatList(int start, int count, int kind) {
         long end;
         switch (kind) {
@@ -1864,6 +1892,19 @@ public final class SaveDocument {
             default:
                 return false;
         }
+    }
+
+    private boolean validCataminList(int countOffset) {
+        if (countOffset < 0 || countOffset + 4 > bytes.length - Offsets.offsets_130) return false;
+        int count = rawIntAt(countOffset);
+        if (count < 0 || count > 1024) return false;
+        long end = (long) countOffset + 4L + count * 4L;
+        if (end > bytes.length - Offsets.offsets_130) return false;
+        for (int i = 0; i < count; i++) {
+            int value = rawIntAt(countOffset + 4 + i * 4);
+            if (value < 0 || value > 9999) return false;
+        }
+        return true;
     }
 
 
@@ -2311,6 +2352,11 @@ public final class SaveDocument {
         boolean hasNextMap(int map){return map+1<maps&&(mapGroupSize==0||(map+1)%mapGroupSize!=0);}
     }
     private int[] intArray(int offset,int count) { ensureItemProfile(); int[] out=new int[count]; for(int i=0;i<count;i++) out[i]=intAt(offset+i*4); return out; }
+    private int cataminCount(CatLayout layout) {
+        int count = intAt(layout.cataminsCountOffset);
+        if (count < 0 || count > 1024) throw new IllegalStateException("Invalid Catamin list count=" + count + " at offset=" + layout.cataminsCountOffset);
+        return count;
+    }
     private void setArrayInt(int offset,int count,int index,int value) { ensureItemProfile(); if(index<0||index>=count)throw new IndexOutOfBoundsException(); putInt(offset+index*4,value); refreshHash(); }
     private static String md5(String salt, byte[] bytes, int offset, int length) { return hex(md5Bytes(salt, bytes, offset, length)); }
     private static byte[] md5Bytes(String salt, byte[] bytes) { return md5Bytes(salt, bytes, 0, bytes.length); }
