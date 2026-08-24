@@ -1605,13 +1605,15 @@ public final class SaveDocument {
         // size.  This handles extra storage/credential payload without
         // allowing arbitrary data to be treated as a cat list.
         maxCount = recoverCountAnchor(maxCount, count, 32768, 0, 0);
-        // Transfer-code payloads can insert a sizable variable account
-        // section between max-upgrade records and unlocked forms.  Unlike
-        // the other cat lists, this anchor may move well beyond 32 KiB.
-        // Keep the full-list value validation while allowing the larger
-        // displacement seen in 873-cat received saves.
-        formsCount = recoverCountAnchor(formsCount, count, bytes.length, 0, 1);
         guideCount = recoverCountAnchor(guideCount, count, 32768, 0, 2);
+        // Upstream order places unlocked forms after max-upgrade records and
+        // before the cat-guide list.  Restrict the search to that interval;
+        // otherwise a current-form list earlier in the save is also a valid
+        // 873-entry sequence and can be mistaken for unlocked forms.
+        int formsStart = maxCount + 4 + count * 4;
+        int formsEnd = guideCount - 4 - count * 4;
+        int constrainedForms = recoverCountAnchorInRange(formsCount, count, formsStart, formsEnd, 1);
+        if (constrainedForms >= 0) formsCount = constrainedForms;
         catfruitCount = recoverCountAnchor(catfruitCount, 29, 32768, 0, 3);
         fourthCount = recoverCountAnchor(fourthCount, count, 32768, 0, 4);
         eyesUsedCount = recoverCountAnchor(eyesUsedCount, count, 32768, 0, 5);
@@ -1622,6 +1624,21 @@ public final class SaveDocument {
         // so derive its count word from the recovered catseye list instead of
         // searching for a coincidental integer equal to 3.
         aminsCount = eyesCount + 4 + 6 * 4;
+        // Upstream serializes: catfruit int-list, fourth-form int-list,
+        // catseyes-used int-list.  Received saves can move this whole suffix
+        // far beyond the template estimate; derive the two adjacent lists
+        // from the already validated catfruit anchor before falling back to
+        // a blind structural search.
+        int sequentialFourth = catfruitCount + 4 + 29 * 4;
+        if (safeIntAt(sequentialFourth) == count
+                && validCatList(sequentialFourth + 4, count, 4)) {
+            fourthCount = sequentialFourth;
+            int sequentialEyesUsed = sequentialFourth + 4 + count * 4;
+            if (safeIntAt(sequentialEyesUsed) == count
+                    && validCatList(sequentialEyesUsed + 4, count, 5)) {
+                eyesUsedCount = sequentialEyesUsed;
+            }
+        }
         boolean formsValid = intAt(formsCount) == count
                 && validCatList(formsCount + 4, count, 1);
         if (intAt(gatyaCount) != count) {
@@ -1857,6 +1874,20 @@ public final class SaveDocument {
         return best >= 0 ? best : expected;
     }
 
+    private int recoverCountAnchorInRange(int expected, int count, int start, int end, int kind) {
+        int limit = bytes.length - Offsets.offsets_130 - 4;
+        start = Math.max(0, start);
+        end = Math.min(limit, end);
+        if (start > end) return -1;
+        int best = -1, distance = Integer.MAX_VALUE;
+        for (int candidate = start; candidate <= end; candidate++) {
+            if (intAt(candidate) != count || !validCatList(candidate + 4, count, kind)) continue;
+            int distanceNow = Math.abs(candidate - expected);
+            if (distanceNow < distance) { best = candidate; distance = distanceNow; }
+        }
+        return best;
+    }
+
     /** Recover catseyes only when the immediately following catamin list is
      * also structurally valid.  A transfer save can contain unrelated `6`
      * integers near the template estimate; accepting one of those shifts the
@@ -1893,8 +1924,10 @@ public final class SaveDocument {
             case 1: // unlocked forms
                 end = (long) start + count * 4L;
                 if (end > bytes.length - Offsets.offsets_130) return false;
-                int maxForm = gameVersion() >= 150501 ? 4 : 3;
-                for (int i = 0; i < count; i++) if (rawIntAt(start + i * 4) < 0 || rawIntAt(start + i * 4) > maxForm) return false;
+                // The upstream reader stores these raw integers without
+                // validating their range.  Received saves can contain
+                // values outside the editor's normal form range; they must
+                // not prevent locating the following serialized fields.
                 return true;
             case 2: // cat guide flags
                 end = (long) start + count;
@@ -1910,7 +1943,8 @@ public final class SaveDocument {
             case 4: // fourth forms
                 end = (long) start + count * 4L;
                 if (end > bytes.length - Offsets.offsets_130) return false;
-                for (int i = 0; i < count; i++) if (rawIntAt(start + i * 4) < 0 || rawIntAt(start + i * 4) > 2) return false;
+                // As with unlocked forms, the upstream parser reads raw
+                // integers here and does not reject out-of-range values.
                 return true;
             case 5: // catseyes used
                 end = (long) start + count * 4L;
