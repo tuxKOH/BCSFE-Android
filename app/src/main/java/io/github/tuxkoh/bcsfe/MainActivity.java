@@ -428,7 +428,16 @@ public final class MainActivity extends AppCompatActivity {
                             SaveDocument.Region hint = SaveDocument.Region.values()[selectedRegion];
                             runOnUiThread(() -> { if(!activityActive())return; try {
                                 openImportedBytes(received.data, "SAVE_DATA", received.password, hint, R.string.receive_failed,
-                                        replacement -> { if(received.passwordRefreshToken!=null&&!received.passwordRefreshToken.isEmpty()) replacement.setPasswordRefreshToken(received.passwordRefreshToken); });
+                                        replacement -> {
+                                            // Unsupported/forced-import saves are intentionally read-only.
+                                            // Their layout may have shifted, so applying the server token
+                                            // would turn a successful inspection import into an error.
+                                            if (replacement.hasItemProfile()
+                                                    && received.passwordRefreshToken != null
+                                                    && !received.passwordRefreshToken.isEmpty()) {
+                                                replacement.setPasswordRefreshToken(received.passwordRefreshToken);
+                                            }
+                                        });
                             } catch (Exception error) { logNetworkFailure("receive-open",error,received.data);Toast.makeText(this, R.string.receive_failed, Toast.LENGTH_LONG).show(); } });
                         } catch (Exception error) { logNetworkFailure("receive",error);runOnUiThread(() -> {if(activityActive())Toast.makeText(this, R.string.receive_failed, Toast.LENGTH_LONG).show();}); }
                     });

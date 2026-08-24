@@ -18,6 +18,7 @@ public class SaveDocumentTest {
         assertEquals(150501, document.gameVersion());
         assertTrue(document.needsUnsupportedImportWarning());
         assertFalse(document.isOfficiallySupportedVersion());
+        assertFalse(document.hasItemProfile());
     }
 
     @Test public void bundledNewSaveTemplatesAreValid155Saves() throws Exception {
