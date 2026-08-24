@@ -166,7 +166,7 @@ public final class SaveDocument {
     /** Import is intentionally allowed for these saves, but editing is not certified. */
     public boolean needsUnsupportedImportWarning() { return !isOfficiallySupportedVersion(); }
     /** True only for the newer save versions accepted by the warned upload path. */
-    public boolean canAttemptUnsafeUpload() { return forcedUnsupported && gameVersion() == 150501; }
+    public boolean canAttemptUnsafeUpload() { return gameVersion() == 150501; }
     public void convertRegion(Region target) {
         if (target == null) throw new IllegalArgumentException("Missing region");
         if (target == region) return;

@@ -19,6 +19,7 @@ public class SaveDocumentTest {
         assertTrue(document.needsUnsupportedImportWarning());
         assertFalse(document.isOfficiallySupportedVersion());
         assertFalse(document.hasItemProfile());
+        assertTrue(document.canAttemptUnsafeUpload());
         SaveDocument upload = SaveDocument.openForUpload(source, SaveDocument.Region.JP);
         assertTrue(upload.canAttemptUnsafeUpload());
         assertTrue(upload.hasItemProfile());
