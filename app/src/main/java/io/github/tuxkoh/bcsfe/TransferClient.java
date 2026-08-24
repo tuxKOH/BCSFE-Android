@@ -96,7 +96,7 @@ final class TransferClient {
         finally { connection.disconnect(); }
     }
     static UploadResult upload(io.github.tuxkoh.bcsfe.core.SaveDocument document,String password) throws Exception {
-        io.github.tuxkoh.bcsfe.core.SaveDocument replacement=io.github.tuxkoh.bcsfe.core.SaveDocument.open(document.toBytes());
+        io.github.tuxkoh.bcsfe.core.SaveDocument replacement=io.github.tuxkoh.bcsfe.core.SaveDocument.openForUpload(document.toBytes(), document.region());
         Authentication authentication=authenticate(replacement,password);String auth=authentication.token;
         String iq=replacement.inquiryCode();
         JSONObject keyResponse=getJson(endpoints.save+"/v2/save/key?nonce="+randomHex(32),"Bearer "+auth); JSONObject key=keyResponse.optJSONObject("payload"); if(key==null||key.optString("key","").isEmpty())throw new IllegalStateException("Save key request failed");
@@ -110,7 +110,7 @@ final class TransferClient {
         byte[] source=document.toBytes();Exception lastFailure=null;
         for(int attempt=0;attempt<3;attempt++){
             try{
-                io.github.tuxkoh.bcsfe.core.SaveDocument replacement=io.github.tuxkoh.bcsfe.core.SaveDocument.open(source);
+                io.github.tuxkoh.bcsfe.core.SaveDocument replacement=io.github.tuxkoh.bcsfe.core.SaveDocument.openForUpload(source, document.region());
                 AccountResult account=createNewAccount(replacement);
                 return upload(replacement,account.password);
             }catch(Exception failure){lastFailure=failure;}

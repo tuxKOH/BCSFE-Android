@@ -33,6 +33,8 @@ public final class SaveDocument {
     private final int gameVersionOffset;
     private final int hashOffset;
     private final boolean forcedUnsupported;
+    /** Enables the explicitly warned, best-effort upload path for newer saves. */
+    private final boolean uploadMode;
     private int cannonBaseCache = -1;
     private int goldPassBaseCache = -1;
     private int talentTableBaseCache = -1;
@@ -87,16 +89,22 @@ public final class SaveDocument {
 
 
     private SaveDocument(byte[] source, Region region, int integerStart) {
-        this(source, region, integerStart, Offsets.offsets_23, -1, false);
+        this(source, region, integerStart, Offsets.offsets_23, -1, false, false);
     }
 
     private SaveDocument(byte[] source, Region region, int integerStart, int gameVersionOffset, int hashOffset, boolean forcedUnsupported) {
+        this(source, region, integerStart, gameVersionOffset, hashOffset, forcedUnsupported, false);
+    }
+
+    private SaveDocument(byte[] source, Region region, int integerStart, int gameVersionOffset, int hashOffset,
+                         boolean forcedUnsupported, boolean uploadMode) {
         this.bytes = source;
         this.region = region;
         this.integerStart = integerStart;
         this.gameVersionOffset = gameVersionOffset;
         this.hashOffset = hashOffset;
         this.forcedUnsupported = forcedUnsupported;
+        this.uploadMode = uploadMode;
     }
 
     public static SaveDocument open(byte[] source) {
@@ -133,12 +141,32 @@ public final class SaveDocument {
                 source.length - Offsets.offsets_130, true);
     }
 
+    /**
+     * Opens a save for the explicitly warned upload path.  This mode is never
+     * used by the editor UI: it only enables the existing 15.5 field probes so
+     * a newer save can be uploaded with a prominent data-integrity warning.
+     */
+    public static SaveDocument openForUpload(byte[] source, Region hint) {
+        if (source == null || source.length < 48) throw new IllegalArgumentException("Save is too small");
+        try {
+            SaveDocument supported = open(source);
+            return new SaveDocument(source.clone(), supported.region(), Offsets.offsets_122,
+                    Offsets.offsets_23, -1, false, true);
+        } catch (IllegalArgumentException unsupported) {
+            SaveDocument inspection = openForInspection(source, hint);
+            return new SaveDocument(source.clone(), inspection.region(), Offsets.offsets_122,
+                    inspection.gameVersionOffset, inspection.hashOffset, true, true);
+        }
+    }
+
     public byte[] toBytes() { return bytes.clone(); }
     public Region region() { return region; }
     /** Full editor validation currently covers the 15.5 save layout. */
     public boolean isOfficiallySupportedVersion() { return !forcedUnsupported && gameVersion() == 150500; }
     /** Import is intentionally allowed for these saves, but editing is not certified. */
     public boolean needsUnsupportedImportWarning() { return !isOfficiallySupportedVersion(); }
+    /** True only for the newer save versions accepted by the warned upload path. */
+    public boolean canAttemptUnsafeUpload() { return forcedUnsupported && gameVersion() == 150501; }
     public void convertRegion(Region target) {
         if (target == null) throw new IllegalArgumentException("Missing region");
         if (target == region) return;
@@ -875,7 +903,8 @@ public final class SaveDocument {
     private int profiledInt(ProfileField field) { int offset = profileOffset(field); if (offset < 0) throw new UnsupportedOperationException("No item profile for this save version"); return intAt(offset); }
     private void setProfiledInt(ProfileField field, int value) { int offset = profileOffset(field); if (offset < 0) throw new UnsupportedOperationException("No item profile for this save version"); putInt(offset, value); refreshHash(); }
     private int profileOffset(ProfileField field) {
-        if (gameVersion() != 150500 || bytes.length < Offsets.offsets_143) return -1;
+        if ((gameVersion() != 150500 && !(uploadMode && gameVersion() == 150501))
+                || bytes.length < Offsets.offsets_143) return -1;
         try {
             int offset = switch (field) {
                 case NORMAL_TICKETS -> findIntOrDefault(1818501,fixed(Offsets.offsets_88))+20; case RARE_TICKETS -> findIntOrDefault(1818501,fixed(Offsets.offsets_88))+24; case PLATINUM_TICKETS -> findIntOrDefault(5100,fixed(Offsets.offsets_89))-8;

@@ -19,6 +19,9 @@ public class SaveDocumentTest {
         assertTrue(document.needsUnsupportedImportWarning());
         assertFalse(document.isOfficiallySupportedVersion());
         assertFalse(document.hasItemProfile());
+        SaveDocument upload = SaveDocument.openForUpload(source, SaveDocument.Region.JP);
+        assertTrue(upload.canAttemptUnsafeUpload());
+        assertTrue(upload.hasItemProfile());
     }
 
     @Test public void bundledNewSaveTemplatesAreValid155Saves() throws Exception {

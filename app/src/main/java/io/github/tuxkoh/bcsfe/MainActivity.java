@@ -446,7 +446,16 @@ public final class MainActivity extends AppCompatActivity {
     private boolean activityActive(){return !isFinishing()&&!isDestroyed();}
     @Override protected void onDestroy(){networkExecutor.shutdownNow();super.onDestroy();}
     private void confirmUpload() {
-        if (document == null || !document.hasItemProfile()) { unsupportedVersion(); return; }
+        if (document == null || (!document.hasItemProfile() && !document.canAttemptUnsafeUpload())) { unsupportedVersion(); return; }
+        if (document.canAttemptUnsafeUpload()) {
+            new AlertDialog.Builder(this).setTitle(R.string.force_upload_title)
+                    .setMessage(R.string.force_upload_message).setNegativeButton(R.string.close, null)
+                    .setPositiveButton(R.string.force_upload_confirm, (dialog, which) -> beginUploadConfirmation()).show();
+            return;
+        }
+        beginUploadConfirmation();
+    }
+    private void beginUploadConfirmation() {
         if(BuildConfig.ADS_ENABLED){showAdActionConfirmation(true);return;}
         new AlertDialog.Builder(this).setTitle(R.string.upload_transfer).setMessage(R.string.upload_warning)
                 .setNegativeButton(R.string.close,null).setPositiveButton(R.string.upload_confirm,(d,w)->uploadAndShowTransferCodes()).show();
@@ -524,7 +533,7 @@ public final class MainActivity extends AppCompatActivity {
         long startedAt=android.os.SystemClock.elapsedRealtime();
         Toast.makeText(this,R.string.uploading,Toast.LENGTH_SHORT).show();
         byte[] source=document.toBytes();
-        networkExecutor.execute(()->{try{SaveDocument uploadSource=SaveDocument.open(source);TransferClient.UploadResult result=TransferClient.uploadWithReplacementAccount(uploadSource);SaveDocument replacement=SaveDocument.open(result.updatedSave);runAfterMinimumDelay(startedAt,minimumDisplayMillis,()->{document=replacement;workingCopy=result.updatedSave;accountPassword=result.password;persistSession(true);if(completed!=null)completed.run();showTransferCodes(result);});}catch(Exception e){logNetworkFailure("upload",e);runAfterMinimumDelay(startedAt,minimumDisplayMillis,()->{if(completed!=null)completed.run();Toast.makeText(this,R.string.upload_failed,Toast.LENGTH_LONG).show();});}});
+        networkExecutor.execute(()->{try{SaveDocument uploadSource=SaveDocument.openForUpload(source, document.region());TransferClient.UploadResult result=TransferClient.uploadWithReplacementAccount(uploadSource);SaveDocument replacement=uploadSource.canAttemptUnsafeUpload() ? SaveDocument.openForInspection(result.updatedSave, uploadSource.region()) : SaveDocument.open(result.updatedSave);runAfterMinimumDelay(startedAt,minimumDisplayMillis,()->{document=replacement;workingCopy=result.updatedSave;accountPassword=result.password;persistSession(true);if(completed!=null)completed.run();showTransferCodes(result);});}catch(Exception e){logNetworkFailure("upload",e,source);runAfterMinimumDelay(startedAt,minimumDisplayMillis,()->{if(completed!=null)completed.run();Toast.makeText(this,R.string.upload_failed,Toast.LENGTH_LONG).show();});}});
         return true;
     }
 
