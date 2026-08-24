@@ -25,6 +25,12 @@ public class SaveDocumentTest {
         assertTrue(upload.hasItemProfile());
     }
 
+    @Test public void jp155SaveKeepsCatfruitReadable() throws Exception {
+        byte[] source = java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/jp.save"));
+        SaveDocument document = SaveDocument.open(source);
+        assertEquals(29, document.catfruit().length);
+    }
+
     @Test public void bundledNewSaveTemplatesAreValid155Saves() throws Exception {
         java.nio.file.Path templates=java.nio.file.Path.of("src/main/assets/new_saves");
         for(SaveDocument.Region region:SaveDocument.Region.values()){

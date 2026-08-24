@@ -895,6 +895,7 @@ public final class SaveDocument {
         if (offset < 0 || offset + 4 > bytes.length-Offsets.offsets_130) throw new IllegalStateException("Save field is unavailable at offset=" + offset + " length=" + bytes.length);
         return (bytes[offset] & 255) | ((bytes[offset + 1] & 255) << 8) | ((bytes[offset + 2] & 255) << 16) | (bytes[offset + 3] << 24);
     }
+    private int safeIntAt(int offset) { return offset < 0 || offset + 4 > bytes.length - Offsets.offsets_130 ? Integer.MIN_VALUE : intAt(offset); }
     private int findIntNear(int value,int estimate,int radius) { int from=Math.max(0,estimate-radius),to=Math.min(bytes.length-36,estimate+radius);for(int offset=from;offset<=to;offset++)if(intAt(offset)==value)return offset;throw new IllegalStateException("Save marker is unavailable: "+value); }
     private int findIntNearOrAny(int value,int estimate,int radius) { try{return findIntNear(value,estimate,radius);}catch(IllegalStateException outsideEstimate){return findInt(value);} }
     private int findInt(int value) { for(int offset=4;offset<bytes.length-35;offset++)if(intAt(offset)==value)return offset;throw new IllegalStateException("Save marker is unavailable: "+value); }
@@ -1604,7 +1605,12 @@ public final class SaveDocument {
         // size.  This handles extra storage/credential payload without
         // allowing arbitrary data to be treated as a cat list.
         maxCount = recoverCountAnchor(maxCount, count, 32768, 0, 0);
-        formsCount = recoverCountAnchor(formsCount, count, 32768, 0, 1);
+        // Transfer-code payloads can insert a sizable variable account
+        // section between max-upgrade records and unlocked forms.  Unlike
+        // the other cat lists, this anchor may move well beyond 32 KiB.
+        // Keep the full-list value validation while allowing the larger
+        // displacement seen in 873-cat received saves.
+        formsCount = recoverCountAnchor(formsCount, count, bytes.length, 0, 1);
         guideCount = recoverCountAnchor(guideCount, count, 32768, 0, 2);
         catfruitCount = recoverCountAnchor(catfruitCount, 29, 32768, 0, 3);
         fourthCount = recoverCountAnchor(fourthCount, count, 32768, 0, 4);
@@ -1616,13 +1622,15 @@ public final class SaveDocument {
         // so derive its count word from the recovered catseye list instead of
         // searching for a coincidental integer equal to 3.
         aminsCount = eyesCount + 4 + 6 * 4;
+        boolean formsValid = intAt(formsCount) == count
+                && validCatList(formsCount + 4, count, 1);
         if (intAt(gatyaCount) != count) {
             int recovered = recoverCountAnchor(fixedStatic(Offsets.offsets_58) - 4 + 3 * d + headDelta,
                     count, 16384, 0, 7);
             if (recovered >= 0) gatyaCount = recovered;
         }
         if(intAt(upgradeCount)!=count||intAt(currentCount)!=count||intAt(gatyaCount)!=count||
-                intAt(maxCount)!=count||intAt(formsCount)!=count||intAt(guideCount)!=count||
+                intAt(maxCount)!=count||intAt(guideCount)!=count||
                 intAt(catfruitCount)!=29||intAt(fourthCount)!=count||intAt(eyesUsedCount)!=count||
                 intAt(eyesCount)!=6||!validCataminList(aminsCount)) {
             // A handful of old diagnostic/profile fixtures (and saves made
@@ -1638,7 +1646,7 @@ public final class SaveDocument {
             throw new IllegalStateException("Invalid variable cat layout count="+count+
                     " upgrade="+intAt(upgradeCount)+" current="+intAt(currentCount)+
                     " gatya="+intAt(gatyaCount)+" max="+intAt(maxCount)+
-                    " forms="+intAt(formsCount)+" guide="+intAt(guideCount)+
+                    " forms="+safeIntAt(formsCount)+" guide="+intAt(guideCount)+
                     " fruit="+intAt(catfruitCount)+" fourth="+intAt(fourthCount)+
                     " used="+intAt(eyesUsedCount)+" eyes="+intAt(eyesCount)+
                     " amins="+intAt(aminsCount)+" positions="+upgradeCount+","+currentCount+","+
@@ -1646,7 +1654,7 @@ public final class SaveDocument {
                     fourthCount+","+eyesUsedCount+","+eyesCount+","+aminsCount);
         }
         catLayoutCache = new CatLayout(countOffset,count,unlocked,upgradeCount,upgradeStart,currentCount,currentStart,
-                gatyaCount,gatyaCount+4,maxCount,maxCount+4,formsCount,formsCount+4,
+                gatyaCount,gatyaCount+4,maxCount,maxCount+4,formsValid ? formsCount : -1,formsValid ? formsCount+4 : -1,
                 guideCount,guideCount+4,catfruitCount,catfruitCount+4,fourthCount,fourthCount+4,
                 eyesUsedCount,eyesUsedCount+4,eyesCount,eyesCount+4,aminsCount,aminsCount+4);
         return catLayoutCache;
@@ -1885,7 +1893,8 @@ public final class SaveDocument {
             case 1: // unlocked forms
                 end = (long) start + count * 4L;
                 if (end > bytes.length - Offsets.offsets_130) return false;
-                for (int i = 0; i < count; i++) if (rawIntAt(start + i * 4) < 0 || rawIntAt(start + i * 4) > 3) return false;
+                int maxForm = gameVersion() >= 150501 ? 4 : 3;
+                for (int i = 0; i < count; i++) if (rawIntAt(start + i * 4) < 0 || rawIntAt(start + i * 4) > maxForm) return false;
                 return true;
             case 2: // cat guide flags
                 end = (long) start + count;

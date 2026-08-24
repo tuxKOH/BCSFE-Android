@@ -643,17 +643,30 @@ public final class MainActivity extends AppCompatActivity {
         if (!document.hasItemProfile()) { unsupportedVersion(); return; }
         String[] groups=getResources().getStringArray(R.array.consumable_groups);
         new AlertDialog.Builder(this).setTitle(R.string.consumables_title).setItems(groups,(d,i)->{
-            if(i==0)editArray(R.string.catseyes_title,R.string.catseye_label,document.catseyes(),document::setCatseye);
-            else if(i==1)editCatfruit();
-            else editArray(R.string.catamins_title,R.string.catamin_label,document.catamins(),document::setCatamin);
+            try {
+                if(i==0)editArray(R.string.catseyes_title,R.string.catseye_label,document.catseyes(),document::setCatseye);
+                else if(i==1)editCatfruit();
+                else editArray(R.string.catamins_title,R.string.catamin_label,document.catamins(),document::setCatamin);
+            } catch (RuntimeException error) {
+                showFieldError(error);
+            }
         }).setNegativeButton(R.string.close,null).show();
     }
     private void editCatfruit() {
-        String[] actions=getResources().getStringArray(R.array.catfruit_actions);
-        new AlertDialog.Builder(this).setTitle(R.string.catfruit_title).setItems(actions,(dialog,index)->{
-            if(index==0)editArray(R.string.catfruit_title,R.string.catfruit_label,document.catfruit(),document::setCatfruit);
-            else {int[] values=document.catfruit();editNumberText(getString(R.string.catfruit_set_all_label),values[0],document::setAllCatfruit);}
-        }).setNegativeButton(R.string.close,null).show();
+        try {
+            String[] actions=getResources().getStringArray(R.array.catfruit_actions);
+            new AlertDialog.Builder(this).setTitle(R.string.catfruit_title).setItems(actions,(dialog,index)->{
+                try {
+                    int[] values=document.catfruit();
+                    if(index==0)editArray(R.string.catfruit_title,R.string.catfruit_label,values,document::setCatfruit);
+                    else editNumberText(getString(R.string.catfruit_set_all_label),values[0],document::setAllCatfruit);
+                } catch (RuntimeException error) {
+                    showFieldError(error);
+                }
+            }).setNegativeButton(R.string.close,null).show();
+        } catch (RuntimeException error) {
+            showFieldError(error);
+        }
     }
     private void editBattleItems() {
         if (!document.hasItemProfile()) { unsupportedVersion(); return; }
