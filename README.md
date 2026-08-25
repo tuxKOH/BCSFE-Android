@@ -19,8 +19,8 @@ codes, replacement-account creation, and independent managed-item upload are
 implemented.
 
 The format core validates and rewrites the region-specific MD5 checksum and
-preserves unknown data. Current deep editors target 15.5 saves in JP, EN, TW,
-and KR. Region conversion is byte-tested for 15.5. Version conversion supports
+preserves unknown data. Current deep editors target JP 15.6/15.5 saves and 15.5
+saves in EN, TW, and KR. Region conversion is byte-tested for 15.5. Version conversion supports
 14.0 and 14.3 through 15.5, including the version-dependent Dojo, Enigma, and
 tail record layouts.
 

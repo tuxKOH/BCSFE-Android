@@ -46,6 +46,7 @@ public final class SaveDocument {
     private int unitDropsBaseCache = -1;
 
     private static final int TEMPLATE_CAT_COUNT = 861;
+    private static final int MAX_CAT_COUNT = 876;
 
     /** The cat-related lists are variable length in the upstream save format. */
     private static final class CatLayout {
@@ -161,12 +162,12 @@ public final class SaveDocument {
 
     public byte[] toBytes() { return bytes.clone(); }
     public Region region() { return region; }
-    /** Full editor validation currently covers the 15.5 save layout. */
-    public boolean isOfficiallySupportedVersion() { return !forcedUnsupported && gameVersion() == 150500; }
+    /** Full editor validation covers the 15.5 layout and the variable-cat JP 15.6 layout. */
+    public boolean isOfficiallySupportedVersion() { return !forcedUnsupported && (gameVersion() == 150500 || (gameVersion() == 150600 && region == Region.JP)); }
     /** Import is intentionally allowed for these saves, but editing is not certified. */
     public boolean needsUnsupportedImportWarning() { return !isOfficiallySupportedVersion(); }
     /** True only for the newer save versions accepted by the warned upload path. */
-    public boolean canAttemptUnsafeUpload() { return gameVersion() == 150501; }
+    public boolean canAttemptUnsafeUpload() { return gameVersion() >= 150501 && gameVersion() <= 150699; }
     public void convertRegion(Region target) {
         if (target == null) throw new IllegalArgumentException("Missing region");
         if (target == region) return;
@@ -482,7 +483,7 @@ public final class SaveDocument {
      */
     public void setCatUnlockedForms(int index,int value) { checkCat(index);if(value<0||value>3)throw new IllegalArgumentException("Invalid unlocked forms");putFormValue(index,value);touchRankUpSale();refreshHash(); }
     public void setCatFourthForm(int index,int value) { checkCat(index);if(value<0||value>2)throw new IllegalArgumentException("Invalid fourth form");putInt(catLayout().fourthStart+index*4,value);touchRankUpSale();refreshHash(); }
-    public void resetCat(int index) { checkCat(index);CatLayout l=catLayout();putInt(l.unlockedStart+index*4,0);putShort(l.upgradeStart+index*4,0);putShort(l.upgradeStart+index*4+2,0);putInt(l.currentFormStart+index*4,0);putInt(l.gatyaSeenStart+index*4,0);putFormValue(index,0);bytes[l.guideStart+index]=0;putInt(l.fourthStart+index*4,0);putInt(l.catseyesUsedStart+index*4,0);resetCharaNewFlag(index);int[] record=talentRecord(index);for(int i=0;i<record[1];i++)putInt(record[0]+i*8+4,0);int drops=unitDropsOffset();if(drops>=0)for(int i=0;i<GameDataRules.dropPairCount(region);i++)if(GameDataRules.dropCat(region,i)==index)putInt(drops+GameDataRules.dropSlot(region,i)*4,0);touchRankUpSale();refreshHash(); }
+    public void resetCat(int index) { checkCat(index);CatLayout l=catLayout();putInt(l.unlockedStart+index*4,0);putShort(l.upgradeStart+index*4,0);putShort(l.upgradeStart+index*4+2,0);putInt(l.currentFormStart+index*4,0);putInt(l.gatyaSeenStart+index*4,0);putFormValue(index,0);bytes[l.guideStart+index]=0;putInt(l.fourthStart+index*4,0);putInt(l.catseyesUsedStart+index*4,0);resetCharaNewFlag(index);int[] record=talentRecord(index);for(int i=0;i<record[1];i++)putInt(record[0]+i*8+4,0);int drops=unitDropsOffset();if(drops>=0)for(int i=0;i<GameDataRules.dropPairCount(region, gameVersion());i++)if(GameDataRules.dropCat(region, gameVersion(),i)==index)putInt(drops+GameDataRules.dropSlot(region, gameVersion(),i)*4,0);touchRankUpSale();refreshHash(); }
     public void setCatGuideCollected(int index,boolean value) { checkCat(index);if(value)unlockCatRaw(index);bytes[catLayout().guideStart+index]=(byte)(value?1:0);touchRankUpSale();refreshHash(); }
     public int specialSkillCount() { ensureCatProfile(); return 10; }
     public int specialSkillBaseLevel(int index) { return ushortAt(specialSkillUpgradeOffset(index)+2)+1; }
@@ -516,10 +517,10 @@ public final class SaveDocument {
      * possible. */
     private void applyCatBaseUpgrade(int catId,int targetLevel,boolean individualEdit) {
             int target = Math.min(targetLevel, GameDataRules.catMaxBase(catId));
-            int maxUp = GameDataRules.catRankLimitBase(catId, id -> true);
-            int maxPlusUp = GameDataRules.catRankLimitPlus(catId, id -> true);
+            int maxUp = GameDataRules.catRankLimitBase(gameVersion(), catId, id -> true);
+            int maxPlusUp = GameDataRules.catRankLimitPlus(gameVersion(), catId, id -> true);
             int base = 0, catseyes = 0;
-            int simulationMaxUp = GameDataRules.catRankLimitBase(catId, id -> true);
+            int simulationMaxUp = GameDataRules.catRankLimitBase(gameVersion(), catId, id -> true);
             int originalMax = GameDataRules.catOriginalMaxBase(catId);
             int maxNoCatseye = GameDataRules.catMaxNoCatseye(catId);
             int maxCatseye = GameDataRules.catMaxCatseye(catId);
@@ -577,10 +578,10 @@ public final class SaveDocument {
     public boolean userRankRewardClaimed(int index) { int count=userRankRewardCount();if(index<0||index>=count)throw new IndexOutOfBoundsException();return byteAt(userRankRewardFlagsOffset()+index)!=0; }
     public void setUserRankRewardClaimed(int index,boolean value) { int count=userRankRewardCount();if(index<0||index>=count)throw new IndexOutOfBoundsException();bytes[userRankRewardFlagsOffset()+index]=(byte)(value?1:0);refreshHash(); }
     public void setAllUserRankRewards(boolean value) { int count=userRankRewardCount();int offset=userRankRewardFlagsOffset();for(int i=0;i<count;i++)bytes[offset+i]=(byte)(value?1:0);refreshHash(); }
-    public int knownUserRankRewardCount() { return Math.min(userRankRewardCount(),GameDataRules.rankGiftCount()); }
-    public boolean userRankRewardEligible(int index) { if(index<0||index>=knownUserRankRewardCount())throw new IndexOutOfBoundsException();return GameDataRules.rankGiftThreshold(index)<=userRank(); }
+    public int knownUserRankRewardCount() { return Math.min(userRankRewardCount(),GameDataRules.rankGiftCount(gameVersion())); }
+    public boolean userRankRewardEligible(int index) { if(index<0||index>=knownUserRankRewardCount())throw new IndexOutOfBoundsException();return GameDataRules.rankGiftThreshold(gameVersion(), index)<=userRank(); }
     public void setEligibleUserRankRewardClaimed(int index,boolean value) { if(!userRankRewardEligible(index))throw new IllegalArgumentException("Reward is not unlocked");setUserRankRewardClaimed(index,value); }
-    public void fixUserRankRewards() { int rank=userRank(),count=knownUserRankRewardCount(),offset=userRankRewardFlagsOffset();for(int i=0;i<count;i++)if(GameDataRules.rankGiftThreshold(i)>rank)bytes[offset+i]=0;refreshHash(); }
+    public void fixUserRankRewards() { int rank=userRank(),count=knownUserRankRewardCount(),offset=userRankRewardFlagsOffset();for(int i=0;i<count;i++)if(GameDataRules.rankGiftThreshold(gameVersion(), i)>rank)bytes[offset+i]=0;refreshHash(); }
     public int storyChapterCount() { ensureItemProfile(); return 9; }
     public int storyStageCount() { ensureItemProfile(); return 48; }
     public int storyClearTimes(int chapter,int stage) { int raw=storyInternalChapter(chapter);checkStoryStage(stage);return intAt(fixed(Offsets.offsets_28)+(raw*51+stage)*4); }
@@ -747,9 +748,9 @@ public final class SaveDocument {
     public int storageItemType(int slot) { checkStorage(slot);return intAt(storageTableOffset()+2+storageCount()*4+slot*4); }
     public void setStorageItem(int slot,int type,int id) { checkStorage(slot);if(type<0||type>3)throw new IllegalArgumentException("Invalid storage type");int table=storageTableOffset(),count=storageCount();putInt(table+2+slot*4,id);putInt(table+2+count*4+slot*4,type);refreshHash(); }
     public void clearStorage() { int table=storageTableOffset(),count=storageCount();for(int i=0;i<count;i++){putInt(table+2+i*4,0);putInt(table+2+count*4+i*4,0);}refreshHash(); }
-    public void addStorageCat(int catId) { if(catId<0||catId>=873)throw new IllegalArgumentException("Invalid cat ID");addStorageItem(1,catId); }
+    public void addStorageCat(int catId) { if(catId<0||catId>=MAX_CAT_COUNT)throw new IllegalArgumentException("Invalid cat ID");addStorageItem(1,catId); }
     public void addStorageSpecialSkill(int skillId) { if(skillId<0||skillId>=10)throw new IllegalArgumentException("Invalid special skill ID");addStorageItem(2,skillId); }
-    public void addStorageCats(int catId,int quantity) { if(catId<0||catId>=873||quantity<1)throw new IllegalArgumentException("Invalid storage cats");ensureStorageSpace(quantity);for(int i=0;i<quantity;i++)addStorageItem(1,catId); }
+    public void addStorageCats(int catId,int quantity) { if(catId<0||catId>=MAX_CAT_COUNT||quantity<1)throw new IllegalArgumentException("Invalid storage cats");ensureStorageSpace(quantity);for(int i=0;i<quantity;i++)addStorageItem(1,catId); }
     public void addStorageSpecialSkills(int skillId,int quantity) { if(skillId<0||skillId>=10||quantity<1)throw new IllegalArgumentException("Invalid storage skills");ensureStorageSpace(quantity);for(int i=0;i<quantity;i++)addStorageItem(2,skillId); }
     public int occupiedStorageCount() { int count=0;for(int i=0;i<storageCount();i++)if(storageItemType(i)!=0)count++;return count; }
     public int occupiedStorageSlot(int index) { if(index<0)throw new IndexOutOfBoundsException();for(int slot=0;slot<storageCount();slot++)if(storageItemType(slot)!=0&&index--==0)return slot;throw new IndexOutOfBoundsException(); }
@@ -788,7 +789,7 @@ public final class SaveDocument {
     public void unlockAllCats() { ensureCatProfile();for(int i=0;i<catCount();i++)unlockCatRaw(i);touchRankUpSale();refreshHash(); }
     public void unlockAllObtainableCats() { ensureCatProfile();for(int i=0;i<catCount();i++)if(GameDataRules.catObtainable(region,gameVersion(),i))unlockCatRaw(i);touchRankUpSale();refreshHash(); }
     public void removeAllCats() { ensureCatProfile();CatLayout l=catLayout(); for(int i=0;i<l.count;i++) putInt(l.unlockedStart+i*4,0);touchRankUpSale();refreshHash(); }
-    public void resetAllCats() { ensureCatProfile();CatLayout l=catLayout();for(int i=0;i<l.count;i++){putInt(l.unlockedStart+i*4,0);putShort(l.upgradeStart+i*4,0);putShort(l.upgradeStart+i*4+2,0);putInt(l.currentFormStart+i*4,0);putInt(l.gatyaSeenStart+i*4,0);putFormValue(i,0);bytes[l.guideStart+i]=0;putFourthValue(i,0);putInt(l.catseyesUsedStart+i*4,0);}resetAllCharaNewFlags();int table=talentTableOffset(),records=intAt(table),talents=table+4;for(int r=0;r<records;r++){int count=intAt(talents+4);talents+=8;for(int i=0;i<count;i++)putInt(talents+i*8+4,0);talents+=count*8;}int drops=unitDropsOffset();if(drops>=0)for(int i=0;i<GameDataRules.dropPairCount(region);i++)putInt(drops+GameDataRules.dropSlot(region,i)*4,0);touchRankUpSale();refreshHash(); }
+    public void resetAllCats() { ensureCatProfile();CatLayout l=catLayout();for(int i=0;i<l.count;i++){putInt(l.unlockedStart+i*4,0);putShort(l.upgradeStart+i*4,0);putShort(l.upgradeStart+i*4+2,0);putInt(l.currentFormStart+i*4,0);putInt(l.gatyaSeenStart+i*4,0);putFormValue(i,0);bytes[l.guideStart+i]=0;putFourthValue(i,0);putInt(l.catseyesUsedStart+i*4,0);}resetAllCharaNewFlags();int table=talentTableOffset(),records=intAt(table),talents=table+4;for(int r=0;r<records;r++){int count=intAt(talents+4);talents+=8;for(int i=0;i<count;i++)putInt(talents+i*8+4,0);talents+=count*8;}int drops=unitDropsOffset();if(drops>=0)for(int i=0;i<GameDataRules.dropPairCount(region, gameVersion());i++)putInt(drops+GameDataRules.dropSlot(region, gameVersion(),i)*4,0);touchRankUpSale();refreshHash(); }
     public void unlockTrueForms() { setTrueForms(false); }
     public void forceTrueForms() { setTrueForms(true); }
     private void setTrueForms(boolean force) {
@@ -873,7 +874,7 @@ public final class SaveDocument {
         int best = -1, distance = Integer.MAX_VALUE;
         for (int offset = from; offset <= to; offset++) {
             int value = rawIntAt(source, offset);
-            if (value >= 150501 && value <= 150599) {
+            if (value >= 150501 && value <= 150699) {
                 int currentDistance = Math.abs(offset - Offsets.offsets_23);
                 if (currentDistance < distance) { best = offset; distance = currentDistance; }
             }
@@ -904,7 +905,7 @@ public final class SaveDocument {
     private int profiledInt(ProfileField field) { int offset = profileOffset(field); if (offset < 0) throw new UnsupportedOperationException("No item profile for this save version"); return intAt(offset); }
     private void setProfiledInt(ProfileField field, int value) { int offset = profileOffset(field); if (offset < 0) throw new UnsupportedOperationException("No item profile for this save version"); putInt(offset, value); refreshHash(); }
     private int profileOffset(ProfileField field) {
-        if ((gameVersion() != 150500 && !(uploadMode && gameVersion() == 150501))
+        if ((gameVersion() != 150500 && gameVersion() != 150600 && !(uploadMode && gameVersion() >= 150501 && gameVersion() <= 150699))
                 || bytes.length < Offsets.offsets_143) return -1;
         try {
             int offset = switch (field) {
@@ -1354,9 +1355,9 @@ public final class SaveDocument {
         if(talentTableBaseCache>=0)return talentTableBaseCache;
         int estimate=afterCannons(Offsets.offsets_100),from=Math.max(0,estimate-8192),to=Math.min(bytes.length-36,estimate+16384);
         for(int base=from;base<=to;base++){
-            int records=rawIntAt(base);if(records<100||records>873)continue;int offset=base+4,last=-1;boolean valid=true;
+            int records=rawIntAt(base);if(records<100||records>MAX_CAT_COUNT)continue;int offset=base+4,last=-1;boolean valid=true;
             for(int r=0;r<records;r++){
-                if(offset+8>bytes.length-Offsets.offsets_130){valid=false;break;}int cat=rawIntAt(offset),count=rawIntAt(offset+4);if(cat<=last||cat<0||cat>=873||count<0||count>64){valid=false;break;}last=cat;offset+=8;
+                if(offset+8>bytes.length-Offsets.offsets_130){valid=false;break;}int cat=rawIntAt(offset),count=rawIntAt(offset+4);if(cat<=last||cat<0||cat>=MAX_CAT_COUNT||count<0||count>64){valid=false;break;}last=cat;offset+=8;
                 if(offset+count*8>bytes.length-Offsets.offsets_130){valid=false;break;}for(int i=0;i<count;i++){int id=rawIntAt(offset+i*8),level=rawIntAt(offset+i*8+4);if(id<0||id>1000||level<0||level>1000){valid=false;break;}}if(!valid)break;offset+=count*8;
             }
             if(valid){talentTableBaseCache=base;return base;}
@@ -1572,7 +1573,7 @@ public final class SaveDocument {
                     usedStart-4,usedStart,eyesStart-4,eyesStart,aminsStart-4,aminsStart);
         }
         int count = intAt(countOffset);
-        if (count < 1 || count > 873) throw new IllegalStateException("Invalid cat count");
+        if (count < 1 || count > MAX_CAT_COUNT) throw new IllegalStateException("Invalid cat count");
         int dc=count-TEMPLATE_CAT_COUNT, d=dc*4;
         int headDelta = unlocked - fixedStatic(Offsets.offsets_38);
         int templateUpgradeStart = fixedStatic(Offsets.offsets_40) + headDelta;
@@ -1705,7 +1706,7 @@ public final class SaveDocument {
             // any downstream offsets.  Pre-14.3 fixed-count saves never use
             // this locator and are handled by the legacy branch in
             // catLayout().
-            if (count < 200 || count > 873) continue;
+            if (count < 200 || count > MAX_CAT_COUNT) continue;
             int unlocked = countOffset + 4;
             long upgradeCountLong = (long) unlocked + count * 4L;
             if (upgradeCountLong + 4 > limit) continue;
@@ -1811,7 +1812,7 @@ public final class SaveDocument {
     }
 
     private boolean legacyFixedCatLayoutAvailable(int count) {
-        if (count < 1 || count > 873 || bytes.length < 500000) return false;
+        if (count < 1 || count > MAX_CAT_COUNT || bytes.length < 500000) return false;
         // The legacy fixture has the first (unlocked) count, while all of the
         // later modern count words are absent/zero.  Real modern saves carry
         // the same count in every list, so this check cannot mask a normal
@@ -2002,22 +2003,23 @@ public final class SaveDocument {
     }
     private int userRankRewardFlagsOffset() { return userRankRewardCountOffset() + 4; }
     private void touchRankUpSale() { putInt(rankUpSaleOffset(),0x7fffffff); }
-    private void syncCatRankLimits(int catId) { java.util.function.IntPredicate available=id->true;int base=GameDataRules.catRankLimitBase(catId,available),plus=GameDataRules.catRankLimitPlus(catId,available);CatLayout l=catLayout();putShort(l.maxUpgradeStart+catId*4,plus);putShort(l.maxUpgradeStart+catId*4+2,base); }
+    private void syncCatRankLimits(int catId) { java.util.function.IntPredicate available=id->true;int base=GameDataRules.catRankLimitBase(gameVersion(),catId,available),plus=GameDataRules.catRankLimitPlus(gameVersion(),catId,available);CatLayout l=catLayout();putShort(l.maxUpgradeStart+catId*4,plus);putShort(l.maxUpgradeStart+catId*4+2,base); }
     private void unlockCatRaw(int index) {
         CatLayout l=catLayout();
         putInt(l.unlockedStart+index*4,1);putInt(l.gatyaSeenStart+index*4,1);
         int menu = menuUnlocksOffset() + 8;
         putInt(menu,Math.max(1,intAt(menu)));
         int drops=unitDropsOffset();
-        if(drops>=0)for(int i=0;i<GameDataRules.dropPairCount(region);i++)
-            if(GameDataRules.dropCat(region,i)==index)putInt(drops+GameDataRules.dropSlot(region,i)*4,1);
+        if(drops>=0)for(int i=0;i<GameDataRules.dropPairCount(region, gameVersion());i++)
+            if(GameDataRules.dropCat(region,gameVersion(),i)==index)putInt(drops+GameDataRules.dropSlot(region,gameVersion(),i)*4,1);
     }
     private void unlockCatForUpgrade(int index) {
         CatLayout l=catLayout(); putInt(l.unlockedStart+index*4,1); putInt(l.gatyaSeenStart+index*4,1);
         int menu = menuUnlocksOffset() + 8;
         putInt(menu,Math.max(1,intAt(menu)));
         int drops=unitDropsOffset();
-        if(drops>=0)for(int i=0;i<GameDataRules.dropPairCount(region);i++) if(GameDataRules.dropCat(region,i)==index)putInt(drops+GameDataRules.dropSlot(region,i)*4,1);
+        if(drops>=0)for(int i=0;i<GameDataRules.dropPairCount(region, gameVersion());i++)
+            if(GameDataRules.dropCat(region,gameVersion(),i)==index)putInt(drops+GameDataRules.dropSlot(region,gameVersion(),i)*4,1);
     }
     /** Upstream Cat.set_upgrade(..., only_plus=True) still calls Cat.unlock()
      * when unlock-on-edit is enabled, so plus edits update gatya_seen, the
@@ -2193,12 +2195,12 @@ public final class SaveDocument {
             // arbitrary transfer-code payloads can look like a short record.
             int talentTable=tailOffset+10;
             int records=rawIntAt(talentTable),p=talentTable+4,last=-1;
-            if(records<0||records>873)continue;
+            if(records<0||records>MAX_CAT_COUNT)continue;
             boolean talentValid=true;
             for(int r=0;r<records;r++){
                 if(p+8>limit){talentValid=false;break;}
                 int cat=rawIntAt(p),talents=rawIntAt(p+4);
-                if(cat<0||cat>=873||cat<=last||talents<0||talents>64||p+8L+talents*8L>limit){talentValid=false;break;}
+                if(cat<0||cat>=MAX_CAT_COUNT||cat<=last||talents<0||talents>64||p+8L+talents*8L>limit){talentValid=false;break;}
                 last=cat;p+=8+talents*8;
             }
             if(!talentValid||p+9>limit||rawIntAt(p+5)!=80000||byteAt(p+4)>1)continue;

@@ -56,8 +56,8 @@ android {
         applicationId = "io.github.tuxkoh.bcsfe"
         minSdk = 26
         targetSdk = 34
-        versionCode = 21
-        versionName = "0.1.20"
+        versionCode = 22
+        versionName = "0.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("boolean", "ADS_ENABLED", adsEnabled.toString())

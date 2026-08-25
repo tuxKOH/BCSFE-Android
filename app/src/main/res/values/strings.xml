@@ -9,7 +9,7 @@
     <string name="update_notes_unavailable">No release notes were provided.</string>
     <string name="view_release">View release</string>
     <string name="open_release_failed">Could not open the release page.</string>
-    <string name="supported_versions_notice">Full editing targets 15.5 saves for JP, EN, TW, and KR. JP 15.1.1 saves can be imported for inspection and export, but are not officially supported. Version conversion supports 14.0 and 14.3–15.5. Earlier save formats are not supported for full editing.</string>
+    <string name="supported_versions_notice">Full editing targets JP 15.6 and 15.5 saves, plus EN, TW, and KR 15.5 saves. Older saves can be imported for inspection and export, but are not officially supported. Version conversion supports 14.0 and 14.3–15.5. Earlier save formats are not supported for full editing.</string>
     <string name="unsupported_import_warning_title">Version not officially supported</string>
     <string name="unsupported_import_warning">This version is not officially supported. The abnormal-cat list may be incomplete, and some values may appear garbled. If you see garbled values, do not edit them; this may trigger an in-game data error and could lead to a ban.</string>
     <string name="language">Language</string><string name="change_language">Change language</string><string name="choose_language">Choose language</string>

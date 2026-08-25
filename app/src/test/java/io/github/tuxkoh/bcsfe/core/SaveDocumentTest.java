@@ -1158,6 +1158,16 @@ public class SaveDocumentTest {
         assertFalse(GameDataRules.catObtainable(SaveDocument.Region.JP,150101,28));
     }
 
+    @Test public void jp156RulesComeFromBcDataSnapshot() {
+        assertTrue(GameDataRules.catObtainable(SaveDocument.Region.JP,150600,823));
+        assertEquals(4, GameDataRules.totalForms(SaveDocument.Region.JP,150600,196));
+        assertEquals(1, GameDataRules.totalForms(SaveDocument.Region.JP,150600,875));
+        assertEquals(299, GameDataRules.dropPairCount(SaveDocument.Region.JP,150600));
+        assertEquals(346, GameDataRules.rankGiftCount(150600));
+        assertEquals(28000, GameDataRules.rankGiftThreshold(150600,343));
+        assertEquals(28200, GameDataRules.rankGiftThreshold(150600,345));
+    }
+
     @Test public void each155RegionUnlocksItsOwnObtainableCatSubset() throws Exception {
         int[] expected={737,816,759,758};
         SaveDocument.Region[] regions=SaveDocument.Region.values();
