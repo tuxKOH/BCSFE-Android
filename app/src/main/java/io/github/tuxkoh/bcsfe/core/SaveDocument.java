@@ -276,13 +276,14 @@ public final class SaveDocument {
     public void convertGameVersion(int target) {
         int source=gameVersion();
         if(source==target)return;
-        if(source>=140300&&source<=150500&&target==140000){
+        if(target==150600&&region!=Region.JP)throw new UnsupportedOperationException("15.6.0 conversion is available for JP saves only");
+        if(source>=140300&&source<=150600&&target==140000){
             if(source>=140500)convert140500EmbeddedLayout(source,140000);
             if(source>=140100){int marker90500=findInt(90500);splice(marker90500-2,2,0);}
             int start=findInt(140000)+4,end=findInt(140300)+4;splice(start,end-start,0);
             putInt(gameVersionOffset,target);refreshHash();return;
         }
-        if(source==140000&&target>=140300&&target<=150500){
+        if(source==140000&&target>=140300&&target<=150600){
             if(target>=140500)convert140500EmbeddedLayout(source,target);
             int marker90500=findInt(90500);splice(marker90500,0,2);putShort(marker90500,0);
             int marker140000=findInt(140000),extra=target>=150500?6:target>=150300?5:0;
@@ -293,7 +294,7 @@ public final class SaveDocument {
             splice(marker140000+4,0,tail.length);System.arraycopy(tail,0,bytes,marker140000+4,tail.length);
             putInt(gameVersionOffset,target);refreshHash();return;
         }
-        if(source<140300||source>150500||target<140300||target>150500)throw new UnsupportedOperationException("Version conversion is supported from 14.3 through 15.5, plus downgrade to 14.0");
+        if(source<140300||source>150600||target<140300||target>150600)throw new UnsupportedOperationException("Version conversion is supported from 14.3 through 15.6, plus downgrade to 14.0");
         convert140500EmbeddedLayout(source,target);
         convert140500RecordLayout(source,target);
         int marker=findIntNearOrAny(140200,bytes.length-406,96);
