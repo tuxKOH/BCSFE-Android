@@ -814,10 +814,26 @@ public final class MainActivity extends AppCompatActivity {
     }
     private void chooseTreasureGrade(int current, NumberChange change) {
         String[] grades=getResources().getStringArray(R.array.treasure_grades);
-        new AlertDialog.Builder(this).setTitle(R.string.treasure_grade_label).setSingleChoiceItems(grades, current>=0&&current<grades.length?current:-1, (dialog, which)->{
-            try { change.apply(which); dialog.dismiss(); }
-            catch (RuntimeException error) { showFieldError(error); }
-        }).setNegativeButton(R.string.close,null).show();
+        final int[] selected={current>=0&&current<grades.length?current:-1};
+        final android.widget.Button[] confirmButton={null};
+        AlertDialog dialog=new AlertDialog.Builder(this).setTitle(R.string.treasure_grade_label)
+                .setSingleChoiceItems(grades, selected[0], (window, which)->{
+                    selected[0]=which;
+                    if(confirmButton[0]!=null)confirmButton[0].setEnabled(true);
+                })
+                .setNegativeButton(R.string.close,null)
+                .setPositiveButton(android.R.string.ok,null).create();
+        dialog.setOnShowListener(ignored -> {
+            android.widget.Button confirm=dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            confirmButton[0]=confirm;
+            confirm.setEnabled(selected[0]>=0);
+            confirm.setOnClickListener(view -> {
+                if(selected[0]<0)return;
+                try { change.apply(selected[0]); persistApplied(); dialog.dismiss(); }
+                catch (RuntimeException error) { showFieldError(error); }
+            });
+        });
+        dialog.show();
     }
     private void chooseStoryChapter(IndexChange change) {
         String[] names=getResources().getStringArray(R.array.story_chapter_names);
