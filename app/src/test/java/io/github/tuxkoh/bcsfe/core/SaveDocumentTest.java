@@ -88,6 +88,8 @@ public class SaveDocumentTest {
         SaveDocument treasures=SaveDocument.open(java.nio.file.Files.readAllBytes(templates.resolve("tw.save")));
         for(int chapter=0;chapter<treasures.storyChapterCount();chapter++)treasures.setStoryChapterTreasures(chapter,3);
         for(int chapter=0;chapter<treasures.storyChapterCount();chapter++)for(int stage=0;stage<treasures.storyStageCount();stage++)assertEquals(3,treasures.storyTreasure(chapter,stage));
+        assertThrows(IllegalArgumentException.class,()->treasures.setStoryTreasure(0,0,4));
+        assertThrows(IllegalArgumentException.class,()->treasures.setStoryChapterTreasures(0,-1));
         assertTrue(treasures.checksumValid());
     }
 
@@ -370,7 +372,7 @@ public class SaveDocumentTest {
             SaveDocument d=SaveDocument.open(original);
             switch(name) {
                 case "story-clear" -> d.setStoryClearTimes(0,0,7);
-                case "story-treasure" -> d.setStoryTreasure(0,0,7);
+                case "story-treasure" -> d.setStoryTreasure(0,0,3);
                 case "aku" -> d.setAkuClearTimes(0,0,0,7);
                 case "mission" -> d.setMissionCompletion(d.missionIds()[0],2);
                 case "cannon" -> d.setCannonDevelopment(1,3);
@@ -897,7 +899,7 @@ public class SaveDocumentTest {
     @Test public void storyTreasureStageOrderAndCustomLevelMatchUpstream() throws Exception {
         java.nio.file.Path source=java.nio.file.Path.of("/tmp/bcsfe-transfer-tw.save");Assume.assumeTrue(java.nio.file.Files.isRegularFile(source));byte[] bytes=java.nio.file.Files.readAllBytes(source);
         SaveDocument single=SaveDocument.open(bytes);single.setStoryTreasure(3,0,3);assertEquals(3,single.storyTreasure(3,0));assertArrayEquals(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("/tmp/bcsfe-upstream-treasure-single.save")),single.toBytes());
-        SaveDocument whole=SaveDocument.open(bytes);whole.setStoryChapterTreasures(3,9999);assertArrayEquals(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("/tmp/bcsfe-upstream-treasure-whole.save")),whole.toBytes());assertThrows(IllegalArgumentException.class,()->whole.setStoryTreasure(0,0,10000));
+        SaveDocument whole=SaveDocument.open(bytes);whole.setStoryChapterTreasures(3,3);assertArrayEquals(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("/tmp/bcsfe-upstream-treasure-whole.save")),whole.toBytes());assertThrows(IllegalArgumentException.class,()->whole.setStoryTreasure(0,0,4));
     }
 
     @Test public void filibusterReclearMatchesUpstream() throws Exception {

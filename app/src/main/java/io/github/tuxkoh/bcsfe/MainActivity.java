@@ -807,10 +807,17 @@ public final class MainActivity extends AppCompatActivity {
         String[] actions=getResources().getStringArray(R.array.treasure_aku_actions);
         new AlertDialog.Builder(this).setTitle(R.string.treasure_aku_title).setItems(actions,(d,choice)->runFieldAction(()->{
             if(choice<2)chooseStoryChapter(chapter->{
-                if(choice==0)requestIndex(R.string.stage_id_label,document.storyStageCount(),stage->editNumberText(getString(R.string.treasure_grade_label),document.storyTreasure(chapter,stage),v->document.setStoryTreasure(chapter,stage,v)));
-                else editNumberText(getString(R.string.treasure_grade_label),3,v->{document.setStoryChapterTreasures(chapter,v);});
+                if(choice==0)requestIndex(R.string.stage_id_label,document.storyStageCount(),stage->chooseTreasureGrade(document.storyTreasure(chapter,stage),v->{document.setStoryTreasure(chapter,stage,v);persistApplied();}));
+                else chooseTreasureGrade(3,v->{document.setStoryChapterTreasures(chapter,v);persistApplied();});
             }); else if(choice==2){for(int chapter=0;chapter<document.storyChapterCount();chapter++)document.setStoryChapterTreasures(chapter,3);persistApplied();}else if(choice==3)editOutbreaks();else if(choice==4){document.unlockAkuRealm();persistApplied();}else editAkuProgress();
         })).setNegativeButton(R.string.close,null).show();
+    }
+    private void chooseTreasureGrade(int current, NumberChange change) {
+        String[] grades=getResources().getStringArray(R.array.treasure_grades);
+        new AlertDialog.Builder(this).setTitle(R.string.treasure_grade_label).setSingleChoiceItems(grades, current>=0&&current<grades.length?current:-1, (dialog, which)->{
+            try { change.apply(which); dialog.dismiss(); }
+            catch (RuntimeException error) { showFieldError(error); }
+        }).setNegativeButton(R.string.close,null).show();
     }
     private void chooseStoryChapter(IndexChange change) {
         String[] names=getResources().getStringArray(R.array.story_chapter_names);
