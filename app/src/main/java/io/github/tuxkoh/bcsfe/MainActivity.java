@@ -809,7 +809,7 @@ public final class MainActivity extends AppCompatActivity {
         new AlertDialog.Builder(this).setTitle(R.string.treasure_aku_title).setItems(actions,(d,choice)->runFieldAction(()->{
             if(choice<2)chooseStoryChapter(chapter->{
                 if(choice==0)requestIndex(R.string.stage_id_label,document.storyStageCount(),stage->chooseTreasureGrade(document.storyTreasure(chapter,stage),v->document.setStoryTreasure(chapter,stage,v)));
-                else chooseTreasureGrade(3,v->document.setStoryChapterTreasures(chapter,v));
+                else chooseTreasureGrade(storyChapterTreasureGrade(chapter),v->document.setStoryChapterTreasures(chapter,v));
             }); else if(choice==2){for(int chapter=0;chapter<document.storyChapterCount();chapter++)document.setStoryChapterTreasures(chapter,3);persistApplied();}else if(choice==3)editOutbreaks();else if(choice==4){document.unlockAkuRealm();persistApplied();}else editAkuProgress();
         })).setNegativeButton(R.string.close,null).show();
     }
@@ -824,6 +824,12 @@ public final class MainActivity extends AppCompatActivity {
         }
         catch (RuntimeException error) { showFieldError(error); }
         catch (Exception error) { showFieldError(error); }
+    }
+    private int storyChapterTreasureGrade(int chapter) {
+        int first=document.storyTreasure(chapter,0);
+        for(int stage=1;stage<document.storyStageCount();stage++)
+            if(document.storyTreasure(chapter,stage)!=first)return -1;
+        return first;
     }
     private void chooseTreasureGrade(int current, NumberChange change) {
         String[] grades=getResources().getStringArray(R.array.treasure_grades);
