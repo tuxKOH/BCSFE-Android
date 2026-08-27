@@ -155,6 +155,15 @@ final class GameDataRules {
     static int missionTarget(int missionId) { int id=0,offset=0;while(offset<MISSION_TARGETS.length){int delta=0,shift=0,value;do{value=MISSION_TARGETS[offset++]&255;delta|=(value&127)<<shift;shift+=7;}while((value&128)!=0);id+=delta;int target=MISSION_TARGETS[offset++]&255;if(id==missionId)return target;if(id>missionId)return -1;}return -1; }
     static boolean validSchemeItem(int id) { return switch(id){case 3,47,48,49,50,51,87,88,89,90,91,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122->true;default->false;}; }
     static int talentMaxLevel(int catId,int talentId) {
+        // A few serialized legacy records carry ability IDs that are not
+        // actually present in the corresponding cat's talent data.  The
+        // upstream data lookup omits these, so keep them hidden from bulk
+        // maxing and the visible talent list.
+        if ((catId == 44 && talentId == 44)
+                || (catId == 71 && talentId == 7)
+                || (catId == 135 && (talentId == 2 || talentId == 8))
+                || (catId == 137 && talentId == 7)
+                || (catId == 449 && (talentId == 45 || talentId == 63 || talentId == 69))) return 0;
         if(talentId==13)return switch(catId){case 46->5;case 57,170,358->10;case 149,161,209->1;default->0;};
         return switch(talentId){
             case 1,2,3,8,10,11,15,17,18,19,20,21,22,25,26,27,30,31,32,50,51,52,54,56,58,60,61,62,65,67->10;

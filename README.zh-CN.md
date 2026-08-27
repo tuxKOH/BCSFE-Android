@@ -28,6 +28,29 @@ gradle assembleDebug
 
 项目要求 Android SDK 34 或更高版本，以及 Java 17。
 
+## 本机自动化 API（仅开发测试）
+
+用于差分对拍的回环 API 已保留在源码中，但分发构建默认关闭。需要本地测试时，暂时将 `MainActivity` 中的 `LOCAL_API_ENABLED` 改为 `true`；API 仅监听 `127.0.0.1:8765`。使用模拟器时先转发端口：
+
+```sh
+adb forward tcp:18765 tcp:8765
+curl http://127.0.0.1:18765/status
+curl -X POST -H 'Content-Type: application/json' \\
+  -d '{"op":"setXp","value":5678}' \\
+  http://127.0.0.1:18765/edit
+curl http://127.0.0.1:18765/export -o edited.save
+```
+
+可以用 `POST /import` 搭配 `--data-binary @存档` 导入，用 `POST /reset` 恢复导入时的副本。需要多个参数的编辑通过 `edit` 的 `args` 数组传入，例如 `{"op":"setLineupCat","args":[0,0,12]}`。
+
+要对拍上游并自动构建/安装 APK，可直接运行：
+
+```sh
+./tools/run_api_diff.sh issues/issue /path/to/another.save
+```
+
+结果（仅长度、SHA256 和状态）写入 `artifacts/api-diff/`，不会保存导出的存档副本。
+
 ## 验证状态
 
 - JVM 测试覆盖地区校验值、持久化会话、道具／猫咪／账号编辑器、可变长度数据表、游戏版本与地区转换，以及固定协议签名向量。

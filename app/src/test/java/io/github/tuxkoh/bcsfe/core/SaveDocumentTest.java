@@ -25,6 +25,26 @@ public class SaveDocumentTest {
         assertTrue(upload.hasItemProfile());
     }
 
+    @Test public void unsupportedInspectionRoundTripAndEditsAreProtected() throws Exception {
+        byte[] source = java.nio.file.Files.readAllBytes(
+                java.nio.file.Path.of("src/main/assets/new_saves/jp.save"));
+        // Simulate a newer JP revision while retaining all unknown bytes.
+        source[Offsets.offsets_23] = (byte) 0xE5;
+        source[Offsets.offsets_23 + 1] = (byte) 0x4B;
+        source[Offsets.offsets_23 + 2] = (byte) 0x02;
+        source[Offsets.offsets_23 + 3] = 0;
+        SaveDocument document = SaveDocument.openForInspection(source, SaveDocument.Region.JP);
+        assertTrue(document.needsUnsupportedImportWarning());
+        assertArrayEquals(source, document.toBytes());
+        try {
+            document.setNormalTickets(1);
+            fail("unsupported inspection save must reject profiled edits");
+        } catch (UnsupportedOperationException expected) {
+            // The guarded editor path must not export a silently modified save.
+        }
+        assertArrayEquals(source, document.toBytes());
+    }
+
     @Test public void jp155SaveKeepsCatfruitReadable() throws Exception {
         byte[] source = java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/jp.save"));
         SaveDocument document = SaveDocument.open(source);

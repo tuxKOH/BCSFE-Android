@@ -41,6 +41,8 @@ public final class SaveDocument {
     private int storageTableBaseCache = -1;
     private int enigmaBaseCache = -1;
     private int eventTableBaseCache = -1;
+    private int itfTimedScoreBaseCache = -1;
+    private int scratcherBaseCache = -1;
     private CatLayout catLayoutCache;
     private int battleItemsBaseCache = -1;
     private int unitDropsBaseCache = -1;
@@ -189,15 +191,18 @@ public final class SaveDocument {
 
     private void removeEnRegionBlock() {
         if (gameVersion() >= 100600 && bytes.length > Offsets.offsets_143) {
-            int offset = afterCannonsWithoutRegion(Offsets.offsets_1);
-            splice(offset, 5, 0);
+            int expected = afterCannonsWithoutRegion(Offsets.offsets_1);
+            int marker = findRegionMarker(80700, expected);
+            splice(marker >= 0 ? marker + 4 : expected, 5, 0);
         }
         region = Region.TW;
     }
 
     private void insertEnRegionBlock() {
         if (gameVersion() >= 100600 && bytes.length > Offsets.offsets_143) {
-            int offset = afterCannonsWithoutRegion(Offsets.offsets_1);
+            int expected = afterCannonsWithoutRegion(Offsets.offsets_1);
+            int marker = findRegionMarker(80700, expected);
+            int offset = marker >= 0 ? marker + 4 : expected;
             splice(offset, 0, 5);
             bytes[offset] = 0;
             putInt(offset + 1, 100600);
@@ -207,35 +212,144 @@ public final class SaveDocument {
     private void transformInternationalToJp() {
         if (region == Region.EN) throw new IllegalStateException("EN block must be normalized first");
 
+        /*
+         * In international saves m_dGetTimeSave2 is serialized immediately
+         * before the variable max-upgrade list.  JP writes a four-byte ui11
+         * value at that position and moves the double to immediately before
+         * unlocked_forms.  The old implementation used offsets_4 for both
+         * records; that only worked for the bundled 861-cat template.  Locate
+         * the max-list count through the structural cat parser so transfer
+         * saves with a different cat count/storage layout are handled too.
+         */
+        byte[] movedGetTimeSave2 = null;
+        int internationalGetTimeSave2 = -1;
+        boolean dynamicGetTimeSave2 = false;
+        try {
+            CatLayout internationalCats = catLayout();
+            internationalGetTimeSave2 = internationalCats.maxUpgradeCountOffset - 8;
+            if (internationalGetTimeSave2 >= 0
+                    && internationalGetTimeSave2 + 8 <= bytes.length - Offsets.offsets_130) {
+                movedGetTimeSave2 = Arrays.copyOfRange(bytes, internationalGetTimeSave2,
+                        internationalGetTimeSave2 + 8);
+                splice(internationalGetTimeSave2, 8, 4);
+                Arrays.fill(bytes, internationalGetTimeSave2, internationalGetTimeSave2 + 4, (byte) 0);
+                dynamicGetTimeSave2 = true;
+            }
+        } catch (RuntimeException ignored) {
+            // Keep the historical template path when no variable cat profile
+            // can be recovered; the fixed offsets below remain compatible.
+        }
+
         int marker120700 = findIntNearOrAny(120700, lateOffset(Offsets.offsets_2), 16);
         putInt(marker120700, 130000);
         int marker130600 = findIntNearOrAny(130600, lateOffset(Offsets.offsets_3), 16);
-        byte[] movedStamp = Arrays.copyOfRange(bytes, fixed(Offsets.offsets_4), fixed(Offsets.offsets_4) + 8);
+        byte[] movedStamp = dynamicGetTimeSave2
+                ? movedGetTimeSave2
+                : Arrays.copyOfRange(bytes, fixed(Offsets.offsets_4), fixed(Offsets.offsets_4) + 8);
         byte[] movedShort = Arrays.copyOfRange(bytes, marker130600 - 2, marker130600);
-        byte energyNotification = bytes[fixed(Offsets.offsets_5)];
+        // This flag is part of the international account tail.  Capture it
+        // before removing that variable-size block; the fixed template offset
+        // is not reliable for received saves.
+        byte energyNotification = 0;
+        int originalAccountTail = internationalAccountTail();
+        int originalEnergyOffset = internationalEnergyNotificationOffset(originalAccountTail);
+        if (originalEnergyOffset >= 0) energyNotification = bytes[originalEnergyOffset];
+        else if (fixed(Offsets.offsets_5) >= 0
+                && fixed(Offsets.offsets_5) < bytes.length - Offsets.offsets_130) {
+            // Bundled/template saves have no serialized account-tail marker;
+            // retain the historical fixed field in that layout.
+            energyNotification = bytes[fixed(Offsets.offsets_5)];
+        }
 
         // Apply from the end of the file so every coordinate remains a source coordinate.
         splice(marker130600 + 4, 0, 2);
         System.arraycopy(movedShort, 0, bytes, marker130600 + 4, 2);
         splice(marker130600 - 2, 2, 0);
-        splice(lateOffset(Offsets.offsets_6), 1, 0);
-        splice(fixed(Offsets.offsets_7), 0, 1);
-        bytes[fixed(Offsets.offsets_7)] = energyNotification;
-        splice(fixed(Offsets.offsets_8), 1, 0);
-        splice(fixed(Offsets.offsets_9), 0, 8);
-        System.arraycopy(movedStamp, 0, bytes, fixed(Offsets.offsets_9), 8);
-        splice(fixed(Offsets.offsets_4), 8, 4);
-        Arrays.fill(bytes, fixed(Offsets.offsets_4), fixed(Offsets.offsets_4) + 4, (byte) 0);
-        splice(fixed(Offsets.offsets_10), 33, 0);
-        splice(fixed(Offsets.offsets_11), 4, 0);
-        splice(fixed(Offsets.offsets_12), 1, 0);
-        splice(fixed(Offsets.offsets_13), 1, 0);
-        splice(fixed(Offsets.offsets_14), 1, 0);
+        int lateRegionByte = lateOffset(Offsets.offsets_6);
+        if (dynamicGetTimeSave2) {
+            // ub20 is serialized immediately before the 110700 marker in
+            // the modern tail.  That tail contains variable-size tables, so
+            // derive its position from the marker rather than a template
+            // offset.
+            int marker110700 = findRegionMarker(110700, lateRegionByte);
+            if (marker110700 >= 1) splice(marker110700 - 1, 1, 0);
+        } else {
+            splice(lateRegionByte, 1, 0);
+        }
+        // ub2 is the boolean immediately before the version marker 44.
+        // Locate that marker in the serialized account section instead of
+        // relying on the 861-cat template offset.
+        int marker44 = findRegionMarker(44, lateOffset(Offsets.offsets_7));
+        int ub2 = marker44 >= 1 ? marker44 - 1 : fixed(Offsets.offsets_8);
+        splice(ub2, 1, 0);
+        if (!dynamicGetTimeSave2) {
+            splice(fixed(Offsets.offsets_9), 0, 8);
+            System.arraycopy(movedStamp, 0, bytes, fixed(Offsets.offsets_9), 8);
+            splice(fixed(Offsets.offsets_4), 8, 4);
+            Arrays.fill(bytes, fixed(Offsets.offsets_4), fixed(Offsets.offsets_4) + 4, (byte) 0);
+        }
+        // International saves carry a player-id string and a trailing
+        // server/account block that JP omits.  Both sit after several
+        // variable-length lists (order IDs, event data, cat records), so the
+        // historical fixed offsets are only estimates.  Locate the fields by
+        // their serialized string-list/date structure and remove them from
+        // the end towards the beginning.
+        if (hasInternationalOrderMarker()) {
+            int accountTail = internationalAccountTail();
+            if (accountTail >= 0) splice(accountTail, internationalAccountTailLength(accountTail), 0);
+            int playerId = internationalPlayerIdOffset();
+            if (playerId >= 0) splice(playerId, 4, 0);
+            int date4Dst = internationalDate4DstOffset();
+            if (date4Dst >= 0) splice(date4Dst, 1, 0);
+        } else {
+            // Minimal bundled templates do not include account credentials;
+            // retain their historical fixed compatibility layout.
+            splice(fixed(Offsets.offsets_10), 33, 0);
+            splice(fixed(Offsets.offsets_11), 4, 0);
+            splice(fixed(Offsets.offsets_12), 1, 0);
+        }
+
+        // Reinsert the moved JP timestamp immediately before unlocked_forms.
+        // Resolve the destination after all preceding splices so variable
+        // account/cat sections cannot shift it out of place.
+        if (movedGetTimeSave2 != null) {
+            try {
+                CatLayout currentCats = catLayout();
+                // The destination is immediately before the forms count.
+                int forms = currentCats.unlockedFormsCountOffset;
+                if (forms >= 0 && forms <= bytes.length - Offsets.offsets_130) {
+                    splice(forms, 0, movedGetTimeSave2.length);
+                    System.arraycopy(movedGetTimeSave2, 0, bytes, forms, movedGetTimeSave2.length);
+                }
+            } catch (RuntimeException ignored) {
+                // Leave the bytes untouched if this is a legacy fixed layout.
+            }
+        }
+        // JP stores energy_notification immediately after marker 48.
+        int marker48 = findRegionMarker(48, lateOffset(Offsets.offsets_7));
+        if (marker48 >= 0) {
+            splice(marker48 + 4, 0, 1);
+            bytes[marker48 + 4] = energyNotification;
+        }
+        // These two region-only bytes follow the three variable cat lists.
+        // Transfer saves can contain more than the 861 template cats, so the
+        // original static offsets must move by 12 bytes per additional cat.
+        splice(variableCatOffset(Offsets.offsets_13), 1, 0);
+        splice(variableCatOffset(Offsets.offsets_14), 1, 0);
         splice(Offsets.offsets_22, 1, 0);
         region = Region.JP;
     }
 
     private void transformJpToInternational() {
+        // Transfer-code saves use variable-length cat/account sections.  The
+        // fixed template offsets cannot describe their inverse conversion;
+        // replay the country-specific field moves from structural anchors.
+        try {
+            if (catCount() != TEMPLATE_CAT_COUNT) {
+                transformJpToInternationalDynamic();
+                return;
+            }
+        } catch (RuntimeException ignored) { }
         int marker130000 = findIntNearOrAny(130000, lateOffset(Offsets.offsets_2), 16);
         putInt(marker130000, 120700);
         int marker130600 = findIntNearOrAny(130600, lateOffset(Offsets.offsets_3), 16);
@@ -264,10 +378,80 @@ public final class SaveDocument {
         Arrays.fill(bytes, fixed(Offsets.offsets_18), fixed(Offsets.offsets_18) + 4, (byte) 0);
         splice(fixed(Offsets.offsets_19), 0, 1);
         bytes[fixed(Offsets.offsets_19)] = 0;
-        splice(fixed(Offsets.offsets_20), 0, 1);
-        bytes[fixed(Offsets.offsets_20)] = 0;
-        splice(fixed(Offsets.offsets_21), 0, 1);
-        bytes[fixed(Offsets.offsets_21)] = 0;
+        splice(variableCatOffset(Offsets.offsets_20), 0, 1);
+        bytes[variableCatOffset(Offsets.offsets_20)] = 0;
+        splice(variableCatOffset(Offsets.offsets_21), 0, 1);
+        bytes[variableCatOffset(Offsets.offsets_21)] = 0;
+        splice(Offsets.offsets_22, 0, 1);
+        bytes[Offsets.offsets_22] = 0;
+        region = Region.TW;
+    }
+
+    private void transformJpToInternationalDynamic() {
+        int marker120000 = findIntNearOrAny(130000, lateOffset(Offsets.offsets_2), 32);
+        if (marker120000 >= 0) putInt(marker120000, 120700);
+        int marker130600 = findIntNearOrAny(130600, lateOffset(Offsets.offsets_3), 32);
+        if (marker130600 >= 0 && marker130600 + 6 <= bytes.length - Offsets.offsets_130) {
+            byte[] movedShort = Arrays.copyOfRange(bytes, marker130600 + 4, marker130600 + 6);
+            splice(marker130600 + 4, 2, 0);
+            splice(marker130600, 0, 2);
+            System.arraycopy(movedShort, 0, bytes, marker130600, 2);
+        }
+
+        // JP has no second ub20; international writes it immediately before
+        // the 110700 marker.
+        int marker110700 = findRegionMarker(110700, lateOffset(Offsets.offsets_6));
+        if (marker110700 >= 0) { splice(marker110700, 0, 1); bytes[marker110700] = 0; }
+
+        // JP writes energy_notification after marker 48; international keeps
+        // the value in its account tail instead.
+        byte energyNotification = 0;
+        int marker48 = findRegionMarker(48, lateOffset(Offsets.offsets_7));
+        if (marker48 >= 0 && marker48 + 4 < bytes.length - Offsets.offsets_130) {
+            energyNotification = bytes[marker48 + 4];
+            splice(marker48 + 4, 1, 0);
+        }
+        int marker44 = findRegionMarker(44, lateOffset(Offsets.offsets_7));
+        if (marker44 >= 0) { splice(marker44, 0, 1); bytes[marker44] = 0; }
+
+        CatLayout cats = catLayout();
+        byte[] movedGetTimeSave2 = null;
+        int forms = cats.unlockedFormsCountOffset;
+        if (forms >= 8 && forms + 4 <= bytes.length - Offsets.offsets_130) {
+            movedGetTimeSave2 = Arrays.copyOfRange(bytes, forms - 8, forms);
+            splice(forms - 8, 8, 0);
+        }
+        cats = catLayout();
+        int maxCount = cats.maxUpgradeCountOffset;
+        if (movedGetTimeSave2 != null && maxCount >= 4) {
+            splice(maxCount - 4, 4, 8);
+            System.arraycopy(movedGetTimeSave2, 0, bytes, maxCount - 4, 8);
+        }
+
+        // Recreate the optional international account fields with the JP
+        // defaults.  Keep the JP energy flag and use the current game version
+        // only where the upstream writer supplies a value.
+        int orderStart = orderIdsStart();
+        int orderEnd = orderIdsEnd();
+        if (orderEnd >= 0) {
+            byte[] account = new byte[33];
+            account[28] = energyNotification;
+            // full_gameversion defaults to zero when converting a JP save.
+            splice(orderEnd, 0, account.length);
+            System.arraycopy(account, 0, bytes, orderEnd, account.length);
+        }
+        if (orderStart >= 4) {
+            splice(orderStart, 0, 4);
+            Arrays.fill(bytes, orderStart, orderStart + 4, (byte) 0);
+        }
+        int dateStart = serializedDate4Start();
+        if (dateStart >= 0) { splice(dateStart, 0, 1); bytes[dateStart] = 0; }
+
+        // Region-only bytes removed after the variable cat lists.
+        int catByte20 = variableCatOffset(Offsets.offsets_20);
+        if (catByte20 >= 0) { splice(catByte20, 0, 1); bytes[catByte20] = 0; }
+        int catByte21 = variableCatOffset(Offsets.offsets_21);
+        if (catByte21 >= 0) { splice(catByte21, 0, 1); bytes[catByte21] = 0; }
         splice(Offsets.offsets_22, 0, 1);
         bytes[Offsets.offsets_22] = 0;
         region = Region.TW;
@@ -279,7 +463,18 @@ public final class SaveDocument {
         if(target==150600&&region!=Region.JP)throw new UnsupportedOperationException("15.6.0 conversion is available for JP saves only");
         if(source>=140300&&source<=150600&&target==140000){
             if(source>=140500)convert140500EmbeddedLayout(source,140000);
-            if(source>=140100){int marker90500=findInt(90500);splice(marker90500-2,2,0);}
+            if(source>=140100){
+                int marker90500=findInt(90500);
+                // 14.0 omits the complete 14.1 account-tail tuple (14
+                // bytes immediately before marker 90500); newer 14.3 keeps
+                // that tuple and only removes the two-byte legacy prefix.
+                if (target == 140000 && byteAt(marker90500 - 16) != 0
+                        && byteAt(marker90500 - 15) != 0) {
+                    splice(marker90500 - 16, 14, 0);
+                } else {
+                    splice(marker90500 - 2, 2, 0);
+                }
+            }
             int start=findInt(140000)+4,end=findInt(140300)+4;splice(start,end-start,0);
             putInt(gameVersionOffset,target);refreshHash();return;
         }
@@ -310,17 +505,46 @@ public final class SaveDocument {
         boolean sourceLegacy=source<140500,targetLegacy=target<140500;
         if(sourceLegacy==targetLegacy)return;
         if(sourceLegacy){
-            int dojoString=afterCannons(Offsets.offsets_24);
+            // Dojo chapters are variable-length; locate the ranking record by
+            // its self-describing field pattern instead of applying a fixed
+            // post-cannon offset.  Legacy records omit the trailing string.
+            int dojoRanking = findDojoRankingOffset(false);
+            int dojoString = dojoRanking + 26;
             splice(dojoString,0,4);putInt(dojoString,0);
             int enigmaExtra=enigmaBaseOffset()+12+byteAt(enigmaBaseOffset()+11)*17;
             splice(enigmaExtra,0,1);
         }else{
             int enigmaExtra=enigmaBaseOffset()+12+byteAt(enigmaBaseOffset()+11)*17;
             splice(enigmaExtra,byteAt(enigmaExtra)==0?1:18,0);
-            int dojoString=afterCannons(Offsets.offsets_24),length=intAt(dojoString);
+            int dojoString=findDojoRankingOffset(true)+26,length=intAt(dojoString);
             if(length<0||length>1024)throw new IllegalStateException("Invalid Dojo ranking string");
             splice(dojoString,4+length,0);
         }
+    }
+
+    /** Finds the Dojo ranking record after variable-length chapter data. */
+    private int findDojoRankingOffset(boolean modern) {
+        int estimate = afterCannons(Offsets.offsets_24);
+        int from = Math.max(0, estimate - 32768);
+        int to = Math.min(bytes.length - Offsets.offsets_130 - 30, estimate + 32768);
+        int best = -1, distance = Integer.MAX_VALUE;
+        for (int p = from; p <= to; p++) {
+            int rank = safeIntAt(p + 4);
+            int event = safeIntAt(p + 19);
+            // A normal, not-yet-submitted ranking record uses event_number=-1;
+            // this marker disambiguates it from the many chapter tuples that
+            // otherwise have the same bool/int shape.
+            if (safeIntAt(p) < 0 || rank < 0 || rank > 100000000 || event != -1) continue;
+            if (byteAt(p + 8) > 1 || byteAt(p + 9) > 1 || byteAt(p + 10) > 1
+                    || byteAt(p + 23) > 1 || byteAt(p + 24) > 1 || byteAt(p + 25) > 1
+                    || (modern && byteAt(p + 30) > 1)) continue;
+            int length = safeIntAt(p + 26);
+            if (length < 0 || length > 1024 || p + 30 + length > bytes.length - Offsets.offsets_130) continue;
+            int d = Math.abs(p - estimate);
+            if (d < distance) { best = p; distance = d; }
+        }
+        if (best < 0) throw new IllegalStateException("Dojo ranking record is unavailable");
+        return best;
     }
     private void convert140500RecordLayout(int source,int target) {
         boolean sourceLegacy=source<140500,targetLegacy=target<140500;
@@ -405,7 +629,13 @@ public final class SaveDocument {
     public int[] treasureChests() { int[] table=treasureChestTable(); return intArray(table[0], table[1]); }
     public int[] labyrinthMedals() { ensureItemProfile(); int marker=findInt(111000),count=byteAt(marker-9);if(count!=4)throw new IllegalStateException("Invalid labyrinth medals");return new int[]{ushortAt(marker-8),ushortAt(marker-6),ushortAt(marker-4),ushortAt(marker-2)}; }
     public int hundredMillionTicket() { ensureItemProfile(); return intAt(findInt(140200)-4); }
-    public int goldenCpuCount() { ensureItemProfile(); return byteAt(lateOffset(Offsets.offsets_35)); }
+    private int goldenCpuOffset() {
+        ensureItemProfile();
+        int marker = findInt(120500);
+        if (marker <= 0) throw new IllegalStateException("Golden Cat CPU marker is unavailable");
+        return marker - 1;
+    }
+    public int goldenCpuCount() { return byteAt(goldenCpuOffset()); }
     public void setBattleItem(int index, int value) { checkAmount("Battle Item",value,9999);setArrayInt(battleItemsOffset(), 6, index, value); }
     public void setCatseye(int index, int value) { checkAmount("Catseye",value,9999);setArrayInt(catLayout().catseyesStart, 6, index, value); }
     public void setCatamin(int index, int value) { CatLayout l=catLayout(); checkAmount("Catamin",value,9999);setArrayInt(l.cataminsStart, cataminCount(l), index, value); }
@@ -415,10 +645,16 @@ public final class SaveDocument {
     public void setTreasureChest(int index, int value) { checkAmount("Treasure Chest",value,9999);int[] table=treasureChestTable();setArrayInt(table[0], table[1], index, value); }
     public void setLabyrinthMedal(int index, int value) { ensureItemProfile();if(index<0||index>=4)throw new IndexOutOfBoundsException();checkAmount("Labyrinth Medal",value,9999);putShort(findInt(111000)-8+index*2,value);refreshHash(); }
     public void setHundredMillionTicket(int value) { ensureItemProfile();checkAmount("100 Million Download Tickets",value,9999);putInt(findInt(140200)-4,value);refreshHash(); }
-    public void resetGoldenCpuCount() { ensureItemProfile(); bytes[lateOffset(Offsets.offsets_35)]=0; refreshHash(); }
-    public int filibusterStageId() { ensureItemProfile();return byteAt(afterCannons(Offsets.offsets_36)); }
-    public boolean filibusterStageEnabled() { ensureItemProfile();return byteAt(afterCannons(Offsets.offsets_37))!=0; }
-    public void enableFilibusterStage(int stageId) { ensureItemProfile();if(stageId<0||stageId>47)throw new IllegalArgumentException("Invalid Filibuster stage");bytes[afterCannons(Offsets.offsets_36)]=(byte)stageId;bytes[afterCannons(Offsets.offsets_37)]=1;refreshHash(); }
+    public void resetGoldenCpuCount() { bytes[goldenCpuOffset()]=0; refreshHash(); }
+    private int filibusterFieldOffset() {
+        ensureItemProfile();
+        int marker = findInt(80300);
+        if (marker < 2) throw new IllegalStateException("Filibuster marker is unavailable");
+        return marker - 2;
+    }
+    public int filibusterStageId() { return byteAt(filibusterFieldOffset()); }
+    public boolean filibusterStageEnabled() { return byteAt(filibusterFieldOffset() + 1) != 0; }
+    public void enableFilibusterStage(int stageId) { if(stageId<0||stageId>47)throw new IllegalArgumentException("Invalid Filibuster stage");int offset=filibusterFieldOffset();bytes[offset]=(byte)stageId;bytes[offset+1]=1;refreshHash(); }
     public boolean hasCatProfile() { return hasItemProfile(); }
     public String inquiryCode() { ensureItemProfile(); return stringAt(inquiryCodeOffset()); }
     public String passwordRefreshToken() { ensureItemProfile(); return stringAt(passwordRefreshTokenOffset()); }
@@ -440,12 +676,51 @@ public final class SaveDocument {
     public long normalSeed() { ensureItemProfile();return Integer.toUnsignedLong(intAt(gatyaSeedOffset(false)+4)); }
     public long eventSeed() { ensureItemProfile();return Integer.toUnsignedLong(intAt(eventSeedOffset())); }
     public int gamatotoXp() { ensureItemProfile(); return intAt(gamatotoOffset()+9); }
-    public int challengeScore() { ensureItemProfile(); return intAt(afterCannons(Offsets.offsets_49)); }
+    public int challengeScore() {
+        ensureItemProfile();
+        int table = challengeTableOffset();
+        int chapters = intAt(table), stars = intAt(table + 4);
+        int progress = table + 8 + chapters * stars * 4 + 8;
+        int stageHeader = progress + chapters * stars * 4;
+        int stages = intAt(stageHeader + 4);
+        int unlock = stageHeader + 12 + chapters * stages * stars * 4 + 8;
+        int count = intAt(unlock + chapters * stars * 4);
+        return count > 0 ? intAt(unlock + chapters * stars * 4 + 4) : 0;
+    }
     public void setRareSeed(long value) { ensureItemProfile();checkUnsignedInt(value);putInt(gatyaSeedOffset(false),(int)value);refreshHash(); }
     public void setNormalSeed(long value) { ensureItemProfile();checkUnsignedInt(value);putInt(gatyaSeedOffset(false)+4,(int)value);refreshHash(); }
     public void setEventSeed(long value) { ensureItemProfile();checkUnsignedInt(value);putInt(eventSeedOffset(),(int)value);refreshHash(); }
     public void setGamatotoXp(int value) { ensureItemProfile();if(value<0)throw new IllegalArgumentException("Invalid Gamatoto XP");putInt(gamatotoOffset()+9,value);refreshHash(); }
-    public void setChallengeScore(int value) { ensureItemProfile();bytes[afterCannons(Offsets.offsets_50)]=1;putInt(afterCannons(Offsets.offsets_51),3);putInt(afterCannons(Offsets.offsets_49),value);bytes[afterCannons(Offsets.offsets_52)]=1;refreshHash(); }
+    public void setChallengeScore(int value) {
+        ensureItemProfile();
+        int table = challengeTableOffset();
+        int chapters = intAt(table), stars = intAt(table + 4);
+        int progress = table + 8 + chapters * stars * 4 + 8;
+        // ChallengeChapters.clear_stage(0, 0, 0, False) advances the first
+        // chapter's progress and unlock state, while deliberately leaving the
+        // stage clear count at zero.
+        putInt(progress, Math.max(intAt(progress), 1));
+        int stageHeader = progress + chapters * stars * 4;
+        int stages = intAt(stageHeader + 4);
+        int stageEnd = stageHeader + 12 + chapters * stages * stars * 4;
+        int unlock = stageEnd + 8;
+        putInt(unlock, 3);
+        int scoreCount = intAt(unlock + chapters * stars * 4);
+        int scoreCountOffset = unlock + chapters * stars * 4;
+        if (scoreCount <= 0) {
+            // Empty score arrays are materialized by the upstream editor.
+            int marker = scoreCountOffset + 4;
+            splice(marker, 0, 4);
+            putInt(scoreCountOffset, 1);
+            putInt(marker, value);
+        } else {
+            putInt(scoreCountOffset + 4, value);
+        }
+        int popup = scoreCountOffset + 4 + scoreCount * 4;
+        if (scoreCount <= 0) popup += 4;
+        bytes[popup] = 1;
+        refreshHash();
+    }
     public void fixGamatotoCrash() { ensureItemProfile(); putInt(gamatotoSkinOffset(),2); refreshHash(); }
     public void unlockEquipMenu() { ensureItemProfile(); int offset=menuUnlocksOffset()+8; putInt(offset,Math.max(1,intAt(offset))); refreshHash(); }
     public int catCount() { return catLayout().count; }
@@ -460,10 +735,10 @@ public final class SaveDocument {
         checkCat(index);
         if(value<1||value>GameDataRules.catMaxBase(index))throw new IllegalArgumentException("Invalid cat base level");
         applyCatBaseUpgrade(index,value,true);
-        touchRankUpSale();refreshHash();
+        refreshHash();
     }
-    public void setCatPlusLevel(int index,int value) { checkCat(index);if(value<0||value>GameDataRules.catMaxPlus(index))throw new IllegalArgumentException("Invalid cat plus level");unlockCatForPlusUpgrade(index);putShort(catLayout().upgradeStart+index*4,value);touchRankUpSale();refreshHash(); }
-    public void setCatUnlocked(int index,boolean value) { checkCat(index);if(value)unlockCatRaw(index);else putInt(catLayout().unlockedStart+index*4,0);touchRankUpSale();refreshHash(); }
+    public void setCatPlusLevel(int index,int value) { checkCat(index);if(value<0||value>GameDataRules.catMaxPlus(index))throw new IllegalArgumentException("Invalid cat plus level");unlockCatForPlusUpgrade(index);putShort(catLayout().upgradeStart+index*4,value);refreshHash(); }
+    public void setCatUnlocked(int index,boolean value) { checkCat(index);if(value)unlockCatRaw(index);else putInt(catLayout().unlockedStart+index*4,0);refreshHash(); }
     public void setCatCurrentForm(int index,int value) {
         checkCat(index);
         if(value<0||value>3)throw new IllegalArgumentException("Invalid form");
@@ -473,7 +748,7 @@ public final class SaveDocument {
         unlockCatRaw(index);
         putFormValue(index,value+1);
         putInt(catLayout().currentFormStart+index*4,value);
-        touchRankUpSale();refreshHash();
+        refreshHash();
     }
     /**
      * Set the serialized form fields directly.  These are field editors, and
@@ -482,23 +757,58 @@ public final class SaveDocument {
      * field.  Batch form actions use the dedicated methods below and retain
      * the upstream unlock-on-edit behavior.
      */
-    public void setCatUnlockedForms(int index,int value) { checkCat(index);if(value<0||value>3)throw new IllegalArgumentException("Invalid unlocked forms");putFormValue(index,value);touchRankUpSale();refreshHash(); }
-    public void setCatFourthForm(int index,int value) { checkCat(index);if(value<0||value>2)throw new IllegalArgumentException("Invalid fourth form");putInt(catLayout().fourthStart+index*4,value);touchRankUpSale();refreshHash(); }
-    public void resetCat(int index) { checkCat(index);CatLayout l=catLayout();putInt(l.unlockedStart+index*4,0);putShort(l.upgradeStart+index*4,0);putShort(l.upgradeStart+index*4+2,0);putInt(l.currentFormStart+index*4,0);putInt(l.gatyaSeenStart+index*4,0);putFormValue(index,0);bytes[l.guideStart+index]=0;putInt(l.fourthStart+index*4,0);putInt(l.catseyesUsedStart+index*4,0);resetCharaNewFlag(index);int[] record=talentRecord(index);for(int i=0;i<record[1];i++)putInt(record[0]+i*8+4,0);int drops=unitDropsOffset();if(drops>=0)for(int i=0;i<GameDataRules.dropPairCount(region, gameVersion());i++)if(GameDataRules.dropCat(region, gameVersion(),i)==index)putInt(drops+GameDataRules.dropSlot(region, gameVersion(),i)*4,0);touchRankUpSale();refreshHash(); }
-    public void setCatGuideCollected(int index,boolean value) { checkCat(index);if(value)unlockCatRaw(index);bytes[catLayout().guideStart+index]=(byte)(value?1:0);touchRankUpSale();refreshHash(); }
+    public void setCatUnlockedForms(int index,int value) { checkCat(index);if(value<0||value>3)throw new IllegalArgumentException("Invalid unlocked forms");putFormValue(index,value);refreshHash(); }
+    public void setCatFourthForm(int index,int value) { checkCat(index);if(value<0||value>2)throw new IllegalArgumentException("Invalid fourth form");putInt(catLayout().fourthStart+index*4,value);refreshHash(); }
+    public void resetCat(int index) { checkCat(index);CatLayout l=catLayout();putInt(l.unlockedStart+index*4,0);putShort(l.upgradeStart+index*4,0);putShort(l.upgradeStart+index*4+2,0);putInt(l.currentFormStart+index*4,0);putInt(l.gatyaSeenStart+index*4,0);putFormValue(index,0);bytes[l.guideStart+index]=0;putInt(l.fourthStart+index*4,0);putInt(l.catseyesUsedStart+index*4,0);int[] record=talentRecord(index);for(int i=0;i<record[1];i++)putInt(record[0]+i*8+4,0);refreshHash(); }
+    public void setCatGuideCollected(int index,boolean value) {
+        checkCat(index);
+        // CatEditor.unlock_cat_guide() honors UNLOCK_CAT_ON_EDIT: enabling a
+        // guide entry also runs Cat.unlock(), which updates gatya_seen,
+        // matching drop rewards and the equip-menu unlock.  Removing a guide
+        // entry only clears the guide byte.
+        if (value) unlockCatRaw(index);
+        bytes[catLayout().guideStart+index]=(byte)(value?1:0);
+        refreshHash();
+    }
+    public void setAllCatGuideCollected(boolean value) {
+        ensureCatProfile();
+        CatLayout l=catLayout();
+        for (int i=0;i<l.count;i++) {
+            if (value) unlockCatRaw(i);
+            bytes[l.guideStart+i]=(byte)(value?1:0);
+        }
+        refreshHash();
+    }
     public int specialSkillCount() { ensureCatProfile(); return 10; }
     public int specialSkillBaseLevel(int index) { return ushortAt(specialSkillUpgradeOffset(index)+2)+1; }
     public int specialSkillPlusLevel(int index) { return ushortAt(specialSkillUpgradeOffset(index)); }
-    public void setSpecialSkillBaseLevel(int index,int value) { int offset=specialSkillUpgradeOffset(index);if(value<1||value>GameDataRules.specialSkillMaxBase(index))throw new IllegalArgumentException("Invalid base upgrade level");putShort(offset+2,value-1);if(index==0)putShort(offset+6,value-1);touchRankUpSale();refreshHash(); }
-    public void setSpecialSkillPlusLevel(int index,int value) { int offset=specialSkillUpgradeOffset(index);if(value<0||value>GameDataRules.specialSkillMaxPlus(index))throw new IllegalArgumentException("Invalid plus upgrade level");putShort(offset,value);if(index==0)putShort(offset+4,value);touchRankUpSale();refreshHash(); }
+    public void setSpecialSkillBaseLevel(int index,int value) { int offset=specialSkillUpgradeOffset(index);if(value<1||value>GameDataRules.specialSkillMaxBase(index))throw new IllegalArgumentException("Invalid base upgrade level");putShort(offset+2,value-1);if(index==0)putShort(offset+6,value-1);refreshHash(); }
+    public void setSpecialSkillPlusLevel(int index,int value) { int offset=specialSkillUpgradeOffset(index);if(value<0||value>GameDataRules.specialSkillMaxPlus(index))throw new IllegalArgumentException("Invalid plus upgrade level");putShort(offset,value);if(index==0)putShort(offset+4,value);refreshHash(); }
     public List<TalentValue> catTalents(int catIndex) {
         checkCat(catIndex);int[] record=talentRecord(catIndex);List<TalentValue> out=new ArrayList<>();
         for(int i=0;i<record[1];i++){int id=intAt(record[0]+i*8),max=GameDataRules.talentMaxLevel(catIndex,id);if(max>0)out.add(new TalentValue(id,intAt(record[0]+i*8+4),max));}
         return out;
     }
     public void setCatTalentLevel(int catIndex,int talentIndex,int value) {
-        checkCat(catIndex);int[] record=talentRecord(catIndex);int visible=0;
-        for(int raw=0;raw<record[1];raw++){int id=intAt(record[0]+raw*8),max=GameDataRules.talentMaxLevel(catIndex,id);if(max<=0)continue;if(visible++==talentIndex){if(value<0||value>max)throw new IllegalArgumentException("Invalid talent level");unlockCatRaw(catIndex);putInt(record[0]+raw*8+4,value);touchRankUpSale();refreshHash();return;}}
+        checkCat(catIndex);int[] record=talentRecord(catIndex);
+        if(talentIndex<0||talentIndex>=record[1])throw new IndexOutOfBoundsException();
+        int offset=record[0]+talentIndex*8;
+        int max=GameDataRules.talentMaxLevel(catIndex,intAt(offset));
+        // Some serialized records contain legacy/region-specific abilities
+        // absent from the compact rules table.  The upstream field editor
+        // still permits editing those raw entries; retain the normal 10-level
+        // bound for such records rather than selecting the next talent.
+        if(max<=0)max=10;
+        if(value<0||value>max)throw new IllegalArgumentException("Invalid talent level");
+        unlockCatRaw(catIndex);putInt(offset+4,value);refreshHash();
+    }
+    /** Set a talent selected by its serialized ability ID (used by the UI's
+     * filtered talent list, which omits legacy entries). */
+    public void setCatTalentLevelById(int catIndex,int talentId,int value) {
+        checkCat(catIndex); int[] record=talentRecord(catIndex);
+        for(int i=0;i<record[1];i++) if(intAt(record[0]+i*8)==talentId) {
+            setCatTalentLevel(catIndex,i,value); return;
+        }
         throw new IndexOutOfBoundsException();
     }
     public void setAllCatBaseLevels(int value) {
@@ -506,8 +816,15 @@ public final class SaveDocument {
         if (value < 1 || value > 60) throw new IllegalArgumentException("Invalid cat base level");
         for (int i = 0; i < catCount(); i++) {
             applyCatBaseUpgrade(i,Math.min(value,GameDataRules.catMaxBase(i)),false);
+            // The upstream multi-cat editor constructs Upgrade(0, target)
+            // and passes it to Cat.set_upgrade(..., only_plus=True).  The
+            // zero plus component is therefore written for every selected
+            // cat (PowerUpHelper.reset_upgrade also clears the old plus
+            // component), unlike the single-cat field editor which preserves
+            // a separately entered plus value.
+            putShort(catLayout().upgradeStart + i * 4, 0);
         }
-        touchRankUpSale(); refreshHash();
+        refreshHash();
     }
 
     /** Reproduce upstream PowerUpHelper.reset_upgrade()+upgrade_by(). */
@@ -550,14 +867,21 @@ public final class SaveDocument {
                 else if (currentLevel < currentMax) base++;
                 else break;
             }
-            if (individualEdit) {
-                // Cat.set_upgrade(..., only_plus=True) invokes Cat.unlock()
-                // even when the requested base level is already 1.
-                unlockCatForUpgrade(catId);
-            } else if (base > 0) {
-                unlockCatForUpgrade(catId);
-            }
+            // Cat.set_upgrade(..., only_plus=True) invokes Cat.unlock() for
+            // both individual and batch edits, even when no base step could
+            // be applied (or the requested level is already one).
+            unlockCatForUpgrade(catId);
             CatLayout l=catLayout();
+            // The bulk upstream path resets only the base component before
+            // applying power-ups.  Cat.set_upgrade(..., only_plus=True)
+            // leaves each cat's existing plus level untouched; do not
+            // overwrite that serialized value while writing the new base.
+            if (individualEdit) {
+                // The individual editor first calls PowerUpHelper.reset_upgrade,
+                // which clears the selected cat's plus level before applying
+                // the requested base upgrade.
+                putShort(l.upgradeStart + catId * 4, 0);
+            }
             putShort(l.upgradeStart + catId * 4 + 2, base);
             putShort(l.maxUpgradeStart + catId * 4, maxPlusUp);
             putShort(l.maxUpgradeStart + catId * 4 + 2, maxUp);
@@ -567,9 +891,25 @@ public final class SaveDocument {
             bytes[co] = (byte)catseyes; bytes[co + 1] = (byte)(catseyes >>> 8);
             bytes[co + 2] = (byte)(catseyes >>> 16); bytes[co + 3] = (byte)(catseyes >>> 24);
     }
-    public void setAllCatPlusLevels(int value) { ensureCatProfile();if(value<0||value>90)throw new IllegalArgumentException("Invalid cat plus level");CatLayout l=catLayout();for(int i=0;i<l.count;i++){unlockCatForPlusUpgrade(i);putShort(l.upgradeStart+i*4,value);}touchRankUpSale();refreshHash(); }
-    public void setAllCatGuideCollected(boolean value) { ensureCatProfile();CatLayout l=catLayout();for(int i=0;i<l.count;i++){if(value)unlockCatRaw(i);bytes[l.guideStart+i]=(byte)(value?1:0);}touchRankUpSale();refreshHash(); }
-    public void maxAllCatTalents() { ensureItemProfile();int table=talentTableOffset(),records=intAt(table),offset=table+4;for(int r=0;r<records;r++){int cat=intAt(offset),count=intAt(offset+4);offset+=8;boolean edited=false;for(int i=0;i<count;i++){int max=GameDataRules.talentMaxLevel(cat,intAt(offset+i*8));if(max>0){putInt(offset+i*8+4,max);edited=true;}}if(edited&&cat>=0&&cat<catCount())unlockCatRaw(cat);offset+=count*8;}touchRankUpSale();refreshHash(); }
+    public void setAllCatPlusLevels(int value) { ensureCatProfile();if(value<0||value>90)throw new IllegalArgumentException("Invalid cat plus level");CatLayout l=catLayout();for(int i=0;i<l.count;i++){unlockCatForPlusUpgrade(i);putShort(l.upgradeStart+i*4,value);}refreshHash(); }
+    public void maxAllCatTalents() {
+        ensureItemProfile();
+        int table=talentTableOffset(),records=intAt(table),offset=table+4;
+        for(int r=0;r<records;r++){
+            int cat=intAt(offset),count=intAt(offset+4); offset+=8;
+            boolean hasAvailable=false;
+            for(int i=0;i<count;i++) if(GameDataRules.talentMaxLevel(cat,intAt(offset+i*8))>0) { hasAvailable=true; break; }
+            // The upstream bulk editor honors unlock_cat_on_edit and unlocks
+            // each cat for which game data exposes at least one talent.
+            if(hasAvailable) unlockCatRaw(cat);
+            for(int i=0;i<count;i++){
+                int max=GameDataRules.talentMaxLevel(cat,intAt(offset+i*8));
+                if(max>0) putInt(offset+i*8+4,max);
+            }
+            offset+=count*8;
+        }
+        refreshHash();
+    }
     public static final class TalentValue { public final int id; public final int level; public final int maxLevel; TalentValue(int id,int level,int maxLevel){this.id=id;this.level=level;this.maxLevel=maxLevel;} }
     public int enemyGuideCount() { ensureItemProfile(); return 802; }
     public boolean enemyGuideUnlocked(int index) { if(index<0||index>=enemyGuideCount())throw new IndexOutOfBoundsException();return intAt(fixed(Offsets.offsets_64)+index*4)!=0; }
@@ -669,13 +1009,13 @@ public final class SaveDocument {
     public int cannonDevelopment(int index) { int[] e=cannonEntry(index);return intAt(e[1]+8); }
     public int cannonPartLevel(int index,int part) { int[] e=cannonEntry(index);if(part<0||part>=e[2])throw new IndexOutOfBoundsException();return intAt(e[1]+12+part*4); }
     public void setCannonDevelopment(int index,int value) { int[] e=cannonEntry(index);if(index==0)throw new IllegalArgumentException("Cannon 0 has no development stage");if(value<0||value>3)throw new IllegalArgumentException("Invalid cannon development");putInt(e[1]+8,value);refreshHash(); }
-    public void setCannonPartLevel(int index,int part,int value) { int[] e=cannonEntry(index);if(part<0||part>=e[2])throw new IndexOutOfBoundsException();int max=GameDataRules.cannonMaxLevel(e[0],part)-(part==0?1:0);if(value<0||value>max)throw new IllegalArgumentException("Invalid cannon level");putInt(e[1]+8,Math.max(intAt(e[1]+8),3));putInt(e[1]+12+part*4,value);refreshHash(); }
+    public void setCannonPartLevel(int index,int part,int value) { int[] e=cannonEntry(index);if(part<0||part>=e[2])throw new IndexOutOfBoundsException();int max=GameDataRules.cannonMaxLevel(e[0],part)-(part==0?1:0);if(value<0||value>max)throw new IllegalArgumentException("Invalid cannon level");putInt(e[1]+12+part*4,value);refreshHash(); }
     public boolean catShrineGone() { ensureItemProfile();return byteAt(catShrineBase()+17)!=0; }
     public void setCatShrineGone(boolean value) { ensureItemProfile();int base=catShrineBase();if(!value){putDouble(base+1,0);putDouble(base+9,0);}bytes[base+17]=(byte)(value?1:0);putInt(catShrineDialogsOffset(),catShrineLevel()-1);refreshHash(); }
     public long catShrineXp() { ensureItemProfile();return rawLongAt(catShrineXpOffset()); }
     public int catShrineLevel() { long xp=catShrineXp();for(int i=0;i<GameDataRules.SHRINE_XP.length;i++)if(xp<GameDataRules.SHRINE_XP[i])return i+1;return GameDataRules.SHRINE_XP.length; }
     public void setCatShrineLevel(int level) { if(level<1||level>GameDataRules.SHRINE_XP.length)throw new IllegalArgumentException("Invalid shrine level");setCatShrineXp(level==1?0:GameDataRules.SHRINE_XP[level-2]); }
-    public void setCatShrineXp(long value) { ensureItemProfile();if(value<0||value>575600000L)throw new IllegalArgumentException("Invalid shrine XP");putLong(catShrineXpOffset(),value);putInt(catShrineDialogsOffset(),catShrineLevel()-1);refreshHash(); }
+    public void setCatShrineXp(long value) { ensureItemProfile();if(value<0||value>575600000L)throw new IllegalArgumentException("Invalid shrine XP");putLong(catShrineXpOffset(),value);refreshHash(); }
     public int catShrineDialogs() { ensureItemProfile();return intAt(catShrineDialogsOffset()); }
     public void setCatShrineDialogs(int value) { ensureItemProfile();putInt(catShrineDialogsOffset(),value);refreshHash(); }
     public double endlessBattleDurationMinutes(int index) { int base=endlessBattleOffset(index);if(byteAt(base)==0)return 0;int remainingItems=byteAt(base+2);double start=Double.longBitsToDouble(rawLongAt(base+3)),end=Double.longBitsToDouble(rawLongAt(base+11));if(Double.isInfinite(end))return Double.POSITIVE_INFINITY;return (end-start+remainingItems*3*60*60)/60.0; }
@@ -694,8 +1034,24 @@ public final class SaveDocument {
     public int unlockedLineups() { ensureItemProfile();return byteAt(unlockedLineupsOffset()); }
     public int unlockableLineupCount() { ensureItemProfile();return byteAt(findInt(90900)+4); }
     public void setUnlockedLineups(int value) { ensureItemProfile();if(value<0||value>unlockableLineupCount())throw new IllegalArgumentException("Invalid lineup count");bytes[unlockedLineupsOffset()]=(byte)value;refreshHash(); }
-    public int restartPackState() { ensureItemProfile();return intAt(afterCannons(Offsets.offsets_76)); }
-    public void setRestartPackState(int value) { ensureItemProfile();putInt(afterCannons(Offsets.offsets_76),value);refreshHash(); }
+    /**
+     * The restart-pack field is a single byte immediately before the 81000
+     * marker in the item profile.  Its position moved when variable-length
+     * records were introduced, so it must be located from the marker rather
+     * than from the legacy generated offset table.
+     */
+    private int restartPackOffset() {
+        ensureItemProfile();
+        int marker = findInt(81000);
+        if (marker <= 0) throw new IllegalStateException("Restart-pack marker is unavailable");
+        return marker - 1;
+    }
+    public int restartPackState() { return byteAt(restartPackOffset()); }
+    public void setRestartPackState(int value) {
+        if (value < 0 || value > 255) throw new IllegalArgumentException("Invalid restart-pack state");
+        bytes[restartPackOffset()] = (byte) value;
+        refreshHash();
+    }
     public int goldPassOfficerId() { ensureItemProfile();return intAt(goldPassBase()); }
     public void setGoldPassOfficerId(int value) { ensureItemProfile();putInt(goldPassBase(),value);refreshHash(); }
     public int goldPassRenewals() { ensureItemProfile();return intAt(goldPassBase()+4); }
@@ -704,8 +1060,8 @@ public final class SaveDocument {
     public void setGoldPassDate(int index,long value) { ensureItemProfile();if(index<0||index>=6)throw new IndexOutOfBoundsException();putLong(goldPassBase()+8+index*8,Double.doubleToRawLongBits((double)value));refreshHash(); }
     public int goldPassStateUpdates() { ensureItemProfile();return intAt(goldPassBase()+64); }
     public void setGoldPassStateUpdates(int value) { ensureItemProfile();putInt(goldPassBase()+64,value);refreshHash(); }
-    public void grantGoldPass(int officerId,long startTime,int days) { ensureItemProfile();if(officerId<1||days<1)throw new IllegalArgumentException("Invalid Gold Pass");int base=goldPassBase();clearGoldPassClaims();long end=startTime+days*86400L,totalEnd=startTime+days*2L*86400L;putInt(base,officerId);putInt(base+4,2);putDouble(base+8,startTime);putDouble(base+16,end);putDouble(base+24,end);putDouble(base+32,totalEnd);putDouble(base+40,startTime);putDouble(base+48,totalEnd);putDouble(base+56,startTime);putInt(base+64,2);putDouble(base+68,end);int tail=base+80;putDouble(tail,0);bytes[tail+8]=1;bytes[tail+9]=0;refreshHash(); }
-    public void removeGoldPass() { ensureItemProfile();int base=goldPassBase();clearGoldPassClaims();putInt(base,-1);putInt(base+4,0);for(int i=0;i<7;i++)putDouble(base+8+i*8,0);putInt(base+64,0);putDouble(base+68,0);int tail=base+80;putDouble(tail,0);bytes[tail+8]=0;bytes[tail+9]=0;refreshHash(); }
+    public void grantGoldPass(int officerId,long startTime,int days) { ensureItemProfile();if(officerId<1||days<1)throw new IllegalArgumentException("Invalid Gold Pass");int base=goldPassBase();clearGoldPassClaims();resetGoldPassLogin();long end=startTime+days*86400L,totalEnd=startTime+days*2L*86400L;putInt(base,officerId);putInt(base+4,2);putDouble(base+8,startTime);putDouble(base+16,end);putDouble(base+24,end);putDouble(base+32,totalEnd);putDouble(base+40,startTime);putDouble(base+48,totalEnd);putDouble(base+56,startTime);putInt(base+64,2);putDouble(base+68,end);int tail=base+80;putDouble(tail,0);bytes[tail+8]=1;bytes[tail+9]=0;refreshHash(); }
+    public void removeGoldPass() { ensureItemProfile();int base=goldPassBase();clearGoldPassClaims();resetGoldPassLogin();putInt(base,-1);putInt(base+4,0);for(int i=0;i<7;i++)putDouble(base+8+i*8,0);putInt(base+64,0);putDouble(base+68,0);int tail=base+80;putDouble(tail,0);bytes[tail+8]=0;bytes[tail+9]=0;refreshHash(); }
     public int officerPassCatId() { ensureItemProfile();int offset=officerPassCatOffset();return ushortAt(offset)==65535?-1:ushortAt(offset); }
     public void setOfficerPassCatId(int value) { ensureItemProfile();if(value< -1||value>65534)throw new IllegalArgumentException("Invalid cat ID");putShort(officerPassCatOffset(),value<0?65535:value);refreshHash(); }
     public int officerPassCatForm() { ensureItemProfile();return ushortAt(officerPassCatOffset()+2); }
@@ -742,8 +1098,8 @@ public final class SaveDocument {
     public void setEnigmaStageStartTime(int index,long value) { putLong(enigmaStageOffset(index)+9,Double.doubleToRawLongBits((double)value));refreshHash(); }
     public void addEnigmaStage(int stageId,int level,int decoding,long startTime) { int countOffset=enigmaBaseOffset()+11,count=byteAt(countOffset);if(count>=255||decoding<0||decoding>255)throw new IllegalArgumentException("Invalid Enigma stage");int offset=countOffset+1+count*17;splice(offset,0,17);putInt(offset,level);putInt(offset+4,stageId);bytes[offset+8]=(byte)decoding;putLong(offset+9,Double.doubleToRawLongBits((double)startTime));bytes[countOffset]=(byte)(count+1);refreshHash(); }
     public void removeEnigmaStage(int index) { int countOffset=enigmaBaseOffset()+11,count=byteAt(countOffset);if(index<0||index>=count)throw new IndexOutOfBoundsException();int offset=countOffset+1+index*17;splice(offset,17,0);bytes[countOffset]=(byte)(count-1);refreshHash(); }
-    public void addActiveEnigmaStage(int localId,long startTime) { if(localId<0||localId>=73)throw new IllegalArgumentException("Invalid Enigma ID");int absoluteId=25000+localId;addEnigmaStage(absoluteId,3,2,startTime);upsertDictionaryValue(eventCompletionDictionaryOffset(),absoluteId,0);refreshHash(); }
-    public void clearActiveEnigmaStages() { int[] ids=new int[enigmaStageCount()];for(int i=0;i<ids.length;i++)ids[i]=enigmaStageId(i);for(int i=ids.length-1;i>=0;i--)removeEnigmaStage(i);int dictionary=eventCompletionDictionaryOffset();for(int id:ids)upsertDictionaryValue(dictionary,id,0);refreshHash(); }
+    public void addActiveEnigmaStage(int localId,long startTime) { if(localId<0||localId>=73)throw new IllegalArgumentException("Invalid Enigma ID");int absoluteId=25000+localId;addEnigmaStage(absoluteId,3,2,startTime);refreshHash(); }
+    public void clearActiveEnigmaStages() { int count=enigmaStageCount();for(int i=count-1;i>=0;i--)removeEnigmaStage(i);refreshHash(); }
     public int storageCount() { ensureItemProfile();return ushortAt(storageTableOffset()); }
     public int storageItemId(int slot) { checkStorage(slot);return intAt(storageTableOffset()+2+slot*4); }
     public int storageItemType(int slot) { checkStorage(slot);return intAt(storageTableOffset()+2+storageCount()*4+slot*4); }
@@ -767,7 +1123,7 @@ public final class SaveDocument {
     public void removeSchemeItem(int id) { ensureItemProfile();if(!GameDataRules.validSchemeItem(id))throw new IllegalArgumentException("Invalid scheme item");int table=schemeTableOffset(),count=intAt(table);for(int i=0;i<count;i++)if(schemeToObtainId(i)==id){splice(table+4+i*4,4,0);putInt(table,count-1);break;}removeSchemeReceivedId(id);refreshHash(); }
     public void fixTimeErrors(long unixSeconds) { ensureItemProfile();java.time.ZonedDateTime now=java.time.Instant.ofEpochSecond(unixSeconds).atZone(java.time.ZoneId.systemDefault());int date=date3Offset();putInt(date,now.getYear());putInt(date+4,now.getMonthValue());putInt(date+8,now.getDayOfMonth());putInt(date+12,now.getHour());putInt(date+16,now.getMinute());putInt(date+20,now.getSecond());long bits=Double.doubleToRawLongBits((double)unixSeconds);putLong(timestampOffset(),bits);putLong(energyPenaltyTimestampOffset(),bits);refreshHash(); }
     public void fixOtotoValues() { int base=cannonBase(),length=cannonTableLength();splice(base,length,5);for(int i=0;i<5;i++)bytes[base+i]=0;refreshHash(); }
-    public void fixOfficerPass() { ensureItemProfile();int play=inquiryCodeOffset()+13;putInt(play,0);putShort(afterCannons(Offsets.offsets_77),0);putShort(afterCannons(Offsets.offsets_78),0);removeGoldPass();refreshHash(); }
+    public void fixOfficerPass() { ensureItemProfile();int play=inquiryCodeOffset()+13;putInt(play,0);int cat=officerPassCatOffset();putShort(cat,0);putShort(cat+2,0);removeGoldPass();refreshHash(); }
     public int gamblingStartCount() { return gamblingStartCount(GamblingTable.WILDCAT_SLOTS); }
     public int gamblingStartCount(GamblingTable type) { return ushortAt(gamblingStartTableOffset(type)); }
     public int gamblingStartKey(int index) { return gamblingStartKey(GamblingTable.WILDCAT_SLOTS,index); }
@@ -785,12 +1141,28 @@ public final class SaveDocument {
     public int outbreakStageId(int chapterIndex,int stageIndex) { int[] c=outbreakChapter(chapterIndex);if(stageIndex<0||stageIndex>=c[2])throw new IndexOutOfBoundsException();return intAt(c[1]+8+stageIndex*5); }
     public boolean outbreakCleared(int chapterIndex,int stageIndex) { int[] c=outbreakChapter(chapterIndex);if(stageIndex<0||stageIndex>=c[2])throw new IndexOutOfBoundsException();return byteAt(c[1]+12+stageIndex*5)!=0; }
     public boolean currentOutbreakCleared(int chapterId,int stageId) { int table=currentOutbreakTableOffset(),chapters=intAt(table),offset=table+4;for(int chapter=0;chapter<chapters;chapter++){int id=intAt(offset),stages=intAt(offset+4);offset+=8;for(int stage=0;stage<stages;stage++){if(id==chapterId&&intAt(offset)==stageId)return byteAt(offset+4)!=0;offset+=5;}}return false; }
-    public void setOutbreakCleared(int chapterIndex,int stageIndex,boolean value) { int[] c=outbreakChapter(chapterIndex);if(stageIndex<0||stageIndex>=c[2])throw new IndexOutOfBoundsException();bytes[c[1]+12+stageIndex*5]=(byte)(value?1:0);refreshHash(); }
-    public void setOutbreakChapterCleared(int chapterIndex,boolean value) { int[] c=outbreakChapter(chapterIndex);for(int i=0;i<c[2];i++)bytes[c[1]+12+i*5]=(byte)(value?1:0);refreshHash(); }
-    public void unlockAllCats() { ensureCatProfile();for(int i=0;i<catCount();i++)unlockCatRaw(i);touchRankUpSale();refreshHash(); }
-    public void unlockAllObtainableCats() { ensureCatProfile();for(int i=0;i<catCount();i++)if(GameDataRules.catObtainable(region,gameVersion(),i))unlockCatRaw(i);touchRankUpSale();refreshHash(); }
-    public void removeAllCats() { ensureCatProfile();CatLayout l=catLayout(); for(int i=0;i<l.count;i++) putInt(l.unlockedStart+i*4,0);touchRankUpSale();refreshHash(); }
-    public void resetAllCats() { ensureCatProfile();CatLayout l=catLayout();for(int i=0;i<l.count;i++){putInt(l.unlockedStart+i*4,0);putShort(l.upgradeStart+i*4,0);putShort(l.upgradeStart+i*4+2,0);putInt(l.currentFormStart+i*4,0);putInt(l.gatyaSeenStart+i*4,0);putFormValue(i,0);bytes[l.guideStart+i]=0;putFourthValue(i,0);putInt(l.catseyesUsedStart+i*4,0);}resetAllCharaNewFlags();int table=talentTableOffset(),records=intAt(table),talents=table+4;for(int r=0;r<records;r++){int count=intAt(talents+4);talents+=8;for(int i=0;i<count;i++)putInt(talents+i*8+4,0);talents+=count*8;}int drops=unitDropsOffset();if(drops>=0)for(int i=0;i<GameDataRules.dropPairCount(region, gameVersion());i++)putInt(drops+GameDataRules.dropSlot(region, gameVersion(),i)*4,0);touchRankUpSale();refreshHash(); }
+    public void setOutbreakCleared(int chapterIndex,int stageIndex,boolean value) {
+        int[] c=outbreakChapter(chapterIndex);
+        if(stageIndex<0||stageIndex>=c[2])throw new IndexOutOfBoundsException();
+        bytes[c[1]+12+stageIndex*5]=(byte)(value?1:0);
+        // The game removes a matching active outbreak when its historical
+        // record is marked cleared.  Keep both sections in sync as upstream
+        // Outbreaks.clear_outbreak does.
+        if(value)clearCurrentOutbreak(c[0],outbreakStageId(chapterIndex,stageIndex));
+        refreshHash();
+    }
+    public void setOutbreakChapterCleared(int chapterIndex,boolean value) {
+        int[] c=outbreakChapter(chapterIndex);
+        for(int i=0;i<c[2];i++) {
+            bytes[c[1]+12+i*5]=(byte)(value?1:0);
+            if(value)clearCurrentOutbreak(c[0],outbreakStageId(chapterIndex,i));
+        }
+        refreshHash();
+    }
+    public void unlockAllCats() { ensureCatProfile();for(int i=0;i<catCount();i++)unlockCatRaw(i);refreshHash(); }
+    public void unlockAllObtainableCats() { ensureCatProfile();for(int i=0;i<catCount();i++)if(GameDataRules.catObtainable(region,gameVersion(),i))unlockCatRaw(i);refreshHash(); }
+    public void removeAllCats() { ensureCatProfile();CatLayout l=catLayout(); for(int i=0;i<l.count;i++) putInt(l.unlockedStart+i*4,0);refreshHash(); }
+    public void resetAllCats() { ensureCatProfile();CatLayout l=catLayout();for(int i=0;i<l.count;i++){putInt(l.unlockedStart+i*4,0);putShort(l.upgradeStart+i*4,0);putShort(l.upgradeStart+i*4+2,0);putInt(l.currentFormStart+i*4,0);putInt(l.gatyaSeenStart+i*4,0);putFormValue(i,0);bytes[l.guideStart+i]=0;putFourthValue(i,0);putInt(l.catseyesUsedStart+i*4,0);}int table=talentTableOffset(),records=intAt(table),talents=table+4;for(int r=0;r<records;r++){int count=intAt(talents+4);talents+=8;for(int i=0;i<count;i++)putInt(talents+i*8+4,0);talents+=count*8;}refreshHash(); }
     public void unlockTrueForms() { setTrueForms(false); }
     public void forceTrueForms() { setTrueForms(true); }
     private void setTrueForms(boolean force) {
@@ -807,9 +1179,9 @@ public final class SaveDocument {
                 putFormValue(i,0);putInt(l.currentFormStart+i*4,0);
             }
         }
-        touchRankUpSale();refreshHash();
+        refreshHash();
     }
-    public void removeTrueForms() { ensureCatProfile();CatLayout l=catLayout(); for(int i=0;i<l.count;i++){ putInt(l.unlockedFormsStart+i*4,0);putInt(l.fourthStart+i*4,0);int current=intAt(l.currentFormStart+i*4);putInt(l.currentFormStart+i*4,Math.min(current,1)); }touchRankUpSale();refreshHash(); }
+    public void removeTrueForms() { ensureCatProfile();CatLayout l=catLayout(); for(int i=0;i<l.count;i++){ putInt(l.unlockedFormsStart+i*4,0);putInt(l.fourthStart+i*4,0);int current=intAt(l.currentFormStart+i*4);putInt(l.currentFormStart+i*4,Math.min(current,1)); }refreshHash(); }
     public void unlockFourthForms() { setFourthForms(false); }
     public void forceFourthForms() { setFourthForms(true); }
     private void setFourthForms(boolean force) {
@@ -821,16 +1193,16 @@ public final class SaveDocument {
             } else if(forms>=4){
                 unlockCatRaw(i);putFormValue(i,3);putInt(l.currentFormStart+i*4,3);putInt(l.fourthStart+i*4,2);
             } else if(forms>=3){
-                unlockCatRaw(i);putFormValue(i,3);putInt(l.currentFormStart+i*4,2);putInt(l.fourthStart+i*4,0);
+                unlockCatRaw(i);putFormValue(i,3);putInt(l.currentFormStart+i*4,2);
             } else if(forms==2){
-                putFormValue(i,0);putInt(l.currentFormStart+i*4,1);putInt(l.fourthStart+i*4,0);
+                putFormValue(i,0);putInt(l.currentFormStart+i*4,1);
             } else {
-                putFormValue(i,0);putInt(l.currentFormStart+i*4,0);putInt(l.fourthStart+i*4,0);
+                putFormValue(i,0);putInt(l.currentFormStart+i*4,0);
             }
         }
-        touchRankUpSale();refreshHash();
+        refreshHash();
     }
-    public void removeFourthForms() { ensureCatProfile();CatLayout l=catLayout(); for(int i=0;i<l.count;i++){ int current=intAt(l.currentFormStart+i*4); putInt(l.currentFormStart+i*4,Math.min(current,2)); putInt(l.fourthStart+i*4,0); }touchRankUpSale();refreshHash(); }
+    public void removeFourthForms() { ensureCatProfile();CatLayout l=catLayout(); for(int i=0;i<l.count;i++){ int current=intAt(l.currentFormStart+i*4); putInt(l.currentFormStart+i*4,Math.min(current,2)); putInt(l.fourthStart+i*4,0); }refreshHash(); }
 
     public boolean checksumValid() { return hasValidHashAt(bytes, region, hashPosition()); }
     public String checksum() { return new String(bytes, hashPosition(), 32, java.nio.charset.StandardCharsets.US_ASCII); }
@@ -1110,6 +1482,8 @@ public final class SaveDocument {
             int leadership = ushortAt(marker + 5);
             if (leadership > 9999) continue;
             int d = Math.abs(marker - expected);
+            // [80000][ub7][leadership(short)][cat id(short)][cat form(short)][80200].
+            // The cat pair starts seven bytes after the 80000 marker.
             if (d < distance) { best = marker + 7; distance = d; }
         }
         return best >= 0 ? best : fixed(Offsets.offsets_77);
@@ -1213,7 +1587,15 @@ public final class SaveDocument {
         throw new IllegalStateException("Base material table is unavailable");
     }
     private int talentOrbTableOffset() {
-        int from=Math.max(4,fixed(Offsets.offsets_93)-16384),to=Math.min(bytes.length-40,fixed(Offsets.offsets_93)+16384);
+        int marker90700;
+        try { marker90700 = findInt(90700); }
+        catch (IllegalStateException missingMarker) { return afterEnigma(Offsets.offsets_93); }
+        // The table is variable-length and the generated 15.5 estimate can
+        // be thousands of bytes away after earlier records grow.  Anchor the
+        // search to the self-delimiting 90700 marker instead of a fixed
+        // offset, then require the parsed dictionary/toggle to end exactly at
+        // that marker.
+        int from=Math.max(4,marker90700-131072),to=Math.min(marker90700-5,bytes.length-40);
         for(int table=from;table<=to;table++){
             int count=(bytes[table]&255)|((bytes[table+1]&255)<<8);
             if(count>2048)continue;
@@ -1228,7 +1610,7 @@ public final class SaveDocument {
                 if(offset+inner*3+5>bytes.length-Offsets.offsets_130){valid=false;break;}
                 offset+=inner*3;
             }
-            if(valid&&(bytes[offset]&255)<=1&&rawIntAt(offset+1)==90700)return table;
+            if(valid&&offset+1==marker90700&&(bytes[offset]&255)<=1)return table;
         }
         int legacy=afterEnigma(Offsets.offsets_93),count=ushortAt(legacy);
         if(count<=2048)return legacy;
@@ -1243,15 +1625,16 @@ public final class SaveDocument {
         try { current = currentOutbreakTableOffset(); }
         catch (IllegalStateException missingContinuation) { current = -1; }
         int from = Math.max(0, current - 65536), to = Math.min(bytes.length - Offsets.offsets_130 - 8, current - 8);
-        int best = -1, distance = Integer.MAX_VALUE;
+        // Prefer the candidate nearest the continuation anchor.  Earlier
+        // payload bytes can coincidentally form two valid counted lists.
+        int best = -1;
         for (int table = from; table <= to; table++) {
             int first = rawIntAt(table);
             if (first < 0 || first > 10000 || table + 4L + first * 4L + 4 > bytes.length - Offsets.offsets_130) continue;
             int secondOffset = table + 4 + first * 4, second = rawIntAt(secondOffset);
             if (second < 0 || second > 10000 || secondOffset + 4L + second * 4L > bytes.length - Offsets.offsets_130) continue;
             if (current >= 0 && secondOffset + 4L + second * 4L != current) continue;
-            int d = Math.abs(table - expected);
-            if (d < distance) { best = table; distance = d; }
+            if (table > best) best = table;
         }
         if (best >= 0) return best;
         int legacy=expected, first=rawIntAt(legacy);
@@ -1350,7 +1733,25 @@ public final class SaveDocument {
     private int afterEnigma(int original) { return fixed(original)+dojoScoreDelta()+schemeDelta()+cannonDelta()+goldPassDelta()+medalDelta()+wildcatDelta()+enigmaDelta()+regionDelta(original); }
     private int orbDelta() { return ushortAt(talentOrbTableOffset())*4; }
     private int afterOrbs(int original) { return fixed(original)+dojoScoreDelta()+schemeDelta()+cannonDelta()+goldPassDelta()+medalDelta()+wildcatDelta()+enigmaDelta()+orbDelta()+regionDelta(original); }
-    private int scratcherDelta() { return gamblingTableLength(afterOrbs(Offsets.offsets_99))-6; }
+    private int scratcherDelta() {
+        int expected = afterOrbs(Offsets.offsets_99);
+        try {
+            return gamblingTableLength(expected) - 6;
+        } catch (RuntimeException ignored) {
+            // A preceding variable splice (notably the JP timestamp move)
+            // can shift the table away from the static estimate.  Recover it
+            // from the self-delimiting 100700 marker instead.
+            int marker = findIntOrDefault(100700, -1);
+            if (marker >= 6) {
+                int from = Math.max(0, marker - 131072);
+                for (int base = from; base <= marker - 6; base++) {
+                    int length = validGamblingTableLength(base);
+                    if (length >= 0 && base + length == marker) return length - 6;
+                }
+            }
+            return 0;
+        }
+    }
     private int eventCapsules2Offset() { int marker=findInt(100400),base=marker-9;if(byteAt(base-1)!=2)throw new IllegalStateException("Event capsule table is unavailable");return base; }
     private int talentTableOffset() {
         if(talentTableBaseCache>=0)return talentTableBaseCache;
@@ -1378,6 +1779,160 @@ public final class SaveDocument {
     private int lateOffset(int original) { return fixed(original)+dojoScoreDelta()+schemeDelta()+cannonDelta()+goldPassDelta()+medalDelta()+wildcatDelta()+enigmaDelta()+orbDelta()+scratcherDelta()+regionDelta(original); }
     private int regionDelta(int original) { return region == Region.EN && original >= Offsets.offsets_1 ? 5 : 0; }
     private int fixedStatic(int twOffset) { return fixed(twOffset); }
+    /** Adjust the small region-conversion fields that sit after the variable
+     * unlocked/upgrade/current cat lists.  The static offset table is based
+     * on the 861-cat template; each extra cat contributes three 4-byte
+     * records before these fields. */
+    private int variableCatOffset(int twOffset) {
+        int delta = 0;
+        try {
+            if (twOffset == Offsets.offsets_13 || twOffset == Offsets.offsets_14
+                    || twOffset == Offsets.offsets_20 || twOffset == Offsets.offsets_21) {
+                delta = (catCount() - TEMPLATE_CAT_COUNT) * 12;
+            }
+        } catch (RuntimeException ignored) { }
+        return fixed(twOffset + delta);
+    }
+
+    /** Locate the final region-only block after order IDs. */
+    private int internationalAccountTail() {
+        int orderEnd = orderIdsEnd();
+        if (orderEnd < 0 || orderEnd + 28 > bytes.length - Offsets.offsets_130) return -1;
+        // Three doubles, a variable string list, energy bool and full version.
+        int p = orderEnd + 24;
+        int count = safeIntAt(p);
+        if (count < 0 || count > 1024) return -1;
+        p += 4;
+        for (int i = 0; i < count; i++) {
+            int n = safeIntAt(p);
+            if (n < 0 || n > 4096 || p + 4L + n > bytes.length - Offsets.offsets_130) return -1;
+            p += 4 + n;
+        }
+        return orderEnd;
+    }
+    private int internationalAccountTailLength(int tail) {
+        if (tail < 0 || tail + 28 > bytes.length - Offsets.offsets_130) return 0;
+        int p = tail + 24, count = safeIntAt(p);
+        if (count < 0 || count > 1024) return 0;
+        p += 4;
+        for (int i = 0; i < count; i++) {
+            int n = safeIntAt(p);
+            if (n < 0 || n > 4096 || p + 4L + n > bytes.length - Offsets.offsets_130) return 0;
+            p += 4 + n;
+        }
+        return p + 5 <= bytes.length - Offsets.offsets_130 ? p + 5 - tail : 0;
+    }
+    private int internationalEnergyNotificationOffset(int tail) {
+        if (tail < 0 || tail + 28 > bytes.length - Offsets.offsets_130) return -1;
+        int p = tail + 24, count = safeIntAt(p);
+        if (count < 0 || count > 1024) return -1;
+        p += 4;
+        for (int i = 0; i < count; i++) {
+            int n = safeIntAt(p);
+            if (n < 0 || n > 4096 || p + 4L + n > bytes.length - Offsets.offsets_130) return -1;
+            p += 4 + n;
+        }
+        return p < bytes.length - Offsets.offsets_130 ? p : -1;
+    }
+    private int findRegionMarker(int marker, int expected) {
+        int limit = bytes.length - Offsets.offsets_130;
+        int from = Math.max(4, expected - 131072), to = Math.min(limit - 8, expected + 131072);
+        int best = -1, distance = Integer.MAX_VALUE;
+        for (int p = from; p <= to; p++) {
+            if (rawIntAt(p) != marker) continue;
+            int d = Math.abs(p - expected);
+            if (d < distance) { best = p; distance = d; }
+        }
+        return best;
+    }
+    /** Locate the optional player-id string immediately before order IDs. */
+    private int internationalPlayerIdOffset() {
+        int orderStart = orderIdsStart();
+        return orderStart >= 4 ? orderStart - 4 : -1;
+    }
+    /** Locate the DST byte immediately before date_4 using the serialized
+     * date marker rather than a static offset. */
+    private int internationalDate4DstOffset() {
+        int expected = fixed(Offsets.offsets_12);
+        int from = Math.max(0, expected - 131072), to = Math.min(bytes.length - Offsets.offsets_130 - 24, expected + 131072);
+        int best = -1, distance = Integer.MAX_VALUE;
+        for (int p = from; p <= to; p++) {
+            if (!validSerializedDate(p)) continue;
+            int dst = p - 1;
+            if (dst < 0 || (byteAt(dst) != 0 && byteAt(dst) != 1)) continue;
+            int d = Math.abs(p - expected);
+            if (d < distance) { best = dst; distance = d; }
+        }
+        return best;
+    }
+    /** Locate the serialized date_4 record in a variable-length save. */
+    private int serializedDate4Start() {
+        int expected = fixed(Offsets.offsets_12);
+        int limit = bytes.length - Offsets.offsets_130;
+        int from = Math.max(0, expected - 131072);
+        int to = Math.min(limit - 24, expected + 131072);
+        int best = -1, distance = Integer.MAX_VALUE;
+        for (int p = from; p <= to; p++) {
+            if (!validSerializedDate(p)) continue;
+            int d = Math.abs(p - expected);
+            if (d < distance) {
+                best = p;
+                distance = d;
+            }
+        }
+        return best;
+    }
+    private int orderIdsStart() {
+        int expected = fixed(Offsets.offsets_11);
+        int from = Math.max(4, expected - 131072), to = Math.min(bytes.length - Offsets.offsets_130 - 8, expected + 131072);
+        // Received accounts normally retain the server order-id marker.  It
+        // is considerably more discriminating than a bare variable-list
+        // count (which occurs frequently in the large save payload).
+        byte[] marker = "_bcsfe:password:".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+        for (int p = from; p < to; p++) {
+            if (p + marker.length > bytes.length) continue;
+            boolean match = true;
+            for (int i = 0; i < marker.length; i++) if (bytes[p + i] != marker[i]) { match = false; break; }
+            if (match && p >= 8) return p - 8;
+        }
+        int best = -1, distance = Integer.MAX_VALUE;
+        for (int p = from; p <= to; p++) {
+            int count = safeIntAt(p);
+            if (count < 0 || count > 1024) continue;
+            int q = p + 4;
+            boolean valid = true;
+            for (int i = 0; i < count; i++) {
+                int n = safeIntAt(q);
+                if (n < 0 || n > 4096 || q + 4L + n > bytes.length - Offsets.offsets_130) { valid = false; break; }
+                q += 4 + n;
+            }
+            if (!valid || q + 24 > bytes.length - Offsets.offsets_130) continue;
+            // The account-tail block starts with three IEEE doubles.  A
+            // non-zero finite value in the first slot is a useful filter;
+            // empty/template saves are retained by the distance fallback.
+            if (q + 8 <= bytes.length - Offsets.offsets_130 && rawLongAt(q) == 0) continue;
+            int d = Math.abs(p - expected);
+            if (d < distance) { best = p; distance = d; }
+        }
+        if (best >= 0) return best;
+        return -1;
+    }
+    private boolean hasInternationalOrderMarker() {
+        byte[] marker = "_bcsfe:password:".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+        int from = Math.max(0, fixed(Offsets.offsets_11) - 131072), to = Math.min(bytes.length - marker.length, fixed(Offsets.offsets_11) + 131072);
+        outer: for (int p = from; p < to; p++) {
+            for (int i = 0; i < marker.length; i++) if (bytes[p + i] != marker[i]) continue outer;
+            return true;
+        }
+        return false;
+    }
+    private int orderIdsEnd() {
+        int start = orderIdsStart();
+        if (start < 0) return -1;
+        int count = safeIntAt(start), p = start + 4;
+        for (int i = 0; i < count; i++) { int n = safeIntAt(p); if (n < 0 || n > 4096) return -1; p += 4 + n; }
+        return p;
+    }
     private int fixed(int twOffset) {
         if (region != Region.JP) return twOffset;
         if (twOffset >= Offsets.offsets_15) return twOffset - 38;
@@ -1397,7 +1952,7 @@ public final class SaveDocument {
         if (twOffset >= Offsets.offsets_132) return twOffset - 1;
         return twOffset;
     }
-    private void splice(int offset,int remove,int insert) { if(offset<0||remove<0||insert<0||offset+remove>bytes.length-Offsets.offsets_130)throw new IllegalArgumentException("Invalid splice at offset="+offset+" remove="+remove+" insert="+insert+" length="+bytes.length);byte[] out=new byte[bytes.length-remove+insert];System.arraycopy(bytes,0,out,0,offset);System.arraycopy(bytes,offset+remove,out,offset+insert,bytes.length-offset-remove);bytes=out;catLayoutCache=null;battleItemsBaseCache=-1;unitDropsBaseCache=-1;if(cannonBaseCache>=0&&offset<cannonBaseCache)cannonBaseCache+=insert-remove;if(goldPassBaseCache>=0&&offset<goldPassBaseCache)goldPassBaseCache+=insert-remove;if(talentTableBaseCache>=0&&offset<talentTableBaseCache)talentTableBaseCache+=insert-remove;if(storageTableBaseCache>=0&&offset<storageTableBaseCache)storageTableBaseCache+=insert-remove;if(enigmaBaseCache>=0&&offset<enigmaBaseCache)enigmaBaseCache+=insert-remove;if(eventTableBaseCache>=0&&offset<eventTableBaseCache)eventTableBaseCache+=insert-remove; }
+    private void splice(int offset,int remove,int insert) { if(offset<0||remove<0||insert<0||offset+remove>bytes.length-Offsets.offsets_130)throw new IllegalArgumentException("Invalid splice at offset="+offset+" remove="+remove+" insert="+insert+" length="+bytes.length);byte[] out=new byte[bytes.length-remove+insert];System.arraycopy(bytes,0,out,0,offset);System.arraycopy(bytes,offset+remove,out,offset+insert,bytes.length-offset-remove);bytes=out;catLayoutCache=null;battleItemsBaseCache=-1;unitDropsBaseCache=-1;scratcherBaseCache=-1;if(cannonBaseCache>=0&&offset<cannonBaseCache)cannonBaseCache+=insert-remove;if(goldPassBaseCache>=0&&offset<goldPassBaseCache)goldPassBaseCache+=insert-remove;if(talentTableBaseCache>=0&&offset<talentTableBaseCache)talentTableBaseCache+=insert-remove;if(storageTableBaseCache>=0&&offset<storageTableBaseCache)storageTableBaseCache+=insert-remove;if(enigmaBaseCache>=0&&offset<enigmaBaseCache)enigmaBaseCache+=insert-remove;if(eventTableBaseCache>=0&&offset<eventTableBaseCache)eventTableBaseCache+=insert-remove;if(itfTimedScoreBaseCache>=0){if(offset+remove<=itfTimedScoreBaseCache&&offset<itfTimedScoreBaseCache)itfTimedScoreBaseCache+=insert-remove;else if(offset<=itfTimedScoreBaseCache+3*51*4&&offset+remove>=itfTimedScoreBaseCache)itfTimedScoreBaseCache=-1;} }
     private void ensureItemProfile() { if (!hasItemProfile()) throw new UnsupportedOperationException("No item profile for this save version"); }
     private void ensureCatProfile() { ensureItemProfile(); }
     private int charaNewFlagsOffset() {
@@ -1643,12 +2198,13 @@ public final class SaveDocument {
         }
         boolean formsValid = intAt(formsCount) == count
                 && validCatList(formsCount + 4, count, 1);
-        if (intAt(gatyaCount) != count) {
-            int recovered = recoverCountAnchor(fixedStatic(Offsets.offsets_58) - 4 + 3 * d + headDelta,
-                    count, 16384, 0, 7);
-            if (recovered >= 0) gatyaCount = recovered;
-        }
-        if(intAt(upgradeCount)!=count||intAt(currentCount)!=count||intAt(gatyaCount)!=count||
+        // Gatya-seen entries are integer flags; a few accounts use the
+        // 0x10000 sentinel, so validate their bounded range separately from
+        // the boolean guide/new-flag lists.
+        int recoveredGatya = recoverGatyaCountAnchor(gatyaCount, count);
+        if (recoveredGatya >= 0) gatyaCount = recoveredGatya;
+        boolean gatyaValid = validGatyaList(gatyaCount + 4, count);
+        if(intAt(upgradeCount)!=count||intAt(currentCount)!=count||!gatyaValid||
                 intAt(maxCount)!=count||intAt(guideCount)!=count||
                 intAt(catfruitCount)!=29||intAt(fourthCount)!=count||intAt(eyesUsedCount)!=count||
                 intAt(eyesCount)!=6||!validCataminList(aminsCount)) {
@@ -1664,7 +2220,7 @@ public final class SaveDocument {
             }
             throw new IllegalStateException("Invalid variable cat layout count="+count+
                     " upgrade="+intAt(upgradeCount)+" current="+intAt(currentCount)+
-                    " gatya="+intAt(gatyaCount)+" max="+intAt(maxCount)+
+                    " gatya="+(gatyaValid?count:safeIntAt(gatyaCount))+" max="+intAt(maxCount)+
                     " forms="+safeIntAt(formsCount)+" guide="+intAt(guideCount)+
                     " fruit="+intAt(catfruitCount)+" fourth="+intAt(fourthCount)+
                     " used="+intAt(eyesUsedCount)+" eyes="+intAt(eyesCount)+
@@ -1890,6 +2446,32 @@ public final class SaveDocument {
         return best;
     }
 
+    private int recoverGatyaCountAnchor(int expected, int count) {
+        int radius = 32768;
+        int start = Math.max(0, expected - radius);
+        int end = Math.min(bytes.length - Offsets.offsets_130 - 4, expected + radius);
+        int best = -1, distance = Integer.MAX_VALUE;
+        for (int delta = 0; delta <= radius; delta++) {
+            int[] candidates = delta == 0 ? new int[]{expected} : new int[]{expected + delta, expected - delta};
+            for (int candidate : candidates) {
+                if (candidate < start || candidate > end || intAt(candidate) != count) continue;
+                if (!validGatyaList(candidate + 4, count)) continue;
+                int d = Math.abs(candidate - expected);
+                if (d < distance) { best = candidate; distance = d; }
+            }
+        }
+        return best;
+    }
+
+    private boolean validGatyaList(int start, int count) {
+        if (start < 0 || start + (long) count * 4L > bytes.length - Offsets.offsets_130) return false;
+        for (int i = 0; i < count; i++) {
+            int value = rawIntAt(start + i * 4);
+            if (value < 0 || value > 65536) return false;
+        }
+        return true;
+    }
+
     /** Recover catseyes only when the immediately following catamin list is
      * also structurally valid.  A transfer save can contain unrelated `6`
      * integers near the template estimate; accepting one of those shifts the
@@ -2061,7 +2643,7 @@ public final class SaveDocument {
     private void checkDisplayedLevel(int value) { if(value<1||value>65536)throw new IllegalArgumentException("Invalid level"); }
     private void checkCatLevel(int index,int value) { checkCat(index);checkLevel(value); }
     private int specialSkillUpgradeOffset(int index) { ensureCatProfile();if(index<0||index>=10)throw new IndexOutOfBoundsException();int raw=index==0?0:index+1;return catLayout().currentFormEnd+raw*4; }
-    private int endlessBattleOffset(int index) { if(index<0||index>=6)throw new IndexOutOfBoundsException();return afterOrbs(Offsets.offsets_104)+index*19; }
+    private int endlessBattleOffset(int index) { if(index<0||index>=6)throw new IndexOutOfBoundsException();int marker=findIntNear(100300,afterOrbs(Offsets.offsets_104)+6*19,65536);return marker-6*19+index*19; }
     private int storyInternalChapter(int chapter) { ensureItemProfile();if(chapter<0||chapter>=9)throw new IndexOutOfBoundsException();return chapter<3?chapter:chapter+1; }
     private void checkStoryStage(int stage) { if(stage<0||stage>=48)throw new IndexOutOfBoundsException(); }
     private int akuTableOffset() {
@@ -2077,7 +2659,73 @@ public final class SaveDocument {
     private boolean validAkuTableFallback(int base) { if(!validAkuTable(base))return false;int chapters=ushortAt(base),stages=byteAt(base+2),stars=byteAt(base+3),tail=base+4+chapters*stars+chapters*stars*stages*2;if(tail+4>bytes.length-Offsets.offsets_130||byteAt(tail)>1||byteAt(tail+1)>1)return false;int dictionaryCount=ushortAt(tail+2);return dictionaryCount<=1024&&tail+4L+dictionaryCount*4L<=bytes.length-Offsets.offsets_130; }
     private int akuStageOffset(int chapter,int star,int stage) { ensureItemProfile();int base=akuTableOffset(),chapters=ushortAt(base),stages=byteAt(base+2),stars=byteAt(base+3);if(chapters>100||stages>100||stars>16||chapter<0||chapter>=chapters||star<0||star>=stars||stage<0||stage>=stages)throw new IndexOutOfBoundsException();return base+4+chapters*stars+((chapter*stars+star)*stages+stage)*2; }
     private int missionDictionaryOffset(int dictionary) { ensureItemProfile();if(dictionary<0||dictionary>=8)throw new IndexOutOfBoundsException();int offset=afterCannons(Offsets.offsets_69);for(int d=0;d<dictionary;d++){int count=intAt(offset);if(count<0||count>10000)throw new IllegalStateException("Invalid mission dictionary");offset+=4+count*8;}return offset; }
-    private int eventCompletionDictionaryOffset() { int expected=fixed(Offsets.offsets_106);for(int delta=0;delta<=512;delta++){int[] candidates=delta==0?new int[]{expected}:new int[]{expected+delta,expected-delta};for(int offset:candidates){if(offset<0||offset+4>bytes.length-Offsets.offsets_130)continue;int count=intAt(offset);if(count<0||count>1000||offset+4+count*8>bytes.length-Offsets.offsets_130)continue;boolean valid=true,hasEventKey=count==0;for(int i=0;i<count;i++){int key=intAt(offset+4+i*8),value=intAt(offset+8+i*8);if(key<0||key>100000||value<0){valid=false;break;}hasEventKey|=key>=1000;}if(valid&&hasEventKey)return offset;}}throw new IllegalStateException("Event completion dictionary is unavailable"); }
+    /** Locate the first of the four event-stage dictionaries.  Received
+     * saves can have an unaligned, variable prefix (the current JP/TW
+     * profile starts at 427727 while the bundled offset is 428295), so a
+     * narrow fixed-offset probe is insufficient.  Validate the complete
+     * dictionary sequence and marker 69 that follows it to avoid matching a
+     * coincidental count elsewhere in the payload. */
+    private int eventCompletionDictionaryOffset() {
+        int expected = fixed(Offsets.offsets_106);
+        int limit = bytes.length - Offsets.offsets_130;
+        int from = Math.max(0, expected - 131072), to = Math.min(limit - 16, expected + 131072);
+        int best = -1, bestDistance = Integer.MAX_VALUE;
+        int emptyBest = -1, emptyDistance = Integer.MAX_VALUE;
+        for (int offset = from; offset <= to; offset++) {
+            int count = safeIntAt(offset);
+            if (count < 0 || count > 1000) continue;
+            long p = (long) offset + 4L + count * 8L;
+            if (p + 4 > limit) continue;
+            if (!validIntDictionary(offset, count, 100000, false)) continue;
+            int display = (int) p;
+            int displayCount = safeIntAt(display);
+            // int->bool dictionaries use a one-byte value (5 bytes/entry),
+            // unlike the two-int dictionaries surrounding them.
+            if (displayCount < 0 || displayCount > 1000 || !validBoolDictionary(display, displayCount)) continue;
+            p = (long) display + 4L + displayCount * 5L;
+            if (p + 4 > limit) continue;
+            int dates = (int) p;
+            int datesCount = safeIntAt(dates);
+            if (datesCount < 0 || datesCount > 1000 || !validIntDictionary(dates, datesCount, 100000, false)) continue;
+            p = (long) dates + 4L + datesCount * 8L;
+            if (p + 4 > limit) continue;
+            int claimed = (int) p;
+            int claimedCount = safeIntAt(claimed);
+            if (claimedCount < 0 || claimedCount > 100000 || (long) claimed + 4L + claimedCount * 4L + 4L > limit) continue;
+            // The dictionary block is followed by cotc_1_complete and then
+            // the section marker 69.
+            int marker = claimed + 8 + claimedCount * 4;
+            if (safeIntAt(marker) != 69) continue;
+            boolean hasEventKey = false;
+            for (int i = 0; i < count; i++) if (safeIntAt(offset + 4 + i * 8) >= 1000) { hasEventKey = true; break; }
+            int distance = Math.abs(offset - expected);
+            if (count == 0) {
+                if (distance < emptyDistance) { emptyBest = offset; emptyDistance = distance; }
+            } else if (hasEventKey && distance < bestDistance) {
+                best = offset; bestDistance = distance;
+            }
+        }
+        if (best >= 0) return best;
+        if (emptyBest >= 0) return emptyBest;
+        throw new IllegalStateException("Event completion dictionary is unavailable");
+    }
+
+    private boolean validIntDictionary(int offset, int count, int maxKey, boolean boolValues) {
+        if (offset < 0 || (long) offset + 4L + count * 8L > bytes.length - Offsets.offsets_130) return false;
+        for (int i = 0; i < count; i++) {
+            int key = safeIntAt(offset + 4 + i * 8), value = safeIntAt(offset + 8 + i * 8);
+            if (key < 0 || key > maxKey || value < 0 || (boolValues && value > 1)) return false;
+        }
+        return true;
+    }
+    private boolean validBoolDictionary(int offset, int count) {
+        if (offset < 0 || (long) offset + 4L + count * 5L > bytes.length - Offsets.offsets_130) return false;
+        for (int i = 0; i < count; i++) {
+            int key = safeIntAt(offset + 4 + i * 5), value = byteAt(offset + 8 + i * 5);
+            if (key < 0 || key > 100000 || (value != 0 && value != 1)) return false;
+        }
+        return true;
+    }
     private int[] dictionaryKeys(int offset) { int count=intAt(offset);if(count<0||count>10000)throw new IllegalStateException("Invalid dictionary");int[] keys=new int[count];for(int i=0;i<count;i++)keys[i]=intAt(offset+4+i*8);return keys; }
     private int dictionaryValue(int offset,int key) { int count=intAt(offset);for(int i=0;i<count;i++)if(intAt(offset+4+i*8)==key)return intAt(offset+8+i*8);throw new IllegalArgumentException("Unknown key"); }
     private boolean dictionaryContains(int offset,int key) { int count=intAt(offset);for(int i=0;i<count;i++)if(intAt(offset+4+i*8)==key)return true;return false; }
@@ -2136,7 +2784,44 @@ public final class SaveDocument {
     private void setFixedArrayValue(int offset,int count,int index,int value) { ensureItemProfile();if(index<0||index>=count)throw new IndexOutOfBoundsException();putInt(offset+index*4,value);refreshHash(); }
     private void checkLineup(int lineup,int slot) { ensureItemProfile();if(lineup<0||lineup>=lineupCount()||slot<0||slot>=10)throw new IndexOutOfBoundsException(); }
     private int itfTimedScoreOffset(int chapter,int stage) { if(chapter<0||chapter>=3||stage<0||stage>=48)throw new IndexOutOfBoundsException();return itfTimedScoreBase()+((chapter*51)+stage)*4; }
-    private int itfTimedScoreBase() { int marker=findIntNear(44,fixed(Offsets.offsets_107),64);int base=marker+8;if(base+3*51*4>bytes.length-Offsets.offsets_130)throw new IllegalStateException("ITF timed scores are unavailable");return base; }
+    /** Locate the Into the Future timed-score block.  The prefix before the
+     * block is variable (notably on JP 15.x saves), so the historical offset
+     * anchor can be off by several kilobytes.  A valid block is introduced by
+     * marker 44, followed by the completion flag and exactly three chapters
+     * of 51 scores, each in the documented 0..9999 range; marker 45 follows
+     * the subsequent title/combo fields.  Validate that shape while choosing
+     * the candidate nearest the legacy anchor. */
+    private int itfTimedScoreBase() {
+        if (itfTimedScoreBaseCache >= 0 && itfTimedScoreBaseCache + 3 * 51 * 4 <= bytes.length - Offsets.offsets_130) return itfTimedScoreBaseCache;
+        int limit = bytes.length - Offsets.offsets_130;
+        int expected = fixed(Offsets.offsets_107);
+        int from = Math.max(0, expected - 131072), to = Math.min(limit - 8, expected + 131072);
+        int best = -1, bestDistance = Integer.MAX_VALUE;
+        for (int marker = from; marker <= to; marker++) {
+            if (safeIntAt(marker) != 44) continue;
+            int base = marker + 8;
+            int end = base + 3 * 51 * 4;
+            if (end > limit) continue;
+            boolean valid = true;
+            for (int i = 0; i < 3 * 51; i++) {
+                int score = safeIntAt(base + i * 4);
+                if (score < 0 || score > 9999) { valid = false; break; }
+            }
+            if (!valid) continue;
+            // Marker 45 is emitted after title/combo data.  Requiring it in
+            // a bounded suffix filters coincidental integer value 44s.
+            boolean hasEndMarker = false;
+            int suffixEnd = Math.min(limit - 4, end + 8192);
+            for (int p = end; p <= suffixEnd; p++) {
+                if (safeIntAt(p) == 45) { hasEndMarker = true; break; }
+            }
+            if (!hasEndMarker) continue;
+            int candidateDistance = Math.abs(marker - expected);
+            if (candidateDistance < bestDistance) { best = base; bestDistance = candidateDistance; }
+        }
+        if (best >= 0) { itfTimedScoreBaseCache = best; return best; }
+        throw new IllegalStateException("ITF timed scores are unavailable");
+    }
     private int catShrineBase() { int marker=findInt(90900),xp=marker-24;for(int count=32;count>=1;count--){int length=xp-count-1,base=length-18;if(base>=0&&byteAt(length)==count&&byteAt(base)<=1&&byteAt(base+17)<=1)return base;}int length=xp-1,base=length-18;if(base>=0&&byteAt(length)==0&&byteAt(base)<=1&&byteAt(base+17)<=1)return base;throw new IllegalStateException("Cat Shrine is unavailable"); }
     private int catShrineXpOffset() { return findInt(90900)-24; }
     private int catShrineDialogsOffset() { return findInt(110700)+4; }
@@ -2164,7 +2849,61 @@ public final class SaveDocument {
         throw new IllegalStateException("Storage table is unavailable");
     }
     private int enigmaStageOffset(int index) { int count=enigmaStageCount();if(index<0||index>=count)throw new IndexOutOfBoundsException();return enigmaBaseOffset()+12+index*17; }
-    private int enigmaBaseOffset() { if(enigmaBaseCache>=0)return enigmaBaseCache;int expected=afterWildcat(Offsets.offsets_109);for(int delta=0;delta<=96;delta++){int[] candidates=delta==0?new int[]{expected}:new int[]{expected+delta,expected-delta};for(int base:candidates){if(base<0||base+13>bytes.length-Offsets.offsets_130)continue;int energy1=intAt(base),energy2=intAt(base+4),level=byteAt(base+8),unknown=byteAt(base+9),flag=byteAt(base+10),count=byteAt(base+11);if(energy1<0||energy2<0||level>100||unknown!=1||flag>1||count>73)continue;int p=base+12;boolean valid=true;for(int i=0;i<count;i++){if(p+17>bytes.length-Offsets.offsets_130){valid=false;break;}int stageLevel=intAt(p),id=intAt(p+4),decoding=byteAt(p+8);if(stageLevel<0||stageLevel>1000||id<25000||id>=25073||decoding>2){valid=false;break;}p+=17;}if(valid&&p<bytes.length-Offsets.offsets_130&&byteAt(p)<=1){enigmaBaseCache=base;return base;}}}if(expected>=0&&expected+13<=bytes.length-Offsets.offsets_130){enigmaBaseCache=expected;return expected;}throw new IllegalStateException("Enigma table is unavailable"); }
+    private int enigmaBaseOffset() {
+        if (enigmaBaseCache >= 0) return enigmaBaseCache;
+        int limit = bytes.length - Offsets.offsets_130;
+        int expected = afterWildcat(Offsets.offsets_109);
+        // The sections preceding 90400 are variable-sized.  In particular,
+        // transfer-code saves can shift this table by hundreds of bytes, so
+        // the fixed offset (or a small probe around it) is not reliable.
+        int from = Math.max(0, expected - 131072), to = Math.min(limit - 13, expected + 131072);
+        int best = -1, distance = Integer.MAX_VALUE;
+        for (int base = from; base <= to; base++) {
+            int energy1 = rawIntAt(base), energy2 = rawIntAt(base + 4);
+            int level = byteAt(base + 8), unknown = byteAt(base + 9), flag = byteAt(base + 10), count = byteAt(base + 11);
+            if (energy1 < 0 || energy2 < 0 || level > 100 || unknown != 1 || flag > 1 || count > 73) continue;
+            int p = base + 12;
+            boolean valid = true;
+            for (int i = 0; i < count; i++) {
+                if (p + 17 > limit) { valid = false; break; }
+                int stageLevel = rawIntAt(p), id = rawIntAt(p + 4), decoding = byteAt(p + 8);
+                if (stageLevel < 0 || stageLevel > 1000 || id < 25000 || id >= 25073 || decoding > 2) { valid = false; break; }
+                p += 17;
+            }
+            if (!valid || p >= limit || byteAt(p) > 1) continue;
+            if (byteAt(p++) != 0) p += 17; // optional Enigma extra record
+            if (p + 2 > limit) continue;
+            int catTotal = ushortAt(p); p += 2;
+            if (catTotal > 64 || p + (long) catTotal * 35L > limit) continue;
+            p += catTotal * 35; // cleared cat lineups
+            if (p + 2 > limit) continue;
+            int stageTotal = ushortAt(p); p += 2;
+            if (stageTotal > 64) continue;
+            for (int i = 0; i < stageTotal; i++) {
+                if (p + 4 > limit) { valid = false; break; }
+                int slots = ushortAt(p + 2);
+                if (slots > 4096 || p + 4L + slots * 4L > limit) { valid = false; break; }
+                p += 4 + slots * 4;
+            }
+            if (!valid || p + 2 > limit) continue;
+            int unknownTotal = ushortAt(p); p += 2;
+            if (unknownTotal > 4096 || p + unknownTotal * 3L + 4 > limit) continue;
+            p += unknownTotal * 3;
+            if (rawIntAt(p) != 90400) continue;
+            int candidateDistance = Math.abs(base - expected);
+            if (candidateDistance < distance) { best = base; distance = candidateDistance; }
+        }
+        if (best >= 0) { enigmaBaseCache = best; return best; }
+        // Small synthetic fixtures used by unit tests predate the 90400
+        // continuation and intentionally contain only the fixed prefix.  Keep
+        // the historical estimate for those buffers; full saves above always
+        // resolve through the self-delimiting marker validation.
+        if (expected >= 0 && expected + 13 <= limit) {
+            enigmaBaseCache = expected;
+            return expected;
+        }
+        throw new IllegalStateException("Enigma table is unavailable");
+    }
     private void checkStorage(int slot) { ensureItemProfile();if(slot<0||slot>=storageCount())throw new IndexOutOfBoundsException(); }
     private void addStorageItem(int type,int id) { int slot=firstEmptyStorageSlot();if(slot<0)throw new IllegalStateException("Storage is full");setStorageItem(slot,type,id); }
     private void ensureStorageSpace(int needed) { if(storageCount()-occupiedStorageCount()<needed)throw new IllegalStateException("Storage is full"); }
@@ -2185,7 +2924,11 @@ public final class SaveDocument {
         for(int base=from;base<=to;base++){
             if(base+90>limit)continue;
             int officer=intAt(base),renewals=intAt(base+4),count=intAt(base+76);
-            if((officer!=-1&&officer<=0)||renewals<0||renewals>10000||count<0||count>10000)continue;
+            // An inactive Nyanko Club uses officer id 0 (active records use a
+            // positive id; -1 is also used by some older saves).  Reject only
+            // values below -1 so shifted transfer saves with an empty club do
+            // not get discarded before their self-delimiting talent block.
+            if(officer < -1 || renewals<0||renewals>10000||count<0||count>10000)continue;
             long tail=(long)base+80L+(long)count*8L;
             if(tail+10>limit)continue;
             int tailOffset=(int)tail;
@@ -2213,8 +2956,41 @@ public final class SaveDocument {
         throw new IllegalStateException("Gold Pass table is unavailable");
     }
     private void clearGoldPassClaims() { int countOffset=goldPassBase()+76,count=intAt(countOffset);if(count<0||count>10000)throw new IllegalStateException("Invalid Gold Pass rewards");if(count>0)splice(countOffset+4,count*8,0);putInt(countOffset,0); }
+    /** Gold Pass reset also clears the login-bonus counter for entry 5100. */
+    private void resetGoldPassLogin() {
+        try {
+            int marker = findInt(5100);
+            if (marker >= 0 && marker + 8 <= bytes.length - Offsets.offsets_130) putInt(marker + 4, 0);
+        } catch (RuntimeException ignored) { }
+    }
     private void putDouble(int offset,long value) { putLong(offset,Double.doubleToRawLongBits((double)value)); }
-    private int gamblingTableOffset(GamblingTable type) { ensureItemProfile();return type==GamblingTable.WILDCAT_SLOTS?medalBaseOffset()+medalTableLength():afterOrbs(Offsets.offsets_99); }
+    private int gamblingTableOffset(GamblingTable type) {
+        ensureItemProfile();
+        if (type == GamblingTable.WILDCAT_SLOTS) return medalBaseOffset() + medalTableLength();
+        // Cat scratcher follows a variable-length section. Anchor on its
+        // 100700 version marker and locate the valid table ending at it,
+        // rather than trusting the template offset after earlier list shifts.
+        if (scratcherBaseCache >= 0) return scratcherBaseCache;
+        int marker = -1;
+        try { marker = findInt(100700); } catch (RuntimeException ignored) { }
+        int expected = afterOrbs(Offsets.offsets_99);
+        int from = Math.max(0, marker >= 0 ? marker - 131072 : expected - 131072);
+        int to = Math.min(bytes.length - Offsets.offsets_130 - 6,
+                marker >= 0 ? marker - 6 : expected + 131072);
+        int best = -1, distance = Integer.MAX_VALUE;
+        for (int base = from; base <= to; base++) {
+            int length;
+            try { length = gamblingTableLength(base); }
+            catch (RuntimeException invalid) { continue; }
+            if (marker >= 0 && base + length != marker) continue;
+            if (marker < 0 && base + length > bytes.length - Offsets.offsets_130) continue;
+            int d = Math.abs(base - expected);
+            if (d < distance) { best = base; distance = d; }
+        }
+        if (best < 0) throw new IllegalStateException("Cat scratcher table is unavailable");
+        scratcherBaseCache = best;
+        return best;
+    }
     private int gamblingStartTableOffset(GamblingTable type) { int offset=gamblingTableOffset(type),count=ushortAt(offset);offset+=2+count*3;count=ushortAt(offset);offset+=2;for(int i=0;i<count;i++){offset+=2;int inner=ushortAt(offset);offset+=2+inner*4;}return offset; }
     private int gamblingTableLength(int base) { int offset=base,count=ushortAt(offset);if(count>1000)throw new IllegalStateException("Invalid gambling table");offset+=2+count*3;count=ushortAt(offset);if(count>1000)throw new IllegalStateException("Invalid gambling table");offset+=2;for(int i=0;i<count;i++){offset+=2;int inner=ushortAt(offset);if(inner>1000)throw new IllegalStateException("Invalid gambling table");offset+=2+inner*4;}count=ushortAt(offset);if(count>1000)throw new IllegalStateException("Invalid gambling table");offset+=2+count*6;return offset-base; }
     private int validGamblingTableLength(int base) { try{int length=gamblingTableLength(base);return base+length<=bytes.length-Offsets.offsets_130?length:-1;}catch(RuntimeException invalid){return -1;} }
@@ -2246,13 +3022,16 @@ public final class SaveDocument {
         for (int chapter = 0; chapter < chapters; chapter++) {
             if (offset + 8 > bytes.length - Offsets.offsets_130) return false;
             int id = intAt(offset), stages = intAt(offset + 4);
-            if (id < 0 || id > 1000 || id == previous || stages < 0 || stages > 100) return false;
+            // Current-outbreak chapters may be present as empty records while
+            // no outbreak is active; historical chapters always contain at
+            // least one stage.
+            if (id < 0 || id > 1000 || id <= previous || (fullTable ? stages <= 0 : stages < 0) || stages > 100) return false;
             previous = id; offset += 8;
             int previousStage = -1;
             for (int stage = 0; stage < stages; stage++) {
                 if (offset + 5 > bytes.length - Offsets.offsets_130) return false;
                 int stageId = intAt(offset), state = byteAt(offset + 4);
-                if (stageId < 0 || stageId > 1000 || stageId == previousStage || state > 1) return false;
+                if (stageId < 0 || stageId > 1000 || stageId <= previousStage || state > 1) return false;
                 previousStage = stageId; offset += 5;
             }
             totalStages += stages;
@@ -2359,7 +3138,12 @@ public final class SaveDocument {
      */
     private int challengeTableOffset(){
         int expected=afterCannons(Offsets.offsets_121),limit=bytes.length-Offsets.offsets_130;
-        int from=Math.max(0,expected-65536),to=Math.min(limit-64,expected+65536),best=-1,bestDistance=Integer.MAX_VALUE;
+        // The variable prefix in current transfer saves is bounded to a few
+        // kilobytes. Keep the hot path narrow; this method is called for
+        // every map-field access and a 128K byte probe is prohibitively slow
+        // on-device.  The structural checks below still prevent accidental
+        // matches inside unrelated data.
+        int from=Math.max(0,expected-16384),to=Math.min(limit-64,expected+16384),best=-1,bestDistance=Integer.MAX_VALUE;
         for(int base=from;base<=to;base++){
             if(base+16>limit||intAt(base)<=0||intAt(base)>64)continue;
             int chapters=intAt(base),stars=intAt(base+4);

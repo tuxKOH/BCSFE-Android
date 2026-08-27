@@ -45,9 +45,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import io.github.tuxkoh.bcsfe.core.SaveDocument;
 
 public final class MainActivity extends AppCompatActivity {
+    /** Retained for local differential tests; disabled in distributed builds. */
+    private static final boolean LOCAL_API_ENABLED = false;
     private static final String AD_LOG_TAG="BCSFE-Ad";
     private FrameLayout content;
     private TextView title;
@@ -75,6 +82,9 @@ public final class MainActivity extends AppCompatActivity {
     private View rootWriteButton;
     private boolean errorReportShowing;
     private int activeFeatureId=-1;
+    private final Object apiDocumentLock = new Object();
+    private LocalApiServer localApiServer;
+    private byte[] apiInitialCopy;
     private final class AdDiagnostics {
         @JavascriptInterface public void clickListenerAdded(){android.util.Log.d(AD_LOG_TAG,"JS registered click listener");}
         @JavascriptInterface public void touchListenerAdded(){android.util.Log.d(AD_LOG_TAG,"JS registered touch listener");}
@@ -103,6 +113,10 @@ public final class MainActivity extends AppCompatActivity {
         findViewById(R.id.aboutButton).setOnClickListener(v -> showAbout());
         if (!handleSharedIntent(getIntent())&&!restoreSession()) showHome();
         if(state==null)checkForUpdates();
+        if (LOCAL_API_ENABLED) {
+            localApiServer = new LocalApiServer(LocalApiServer.DEFAULT_PORT, this::handleLocalApi);
+            localApiServer.start();
+        }
     }
 
     private void checkForUpdates(){
@@ -248,6 +262,7 @@ public final class MainActivity extends AppCompatActivity {
         sessionId = session.id;
         document = replacement;
         workingCopy = data;
+        synchronized (apiDocumentLock) { apiInitialCopy = data.clone(); }
         openedName = name;
         accountPassword = password;
         showEditor();
@@ -444,7 +459,11 @@ public final class MainActivity extends AppCompatActivity {
                 }).show();
     }
     private boolean activityActive(){return !isFinishing()&&!isDestroyed();}
-    @Override protected void onDestroy(){networkExecutor.shutdownNow();super.onDestroy();}
+    @Override protected void onDestroy(){
+        if (localApiServer != null) localApiServer.stop();
+        networkExecutor.shutdownNow();
+        super.onDestroy();
+    }
     private void confirmUpload() {
         if (document == null || (!document.hasItemProfile() && !document.canAttemptUnsafeUpload())) { unsupportedVersion(); return; }
         if (document.canAttemptUnsafeUpload()) {
@@ -743,7 +762,7 @@ public final class MainActivity extends AppCompatActivity {
     private void editTalents(int cat) {
         List<SaveDocument.TalentValue> talents=document.catTalents(cat);if(talents.isEmpty()){Toast.makeText(this,R.string.no_talents,Toast.LENGTH_SHORT).show();return;}
         String[] rows=new String[talents.size()];for(int i=0;i<rows.length;i++)rows[i]=getString(R.string.talent_row,talents.get(i).id,talents.get(i).level);
-        new AlertDialog.Builder(this).setTitle(R.string.talents_title).setItems(rows,(d,index)->editNumberText(getString(R.string.talent_id,talents.get(index).id),talents.get(index).level,v->document.setCatTalentLevel(cat,index,v))).setNegativeButton(R.string.close,null).show();
+        new AlertDialog.Builder(this).setTitle(R.string.talents_title).setItems(rows,(d,index)->editNumberText(getString(R.string.talent_id,talents.get(index).id),talents.get(index).level,v->document.setCatTalentLevelById(cat,talents.get(index).id,v))).setNegativeButton(R.string.close,null).show();
     }
     private void editSpecialSkills() {
         String[] names=getResources().getStringArray(R.array.special_skill_names);String[] rows=new String[document.specialSkillCount()];for(int i=0;i<rows.length;i++)rows[i]=getString(R.string.special_skill_row,names[i],i+1,document.specialSkillBaseLevel(i),document.specialSkillPlusLevel(i));
@@ -1077,14 +1096,14 @@ public final class MainActivity extends AppCompatActivity {
         refreshSessionList();
     }
     private void refreshSessionList(){try{List<SessionStore.Session> sessions=sessionStore.list();String[] rows=new String[sessions.size()];for(int i=0;i<rows.length;i++)rows[i]=sessions.get(i).name+(sessions.get(i).id.equals(sessionId)?getString(R.string.current_suffix):"");sessionList.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,rows));}catch(Exception ignored){sessionList.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,new String[0]));}}
-    private void openSession(SessionStore.Session session)throws Exception{if(document!=null&&!persistSession(true))return;SaveDocument replacement=SaveDocument.open(session.save);sessionStore.setCurrent(session.id);sessionId=session.id;document=replacement;workingCopy=session.save;openedName=session.name;accountPassword=session.password;showEditor();refreshSessionList();}
+    private void openSession(SessionStore.Session session)throws Exception{if(document!=null&&!persistSession(true))return;SaveDocument replacement=SaveDocument.open(session.save);sessionStore.setCurrent(session.id);sessionId=session.id;document=replacement;workingCopy=session.save;synchronized(apiDocumentLock){apiInitialCopy=workingCopy.clone();}openedName=session.name;accountPassword=session.password;showEditor();refreshSessionList();}
     private void showSessionActions(SessionStore.Session session){String[] actions={getString(R.string.rename_session),getString(R.string.delete_session)};new AlertDialog.Builder(this).setTitle(session.name).setItems(actions,(d,i)->{if(i==0)renameSession(session);else deleteSession(session);}).setNegativeButton(R.string.close,null).show();}
     private void renameSession(SessionStore.Session session){EditText field=new EditText(this);field.setSingleLine(true);field.setText(session.name);new AlertDialog.Builder(this).setTitle(R.string.rename_session).setView(field).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{try{sessionStore.rename(session.id,field.getText().toString());SessionStore.Session renamed=sessionStore.load(session.id);if(session.id.equals(sessionId)&&renamed!=null){openedName=renamed.name;title.setText(openedName);}refreshSessionList();}catch(Exception error){Toast.makeText(this,R.string.session_save_failed,Toast.LENGTH_LONG).show();}}).show();}
     private void deleteSession(SessionStore.Session session){new AlertDialog.Builder(this).setTitle(R.string.delete_session).setMessage(R.string.delete_session_confirm).setNegativeButton(R.string.close,null).setPositiveButton(R.string.delete_session,(d,w)->{try{boolean current=session.id.equals(sessionId);sessionStore.delete(session.id);if(current){sessionId=null;document=null;workingCopy=null;openedName=null;accountPassword=null;SessionStore.Session next=sessionStore.load();if(next==null)showHome();else openSession(next);}refreshSessionList();}catch(Exception error){Toast.makeText(this,R.string.session_discard_failed,Toast.LENGTH_LONG).show();}}).show();}
     private boolean persistSession() { return persistSession(false,null); }
     private boolean persistSession(boolean reportFailure) { return persistSession(reportFailure,null); }
     private boolean persistSession(boolean reportFailure,String historyLabel) { if(document==null)return true;try{workingCopy=document.toBytes();if(sessionId==null){SessionStore.Session session=sessionStore.create(workingCopy,openedName,accountPassword);sessionId=session.id;}else sessionStore.save(sessionId,workingCopy,openedName,accountPassword,stableHistoryLabel(historyLabel));refreshSessionList();return true;}catch(Exception error){if(reportFailure){reportError("session-save",error,workingCopy);Toast.makeText(this,R.string.session_save_failed,Toast.LENGTH_LONG).show();}return false;} }
-    private boolean restoreSession() { try { SessionStore.Session session=sessionStore.load();if(session==null)return false;sessionId=session.id;workingCopy=session.save;document=SaveDocument.open(workingCopy);openedName=session.name;accountPassword=session.password;showEditor();refreshSessionList();Toast.makeText(this,R.string.session_restored,Toast.LENGTH_SHORT).show();return true;}catch(Exception e){reportError("session-restore",e,workingCopy);return false;} }
+    private boolean restoreSession() { try { SessionStore.Session session=sessionStore.load();if(session==null)return false;sessionId=session.id;workingCopy=session.save;document=SaveDocument.open(workingCopy);synchronized(apiDocumentLock){apiInitialCopy=workingCopy.clone();}openedName=session.name;accountPassword=session.password;showEditor();refreshSessionList();Toast.makeText(this,R.string.session_restored,Toast.LENGTH_SHORT).show();return true;}catch(Exception e){reportError("session-restore",e,workingCopy);return false;} }
     private void confirmExit() { new AlertDialog.Builder(this).setTitle(R.string.exit_confirm_title).setMessage(R.string.exit_confirm_message).setNegativeButton(R.string.close,null).setPositiveButton(R.string.exit_keep,(d,w)->{if(persistSession(true))finishAndRemoveTask();}).setNeutralButton(R.string.discard_session,(d,w)->confirmDiscard()).show(); }
     private void confirmDiscard() { new AlertDialog.Builder(this).setTitle(R.string.discard_session).setMessage(R.string.discard_confirm).setNegativeButton(R.string.close,null).setPositiveButton(R.string.discard_session,(d,w)->{try{if(sessionId!=null)sessionStore.delete(sessionId);sessionId=null;document=null;workingCopy=null;openedName=null;accountPassword=null;SessionStore.Session next=sessionStore.load();if(next==null)showHome();else openSession(next);refreshSessionList();}catch(Exception error){Toast.makeText(this,R.string.session_discard_failed,Toast.LENGTH_LONG).show();}}).show(); }
     private View inflate(int layout) { content.removeAllViews(); View v = LayoutInflater.from(this).inflate(layout, content, false);v.setAlpha(0f);v.setTranslationY(dp(12));content.addView(v);v.animate().alpha(1f).translationY(0f).setDuration(200).start();return v; }
@@ -1107,4 +1126,174 @@ public final class MainActivity extends AppCompatActivity {
         else super.onBackPressed();
     }
     @Override protected void onPause() { persistSession(); super.onPause(); }
+
+    /** Handles the optional loopback API used for deterministic editor testing and automation. */
+    private LocalApiServer.Response handleLocalApi(String method, String target,
+                                                   java.util.Map<String, String> headers, byte[] body) {
+        try {
+            String path = target;
+            int queryAt = path.indexOf('?');
+            String query = queryAt < 0 ? "" : path.substring(queryAt + 1);
+            if (queryAt >= 0) path = path.substring(0, queryAt);
+            if ("GET".equalsIgnoreCase(method) && "/status".equals(path)) return apiStatus();
+            if ("GET".equalsIgnoreCase(method) && "/export".equals(path)) return apiExport();
+            if ("POST".equalsIgnoreCase(method) && "/import".equals(path)) return apiImport(body, query);
+            if ("POST".equalsIgnoreCase(method) && "/edit".equals(path)) return apiEdit(body);
+            if ("POST".equalsIgnoreCase(method) && "/reset".equals(path)) return apiReset();
+            return LocalApiServer.Response.text(404, "{\"error\":\"unknown endpoint\"}");
+        } catch (Exception error) {
+            JSONObject result = new JSONObject();
+            try { result.put("error", error.getMessage() == null ? error.getClass().getSimpleName() : error.getMessage()); }
+            catch (Exception ignored) { }
+            return LocalApiServer.Response.text(400, result.toString());
+        }
+    }
+
+    private LocalApiServer.Response apiStatus() {
+        synchronized (apiDocumentLock) {
+            JSONObject result = new JSONObject();
+            try {
+                result.put("loopbackOnly", true);
+                result.put("port", LocalApiServer.DEFAULT_PORT);
+                result.put("loaded", document != null);
+                if (document != null) {
+                    byte[] data = document.toBytes();
+                    result.put("region", document.region().code());
+                    result.put("gameVersion", document.gameVersion());
+                    result.put("length", data.length);
+                    result.put("sha256", hex(MessageDigest.getInstance("SHA-256").digest(data)));
+                    result.put("checksumValid", !document.needsUnsupportedImportWarning() || document.isOfficiallySupportedVersion());
+                }
+            } catch (Exception error) {
+                try { result.put("error", error.getMessage()); } catch (Exception ignored) { }
+            }
+            return LocalApiServer.Response.text(200, result.toString());
+        }
+    }
+
+    private LocalApiServer.Response apiExport() {
+        synchronized (apiDocumentLock) {
+            if (document == null) return LocalApiServer.Response.text(404, "{\"error\":\"no save loaded\"}");
+            return new LocalApiServer.Response(200, "application/octet-stream", document.toBytes());
+        }
+    }
+
+    private LocalApiServer.Response apiImport(byte[] source, String query) throws Exception {
+        if (source == null || source.length == 0) throw new IllegalArgumentException("empty save");
+        SaveDocument.Region hint = null;
+        for (String part : query.split("&")) {
+            if (part.startsWith("region=")) hint = SaveDocument.Region.fromCode(part.substring(7));
+        }
+        SaveDocument replacement;
+        try { replacement = SaveDocument.open(source); }
+        catch (IllegalArgumentException unsupported) { replacement = SaveDocument.openForInspection(source, hint); }
+        synchronized (apiDocumentLock) {
+            document = replacement;
+            workingCopy = replacement.toBytes();
+            apiInitialCopy = workingCopy.clone();
+            openedName = "API_IMPORT.save";
+            accountPassword = null;
+            persistApiSession();
+        }
+        // The loopback API is also used for high-volume differential tests.
+        // Do not enqueue a full editor re-inflation for every import: doing so
+        // floods the main thread and retains a large number of transient view
+        // hierarchies while callers are only interested in the byte buffer.
+        // The normal UI import path still calls showEditor() directly.
+        return apiStatus();
+    }
+
+    private LocalApiServer.Response apiReset() throws Exception {
+        synchronized (apiDocumentLock) {
+            if (apiInitialCopy == null) return LocalApiServer.Response.text(404, "{\"error\":\"no reset snapshot\"}");
+            try { document = SaveDocument.open(apiInitialCopy); }
+            catch (IllegalArgumentException unsupported) {
+                document = SaveDocument.openForInspection(apiInitialCopy, document == null ? null : document.region());
+            }
+            workingCopy = document.toBytes();
+            persistApiSession();
+        }
+        return apiStatus();
+    }
+
+    private LocalApiServer.Response apiEdit(byte[] body) throws Exception {
+        JSONObject request = new JSONObject(new String(body, java.nio.charset.StandardCharsets.UTF_8));
+        String operation = request.optString("op", request.optString("method", ""));
+        if (operation.isEmpty()) throw new IllegalArgumentException("missing op");
+        synchronized (apiDocumentLock) {
+            if (document == null) throw new IllegalStateException("no save loaded");
+            Object result = invokeApiOperation(operation, request);
+            workingCopy = document.toBytes();
+            persistApiSession();
+            JSONObject response = new JSONObject();
+            response.put("ok", true);
+            response.put("op", operation);
+            response.put("length", workingCopy.length);
+            response.put("sha256", hex(MessageDigest.getInstance("SHA-256").digest(workingCopy)));
+            if (result != null) response.put("result", result);
+            return LocalApiServer.Response.text(200, response.toString());
+        }
+    }
+
+    private void persistApiSession() throws Exception {
+        if (sessionId == null) {
+            SessionStore.Session session = sessionStore.create(workingCopy, openedName, accountPassword);
+            sessionId = session.id;
+        } else {
+            // API differential runs can apply hundreds of edits in one
+            // process.  Do not append a half-megabyte history snapshot for
+            // every machine-generated request; interactive UI saves still
+            // use persistSession(...) and retain their normal history.
+            sessionStore.save(sessionId, workingCopy, openedName, accountPassword);
+        }
+    }
+
+    private Object invokeApiOperation(String name, JSONObject request) throws Exception {
+        if (!name.matches("(?i)(set|clear|unlock|add|remove|reset|grant|convert|fix|max|force|enable|trade|buy)[A-Za-z0-9_]*"))
+            throw new IllegalArgumentException("operation is not editable");
+        JSONArray supplied = request.optJSONArray("args");
+        Method[] methods = SaveDocument.class.getMethods();
+        for (Method method : methods) {
+            if (!method.getName().equals(name) || !Modifier.isPublic(method.getModifiers())) continue;
+            Class<?>[] types = method.getParameterTypes();
+            JSONArray args = supplied;
+            if (args == null) {
+                args = new JSONArray();
+                if (types.length == 1) args.put(request.has("value") ? request.get("value") : request.opt("enabled"));
+                else if (types.length != 0) continue;
+            }
+            if (args.length() != types.length) continue;
+            Object[] converted = new Object[types.length];
+            try {
+                for (int i = 0; i < types.length; i++) converted[i] = convertApiArgument(args.get(i), types[i]);
+                return method.invoke(document, converted);
+            } catch (IllegalArgumentException ignored) { }
+            catch (InvocationTargetException target) {
+                Throwable cause = target.getCause();
+                if (cause instanceof Exception) throw (Exception) cause;
+                throw target;
+            }
+        }
+        throw new IllegalArgumentException("unknown operation or arguments: " + name);
+    }
+
+    private static Object convertApiArgument(Object value, Class<?> type) {
+        if (type.isArray()) {
+            if (!(value instanceof JSONArray)) throw new IllegalArgumentException("array argument required");
+            JSONArray array = (JSONArray) value;
+            Class<?> component = type.getComponentType();
+            Object converted = java.lang.reflect.Array.newInstance(component, array.length());
+            for (int i = 0; i < array.length(); i++) {
+                java.lang.reflect.Array.set(converted, i, convertApiArgument(array.opt(i), component));
+            }
+            return converted;
+        }
+        if (type == int.class || type == Integer.class) return ((Number) value).intValue();
+        if (type == long.class || type == Long.class) return ((Number) value).longValue();
+        if (type == double.class || type == Double.class) return ((Number) value).doubleValue();
+        if (type == boolean.class || type == Boolean.class) return (Boolean) value;
+        if (type == String.class) return String.valueOf(value);
+        if (type.isEnum()) return Enum.valueOf((Class) type, String.valueOf(value).toUpperCase(Locale.ROOT));
+        throw new IllegalArgumentException("unsupported argument type");
+    }
 }

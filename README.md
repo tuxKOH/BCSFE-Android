@@ -50,6 +50,36 @@ gradle assembleDebug
 
 The project requires Android SDK 34 or newer and Java 17.
 
+## Local automation API (development only)
+
+The loopback API used by the differential test harness is retained in the
+source but disabled in distributed builds. To run local API tests, temporarily
+set `LOCAL_API_ENABLED` to `true` in `MainActivity`; it listens only on
+`127.0.0.1:8765`. With an emulator, forward a host port:
+
+```sh
+adb forward tcp:18765 tcp:8765
+curl http://127.0.0.1:18765/status
+curl -X POST -H 'Content-Type: application/json' \\
+  -d '{"op":"setXp","value":5678}' \\
+  http://127.0.0.1:18765/edit
+curl http://127.0.0.1:18765/export -o edited.save
+```
+
+Use `POST /import` with `--data-binary @save` to load a save, `POST /reset` to
+restore the import snapshot, and `POST /edit` with an `args` array for methods
+that take multiple arguments (for example `{"op":"setLineupCat","args":[0,0,12]}`).
+
+For a one-command upstream differential run (build, install, start the loopback
+API, and compare SHA256), use:
+
+```sh
+./tools/run_api_diff.sh issues/issue /path/to/another.save
+```
+
+Compact reports are written to `artifacts/api-diff/`; exported save copies are
+removed after each comparison.
+
 ## Verification status
 
 - JVM tests cover region checksums, persistent sessions, item/cat/account
