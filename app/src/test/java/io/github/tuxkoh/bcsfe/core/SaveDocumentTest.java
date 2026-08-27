@@ -1219,13 +1219,13 @@ public class SaveDocumentTest {
 
     @Test public void bulkCatLevelsKeepRankLimitsAndResetDoesNotRelockThenRelock() throws Exception {
         byte[] original=java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
-        SaveDocument levels=SaveDocument.open(original);levels.setAllCatBaseLevels(1);byte[] levelBytes=levels.toBytes();
+        SaveDocument levels=SaveDocument.open(original);levels.setCatUnlocked(9,true);levels.setCatUnlocked(34,true);levels.setAllCatBaseLevels(1);byte[] levelBytes=levels.toBytes();
         assertEquals(0,littleUshort(levelBytes,Offsets.offsets_62));
         assertEquals(GameDataRules.catRankLimitBase(9,id->true),littleUshort(levelBytes,Offsets.offsets_62+9*4));
         assertEquals(GameDataRules.catRankLimitBase(34,id->true),littleUshort(levelBytes,Offsets.offsets_62+34*4));
         assertEquals(0,littleInt(levelBytes,Offsets.offsets_63+9*4));
         assertEquals(0,littleInt(levelBytes,Offsets.offsets_63+34*4));
-        SaveDocument high=SaveDocument.open(original);high.setAllCatBaseLevels(50);byte[] highBytes=high.toBytes();
+        SaveDocument high=SaveDocument.open(original);high.setCatUnlocked(9,true);high.setCatUnlocked(34,true);high.setAllCatBaseLevels(50);byte[] highBytes=high.toBytes();
         assertEquals(30,littleUshort(highBytes,Offsets.offsets_62+9*4));assertEquals(20,littleInt(highBytes,Offsets.offsets_63+9*4));
         assertEquals(30,littleUshort(highBytes,Offsets.offsets_62+34*4));assertEquals(20,littleInt(highBytes,Offsets.offsets_63+34*4));
 
@@ -1233,6 +1233,16 @@ public class SaveDocumentTest {
         assertFalse(reset.catUnlocked(9));assertEquals(0,littleInt(reset.toBytes(),Offsets.offsets_58+9*4));
         for(SaveDocument.TalentValue talent:reset.catTalents(9))assertEquals(0,talent.level);
         assertTrue(reset.checksumValid());
+    }
+
+    @Test public void bulkCatActionsDoNotCreateNewUnlockedCats() throws Exception {
+        byte[] original=java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
+        SaveDocument d=SaveDocument.open(original);d.removeAllCats();
+        d.setAllCatBaseLevels(60);for(int i=0;i<d.catCount();i++)assertFalse(d.catUnlocked(i));
+        d.setAllCatPlusLevels(90);for(int i=0;i<d.catCount();i++)assertFalse(d.catUnlocked(i));
+        d.unlockTrueForms();for(int i=0;i<d.catCount();i++)assertFalse(d.catUnlocked(i));
+        d.unlockFourthForms();for(int i=0;i<d.catCount();i++)assertFalse(d.catUnlocked(i));
+        assertTrue(d.checksumValid());
     }
 
     @Test public void bulkStoryOperationsUseDirectUpstreamStageFields() throws Exception {

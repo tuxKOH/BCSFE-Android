@@ -815,6 +815,7 @@ public final class SaveDocument {
         ensureCatProfile();
         if (value < 1 || value > 60) throw new IllegalArgumentException("Invalid cat base level");
         for (int i = 0; i < catCount(); i++) {
+            if (!catUnlocked(i)) continue;
             applyCatBaseUpgrade(i,Math.min(value,GameDataRules.catMaxBase(i)),false);
             // The upstream multi-cat editor constructs Upgrade(0, target)
             // and passes it to Cat.set_upgrade(..., only_plus=True).  The
@@ -891,7 +892,7 @@ public final class SaveDocument {
             bytes[co] = (byte)catseyes; bytes[co + 1] = (byte)(catseyes >>> 8);
             bytes[co + 2] = (byte)(catseyes >>> 16); bytes[co + 3] = (byte)(catseyes >>> 24);
     }
-    public void setAllCatPlusLevels(int value) { ensureCatProfile();if(value<0||value>90)throw new IllegalArgumentException("Invalid cat plus level");CatLayout l=catLayout();for(int i=0;i<l.count;i++){unlockCatForPlusUpgrade(i);putShort(l.upgradeStart+i*4,value);}refreshHash(); }
+    public void setAllCatPlusLevels(int value) { ensureCatProfile();if(value<0||value>90)throw new IllegalArgumentException("Invalid cat plus level");CatLayout l=catLayout();for(int i=0;i<l.count;i++){if(!catUnlocked(i))continue;unlockCatForPlusUpgrade(i);putShort(l.upgradeStart+i*4,value);}refreshHash(); }
     public void maxAllCatTalents() {
         ensureItemProfile();
         int table=talentTableOffset(),records=intAt(table),offset=table+4;
@@ -1168,6 +1169,7 @@ public final class SaveDocument {
     private void setTrueForms(boolean force) {
         ensureCatProfile();CatLayout l=catLayout();
         for(int i=0;i<l.count;i++){
+            if(!force&&!catUnlocked(i)) continue;
             int forms=GameDataRules.totalForms(region,gameVersion(),i);
             if(force){
                 unlockCatRaw(i);putFormValue(i,3);putInt(l.currentFormStart+i*4,2);
@@ -1187,6 +1189,7 @@ public final class SaveDocument {
     private void setFourthForms(boolean force) {
         ensureCatProfile();CatLayout l=catLayout();
         for(int i=0;i<l.count;i++){
+            if(!force&&!catUnlocked(i)) continue;
             int forms=GameDataRules.totalForms(region,gameVersion(),i);
             if(force){
                 unlockCatRaw(i);putFormValue(i,3);putInt(l.currentFormStart+i*4,3);putInt(l.fourthStart+i*4,2);
