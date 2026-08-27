@@ -804,13 +804,26 @@ public final class MainActivity extends AppCompatActivity {
         }).setNegativeButton(R.string.close,null).show();
     }
     private void editTreasuresAndAku() {
+        reloadTreasureDocument();
         String[] actions=getResources().getStringArray(R.array.treasure_aku_actions);
         new AlertDialog.Builder(this).setTitle(R.string.treasure_aku_title).setItems(actions,(d,choice)->runFieldAction(()->{
             if(choice<2)chooseStoryChapter(chapter->{
-                if(choice==0)requestIndex(R.string.stage_id_label,document.storyStageCount(),stage->chooseTreasureGrade(document.storyTreasure(chapter,stage),v->{document.setStoryTreasure(chapter,stage,v);persistApplied();}));
-                else chooseTreasureGrade(3,v->{document.setStoryChapterTreasures(chapter,v);persistApplied();});
+                if(choice==0)requestIndex(R.string.stage_id_label,document.storyStageCount(),stage->chooseTreasureGrade(document.storyTreasure(chapter,stage),v->document.setStoryTreasure(chapter,stage,v)));
+                else chooseTreasureGrade(3,v->document.setStoryChapterTreasures(chapter,v));
             }); else if(choice==2){for(int chapter=0;chapter<document.storyChapterCount();chapter++)document.setStoryChapterTreasures(chapter,3);persistApplied();}else if(choice==3)editOutbreaks();else if(choice==4){document.unlockAkuRealm();persistApplied();}else editAkuProgress();
         })).setNegativeButton(R.string.close,null).show();
+    }
+    private void reloadTreasureDocument() {
+        if(document==null||workingCopy==null)return;
+        try {
+            if(sessionId!=null){
+                SessionStore.Session latest=sessionStore.load(sessionId);
+                if(latest!=null){workingCopy=latest.save;document=SaveDocument.open(workingCopy);return;}
+            }
+            document=SaveDocument.open(workingCopy);
+        }
+        catch (RuntimeException error) { showFieldError(error); }
+        catch (Exception error) { showFieldError(error); }
     }
     private void chooseTreasureGrade(int current, NumberChange change) {
         String[] grades=getResources().getStringArray(R.array.treasure_grades);
