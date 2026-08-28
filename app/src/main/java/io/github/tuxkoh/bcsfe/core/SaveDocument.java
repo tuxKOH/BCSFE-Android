@@ -774,8 +774,11 @@ public final class SaveDocument {
         ensureCatProfile();
         CatLayout l=catLayout();
         for (int i=0;i<l.count;i++) {
-            if (value) unlockCatRaw(i);
-            bytes[l.guideStart+i]=(byte)(value?1:0);
+            // Claiming the cat guide reward must not implicitly obtain cats.
+            // The UI's bulk action represents the currently owned roster;
+            // preserve unowned/placeholder entries exactly as-is.
+            if (value && catUnlocked(i)) bytes[l.guideStart+i]=(byte)1;
+            else if (!value) bytes[l.guideStart+i]=0;
         }
         refreshHash();
     }

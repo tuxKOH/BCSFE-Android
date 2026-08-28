@@ -1245,6 +1245,14 @@ public class SaveDocumentTest {
         assertTrue(d.checksumValid());
     }
 
+    @Test public void bulkCatGuideClaimDoesNotCreateNewUnlockedCats() throws Exception {
+        byte[] original=java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
+        SaveDocument d=SaveDocument.open(original);d.removeAllCats();
+        d.setAllCatGuideCollected(true);
+        for(int i=0;i<d.catCount();i++){assertFalse(d.catUnlocked(i));assertFalse(d.catGuideCollected(i));}
+        assertTrue(d.checksumValid());
+    }
+
     @Test public void bulkStoryOperationsUseDirectUpstreamStageFields() throws Exception {
         byte[] original=java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
         SaveDocument d=SaveDocument.open(original);d.setStoryTreasure(3,0,3);byte[] treasure=d.toBytes();int rawChapter=4;
