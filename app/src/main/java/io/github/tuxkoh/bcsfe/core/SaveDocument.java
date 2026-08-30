@@ -814,6 +814,12 @@ public final class SaveDocument {
         }
         throw new IndexOutOfBoundsException();
     }
+    public void maxCatTalents(int catIndex) {
+        checkCat(catIndex); int[] record=talentRecord(catIndex); boolean available=false;
+        for(int i=0;i<record[1];i++) { int max=GameDataRules.talentMaxLevel(catIndex,intAt(record[0]+i*8)); if(max>0){putInt(record[0]+i*8+4,max);available=true;} }
+        if(available) unlockCatRaw(catIndex);
+        refreshHash();
+    }
     public void setAllCatBaseLevels(int value) {
         ensureCatProfile();
         if (value < 1 || value > 60) throw new IllegalArgumentException("Invalid cat base level");

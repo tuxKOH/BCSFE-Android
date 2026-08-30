@@ -754,6 +754,23 @@ public class SaveDocumentTest {
         assertTrue(reopened.checksumValid());
     }
 
+    @Test public void singleCatTalentMaxActionSetsEveryAvailableTalent() throws Exception {
+        byte[] source = java.nio.file.Files.readAllBytes(
+                java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
+        SaveDocument document = SaveDocument.open(source);
+        int cat = 9;
+        java.util.List<SaveDocument.TalentValue> before = document.catTalents(cat);
+        Assume.assumeTrue(!before.isEmpty());
+        document.setCatUnlocked(cat, false);
+        document.maxCatTalents(cat);
+        SaveDocument reopened = SaveDocument.open(document.toBytes());
+        assertTrue(reopened.catUnlocked(cat));
+        for (SaveDocument.TalentValue talent : reopened.catTalents(cat)) {
+            assertEquals(talent.maxLevel, talent.level);
+        }
+        assertTrue(reopened.checksumValid());
+    }
+
     @Test public void verifiedTwProfileEditsStoryAkuAndMissions() throws Exception {
         byte[] bytes=fixture(SaveDocument.Region.TW,5,507008);
         putInt(bytes,415665,1);putInt(bytes,415669,42);putInt(bytes,415673,0);

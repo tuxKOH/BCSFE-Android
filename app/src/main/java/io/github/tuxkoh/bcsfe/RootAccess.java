@@ -101,14 +101,19 @@ final class RootAccess {
     }
 
     static byte[] readSave(SaveDocument.Region region) throws IOException {
-        Log.i(TAG, "readSave start region=" + region.code());
-        String primary = shellQuote(savePath(region));
-        String alternate = shellQuote(alternateGameHome(region) + "/files/SAVE_DATA");
-        String mirror = shellQuote(mirrorGameHome(region) + "/files/SAVE_DATA");
+        return readSave(packageName(region));
+    }
+
+    static byte[] readSave(String packageName) throws IOException {
+        validatePackageName(packageName);
+        Log.i(TAG, "readSave start package=" + packageName);
+        String primary = shellQuote(savePath(packageName));
+        String alternate = shellQuote(alternateGameHome(packageName) + "/files/SAVE_DATA");
+        String mirror = shellQuote(mirrorGameHome(packageName) + "/files/SAVE_DATA");
         CommandResult result = rootCommand("if [ -f " + primary + " ]; then cat " + primary
                 + "; elif [ -f " + alternate + " ]; then cat " + alternate
                 + "; else cat " + mirror + "; fi", null, 15);
-        Log.i(TAG, "readSave result region=" + region.code() + " exit=" + result.exitCode
+        Log.i(TAG, "readSave result package=" + packageName + " exit=" + result.exitCode
                 + " bytes=" + result.stdout.length + " stderrBytes=" + result.stderr.length
                 + diagnostic(result));
         if (result.exitCode != 0 || result.stdout.length == 0) throw new IOException("game save unavailable");
@@ -116,11 +121,16 @@ final class RootAccess {
     }
 
     static void writeSave(SaveDocument.Region region, byte[] save) throws IOException {
+        writeSave(packageName(region), save);
+    }
+
+    static void writeSave(String packageName, byte[] save) throws IOException {
+        validatePackageName(packageName);
         if (save == null || save.length == 0) throw new IOException("empty save");
-        Log.i(TAG, "writeSave start region=" + region.code() + " bytes=" + save.length);
-        String primaryHome = shellQuote(gameHome(region));
-        String alternateHome = shellQuote(alternateGameHome(region));
-        String mirrorHome = shellQuote(mirrorGameHome(region));
+        Log.i(TAG, "writeSave start package=" + packageName + " bytes=" + save.length);
+        String primaryHome = shellQuote(gameHome(packageName));
+        String alternateHome = shellQuote(alternateGameHome(packageName));
+        String mirrorHome = shellQuote(mirrorGameHome(packageName));
         String script = "if [ -d " + primaryHome + " ]; then home=" + primaryHome
                 + "; elif [ -d " + alternateHome + " ]; then home=" + alternateHome
                 + "; else home=" + mirrorHome + "; fi"
@@ -131,26 +141,35 @@ final class RootAccess {
                 + "; if [ -d \"$cache\" ]; then find \"$cache\" -maxdepth 1 -type f -name '*.json' -delete; fi"
                 + "; cat > \"$path\"; chmod 600 \"$path\"; if [ \"$uid\" != -1 ] && [ \"$gid\" != -1 ]; then chown \"$uid:$gid\" \"$path\"; fi";
         CommandResult result = rootCommand(script, save, 20);
-        Log.i(TAG, "writeSave result region=" + region.code() + " exit=" + result.exitCode
+        Log.i(TAG, "writeSave result package=" + packageName + " exit=" + result.exitCode
                 + " stdoutBytes=" + result.stdout.length + " stderrBytes=" + result.stderr.length
                 + diagnostic(result));
         if (result.exitCode != 0) throw new IOException("game save write failed");
     }
 
     static String gameHome(SaveDocument.Region region) {
-        return "/data/data/jp.co.ponos." + region.packageSuffix();
+        return gameHome(packageName(region));
     }
 
     private static String savePath(SaveDocument.Region region) {
-        return gameHome(region) + "/files/SAVE_DATA";
+        return savePath(packageName(region));
     }
 
     private static String alternateGameHome(SaveDocument.Region region) {
-        return "/data/user/0/jp.co.ponos." + region.packageSuffix();
+        return alternateGameHome(packageName(region));
     }
 
     private static String mirrorGameHome(SaveDocument.Region region) {
-        return "/data_mirror/data_ce/null/0/jp.co.ponos." + region.packageSuffix();
+        return mirrorGameHome(packageName(region));
+    }
+
+    private static String packageName(SaveDocument.Region region) { return "jp.co.ponos." + region.packageSuffix(); }
+    private static String gameHome(String packageName) { return "/data/data/" + packageName; }
+    private static String savePath(String packageName) { return gameHome(packageName) + "/files/SAVE_DATA"; }
+    private static String alternateGameHome(String packageName) { return "/data/user/0/" + packageName; }
+    private static String mirrorGameHome(String packageName) { return "/data_mirror/data_ce/null/0/" + packageName; }
+    private static void validatePackageName(String packageName) throws IOException {
+        if (packageName == null || !packageName.matches("[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+")) throw new IOException("invalid package name");
     }
 
     private static String shellQuote(String value) {

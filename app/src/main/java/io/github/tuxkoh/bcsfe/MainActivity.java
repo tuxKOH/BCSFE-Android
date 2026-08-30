@@ -80,6 +80,7 @@ public final class MainActivity extends AppCompatActivity {
     private boolean rootCheckRunning;
     private View rootLoadButton;
     private View rootWriteButton;
+    private String rootWritePackage;
     private boolean errorReportShowing;
     private int activeFeatureId=-1;
     private final Object apiDocumentLock = new Object();
@@ -283,7 +284,7 @@ public final class MainActivity extends AppCompatActivity {
                     } else if (!installed.isEmpty()) {
                         chooseCreateForInstalledRegion(installed);
                     } else {
-                        Toast.makeText(this, R.string.root_no_any_game, Toast.LENGTH_LONG).show();
+                        chooseCustomPackageOnly();
                     }
                 });
             } catch (Exception error) {
@@ -294,25 +295,45 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     private void chooseLocalRegion(List<SaveDocument.Region> regions) {
-        String[] labels = new String[regions.size()];
-        for (int i = 0; i < labels.length; i++) labels[i] = regionDisplay(regions.get(i));
-        new AlertDialog.Builder(this).setTitle(R.string.root_choose_game).setItems(labels, (dialog, which) -> loadLocalSave(regions.get(which)))
+        String[] labels = new String[regions.size()+1];
+        for (int i = 0; i < regions.size(); i++) labels[i] = regionDisplay(regions.get(i));
+        labels[regions.size()] = getString(R.string.root_custom_package);
+        new AlertDialog.Builder(this).setTitle(R.string.root_choose_game).setItems(labels, (dialog, which) -> {
+            if (which < regions.size()) loadLocalSave(regions.get(which)); else requestCustomPackage(false);
+        })
                 .setNegativeButton(R.string.close, null).show();
     }
 
     private void chooseCreateForInstalledRegion(List<SaveDocument.Region> regions) {
-        String[] labels = new String[regions.size()];
-        for (int i = 0; i < labels.length; i++) labels[i] = regionDisplay(regions.get(i));
-        new AlertDialog.Builder(this).setTitle(R.string.root_no_save).setItems(labels, (dialog, which) -> createNewSave(regions.get(which), labels[which]))
+        String[] labels = new String[regions.size()+1];
+        for (int i = 0; i < regions.size(); i++) labels[i] = regionDisplay(regions.get(i));
+        labels[regions.size()]=getString(R.string.root_custom_package);
+        new AlertDialog.Builder(this).setTitle(R.string.root_no_save).setItems(labels, (dialog, which) -> {
+            if(which<regions.size())createNewSave(regions.get(which), labels[which]); else requestCustomPackage(false);
+        })
                 .setNegativeButton(R.string.close, null).show();
     }
 
+    private void chooseCustomPackageOnly() {
+        new AlertDialog.Builder(this).setTitle(R.string.root_choose_game)
+                .setItems(new String[]{getString(R.string.root_custom_package)}, (dialog, which) -> requestCustomPackage(false))
+                .setNegativeButton(R.string.close,null).show();
+    }
+
     private void loadLocalSave(SaveDocument.Region region) {
+        loadLocalSave("jp.co.ponos." + region.packageSuffix(), regionDisplay(region), region);
+    }
+
+    private void loadLocalSave(String packageName, String displayName) {
+        loadLocalSave(packageName, displayName, null);
+    }
+
+    private void loadLocalSave(String packageName, String displayName, SaveDocument.Region region) {
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
-                byte[] data = RootAccess.readSave(region);
+                byte[] data = RootAccess.readSave(packageName);
                 runOnUiThread(() -> {
-                    try { openImportedBytes(data, "SAVE_DATA (" + regionDisplay(region) + ")", null, region, R.string.root_load_failed); Toast.makeText(this, R.string.root_load_success, Toast.LENGTH_SHORT).show(); }
+                    try { openImportedBytes(data, "SAVE_DATA (" + displayName + ")", null, region, R.string.root_load_failed); Toast.makeText(this, R.string.root_load_success, Toast.LENGTH_SHORT).show(); }
                     catch (Exception error) { reportError("root-save-parse", error, data); Toast.makeText(this, R.string.root_load_failed, Toast.LENGTH_LONG).show(); }
                 });
             } catch (Exception error) {
@@ -320,6 +341,23 @@ public final class MainActivity extends AppCompatActivity {
                 runOnUiThread(() -> Toast.makeText(this, R.string.root_load_failed, Toast.LENGTH_LONG).show());
             }
         });
+    }
+
+    private void requestCustomPackage(boolean writing) {
+        EditText field=new EditText(this);field.setSingleLine(true);field.setHint(R.string.root_custom_package_hint);
+        new AlertDialog.Builder(this).setTitle(R.string.root_custom_package).setView(field)
+                .setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{
+                    String packageName=field.getText().toString().trim();
+                    if(!packageName.matches("[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+")){Toast.makeText(this,R.string.root_invalid_package,Toast.LENGTH_SHORT).show();return;}
+                    if(writing){rootWritePackage=packageName;confirmRootWrite();}else loadLocalSave(packageName,packageName);
+                }).show();
+    }
+
+    private void chooseRootWriteTarget() {
+        String[] options={regionDisplay(document.region()),getString(R.string.root_custom_package)};
+        new AlertDialog.Builder(this).setTitle(R.string.root_write_target).setItems(options,(d,which)->{
+            if(which==0){rootWritePackage=null;confirmRootWrite();}else requestCustomPackage(true);
+        }).setNegativeButton(R.string.close,null).show();
     }
 
     private String regionDisplay(SaveDocument.Region region) {
@@ -415,7 +453,7 @@ public final class MainActivity extends AppCompatActivity {
         view.findViewById(R.id.uploadButton).setOnClickListener(v -> confirmUpload());
         rootWriteButton = view.findViewById(R.id.rootWriteButton);
         updateRootButton(rootWriteButton);
-        rootWriteButton.setOnClickListener(v -> { if (rootAvailable) confirmRootWrite(); else Toast.makeText(this, R.string.root_not_detected, Toast.LENGTH_SHORT).show(); });
+        rootWriteButton.setOnClickListener(v -> { if (rootAvailable) chooseRootWriteTarget(); else Toast.makeText(this, R.string.root_not_detected, Toast.LENGTH_SHORT).show(); });
         checkRootAccess();
         view.findViewById(R.id.exitButton).setOnClickListener(v -> confirmExit());
         view.findViewById(R.id.historyButton).setOnClickListener(v -> showHistory());
@@ -482,8 +520,9 @@ public final class MainActivity extends AppCompatActivity {
     private void confirmRootWrite() {
         if (document == null) return;
         if (BuildConfig.ADS_ENABLED) { showAdActionConfirmation(false); return; }
+        String target=rootWritePackage==null?regionDisplay(document.region()):rootWritePackage;
         new AlertDialog.Builder(this).setTitle(R.string.root_write_save)
-                .setMessage(getString(R.string.root_write_confirm, regionDisplay(document.region())))
+                .setMessage(getString(R.string.root_write_confirm, target))
                 .setNegativeButton(R.string.close, null).setPositiveButton(R.string.root_ad_action, (d,w)->writeCurrentSaveToGame()).show();
     }
 
@@ -562,12 +601,12 @@ public final class MainActivity extends AppCompatActivity {
         if (!rootAvailable || document == null) { Toast.makeText(this, R.string.root_not_detected, Toast.LENGTH_SHORT).show(); return false; }
         if (!persistSession(true)) return false;
         long startedAt = android.os.SystemClock.elapsedRealtime();
-        SaveDocument.Region target = document.region();
+        String targetPackage = rootWritePackage;
         byte[] source = document.toBytes();
         Toast.makeText(this, R.string.root_writing, Toast.LENGTH_SHORT).show();
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
-                RootAccess.writeSave(target, source);
+                if(targetPackage==null) RootAccess.writeSave(document.region(), source); else RootAccess.writeSave(targetPackage, source);
                 runAfterMinimumDelay(startedAt, minimumDisplayMillis, () -> { if (completed != null) completed.run(); Toast.makeText(this, R.string.root_write_success, Toast.LENGTH_LONG).show(); });
             } catch (Exception error) {
                 reportError("root-save-write", error, source);
@@ -737,14 +776,18 @@ public final class MainActivity extends AppCompatActivity {
         requestIndex(R.string.cat_id_label,document.catCount(),index->{
             int[] values={document.catBaseLevel(index),document.catPlusLevel(index)};
             String[] labels=getResources().getStringArray(R.array.cat_detail_labels);
-            String[] rows={labels[0]+": "+(document.catUnlocked(index)?getString(R.string.yes):getString(R.string.no)),labels[1]+": "+values[0],labels[2]+": "+values[1],labels[3]};
+            String[] rows={labels[0]+": "+(document.catUnlocked(index)?getString(R.string.yes):getString(R.string.no)),labels[1]+": "+values[0],labels[2]+": "+values[1],getString(R.string.cat_current_form_label,document.catCurrentForm(index)),labels[3]};
             new AlertDialog.Builder(this).setTitle(getString(R.string.cat_number,index)).setItems(rows,(d,item)->{
                 if(item==0){document.setCatUnlocked(index,!document.catUnlocked(index));persistApplied();}
                 else if(item==1)editNumberText(labels[1],values[0],v->document.setCatBaseLevel(index,v));
                 else if(item==2)editNumberText(labels[2],values[1],v->document.setCatPlusLevel(index,v));
-                else confirmCatReset(index);
+                else if(item==3)chooseCatCurrentForm(index); else confirmCatReset(index);
             }).setNegativeButton(R.string.close,null).show();
         });
+    }
+    private void chooseCatCurrentForm(int cat) {
+        String[] forms=getResources().getStringArray(R.array.cat_form_stages);
+        new AlertDialog.Builder(this).setTitle(R.string.cat_current_form_title).setSingleChoiceItems(forms,document.catCurrentForm(cat),(dialog,which)->{try{document.setCatCurrentForm(cat,which);persistApplied();dialog.dismiss();}catch(RuntimeException error){showFieldError(error);}}).setNegativeButton(R.string.close,null).show();
     }
     private void confirmCatReset(int cat) { int message=cat<0?R.string.cat_reset_all_confirm:R.string.cat_reset_confirm;new AlertDialog.Builder(this).setTitle(R.string.cat_reset_title).setMessage(message).setNegativeButton(R.string.close,null).setPositiveButton(R.string.cat_reset_action,(d,w)->{if(cat<0)document.resetAllCats();else document.resetCat(cat);persistApplied();}).show(); }
     private void editCatExtras() {
@@ -762,7 +805,7 @@ public final class MainActivity extends AppCompatActivity {
     private void editTalents(int cat) {
         List<SaveDocument.TalentValue> talents=document.catTalents(cat);if(talents.isEmpty()){Toast.makeText(this,R.string.no_talents,Toast.LENGTH_SHORT).show();return;}
         String[] rows=new String[talents.size()];for(int i=0;i<rows.length;i++)rows[i]=getString(R.string.talent_row,talents.get(i).id,talents.get(i).level);
-        new AlertDialog.Builder(this).setTitle(R.string.talents_title).setItems(rows,(d,index)->editNumberText(getString(R.string.talent_id,talents.get(index).id),talents.get(index).level,v->document.setCatTalentLevelById(cat,talents.get(index).id,v))).setNegativeButton(R.string.close,null).show();
+        new AlertDialog.Builder(this).setTitle(R.string.talents_title).setItems(rows,(d,index)->editNumberText(getString(R.string.talent_id,talents.get(index).id),talents.get(index).level,v->document.setCatTalentLevelById(cat,talents.get(index).id,v))).setNegativeButton(R.string.close,null).setNeutralButton(R.string.max_all_talents,(d,w)->{document.maxCatTalents(cat);persistApplied();}).show();
     }
     private void editSpecialSkills() {
         String[] names=getResources().getStringArray(R.array.special_skill_names);String[] rows=new String[document.specialSkillCount()];for(int i=0;i<rows.length;i++)rows[i]=getString(R.string.special_skill_row,names[i],i+1,document.specialSkillBaseLevel(i),document.specialSkillPlusLevel(i));

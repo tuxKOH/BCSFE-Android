@@ -71,9 +71,9 @@
     <string name="back">返回</string>
     <string name="yes">是</string><string name="no">否</string><string name="cat_id_label">猫咪 ID</string><string name="cat_number">猫咪 %1$d</string><string name="index_range">有效范围：0–%1$d</string>
     <string-array name="cat_editor_actions"><item>按 ID 编辑猫咪</item><item>获取所有可正常获得的猫咪</item><item>解锁全部猫咪</item><item>移除全部猫咪（保留养成）</item><item>设置全部基础等级</item><item>设置全部加值等级</item><item>移除并完整重置全部猫咪</item></string-array><string name="all_cat_base_level">全部猫咪的基础等级</string><string name="all_cat_plus_level">全部猫咪的加值等级</string>
-    <string-array name="cat_detail_labels"><item>已解锁</item><item>基础等级</item><item>加值等级</item><item>移除并完整重置这只猫</item></string-array>
+    <string-array name="cat_detail_labels"><item>已解锁</item><item>基础等级</item><item>加值等级</item><item>移除并完整重置这只猫</item></string-array><string name="cat_current_form_label">当前形态：%1$d</string><string name="cat_current_form_title">选择当前形态</string><string-array name="cat_form_stages"><item>一阶（0）</item><item>二阶（1）</item><item>三阶（2）</item><item>四阶（3）</item></string-array>
     <string name="cat_extras_title">本能与猫咪图鉴</string><string-array name="cat_extra_actions"><item>按猫咪 ID 切换图鉴奖励状态</item><item>按猫咪 ID 编辑本能</item><item>领取全部猫咪图鉴奖励</item><item>移除全部猫咪图鉴奖励</item><item>最大化全部可用本能</item></string-array><string name="all_talent_level">全部可用本能的等级</string>
-    <string name="talents_title">本能</string><string name="no_talents">这只猫没有本能记录。</string><string name="talent_row">本能 %1$d · 等级 %2$d</string><string name="talent_id">本能 %1$d</string>
+    <string name="talents_title">本能</string><string name="max_all_talents">全部本能满级</string><string name="no_talents">这只猫没有本能记录。</string><string name="talent_row">本能 %1$d · 等级 %2$d</string><string name="talent_id">本能 %1$d</string>
     <string name="special_skills_title">基础升级</string><string name="special_skill_row">%1$s（ID %2$d）· 基础 %3$d · 加值 %4$d</string><string-array name="special_skill_names"><item>攻击力</item><item>射程</item><item>充电</item><item>工作</item><item>钱包</item><item>耐力</item><item>研究</item><item>会计</item><item>学习</item><item>统率力</item></string-array><string-array name="skill_level_labels"><item>基础等级</item><item>加值等级</item></string-array>
     <string name="other_guide_title">游玩时间与敌人图鉴</string><string name="current_energy_label">当前统率力</string><string name="enemy_id_label">敌人 ID</string><string name="enemy_id_hint">有效范围：%1$d–%2$d</string><string-array name="other_guide_actions"><item>编辑游玩时间</item><item>切换单个敌人图鉴</item><item>解锁全部敌人图鉴</item><item>重置全部敌人图鉴</item></string-array>
     <string name="rewards_title">用户等级奖励</string><string name="reward_id_label">奖励 ID</string><string name="reward_not_unlocked">该奖励高于当前用户等级。</string><string-array name="reward_actions"><item>领取一个已解锁奖励</item><item>取消领取一个已解锁奖励</item><item>修复高于当前等级的错误领取状态</item></string-array>
@@ -178,5 +178,5 @@
     <string name="no_matching_talent_orb">没有符合此等级和属性的本能玉。</string>
     <string name="talent_orb_set_all">批量设置全部本能玉</string>
     <string name="talent_orb_batch_grade_title">选择要批量修改的等级</string><string name="talent_orb_all_grade">全部本能玉</string><string name="talent_orb_grade_label">%1$d 级本能玉</string>
-    <string name="root_no_any_game">无法检测到任何地区版本的猫战存在于手机！</string>
+    <string name="root_no_any_game">无法检测到任何地区版本的猫战存在于手机！</string><string name="root_custom_package">自定义</string><string name="root_custom_package_hint">例如 jp.co.ponos.battlecats</string><string name="root_invalid_package">请输入有效的 Android 包名。</string><string name="root_write_target">选择写入目标</string>
 </resources>
