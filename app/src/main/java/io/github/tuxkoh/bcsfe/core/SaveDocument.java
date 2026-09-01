@@ -1735,7 +1735,45 @@ public final class SaveDocument {
     private int afterCannons(int original) {
         return afterCannonsWithoutRegion(original) + regionDelta(original);
     }
-    private int medalBaseOffset() { for(int base=Offsets.offsets_140;base<Math.min(bytes.length-Offsets.offsets_130,Offsets.offsets_141);base++){if(base+17>bytes.length-Offsets.offsets_130)break;int count=ushortAt(base+12);if(count>1000)continue;int dictionaryCount=base+14+count*2;if(dictionaryCount+3>bytes.length-Offsets.offsets_130)continue;int entries=ushortAt(dictionaryCount),end=dictionaryCount+2+entries*3+1;if(entries>1000||end>bytes.length-Offsets.offsets_130||byteAt(end-1)>1)continue;int gamblingLength=validGamblingTableLength(end);if(gamblingLength>=0&&end+gamblingLength+4<=bytes.length-Offsets.offsets_130&&intAt(end+gamblingLength)==90000)return base;}int legacy=afterCannons(Offsets.offsets_97),count=ushortAt(legacy+12),dictionary=legacy+14+count*2;if(count<=1000&&dictionary+3<=bytes.length-Offsets.offsets_130){int entries=ushortAt(dictionary),end=dictionary+2+entries*3+1;if(entries<=1000&&end<=bytes.length-Offsets.offsets_130&&byteAt(end-1)<=1)return legacy;}throw new IllegalStateException("Medal table is unavailable"); }
+    private int medalBaseOffset() {
+        int limit = bytes.length - Offsets.offsets_130;
+        int expected;
+        try { expected = afterCannons(Offsets.offsets_97); }
+        catch (RuntimeException ignored) { expected = Offsets.offsets_140; }
+        int best = -1, bestDistance = Integer.MAX_VALUE;
+        // Received saves can contain substantially larger variable sections
+        // than the bundled template.  Locate the self-delimiting medal block
+        // across the complete payload, then require the following Wildcat
+        // table to terminate at its 90000 marker.
+        for (int base = 0; base + 17 <= limit; base++) {
+            int count = ushortAt(base + 12);
+            if (count > 1000) continue;
+            int dictionary = base + 14 + count * 2;
+            if (dictionary + 3 > limit) continue;
+            int entries = ushortAt(dictionary);
+            int end = dictionary + 2 + entries * 3 + 1;
+            if (entries > 1000 || end > limit || byteAt(end - 1) > 1) continue;
+            int gamblingLength = validGamblingTableLength(end);
+            if (gamblingLength < 0 || end + gamblingLength + 4 > limit
+                    || intAt(end + gamblingLength) != 90000) continue;
+            int candidateDistance = Math.abs(base - expected);
+            if (candidateDistance < bestDistance) { best = base; bestDistance = candidateDistance; }
+        }
+        if (best >= 0) return best;
+        // Minimal synthetic/legacy profiles may omit the Wildcat continuation
+        // marker even though their medal block is still at the derived
+        // location. Preserve the historical fallback for those saves.
+        int legacy = expected;
+        if (legacy >= 0 && legacy + 17 <= limit) {
+            int count = ushortAt(legacy + 12);
+            int dictionary = legacy + 14 + count * 2;
+            if (count <= 1000 && dictionary + 3 <= limit) {
+                int entries = ushortAt(dictionary), end = dictionary + 2 + entries * 3 + 1;
+                if (entries <= 1000 && end <= limit && byteAt(end - 1) <= 1) return legacy;
+            }
+        }
+        throw new IllegalStateException("Medal table is unavailable");
+    }
     private int medalTableLength() { int base=medalBaseOffset(),count=ushortAt(base+12),dictionary=base+14+count*2;return 17+count*2+ushortAt(dictionary)*3; }
     private int medalDelta() { return medalTableLength()-17; }
     private int afterMedals(int original) { int wildcat=medalBaseOffset()+medalTableLength();return fixed(original)+(wildcat-fixed(Offsets.offsets_98)); }
@@ -3095,7 +3133,23 @@ public final class SaveDocument {
     }
     private int eventTableOffset(){if(validEventTable(eventTableBaseCache))return eventTableBaseCache;int expected=fixed(Offsets.offsets_119),best=-1,distance=Integer.MAX_VALUE;for(int base=0;base+5<=bytes.length-Offsets.offsets_130;base++){if(!validEventTable(base))continue;int d=Math.abs(base-expected);if(d<distance){best=base;distance=d;}}if(best>=0){eventTableBaseCache=best;return best;}throw new IllegalStateException("Event map table is unavailable");}
     private boolean validEventTable(int base){if(base<0||base+5>bytes.length-Offsets.offsets_130)return false;int types=byteAt(base),subchapters=ushortAt(base+1),stars=byteAt(base+3),stages=byteAt(base+4);long maps=(long)types*subchapters,end=(long)base+5+maps*stars*2+maps*stages*stars*2;return types>=2&&types<=16&&subchapters>268&&subchapters<=2000&&maps==2500&&stars>0&&stars<=16&&stages>0&&stages<=100&&end<=bytes.length-Offsets.offsets_130;}
-    private int standardTableOffset(int expected,int expectedMaps){for(int delta=0;delta<=10000;delta++){int[] candidates=delta==0?new int[]{expected}:new int[]{expected+delta,expected-delta};for(int base:candidates){if(base<0||base+12>bytes.length-Offsets.offsets_130||intAt(base)!=expectedMaps)continue;int stages=intAt(base+4),stars=intAt(base+8);long end=(long)base+12+(long)expectedMaps*stars*8+(long)expectedMaps*stages*stars*4;if(stages>0&&stages<=100&&stars>0&&stars<=16&&end<=bytes.length-Offsets.offsets_130)return base;}}throw new IllegalStateException("Standard map table is unavailable");}
+    private int standardTableOffset(int expected,int expectedMaps){
+        int limit = bytes.length - Offsets.offsets_130, best = -1, distance = Integer.MAX_VALUE;
+        // Dynamic account/profile sections may shift these tables by tens of
+        // thousands of bytes.  Scan the complete payload and retain the
+        // structurally valid candidate nearest the template-derived offset.
+        for (int base = 0; base + 12 <= limit; base++) {
+            if (intAt(base) != expectedMaps) continue;
+            int stages = intAt(base + 4), stars = intAt(base + 8);
+            long end = (long)base + 12 + (long)expectedMaps * stars * 8
+                    + (long)expectedMaps * stages * stars * 4;
+            if (stages <= 0 || stages > 100 || stars <= 0 || stars > 16 || end > limit) continue;
+            int distanceHere = Math.abs(base - expected);
+            if (distanceHere < distance) { best = base; distance = distanceHere; }
+        }
+        if (best >= 0) return best;
+        throw new IllegalStateException("Standard map table is unavailable");
+    }
     private int legendQuestTableOffset(){
         int expected=afterCannons(Offsets.offsets_120),limit=bytes.length-Offsets.offsets_130;
         int from=Math.max(0,expected-65536),to=Math.min(limit-8,expected+65536),best=-1,bestDistance=Integer.MAX_VALUE;
