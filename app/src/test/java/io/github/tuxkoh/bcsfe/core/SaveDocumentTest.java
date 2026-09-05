@@ -51,6 +51,17 @@ public class SaveDocumentTest {
         assertEquals(29, document.catfruit().length);
     }
 
+    @Test public void closeUserRankNotificationsStoresCalculatedRank() throws Exception {
+        byte[] source = java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
+        SaveDocument document = SaveDocument.open(source);
+        int rank = document.userRank();
+        document.closeUserRankNotifications();
+        assertEquals(rank, document.rankUpSaleValue());
+        SaveDocument reopened = SaveDocument.open(document.toBytes());
+        assertEquals(rank, reopened.rankUpSaleValue());
+        assertEquals(rank, reopened.userRank());
+    }
+
     @Test public void bundledNewSaveTemplatesAreValid155Saves() throws Exception {
         java.nio.file.Path templates=java.nio.file.Path.of("src/main/assets/new_saves");
         for(SaveDocument.Region region:SaveDocument.Region.values()){

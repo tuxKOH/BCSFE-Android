@@ -670,6 +670,12 @@ public final class SaveDocument {
     public void setPlayTimeComponents(int hours,int minutes,int seconds) { if(hours<0||minutes<0||seconds<0)throw new IllegalArgumentException("Invalid playtime");long frames=((long)hours*3600+(long)minutes*60+seconds)*30;setPlayTime((int)Math.min(Integer.MAX_VALUE,frames)); }
     public int userRank() { ensureCatProfile(); CatLayout l=catLayout(); int rank=0; for(int i=0;i<l.count;i++)if(intAt(l.unlockedStart+i*4)!=0)rank+=ushortAt(l.upgradeStart+i*4+2)+1+ushortAt(l.upgradeStart+i*4); for(int i=0;i<11;i++)if(i!=1){int skill=l.currentFormEnd+i*4;rank+=ushortAt(skill+2)+1+ushortAt(skill);} return rank; }
     public int rankUpSaleValue() { ensureItemProfile(); return intAt(rankUpSaleOffset()); }
+    /**
+     * Marks the current User Rank as already acknowledged by the game.  The
+     * game uses this value as the boundary for rank-up notifications; using
+     * the calculated rank avoids changing any cat or upgrade data.
+     */
+    public void closeUserRankNotifications() { ensureItemProfile(); putInt(rankUpSaleOffset(), userRank()); refreshHash(); }
     public boolean showBanMessage() { ensureItemProfile(); return byteAt(rankUpSaleOffset() - 15)!=0; }
     public void setShowBanMessage(boolean value) { ensureItemProfile();bytes[rankUpSaleOffset() - 15]=(byte)(value?1:0);refreshHash(); }
     public long rareSeed() { ensureItemProfile();return Integer.toUnsignedLong(intAt(gatyaSeedOffset(false))); }

@@ -54,7 +54,7 @@
     <string name="catfood_label">猫罐头</string>
     <string name="xp_label">经验值</string>
     <string name="tutorial_label">教学进度</string>
-    <string name="invalid_number">请输入有效数字。</string>
+    <string name="invalid_number">请输入有效数字。</string><string name="value_out_of_range">数值超出允许范围。</string><string name="unsafe_value_warning">此操作超出安全范围（%1$d~%2$d），可能导致封号，是否依然执行？</string><string name="execute_anyway">仍然执行</string>
     <string name="tickets_title">扭蛋券</string>
     <string name="advanced_items_title">进阶道具</string>
     <string name="unsupported_save_version">此编辑器尚未针对当前存档版本完成验证。</string>
@@ -107,13 +107,13 @@
     <string name="lineups_title">阵型</string><string-array name="lineup_actions"><item>编辑已解锁阵型数</item><item>编辑阵型中的猫咪槽位</item></string-array><string name="unlocked_lineups_label">已解锁阵型数</string><string name="lineup_id_label">阵型 ID</string><string name="lineup_slot_label">槽位 ID</string><string name="lineup_cat_label">猫咪 ID（-1 为空）</string>
     <string name="lineup_gambling_title">阵型与抽奖活动</string><string-array name="lineup_gambling_actions"><item>编辑阵型</item><item>重置全部抽奖活动</item></string-array><string name="gambling_title">抽奖活动</string><string-array name="gambling_tables"><item>野生猫咪转蛋</item><item>猫咪刮刮乐</item></string-array><string-array name="gambling_actions"><item>新增或替换开始日期</item><item>编辑开始日期</item><item>移除开始日期</item><item>重置全部活动数据</item></string-array><string name="gambling_add">新增活动开始日期</string><string name="gambling_event_id">活动 ID</string><string name="gambling_date_label">开始日期（YYYYMMDD）</string><string name="gambling_row">活动 %1$d · 开始日期 %2$d</string><string name="no_gambling_records">没有可编辑的现有抽奖活动记录。</string>
     <string name="pass_restart_title">金会员与重启礼包</string><string-array name="pass_restart_actions"><item>获得 30 天金会员</item><item>移除金会员</item><item>获得重启礼包</item></string-array>
-    <string name="save_management_title">存档管理</string><string-array name="save_management_actions"><item>导出工作副本</item><item>上传并创建转移码</item><item>退出编辑器</item></string-array>
+    <string name="use_save">使用存档</string><string-array name="use_save_actions"><item>上传存档并创建转移码</item><item>将此存档加载进已安装的游戏（需 Root）</item></string-array><string name="save_management_title">存档管理</string><string-array name="save_management_actions"><item>导出工作副本</item><item>上传并创建转移码</item><item>退出编辑器</item></string-array>
     <string name="convert_region_title">转换地区</string><string name="convert_region_warning">此操作会在目标地区创建新账号并更新工作存档。继续前请先导出备份。</string><string name="current_suffix">（当前）</string><string name="converting_region">正在转换地区并创建账号…</string><string name="convert_region_success">地区已转换，新账号已永久保存。</string><string name="convert_region_failed">地区转换失败，工作存档未更改。</string><string name="jp_conversion_unavailable">JP 地区转换目前要求存档版本为 15.5，工作存档未更改。</string>
     <string name="game_version_title">游戏版本</string><string name="game_version_warning">更改序列化游戏版本会重写版本相关字段，请先导出备份再继续。</string><string name="game_version_success">游戏版本已转换并永久缓存。</string><string name="game_version_failed">游戏版本转换失败，工作存档未更改。</string><string name="game_version_message">当前序列化版本：%1$d。支持 14.0，以及 14.3 至 15.6 版本之间转换。</string>
     <string name="account_info_title">账号凭据</string><string-array name="account_info_actions"><item>查看查询码</item><item>编辑查询码</item><item>查看密码刷新令牌</item><item>编辑密码刷新令牌</item></string-array><string name="invalid_credential_length">替换凭据的编码长度必须与原值完全相同。</string>
     <string name="account_operations_title">账号操作</string><string-array name="account_operation_actions"><item>创建替代账号</item><item>仅上传托管道具</item></string-array><string name="account_operations_warning">此操作会创建新的服务器账号，并替换工作存档中的查询码和刷新令牌。可用于将存档迁离无法使用或受限制的账号，原账号本身不会被修改。</string><string name="create_account_confirm">创建账号</string><string name="creating_account">正在创建替代账号…</string><string name="create_account_success">替代账号已创建并永久保存。</string><string name="create_account_failed">无法创建替代账号，工作存档未被更改。</string><string name="upload_managed_items">上传托管道具</string><string name="upload_managed_warning">此操作会认证当前账号，并同步猫罐头、稀有券、白金券和传说券，不会创建转移码。</string><string name="uploading_managed_items">正在上传托管道具…</string><string name="upload_managed_success">托管道具已上传，刷新后的凭据已永久保存。</string><string name="upload_managed_failed">托管道具上传失败，工作存档仍保留在缓存中。</string>
     <string name="storage_skills_title">储藏库与基础升级</string><string-array name="storage_skill_actions"><item>向储藏库添加猫咪</item><item>向储藏库添加基础升级</item><item>移除储藏库项目</item><item>清空储藏库</item><item>编辑基础升级等级</item></string-array><string name="storage_title">储藏库</string><string name="storage_full">储藏库已满。</string><string name="storage_empty">储藏库为空。</string><string name="storage_quantity_label">数量</string><string name="storage_add_cats">添加猫咪</string><string name="storage_add_skills">添加基础升级</string><string name="storage_remove">移除储藏库项目</string><string name="storage_item_row">类型 %1$d · ID %2$d</string><string name="special_skill_id_label">基础升级 ID（0-9）</string>
-    <string name="fix_title">修复</string><string-array name="crash_fix_actions"><item>修复加码多多皮肤</item><item>重置城堡炮台数值</item><item>重置时间错误时间戳</item></string-array><string-array name="menu_fix_actions"><item>解锁天赋玉菜单</item><item>重置干部通行证状态</item></string-array>
+    <string name="fix_title">修复</string><string-array name="crash_fix_actions"><item>修复加码多多皮肤</item><item>重置城堡炮台数值</item><item>重置时间错误时间戳</item></string-array><string-array name="menu_fix_actions"><item>解锁天赋玉菜单</item><item>重置干部通行证状态</item><item>关闭所有等级排行通知</item></string-array>
 
     <string-array name="category_names">
         <item>存档管理</item><item>基础信息</item><item>角色与基础升级</item>
@@ -184,8 +184,6 @@
     <string name="talent_orb_set_all">批量设置全部本能玉</string>
     <string name="talent_orb_batch_grade_title">选择要批量修改的等级</string><string name="talent_orb_all_grade">全部本能玉</string><string name="talent_orb_grade_label">%1$d 级本能玉</string>
     <string name="root_no_any_game">无法检测到任何地区版本的猫战存在于手机！</string><string name="root_custom_package">自定义</string><string name="root_custom_package_hint">例如 jp.co.ponos.battlecats</string><string name="root_invalid_package">请输入有效的 Android 包名。</string><string name="root_write_target">选择写入目标</string>
-    <string name="category_open_hint">选择一个分类查看其中的编辑功能。</string>
-    <string name="feature_open_hint">点击打开此编辑器。</string>
     <string name="session_current_badge">当前</string>
     <string name="session_meta">修改于 %1$s · %2$d 字节</string>
 </resources>

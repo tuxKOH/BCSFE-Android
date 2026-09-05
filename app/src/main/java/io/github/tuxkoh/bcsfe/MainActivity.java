@@ -85,7 +85,6 @@ public final class MainActivity extends AppCompatActivity {
     private volatile boolean rootAvailable;
     private boolean rootCheckRunning;
     private View rootLoadButton;
-    private View rootWriteButton;
     private String rootWritePackage;
     private boolean errorReportShowing;
     private int activeFeatureId=-1;
@@ -185,7 +184,6 @@ public final class MainActivity extends AppCompatActivity {
                 rootCheckRunning = false;
                 rootAvailable = available;
                 updateRootButton(rootLoadButton);
-                updateRootButton(rootWriteButton);
             });
         });
     }
@@ -557,13 +555,19 @@ public final class MainActivity extends AppCompatActivity {
     private void configureEditorActions(View view) {
         view.findViewById(R.id.exportButton).setOnClickListener(v ->
                 launchCreateDocument("EDITED_" + (openedName == null ? "SAVE_DATA" : openedName)));
-        view.findViewById(R.id.uploadButton).setOnClickListener(v -> confirmUpload());
-        rootWriteButton = view.findViewById(R.id.rootWriteButton);
-        updateRootButton(rootWriteButton);
-        rootWriteButton.setOnClickListener(v -> { if (rootAvailable) chooseRootWriteTarget(); else Toast.makeText(this, R.string.root_not_detected, Toast.LENGTH_SHORT).show(); });
+        view.findViewById(R.id.useSaveButton).setOnClickListener(v -> showUseSaveMenu());
         checkRootAccess();
         view.findViewById(R.id.exitButton).setOnClickListener(v -> confirmExit());
         view.findViewById(R.id.historyButton).setOnClickListener(v -> showHistory());
+    }
+
+    private void showUseSaveMenu() {
+        new AlertDialog.Builder(this).setTitle(R.string.use_save)
+                .setItems(R.array.use_save_actions, (dialog, which) -> {
+                    if (which == 0) confirmUpload();
+                    else if (rootAvailable) chooseRootWriteTarget();
+                    else Toast.makeText(this, R.string.root_not_detected, Toast.LENGTH_SHORT).show();
+                }).setNegativeButton(R.string.close, null).show();
     }
 
     private void receiveTransfer() {
@@ -909,8 +913,8 @@ public final class MainActivity extends AppCompatActivity {
             else if(index==1)documentAction(document::unlockAllObtainableCats);
             else if(index==2)documentAction(document::unlockAllCats);
             else if(index==3)documentAction(document::removeAllCats);
-            else if(index==4)editNumber(R.string.all_cat_base_level,1,document::setAllCatBaseLevels);
-            else if(index==5)editNumber(R.string.all_cat_plus_level,0,document::setAllCatPlusLevels);
+            else if(index==4)editNumberText(getString(R.string.all_cat_base_level),1,document::setAllCatBaseLevels,false);
+            else if(index==5)editNumberText(getString(R.string.all_cat_plus_level),0,document::setAllCatPlusLevels,false);
             else confirmCatReset(-1);
         }).setNegativeButton(R.string.close,null).show();
     }
@@ -921,8 +925,8 @@ public final class MainActivity extends AppCompatActivity {
             String[] rows={labels[0]+": "+(document.catUnlocked(index)?getString(R.string.yes):getString(R.string.no)),labels[1]+": "+values[0],labels[2]+": "+values[1],getString(R.string.cat_current_form_label,document.catCurrentForm(index)),labels[3]};
             new AlertDialog.Builder(this).setTitle(getString(R.string.cat_number,index)).setItems(rows,(d,item)->{
                 if(item==0){document.setCatUnlocked(index,!document.catUnlocked(index));persistApplied();}
-                else if(item==1)editNumberText(labels[1],values[0],v->document.setCatBaseLevel(index,v));
-                else if(item==2)editNumberText(labels[2],values[1],v->document.setCatPlusLevel(index,v));
+                else if(item==1)editNumberText(labels[1],values[0],v->document.setCatBaseLevel(index,v),false);
+                else if(item==2)editNumberText(labels[2],values[1],v->document.setCatPlusLevel(index,v),false);
                 else if(item==3)chooseCatCurrentForm(index); else confirmCatReset(index);
             }).setNegativeButton(R.string.close,null).show();
         });
@@ -959,7 +963,7 @@ public final class MainActivity extends AppCompatActivity {
     private void addStorageItems(boolean cats) { LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(24),dp(8),dp(24),0);EditText id=numberField(cats?R.string.cat_id_label:R.string.special_skill_id_label,"0");EditText quantity=numberField(R.string.storage_quantity_label,"1");form.addView(id);form.addView(quantity);new AlertDialog.Builder(this).setTitle(cats?R.string.storage_add_cats:R.string.storage_add_skills).setView(form).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{try{int itemId=Integer.parseInt(id.getText().toString()),amount=Integer.parseInt(quantity.getText().toString());if(cats)document.addStorageCats(itemId,amount);else document.addStorageSpecialSkills(itemId,amount);persistApplied();}catch(IllegalStateException e){Toast.makeText(this,R.string.storage_full,Toast.LENGTH_LONG).show();}catch(Exception e){showFieldError();}}).show(); }
     private void removeStorageItem() { int count=document.occupiedStorageCount();if(count==0){Toast.makeText(this,R.string.storage_empty,Toast.LENGTH_SHORT).show();return;}String[] rows=new String[count];for(int i=0;i<count;i++){int slot=document.occupiedStorageSlot(i);rows[i]=getString(R.string.storage_item_row,document.storageItemType(slot),document.storageItemId(slot));}new AlertDialog.Builder(this).setTitle(R.string.storage_remove).setItems(rows,(d,i)->{document.removeOccupiedStorageItem(i);persistApplied();}).setNegativeButton(R.string.close,null).show(); }
     private void editCrashFixes() { String[] actions=getResources().getStringArray(R.array.crash_fix_actions);new AlertDialog.Builder(this).setTitle(R.string.fix_title).setItems(actions,(d,i)->{if(i==0)document.fixGamatotoCrash();else if(i==1)document.fixOtotoValues();else document.fixTimeErrors(System.currentTimeMillis()/1000L);persistApplied();}).setNegativeButton(R.string.close,null).show(); }
-    private void editMenuFixes() { String[] actions=getResources().getStringArray(R.array.menu_fix_actions);new AlertDialog.Builder(this).setTitle(R.string.fix_title).setItems(actions,(d,i)->{if(i==0)document.unlockEquipMenu();else document.fixOfficerPass();persistApplied();}).setNegativeButton(R.string.close,null).show(); }
+    private void editMenuFixes() { String[] actions=getResources().getStringArray(R.array.menu_fix_actions);new AlertDialog.Builder(this).setTitle(R.string.fix_title).setItems(actions,(d,i)->{if(i==0)document.unlockEquipMenu();else if(i==1)document.fixOfficerPass();else document.closeUserRankNotifications();persistApplied();}).setNegativeButton(R.string.close,null).show(); }
     private void editOtherGuide() {
         String[] actions=getResources().getStringArray(R.array.other_guide_actions);
         new AlertDialog.Builder(this).setTitle(R.string.other_guide_title).setItems(actions,(d,index)->{
@@ -1215,12 +1219,26 @@ public final class MainActivity extends AppCompatActivity {
         editNumberText(getString(label), current, change);
     }
     private void editNumberText(String label, int current, NumberChange change) {
+        editNumberText(label, current, change, true);
+    }
+    private void editNumberText(String label, int current, NumberChange change, boolean safetyCheck) {
         EditText field = new EditText(this); field.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_SIGNED); field.setText(String.valueOf(current));
         AlertDialog dialog = new AlertDialog.Builder(this).setTitle(label).setView(dialogInput(field)).setNegativeButton(R.string.close, null).setPositiveButton(android.R.string.ok, (window, which) -> {
             final int value;
             try { value=Integer.parseInt(field.getText().toString().trim()); } catch (NumberFormatException ignored) { Toast.makeText(this,R.string.invalid_number,Toast.LENGTH_SHORT).show();return; }
-            try { change.apply(value); } catch (IllegalArgumentException error) { reportError("editor-value", error); Toast.makeText(this,R.string.invalid_number,Toast.LENGTH_SHORT).show();return; } catch (RuntimeException error) { showFieldError(error);return; }
-            try { workingCopy=document.toBytes();persistSession(false,label); } catch (RuntimeException error) { showFieldError(error); }
+            // A range violation is ordinary user input (for example,
+            // Platinum Tickets are limited to 0..9), not a parser failure.
+            // Do not create a diagnostic report containing save-byte context
+            // for this expected validation path.
+            if (safetyCheck && unsafeEditorValue(label, value)) {
+                new AlertDialog.Builder(this).setMessage(getString(R.string.unsafe_value_warning,
+                                unsafeMinimum(label), unsafeMaximum(label)))
+                        .setNegativeButton(R.string.close, null)
+                        .setPositiveButton(R.string.execute_anyway, (d, w) -> applyEditorValue(label, value, change))
+                        .show();
+                return;
+            }
+            applyEditorValue(label, value, change);
         }).create();
         dialog.setOnShowListener(ignored -> field.post(() -> {
             field.requestFocus();
@@ -1228,6 +1246,31 @@ public final class MainActivity extends AppCompatActivity {
             if (keyboard != null) keyboard.showSoftInput(field, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);
         }));
         dialog.show();
+    }
+    private void applyEditorValue(String label, int value, NumberChange change) {
+        try { change.apply(value); }
+        catch (IllegalArgumentException error) { Toast.makeText(this,R.string.value_out_of_range,Toast.LENGTH_SHORT).show(); return; }
+        catch (RuntimeException error) { showFieldError(error); return; }
+        try { workingCopy=document.toBytes();persistSession(false,label); } catch (RuntimeException error) { showFieldError(error); }
+    }
+    private boolean unsafeEditorValue(String label, int value) {
+        String s = label.toLowerCase(java.util.Locale.ROOT);
+        if (s.contains("platinum") || s.contains("白金")) return value > 9;
+        if (s.contains("legend ticket") || s.contains("传说票") || s.contains("黑金")) return value > 1;
+        if (s.contains("cat food") || s.contains("猫罐头")) return value > 45000;
+        if (s.contains("base level") || s.contains("基础等级")) return value > 20;
+        if (s.contains("plus level") || s.contains("加值等级")) return value > 10;
+        return false;
+    }
+    private int unsafeMinimum(String label) { return 0; }
+    private int unsafeMaximum(String label) {
+        String s = label.toLowerCase(java.util.Locale.ROOT);
+        if (s.contains("platinum") || s.contains("白金")) return 9;
+        if (s.contains("legend ticket") || s.contains("传说票") || s.contains("黑金")) return 1;
+        if (s.contains("cat food") || s.contains("猫罐头")) return 45000;
+        if (s.contains("base level") || s.contains("基础等级")) return 20;
+        if (s.contains("plus level") || s.contains("加值等级")) return 10;
+        return 30;
     }
     private void showFieldError() { showFieldError(new IllegalStateException("Save field parsing failed")); }
     private void showFieldError(Throwable error) {
