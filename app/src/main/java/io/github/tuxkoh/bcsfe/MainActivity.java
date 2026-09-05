@@ -1159,7 +1159,8 @@ public final class MainActivity extends AppCompatActivity {
         new AlertDialog.Builder(this).setTitle(R.string.ototo_title).setItems(actions,(d,index)->runFieldAction(()->{
             if(index==0)editBaseMaterials();
             else if(index==1)editNumber(R.string.engineers_label,document.ototoEngineers(),document::setOtotoEngineers);
-            else editCannon();
+            else if(index==2)editCannon();
+            else { document.maxAllCannons(); persistApplied(); }
         })).setNegativeButton(R.string.close,null).show();
     }
     private void editBaseMaterials() { int count=document.baseMaterialCount();String[] names=getResources().getStringArray(R.array.base_material_names);String[] rows=new String[count];for(int i=0;i<count;i++){String name=i<names.length?names[i]:getString(R.string.material_id_label)+" "+i;rows[i]=getString(R.string.material_row,name,i,document.baseMaterial(i));}new AlertDialog.Builder(this).setTitle(R.string.material_amount_label).setItems(rows,(d,index)->editNumberText(rows[index],document.baseMaterial(index),v->document.setBaseMaterial(index,v))).setNegativeButton(R.string.close,null).setNeutralButton(R.string.material_set_all,(d,w)->editNumberText(getString(R.string.material_set_all),document.baseMaterial(0),v->{for(int i=0;i<count;i++)document.setBaseMaterial(i,v);})).show(); }

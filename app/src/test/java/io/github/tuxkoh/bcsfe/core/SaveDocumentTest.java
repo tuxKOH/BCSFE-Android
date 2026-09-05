@@ -815,6 +815,22 @@ public class SaveDocumentTest {
         assertEquals(7,d.gamatotoHelper(255));assertEquals(8,d.baseMaterial(15));assertEquals(5,d.ototoEngineers());assertThrows(IllegalArgumentException.class,()->d.setOtotoEngineers(6));assertEquals(3,d.cannonDevelopment(1));assertEquals(5,d.cannonPartLevel(1,0));assertEquals(3,d.cannonDevelopment(0));assertEquals(29,d.cannonPartLevel(0,0));assertThrows(IllegalArgumentException.class,()->d.setCannonPartLevel(0,0,30));assertEquals(123456789L,d.catShrineXp());assertTrue(d.catShrineGone());assertTrue(d.checksumValid());
     }
 
+    @Test public void maxAllCannonsSetsDevelopmentAndGameDataMaximums() throws Exception {
+        SaveDocument d=SaveDocument.open(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save")));
+        d.maxAllCannons();
+        for(int i=0;i<d.cannonCount();i++) {
+            assertEquals(3,d.cannonDevelopment(i));
+            int id=d.cannonId(i);
+            for(int part=0;part<d.cannonPartCount(i);part++)
+                assertEquals(GameDataRules.cannonMaxLevel(id,part)-(part==0?1:0),d.cannonPartLevel(i,part));
+        }
+        assertTrue(d.checksumValid());
+        SaveDocument reopened=SaveDocument.open(d.toBytes());
+        assertEquals(3,reopened.cannonDevelopment(1));
+        assertEquals(29,reopened.cannonPartLevel(0,0));
+        assertTrue(reopened.checksumValid());
+    }
+
     @Test public void ototoMaterialsEngineersAndCannonsMatchUpstream() throws Exception {
         java.nio.file.Path source=java.nio.file.Path.of("/tmp/bcsfe-transfer-tw.save");Assume.assumeTrue(java.nio.file.Files.isRegularFile(source));byte[] bytes=java.nio.file.Files.readAllBytes(source);
         SaveDocument material=SaveDocument.open(bytes);material.setBaseMaterial(15,8);assertArrayEquals(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("/tmp/bcsfe-upstream-material15.save")),material.toBytes());

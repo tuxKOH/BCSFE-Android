@@ -1026,6 +1026,24 @@ public final class SaveDocument {
     public int cannonPartLevel(int index,int part) { int[] e=cannonEntry(index);if(part<0||part>=e[2])throw new IndexOutOfBoundsException();return intAt(e[1]+12+part*4); }
     public void setCannonDevelopment(int index,int value) { int[] e=cannonEntry(index);if(index==0)throw new IllegalArgumentException("Cannon 0 has no development stage");if(value<0||value>3)throw new IllegalArgumentException("Invalid cannon development");putInt(e[1]+8,value);refreshHash(); }
     public void setCannonPartLevel(int index,int part,int value) { int[] e=cannonEntry(index);if(part<0||part>=e[2])throw new IndexOutOfBoundsException();int max=GameDataRules.cannonMaxLevel(e[0],part)-(part==0?1:0);if(value<0||value>max)throw new IllegalArgumentException("Invalid cannon level");putInt(e[1]+12+part*4,value);refreshHash(); }
+    /** Set every stored cannon to development stage 3 and its game-data maximum levels. */
+    public void maxAllCannons() {
+        ensureItemProfile();
+        int count = cannonCount();
+        for (int i = 0; i < count; i++) {
+            int[] entry = cannonEntry(i);
+            // The main Cat Cannon has no editable development selector, but
+            // the upstream bulk level editor normalizes this field too.
+            putInt(entry[1] + 8, 3);
+            for (int part = 0; part < entry[2]; part++) {
+                int maximum = GameDataRules.cannonMaxLevel(entry[0], part);
+                if (maximum <= 0) continue;
+                // Part 0 is stored one below its displayed level.
+                putInt(entry[1] + 12 + part * 4, maximum - (part == 0 ? 1 : 0));
+            }
+        }
+        refreshHash();
+    }
     public boolean catShrineGone() { ensureItemProfile();return byteAt(catShrineBase()+17)!=0; }
     public void setCatShrineGone(boolean value) { ensureItemProfile();int base=catShrineBase();if(!value){putDouble(base+1,0);putDouble(base+9,0);}bytes[base+17]=(byte)(value?1:0);putInt(catShrineDialogsOffset(),catShrineLevel()-1);refreshHash(); }
     public long catShrineXp() { ensureItemProfile();return rawLongAt(catShrineXpOffset()); }
