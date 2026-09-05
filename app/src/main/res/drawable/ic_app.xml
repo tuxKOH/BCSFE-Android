@@ -1,5 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="48dp" android:height="48dp" android:viewportWidth="48" android:viewportHeight="48">
-    <path android:fillColor="#006C4C" android:pathData="M4,4h40v40h-40z" />
-    <path android:fillColor="#FFFFFF" android:pathData="M12,13h16c6.6,0 12,5.4 12,12s-5.4,12 -12,12h-16zM19,20v10h9c2.8,0 5,-2.2 5,-5s-2.2,-5 -5,-5z" />
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- BCSFE green launcher tile. -->
+    <path
+        android:fillColor="#006C4C"
+        android:pathData="M8,2h32c4.4,0 6,1.6 6,6v32c0,4.4 -1.6,6 -6,6H8c-4.4,0 -6,-1.6 -6,-6V8c0,-4.4 1.6,-6 6,-6z" />
+
+    <!-- Floppy disk silhouette: a recognizable save icon, not a document. -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M10,8h26l4,4v28H10z" />
+    <path
+        android:fillColor="#B9D9CC"
+        android:pathData="M14,8h15v9H14z" />
+    <path
+        android:fillColor="#006C4C"
+        android:pathData="M25,8h4v9h-4z" />
+
+    <!-- Label area and writable data area on the save disk. -->
+    <path
+        android:fillColor="#006C4C"
+        android:pathData="M14,21h20v3H14zM14,26h20v2H14z" />
+    <path
+        android:fillColor="#006C4C"
+        android:pathData="M14,31h20v5H14z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M16,33h16v1H16z" />
 </vector>

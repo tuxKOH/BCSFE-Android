@@ -2,30 +2,35 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true">
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:orientation="vertical" android:padding="20dp">
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="@string/home_heading" android:textColor="@color/ink" android:textSize="30sp" android:textStyle="bold" />
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:layout_marginTop="8dp" android:text="@string/home_subtitle" android:textColor="@color/muted" android:textSize="16sp" />
+        android:orientation="vertical" android:padding="24dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:background="@color/primary" android:padding="24dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/home_heading" android:textColor="@android:color/white" android:textSize="30sp" android:textStyle="bold" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="10dp" android:text="@string/home_subtitle" android:textColor="#DDF2EA" android:textSize="16sp" />
+        </LinearLayout>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="28dp"
+            android:text="@string/open_save" android:textColor="@color/ink" android:textSize="18sp" android:textStyle="bold" />
         <com.google.android.material.button.MaterialButton android:id="@+id/openButton"
-            android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="28dp"
+            android:layout_width="match_parent" android:layout_height="58dp" android:layout_marginTop="10dp"
             android:text="@string/open_save" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/receiveButton"
-            style="@style/Widget.Material3.Button.OutlinedButton" android:layout_width="match_parent" android:layout_height="56dp"
-            android:layout_marginTop="10dp" android:text="@string/receive_transfer" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/createSaveButton"
-            style="@style/Widget.Material3.Button.OutlinedButton" android:layout_width="match_parent" android:layout_height="56dp"
-            android:layout_marginTop="10dp" android:text="@string/create_new_save" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:orientation="horizontal">
+            <com.google.android.material.button.MaterialButton android:id="@+id/receiveButton"
+                style="@style/Widget.Material3.Button.OutlinedButton" android:layout_width="0dp" android:layout_height="54dp" android:layout_weight="1" android:text="@string/receive_transfer" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/createSaveButton"
+                style="@style/Widget.Material3.Button.OutlinedButton" android:layout_width="0dp" android:layout_height="54dp" android:layout_weight="1" android:layout_marginStart="8dp" android:text="@string/create_new_save" />
+        </LinearLayout>
         <com.google.android.material.button.MaterialButton android:id="@+id/rootLoadButton"
-            style="@style/Widget.Material3.Button.OutlinedButton" android:layout_width="match_parent" android:layout_height="56dp"
-            android:layout_marginTop="10dp" android:text="@string/root_load_save" android:enabled="false" />
+            style="@style/Widget.Material3.Button.OutlinedButton" android:layout_width="match_parent" android:layout_height="54dp"
+            android:layout_marginTop="8dp" android:text="@string/root_load_save" android:enabled="false" />
         <TextView android:id="@+id/recentTitle" android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:layout_marginTop="32dp" android:text="@string/editor_areas" android:textColor="@color/ink"
             android:textSize="18sp" android:textStyle="bold" />
         <LinearLayout android:id="@+id/categories" android:layout_width="match_parent"
             android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="vertical" />
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:layout_marginTop="24dp" android:background="@drawable/panel" android:padding="16dp"
+            android:layout_marginTop="20dp" android:background="@drawable/panel" android:padding="18dp"
             android:text="@string/safety_notice" android:textColor="@color/muted" />
     </LinearLayout>
 </ScrollView>

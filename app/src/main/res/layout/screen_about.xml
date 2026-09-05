@@ -9,6 +9,14 @@
             android:text="@string/attribution" android:textColor="@color/ink" android:textSize="16sp" />
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp"
             android:background="@drawable/panel" android:padding="16dp" android:text="@string/supported_versions_notice" android:textColor="@color/muted" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp"
+            android:text="@string/official_links" android:textColor="@color/ink" android:textStyle="bold" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/officialWebsite" style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/official_website" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/qqGroup" style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="@string/qq_group" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/discordServer" style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="@string/discord_server" />
         <com.google.android.material.button.MaterialButton android:id="@+id/androidRepo" style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="@string/android_repository" />
         <com.google.android.material.button.MaterialButton android:id="@+id/pythonRepo" style="@style/Widget.Material3.Button.OutlinedButton"

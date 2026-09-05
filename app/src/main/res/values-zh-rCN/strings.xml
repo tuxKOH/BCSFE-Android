@@ -38,6 +38,11 @@
     <string name="attribution">本 Android 移植版参考并改编自 fieryhenry/BCSFE-Python。感谢 fieryhenry 及其贡献者提供原始存档编辑器。</string>
     <string name="android_repository">GitHub：tuxKOH/BCSFE-Android</string>
     <string name="reference_repository">GitHub：fieryhenry/BCSFE-Python</string>
+    <string name="official_links">社区与官方链接</string>
+    <string name="official_website">官网：bcsfe.cutefireflyuwu.sbs</string>
+    <string name="qq_group">Q群：760083692</string>
+    <string name="discord_server">Discord：EE5HceeqYsS</string>
+    <string name="copied_to_clipboard">已复制到剪贴板</string>
     <string name="license_notice">本项目采用 GNU GPL v3 或更高版本授权，且不提供任何担保。源代码与许可证详情可在下方仓库查看。</string>
     <string name="file_summary">%1$s\n%2$s · SHA-256 %3$s</string>
     <string name="bytes_format">%1$d 字节</string>

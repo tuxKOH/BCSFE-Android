@@ -38,6 +38,11 @@
     <string name="attribution">This Android port references and adapts concepts from fieryhenry/BCSFE-Python. Thanks to fieryhenry and its contributors for the original save editor.</string>
     <string name="android_repository">tuxKOH/BCSFE-Android on GitHub</string>
     <string name="reference_repository">fieryhenry/BCSFE-Python on GitHub</string>
+    <string name="official_links">Community &amp; official links</string>
+    <string name="official_website">Official website: bcsfe.cutefireflyuwu.sbs</string>
+    <string name="qq_group">QQ group: 760083692</string>
+    <string name="discord_server">Discord: EE5HceeqYsS</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="license_notice">Licensed under GNU GPL v3 or later. This program comes without warranty. Source and license details are available in the repositories below.</string>
     <string name="file_summary">%1$s\n%2$s · SHA-256 %3$s</string>
     <string name="bytes_format">%1$d bytes</string>

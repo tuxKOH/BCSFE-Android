@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ink">#191C1B</color>
-    <color name="paper">#F7F9F6</color>
+    <color name="ink">#102A2E</color>
+    <color name="paper">#F4F8F6</color>
     <color name="surface">#FFFFFF</color>
-    <color name="primary">#006C4C</color>
-    <color name="primary_dark">#00513A</color>
-    <color name="accent">#D53B2D</color>
-    <color name="muted">#626965</color>
-    <color name="divider">#DDE3DE</color>
+    <color name="surface_tint">#E5F1EC</color>
+    <color name="primary">#0B6B5B</color>
+    <color name="primary_dark">#084B42</color>
+    <color name="accent">#E07A3F</color>
+    <color name="muted">#607477</color>
+    <color name="divider">#D4E2DE</color>
 </resources>

@@ -36,6 +36,14 @@ final class LocalApiServer {
             return new Response(status, "application/json; charset=utf-8",
                     body.getBytes(StandardCharsets.UTF_8));
         }
+        static Response download(int status, String fileName, byte[] body) {
+            // Explicit download metadata is required by several OEM browsers
+            // and file managers (including some tablet document providers).
+            return new Response(status, "application/octet-stream; charset=binary",
+                    body).withDownloadName(fileName);
+        }
+        private String downloadName;
+        private Response withDownloadName(String value) { downloadName = value; return this; }
     }
 
     private final int port;
@@ -144,14 +152,22 @@ final class LocalApiServer {
     }
 
     private static void writeResponse(OutputStream output, Response response) throws IOException {
-        String reason = response.status == 200 ? "OK" : response.status == 400 ? "Bad Request"
-                : response.status == 404 ? "Not Found" : response.status == 409 ? "Conflict"
-                : response.status == 500 ? "Internal Server Error" : "Error";
-        String header = "HTTP/1.1 " + response.status + " " + reason + "\r\n"
-                + "Content-Type: " + response.contentType + "\r\n"
-                + "Content-Length: " + response.body.length + "\r\n"
-                + "Connection: close\r\n\r\n";
-        output.write(header.getBytes(StandardCharsets.US_ASCII));
+        String reason = response.status == 200 ? "OK" : response.status == 204 ? "No Content"
+                : response.status == 400 ? "Bad Request" : response.status == 404 ? "Not Found"
+                : response.status == 409 ? "Conflict" : response.status == 500 ? "Internal Server Error" : "Error";
+        StringBuilder header = new StringBuilder("HTTP/1.1 ").append(response.status).append(" ").append(reason).append("\r\n")
+                .append("Content-Type: ").append(response.contentType).append("\r\n")
+                .append("Content-Length: ").append(response.body.length).append("\r\n")
+                .append("Cache-Control: no-store\r\n")
+                .append("Access-Control-Allow-Origin: *\r\n")
+                .append("Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n")
+                .append("Access-Control-Allow-Headers: Content-Type\r\n");
+        if (response.downloadName != null) {
+            String safeName = response.downloadName.replaceAll("[^A-Za-z0-9._-]", "_");
+            header.append("Content-Disposition: attachment; filename=\"").append(safeName).append("\"\r\n");
+        }
+        header.append("Connection: close\r\n\r\n");
+        output.write(header.toString().getBytes(StandardCharsets.US_ASCII));
         output.write(response.body);
         output.flush();
     }

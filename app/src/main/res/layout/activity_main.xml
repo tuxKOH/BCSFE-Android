@@ -3,36 +3,36 @@
     android:layout_width="match_parent" android:layout_height="match_parent"
     android:orientation="horizontal" android:background="@color/paper">
 
-    <LinearLayout android:id="@+id/sessionPanel" android:layout_width="280dp"
+    <LinearLayout android:id="@+id/sessionPanel" android:layout_width="300dp"
         android:layout_height="match_parent" android:orientation="vertical"
-        android:visibility="gone" android:background="@drawable/panel" android:padding="12dp">
+        android:visibility="gone" android:background="@color/surface_tint" android:padding="16dp">
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:text="@string/sessions" android:textColor="@color/ink" android:textSize="20sp"
+            android:text="@string/sessions" android:textColor="@color/ink" android:textSize="24sp"
             android:textStyle="bold" android:padding="8dp" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/sessionImportButton"
-            style="@style/Widget.Material3.Button.OutlinedButton" android:layout_width="match_parent"
-            android:layout_height="48dp" android:text="@string/import_new_session" />
-        <ListView android:id="@+id/sessionList" android:layout_width="match_parent"
-            android:layout_height="0dp" android:layout_weight="1" android:divider="@color/divider"
-            android:dividerHeight="1dp" />
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
             android:text="@string/session_long_press_hint" android:textColor="@color/muted"
-            android:textSize="12sp" android:padding="8dp" />
+            android:textSize="13sp" android:padding="8dp" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/sessionImportButton"
+            style="@style/Widget.Material3.Button.OutlinedButton" android:layout_width="match_parent"
+            android:layout_height="52dp" android:layout_marginTop="8dp" android:text="@string/import_new_session" />
+        <ListView android:id="@+id/sessionList" android:layout_width="match_parent"
+            android:layout_height="0dp" android:layout_weight="1" android:layout_marginTop="12dp"
+            android:divider="@color/divider" android:dividerHeight="1dp" />
     </LinearLayout>
 
     <LinearLayout android:layout_width="0dp" android:layout_height="match_parent"
         android:layout_weight="1" android:orientation="vertical">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="64dp"
-            android:gravity="center_vertical" android:paddingHorizontal="8dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="72dp"
+            android:gravity="center_vertical" android:paddingStart="12dp" android:paddingEnd="12dp">
             <ImageButton android:id="@+id/sessionToggle" android:layout_width="48dp" android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="@string/sessions"
-                android:src="@android:drawable/ic_menu_sort_by_size" android:tint="@color/ink" />
+                android:src="@android:drawable/ic_menu_sort_by_size" android:tint="@color/primary" />
             <TextView android:id="@+id/title" android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:text="@string/app_name" android:textColor="@color/ink"
-                android:textSize="21sp" android:textStyle="bold" />
+                android:textSize="22sp" android:textStyle="bold" android:paddingStart="8dp" />
             <ImageButton android:id="@+id/aboutButton" android:layout_width="48dp" android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="@string/about"
-                android:src="@android:drawable/ic_menu_info_details" android:tint="@color/ink" />
+                android:src="@android:drawable/ic_menu_info_details" android:tint="@color/primary" />
         </LinearLayout>
         <FrameLayout android:id="@+id/content" android:layout_width="match_parent"
             android:layout_height="0dp" android:layout_weight="1" />

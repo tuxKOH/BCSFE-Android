@@ -1,6 +1,7 @@
 package io.github.tuxkoh.bcsfe;
 
 import android.content.Intent;
+import android.content.ActivityNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
@@ -36,6 +37,8 @@ import com.google.android.material.button.MaterialButton;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.text.DateFormat;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -449,7 +452,7 @@ public final class MainActivity extends AppCompatActivity {
 
     private void configureEditorActions(View view) {
         view.findViewById(R.id.exportButton).setOnClickListener(v ->
-                createDocument.launch("EDITED_" + (openedName == null ? "SAVE_DATA" : openedName)));
+                launchCreateDocument("EDITED_" + (openedName == null ? "SAVE_DATA" : openedName)));
         view.findViewById(R.id.uploadButton).setOnClickListener(v -> confirmUpload());
         rootWriteButton = view.findViewById(R.id.rootWriteButton);
         updateRootButton(rootWriteButton);
@@ -621,7 +624,7 @@ public final class MainActivity extends AppCompatActivity {
         new AlertDialog.Builder(this).setTitle(R.string.upload_success).setMessage(text).setNegativeButton(R.string.close,null)
                 .setPositiveButton(R.string.copy_codes,(d,w)->{((android.content.ClipboardManager)getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(android.content.ClipData.newPlainText(getString(R.string.upload_success),text));}).show();
     }
-    private void editSaveManagement() { String[] actions=getResources().getStringArray(R.array.save_management_actions);new AlertDialog.Builder(this).setTitle(R.string.save_management_title).setItems(actions,(d,i)->{if(i==0)createDocument.launch("EDITED_"+(openedName==null?"SAVE_DATA":openedName));else if(i==1)confirmUpload();else confirmExit();}).setNegativeButton(R.string.close,null).show(); }
+    private void editSaveManagement() { String[] actions=getResources().getStringArray(R.array.save_management_actions);new AlertDialog.Builder(this).setTitle(R.string.save_management_title).setItems(actions,(d,i)->{if(i==0)launchCreateDocument("EDITED_"+(openedName==null?"SAVE_DATA":openedName));else if(i==1)confirmUpload();else confirmExit();}).setNegativeButton(R.string.close,null).show(); }
     private void editRegion() { SaveDocument.Region[] regions=SaveDocument.Region.values();String[] names=getResources().getStringArray(R.array.transfer_regions);String[] labels=new String[regions.length];for(int i=0;i<labels.length;i++)labels[i]=(i<names.length?names[i]:regions[i].code().toUpperCase(Locale.ROOT))+(regions[i]==document.region()?getString(R.string.current_suffix):"");new AlertDialog.Builder(this).setTitle(R.string.convert_region_title).setItems(labels,(d,i)->new AlertDialog.Builder(this).setTitle(R.string.convert_region_title).setMessage(R.string.convert_region_warning).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(x,w)->convertRegion(regions[i])).show()).show(); }
     private void convertRegion(SaveDocument.Region target) {
         if (target == document.region()) return;
@@ -658,14 +661,49 @@ public final class MainActivity extends AppCompatActivity {
         reportError("network-"+action,error,save);
     }
 
+    private void launchCreateDocument(String suggestedName) {
+        try {
+            createDocument.launch(suggestedName);
+        } catch (ActivityNotFoundException | IllegalStateException error) {
+            // A few vendor document providers do not expose ACTION_CREATE_DOCUMENT.
+            // Fall back to the Android share sheet instead of losing the export.
+            shareWorkingCopy();
+        }
+    }
+
+    private byte[] currentSaveBytes() { return document == null ? workingCopy : document.toBytes(); }
+
     private void writeDocument(Uri uri) {
         if (uri == null || workingCopy == null) return;
-        try (OutputStream output = getContentResolver().openOutputStream(uri, "wt")) {
+        byte[] data = currentSaveBytes();
+        try (OutputStream output = getContentResolver().openOutputStream(uri, "w")) {
             if (output == null) throw new IllegalStateException("No stream");
-            output.write(document == null ? workingCopy : document.toBytes());
+            output.write(data);
+            output.flush();
             Toast.makeText(this, R.string.exported, Toast.LENGTH_SHORT).show();
         } catch (Exception error) {
             reportError("document-export", error, workingCopy);
+            // Some OEM providers reject mode "wt"/truncate or return no stream.
+            // Sharing a private cache URI works with the system Files app and
+            // gives the user a second, provider-independent save path.
+            shareWorkingCopy();
+        }
+    }
+
+    private void shareWorkingCopy() {
+        if (workingCopy == null) return;
+        try {
+            File dir = new File(getCacheDir(), "exports");
+            if (!dir.exists() && !dir.mkdirs()) throw new IllegalStateException("Cannot create export cache");
+            String name = "EDITED_" + (openedName == null ? "SAVE_DATA" : openedName);
+            File file = new File(dir, name.replaceAll("[^A-Za-z0-9._-]", "_"));
+            try (FileOutputStream output = new FileOutputStream(file, false)) { output.write(currentSaveBytes()); }
+            Uri uri = androidx.core.content.FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", file);
+            Intent share = new Intent(Intent.ACTION_SEND).setType("application/octet-stream").putExtra(Intent.EXTRA_STREAM, uri);
+            share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(Intent.createChooser(share, getString(R.string.export_save)));
+        } catch (Exception error) {
+            reportError("document-share-export", error, workingCopy);
             Toast.makeText(this, R.string.export_failed, Toast.LENGTH_LONG).show();
         }
     }
@@ -1164,6 +1202,9 @@ public final class MainActivity extends AppCompatActivity {
         title.setText(R.string.about);
         View view = inflate(R.layout.screen_about);
         ((TextView) view.findViewById(R.id.version)).setText(getString(R.string.version_format, BuildConfig.VERSION_NAME));
+        view.findViewById(R.id.officialWebsite).setOnClickListener(v -> openUrl("https://bcsfe.cutefireflyuwu.sbs"));
+        view.findViewById(R.id.qqGroup).setOnClickListener(v -> copyToClipboard("QQ", "760083692"));
+        view.findViewById(R.id.discordServer).setOnClickListener(v -> copyToClipboard("Discord", "EE5HceeqYsS"));
         view.findViewById(R.id.androidRepo).setOnClickListener(v -> openUrl("https://github.com/tuxKOH/BCSFE-Android"));
         view.findViewById(R.id.pythonRepo).setOnClickListener(v -> openUrl("https://github.com/fieryhenry/BCSFE-Python"));
         view.findViewById(R.id.languageButton).setOnClickListener(v -> new AlertDialog.Builder(this).setTitle(R.string.choose_language)
@@ -1171,6 +1212,13 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     private void openUrl(String url) { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))); }
+    private void copyToClipboard(String label, String value) {
+        android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        if (clipboard != null) {
+            clipboard.setPrimaryClip(android.content.ClipData.newPlainText(label, value));
+            Toast.makeText(this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
+        }
+    }
     private void toggleSessions(){if(sessionPanel.getVisibility()==View.VISIBLE)hideSessions();else showSessions();}
     private void showSessions(){refreshSessionList();sessionPanel.animate().cancel();sessionPanel.setVisibility(View.VISIBLE);sessionPanel.setAlpha(0f);sessionPanel.setTranslationX(-dp(48));sessionPanel.animate().alpha(1f).translationX(0f).setDuration(220).start();}
     private void hideSessions(){sessionPanel.animate().cancel();sessionPanel.animate().alpha(0f).translationX(-dp(48)).setDuration(180).withEndAction(()->{sessionPanel.setVisibility(View.GONE);sessionPanel.setAlpha(1f);sessionPanel.setTranslationX(0f);}).start();}
@@ -1220,6 +1268,7 @@ public final class MainActivity extends AppCompatActivity {
             int queryAt = path.indexOf('?');
             String query = queryAt < 0 ? "" : path.substring(queryAt + 1);
             if (queryAt >= 0) path = path.substring(0, queryAt);
+            if ("OPTIONS".equalsIgnoreCase(method)) return LocalApiServer.Response.text(204, "{}");
             if ("GET".equalsIgnoreCase(method) && "/status".equals(path)) return apiStatus();
             if ("GET".equalsIgnoreCase(method) && "/export".equals(path)) return apiExport();
             if ("POST".equalsIgnoreCase(method) && "/import".equals(path)) return apiImport(body, query);
@@ -1259,7 +1308,7 @@ public final class MainActivity extends AppCompatActivity {
     private LocalApiServer.Response apiExport() {
         synchronized (apiDocumentLock) {
             if (document == null) return LocalApiServer.Response.text(404, "{\"error\":\"no save loaded\"}");
-            return new LocalApiServer.Response(200, "application/octet-stream", document.toBytes());
+            return LocalApiServer.Response.download(200, "EDITED_SAVE_DATA.save", document.toBytes());
         }
     }
 
