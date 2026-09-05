@@ -32,7 +32,7 @@
     <string name="upload_warning">这将先创建替代账号，再上传当前工作副本并创建新的转移。是否继续？</string><string name="upload_warning_with_ad">这将先创建替代账号，再上传当前工作副本并创建新的转移。是否继续？\n\n按下上传会出现一个弹窗广告来支持我，请勿相信广告内容，上传将会在背景运行。</string><string name="upload_confirm">上传</string><string name="uploading">正在创建替代账号并上传存档……</string><string name="upload_failed">上传失败，本地存档和账号均未被替换。</string><string name="upload_success">转移已创建</string><string name="transfer_result">转移码：%1$s\n确认码：%2$s</string><string name="copy_codes">复制</string>
     <string name="editor_areas">编辑功能</string>
     <string name="safety_notice">请保留一份未经修改的备份。游戏服务器可能拒绝修改后的存档，或对账号进行限制。</string>
-    <string name="search_features">搜索功能</string>
+    <string name="search_features">搜索分类和功能</string>
     <string name="export_save">导出工作副本</string>
     <string name="version_format">版本 %1$s</string>
     <string name="attribution">本 Android 移植版参考并改编自 fieryhenry/BCSFE-Python。感谢 fieryhenry 及其贡献者提供原始存档编辑器。</string>
@@ -184,4 +184,8 @@
     <string name="talent_orb_set_all">批量设置全部本能玉</string>
     <string name="talent_orb_batch_grade_title">选择要批量修改的等级</string><string name="talent_orb_all_grade">全部本能玉</string><string name="talent_orb_grade_label">%1$d 级本能玉</string>
     <string name="root_no_any_game">无法检测到任何地区版本的猫战存在于手机！</string><string name="root_custom_package">自定义</string><string name="root_custom_package_hint">例如 jp.co.ponos.battlecats</string><string name="root_invalid_package">请输入有效的 Android 包名。</string><string name="root_write_target">选择写入目标</string>
+    <string name="category_open_hint">选择一个分类查看其中的编辑功能。</string>
+    <string name="feature_open_hint">点击打开此编辑器。</string>
+    <string name="session_current_badge">当前</string>
+    <string name="session_meta">修改于 %1$s · %2$d 字节</string>
 </resources>

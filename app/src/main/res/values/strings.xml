@@ -32,7 +32,7 @@
     <string name="upload_warning">This first creates a replacement account, then uploads the current working copy and creates a new transfer. Continue?</string><string name="upload_warning_with_ad">This first creates a replacement account, then uploads the current working copy and creates a new transfer. Continue?\n\nPressing Upload will open a pop-up ad to support me. Do not trust the ad content. The upload will continue in the background.</string><string name="upload_confirm">Upload</string><string name="uploading">Creating a replacement account and uploading…</string><string name="upload_failed">Upload failed. The save and account were not replaced locally.</string><string name="upload_success">Transfer created</string><string name="transfer_result">Transfer code: %1$s\nConfirmation code: %2$s</string><string name="copy_codes">Copy</string>
     <string name="editor_areas">Editor areas</string>
     <string name="safety_notice">Keep an untouched backup. Modified saves may be rejected by the game server or result in account restrictions.</string>
-    <string name="search_features">Search features</string>
+    <string name="search_features">Search categories and features</string>
     <string name="export_save">Export working copy</string>
     <string name="version_format">Version %1$s</string>
     <string name="attribution">This Android port references and adapts concepts from fieryhenry/BCSFE-Python. Thanks to fieryhenry and its contributors for the original save editor.</string>
@@ -184,4 +184,6 @@
     <string name="talent_orb_set_all">Set all Talent Orbs</string>
     <string name="talent_orb_batch_grade_title">Choose grade to batch edit</string><string name="talent_orb_all_grade">All Talent Orbs</string><string name="talent_orb_grade_label">Grade %1$d Talent Orbs</string>
     <string name="root_no_any_game">Could not detect a Battle Cats installation for any region on this phone.</string><string name="root_custom_package">Custom package</string><string name="root_custom_package_hint">e.g. jp.co.ponos.battlecats</string><string name="root_invalid_package">Enter a valid Android package name.</string><string name="root_write_target">Choose write target</string>
+    <string name="session_current_badge">CURRENT</string>
+    <string name="session_meta">Edited %1$s · %2$d bytes</string>
 </resources>

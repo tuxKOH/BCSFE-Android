@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:layout_marginStart="2dp" android:layout_marginEnd="2dp"
+    app:cardCornerRadius="14dp" app:cardElevation="0dp" app:cardBackgroundColor="@color/surface">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:minHeight="68dp" android:gravity="center_vertical" android:orientation="horizontal" android:padding="14dp">
+        <TextView android:id="@+id/rowIndex" android:layout_width="34dp" android:layout_height="34dp"
+            android:gravity="center" android:background="@color/surface_tint" android:textColor="@color/primary" android:textStyle="bold" />
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:paddingStart="12dp">
+            <TextView android:id="@+id/rowTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/ink" android:textSize="16sp" android:textStyle="bold" />
+            <TextView android:id="@+id/rowMeta" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:textColor="@color/muted" android:textSize="12sp" />
+        </LinearLayout>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="›" android:textColor="@color/primary" android:textSize="26sp" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

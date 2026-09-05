@@ -10,6 +10,8 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ListView;
@@ -72,6 +74,7 @@ public final class MainActivity extends AppCompatActivity {
     private String sessionId;
     private String unsupportedWarningKey;
     private View sessionPanel;
+    private View sessionScrim;
     private ListView sessionList;
     private Screen screenBeforeAbout = Screen.HOME;
     private boolean adUploadInProgress;
@@ -110,8 +113,10 @@ public final class MainActivity extends AppCompatActivity {
         content = findViewById(R.id.content);
         sessionStore = new SessionStore(getFilesDir());
         title = findViewById(R.id.title);
-        sessionPanel=findViewById(R.id.sessionPanel);sessionList=findViewById(R.id.sessionList);
+        sessionPanel=findViewById(R.id.sessionPanel);sessionScrim=findViewById(R.id.sessionScrim);sessionList=findViewById(R.id.sessionList);
         findViewById(R.id.sessionToggle).setOnClickListener(v->toggleSessions());
+        findViewById(R.id.sessionCloseButton).setOnClickListener(v->hideSessions());
+        sessionScrim.setOnClickListener(v->hideSessions());
         findViewById(R.id.sessionImportButton).setOnClickListener(v->startNewSession());
         configureSessionList();
         findViewById(R.id.aboutButton).setOnClickListener(v -> showAbout());
@@ -158,6 +163,8 @@ public final class MainActivity extends AppCompatActivity {
             var params = new android.widget.LinearLayout.LayoutParams(-1, -2);
             params.bottomMargin = dp(8);
             categories.addView(row, params);
+            row.setAlpha(0f); row.setTranslationY(dp(8));
+            row.animate().alpha(1f).translationY(0f).setStartDelay(Math.min(categories.getChildCount() * 28L, 220L)).setDuration(240).start();
         }
     }
 
@@ -348,7 +355,7 @@ public final class MainActivity extends AppCompatActivity {
 
     private void requestCustomPackage(boolean writing) {
         EditText field=new EditText(this);field.setSingleLine(true);field.setHint(R.string.root_custom_package_hint);
-        new AlertDialog.Builder(this).setTitle(R.string.root_custom_package).setView(field)
+        new AlertDialog.Builder(this).setTitle(R.string.root_custom_package).setView(dialogInput(field))
                 .setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{
                     String packageName=field.getText().toString().trim();
                     if(!packageName.matches("[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+")){Toast.makeText(this,R.string.root_invalid_package,Toast.LENGTH_SHORT).show();return;}
@@ -396,26 +403,37 @@ public final class MainActivity extends AppCompatActivity {
 
     private void showEditorCategories(View view) throws Exception {
         insideCategory=false;activeFeatureId=-1;
-        List<String> all = Arrays.asList(getResources().getStringArray(R.array.category_names));
+        String[] categories = visibleArray(R.array.category_names);
+        String[] categoryEnglish = localeArray(R.array.category_names, Locale.ENGLISH);
+        String[] categorySimplified = localeArray(R.array.category_names, Locale.SIMPLIFIED_CHINESE);
+        String[] categoryTraditional = localeArray(R.array.category_names, Locale.TRADITIONAL_CHINESE);
+        String[] features = visibleArray(R.array.feature_names);
+        String[] featureEnglish = localeArray(R.array.feature_names, Locale.ENGLISH);
+        String[] featureSimplified = localeArray(R.array.feature_names, Locale.SIMPLIFIED_CHINESE);
+        String[] featureTraditional = localeArray(R.array.feature_names, Locale.TRADITIONAL_CHINESE);
         ListView list = view.findViewById(R.id.featureList);
         EditText search = view.findViewById(R.id.search);
-        search.setVisibility(View.GONE);
+        search.setVisibility(View.VISIBLE);
+        search.setHint(R.string.search_features);
         TextView info=view.findViewById(R.id.fileInfo); if(!info.getText().toString().contains(getString(R.string.choose_category))) info.append("\n"+getString(R.string.choose_category));
-        list.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,all));
-        list.setOnItemClickListener((parent,row,position,id)->showFeatureCategory(view,position));
-        configureEditorActions(view);
-    }
-
-    private void showFeatureCategory(View view,int category) {
-        insideCategory=true;
-        String[] source=getResources().getStringArray(R.array.feature_names); int from=FEATURE_RANGES[category][0],to=FEATURE_RANGES[category][1];
-        List<String> all=new ArrayList<>(Arrays.asList(source).subList(from,to));
-        ListView list=view.findViewById(R.id.featureList); EditText search=view.findViewById(R.id.search); search.setVisibility(View.VISIBLE);search.setText("");
         Runnable filter = () -> {
-            String query = search.getText().toString().trim().toLowerCase(Locale.ROOT);
+            String query = search.getText().toString().trim();
+            if (query.isEmpty()) {
+                List<String> shown = new ArrayList<>(Arrays.asList(categories));
+                list.setAdapter(new EditorRowAdapter(shown, ""));
+                list.setOnItemClickListener((parent,row,position,id)->showFeatureCategory(view,position));
+                return;
+            }
             List<String> shown = new ArrayList<>();
-            for (String item : all) if (item.toLowerCase(Locale.ROOT).contains(query)) shown.add(item);
-            list.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, shown));
+            List<String> owners = new ArrayList<>();
+            List<Integer> indexes = new ArrayList<>();
+            for (int index=0; index<features.length; index++) {
+                if (!matchesFuzzy(query, features[index], featureEnglish[index], featureSimplified[index], featureTraditional[index])) continue;
+                int owner = categoryForFeature(index);
+                shown.add(features[index]); owners.add(owner < categories.length ? categories[owner] : ""); indexes.add(index);
+            }
+            list.setAdapter(new EditorRowAdapter(shown, owners));
+            list.setOnItemClickListener((parent,row,position,id)->dispatchFeature(indexes.get(position), shown.get(position)));
         };
         search.addTextChangedListener(new TextWatcher() {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -423,12 +441,98 @@ public final class MainActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {}
         });
         filter.run();
+        configureEditorActions(view);
+    }
+
+    private int categoryForFeature(int featureIndex) {
+        for (int category=0; category<FEATURE_RANGES.length; category++) if (featureIndex >= FEATURE_RANGES[category][0] && featureIndex < FEATURE_RANGES[category][1]) return category;
+        return -1;
+    }
+
+    private final class EditorRowAdapter extends ArrayAdapter<String> {
+        private final List<String> values;
+        private final List<String> metas;
+        EditorRowAdapter(List<String> values, String meta) {
+            this(values, java.util.Collections.nCopies(values.size(), meta));
+        }
+        EditorRowAdapter(List<String> values, List<String> metas) {
+            super(MainActivity.this, 0, values);
+            this.values = values;
+            this.metas = metas;
+        }
+        @Override public View getView(int position, View recycled, ViewGroup parent) {
+            View row = recycled == null ? LayoutInflater.from(MainActivity.this).inflate(R.layout.row_editor_item, parent, false) : recycled;
+            if (row.getTag() == null) {
+                row.setTag(Boolean.TRUE); row.setAlpha(0f); row.setTranslationY(dp(10));
+                row.animate().alpha(1f).translationY(0f).setStartDelay(Math.min(position * 24L, 180L)).setDuration(220).start();
+            }
+            ((TextView) row.findViewById(R.id.rowIndex)).setText(String.valueOf(position + 1));
+            ((TextView) row.findViewById(R.id.rowTitle)).setText(values.get(position));
+            String meta = position < metas.size() ? metas.get(position) : "";
+            TextView rowMeta = row.findViewById(R.id.rowMeta);
+            rowMeta.setText(meta);
+            rowMeta.setVisibility(meta == null || meta.isEmpty() ? View.GONE : View.VISIBLE);
+            return row;
+        }
+    }
+
+    private void showFeatureCategory(View view,int category) {
+        insideCategory=true;
+        String[] source=visibleArray(R.array.feature_names); int from=FEATURE_RANGES[category][0],to=FEATURE_RANGES[category][1];
+        List<String> all=new ArrayList<>(Arrays.asList(source).subList(from,to));
+        ListView list=view.findViewById(R.id.featureList); EditText search=view.findViewById(R.id.search); search.setVisibility(View.GONE);search.setText("");
+        list.setAdapter(new EditorRowAdapter(all, ""));
         list.setOnItemClickListener((parent, row, position, id) -> {
-            String feature = ((TextView) row).getText().toString();
+            TextView featureTitle = row.findViewById(R.id.rowTitle);
+            String feature = featureTitle == null ? String.valueOf(row) : featureTitle.getText().toString();
             dispatchFeature(Arrays.asList(source).indexOf(feature), feature);
         });
     }
 
+    /** Reads the rendered resource text itself; never uses the XML resource name/key. */
+    private String[] visibleArray(int arrayId) {
+        CharSequence[] visible = getResources().getTextArray(arrayId);
+        String[] result = new String[visible.length];
+        for (int i = 0; i < visible.length; i++) result[i] = visible[i].toString();
+        return result;
+    }
+
+    /** Returns the text users actually see in a selected locale, not a resource key. */
+    private String[] localeArray(int arrayId, Locale locale) {
+        try {
+            android.content.res.Configuration configuration = new android.content.res.Configuration(getResources().getConfiguration());
+            configuration.setLocale(locale);
+            configuration.setLocales(new android.os.LocaleList(locale));
+            CharSequence[] visible = createConfigurationContext(configuration).getResources().getTextArray(arrayId);
+            String[] result = new String[visible.length];
+            for (int i = 0; i < visible.length; i++) result[i] = visible[i].toString();
+            return result;
+        } catch (RuntimeException ignored) { return getResources().getStringArray(arrayId); }
+    }
+
+    private boolean matchesFuzzy(String query, String localized, String english, String simplified, String traditional) {
+        if (query == null || query.trim().isEmpty()) return true;
+        String needle = normalizeSearch(query);
+        return fuzzyContains(normalizeSearch(localized), needle)
+                || fuzzyContains(normalizeSearch(english), needle)
+                || fuzzyContains(normalizeSearch(simplified), needle)
+                || fuzzyContains(normalizeSearch(traditional), needle);
+    }
+
+    private boolean fuzzyContains(String text, String needle) {
+        if (needle.isEmpty()) return true;
+        if (text.contains(needle)) return true;
+        int next=0;
+        for (int i=0;i<text.length() && next<needle.length();i++) if(text.charAt(i)==needle.charAt(next))next++;
+        return next==needle.length();
+    }
+
+    private String normalizeSearch(String value) {
+        if (value == null) return "";
+        String normalized=value.toLowerCase(Locale.ROOT).replaceAll("\\s+", "");
+        try { return android.icu.text.Transliterator.getInstance("Traditional-Simplified").transliterate(normalized); }
+        catch (RuntimeException ignored) { return normalized; }
+    }
     private void dispatchFeature(int id,String titleText) {
         activeFeatureId=id;
         try { switch(id) {
@@ -464,7 +568,7 @@ public final class MainActivity extends AppCompatActivity {
 
     private void receiveTransfer() {
         final String[] regionCodes = {"en", "jp", "tw", "kr"};
-        LinearLayout form = new LinearLayout(this); form.setOrientation(LinearLayout.VERTICAL); form.setPadding(dp(24), dp(8), dp(24), 0);
+        LinearLayout form = new LinearLayout(this); form.setOrientation(LinearLayout.VERTICAL); form.setPadding(dp(24), dp(4), dp(24), dp(8));
         EditText transfer = new EditText(this); transfer.setHint(R.string.enter_transfer); transfer.setSingleLine(true);
         transfer.setKeyListener(android.text.method.DigitsKeyListener.getInstance("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"));
         EditText pin = new EditText(this); pin.setHint(R.string.enter_pin); pin.setSingleLine(true);
@@ -718,7 +822,7 @@ public final class MainActivity extends AppCompatActivity {
         NumberChange[] changes = {document::setNormalTickets, document::setRareTickets, document::setPlatinumTickets, document::setLegendTickets};
         String[] rows={labels[0]+": "+values[0],labels[1]+": "+values[1],labels[2]+": "+values[2],labels[3]+": "+values[3],labels[4]};new AlertDialog.Builder(this).setTitle(R.string.tickets_title).setItems(rows,(d,i)->{if(i<4)editNumberText(labels[i],values[i],changes[i]);else tradeRareTickets();}).setNegativeButton(R.string.close,null).show();
     }
-    private void tradeRareTickets() { EditText field=numberField(R.string.rare_trade_amount,"1");new AlertDialog.Builder(this).setTitle(R.string.rare_trade_title).setView(field).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{try{document.tradeRareTickets(Integer.parseInt(field.getText().toString()));persistApplied();}catch(IllegalStateException e){Toast.makeText(this,R.string.storage_full,Toast.LENGTH_LONG).show();}catch(Exception e){Toast.makeText(this,R.string.invalid_number,Toast.LENGTH_SHORT).show();}}).show(); }
+    private void tradeRareTickets() { EditText field=numberField(R.string.rare_trade_amount,"1");new AlertDialog.Builder(this).setTitle(R.string.rare_trade_title).setView(dialogInput(field)).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{try{document.tradeRareTickets(Integer.parseInt(field.getText().toString()));persistApplied();}catch(IllegalStateException e){Toast.makeText(this,R.string.storage_full,Toast.LENGTH_LONG).show();}catch(Exception e){Toast.makeText(this,R.string.invalid_number,Toast.LENGTH_SHORT).show();}}).show(); }
     private void editSeeds() {
         if(!document.hasItemProfile()){unsupportedVersion();return;}
         String[] labels=getResources().getStringArray(R.array.seed_labels);long[] values={document.rareSeed(),document.normalSeed(),document.eventSeed()};LongChange[] changes={document::setRareSeed,document::setNormalSeed,document::setEventSeed};String[] rows=new String[labels.length];for(int i=0;i<labels.length;i++)rows[i]=labels[i]+": "+values[i];new AlertDialog.Builder(this).setTitle(R.string.seeds_title).setItems(rows,(d,i)->editLongText(labels[i],values[i],changes[i])).setNegativeButton(R.string.close,null).show();
@@ -771,7 +875,7 @@ public final class MainActivity extends AppCompatActivity {
     private void editBattleItemsMenu() { String[] actions=getResources().getStringArray(R.array.battle_item_actions);new AlertDialog.Builder(this).setTitle(R.string.battle_items_title).setItems(actions,(d,i)->{if(i==0)editBattleItems();else editEndlessBattleItems();}).setNegativeButton(R.string.close,null).show(); }
     private void editEndlessBattleItems() { String[] actions={getString(R.string.endless_one_action),getString(R.string.endless_all_action)};new AlertDialog.Builder(this).setTitle(R.string.endless_duration_title).setItems(actions,(d,i)->{if(i==0)requestIndex(R.string.battle_item_id_label,6,this::editEndlessBattleItem);else editEndlessDuration(-1);}).setNegativeButton(R.string.close,null).show(); }
     private void editEndlessBattleItem(int index) { editEndlessDuration(index); }
-    private void editEndlessDuration(int index) { EditText field=new EditText(this);field.setSingleLine(true);field.setHint(R.string.endless_duration_label);double current=index<0?0:document.endlessBattleDurationMinutes(index);field.setText(Double.isInfinite(current)?getString(R.string.infinity):Double.toString(current));new AlertDialog.Builder(this).setTitle(R.string.endless_duration_title).setView(field).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{try{String raw=field.getText().toString().trim();double minutes=raw.equalsIgnoreCase(getString(R.string.infinity))?Double.POSITIVE_INFINITY:Double.parseDouble(raw);if(index<0)for(int item=0;item<6;item++)document.setEndlessBattleDurationMinutes(item,minutes);else document.setEndlessBattleDurationMinutes(index,minutes);persistApplied();}catch(Exception e){Toast.makeText(this,R.string.invalid_number,Toast.LENGTH_SHORT).show();}}).show(); }
+    private void editEndlessDuration(int index) { EditText field=new EditText(this);field.setSingleLine(true);field.setHint(R.string.endless_duration_label);double current=index<0?0:document.endlessBattleDurationMinutes(index);field.setText(Double.isInfinite(current)?getString(R.string.infinity):Double.toString(current));new AlertDialog.Builder(this).setTitle(R.string.endless_duration_title).setView(dialogInput(field)).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{try{String raw=field.getText().toString().trim();double minutes=raw.equalsIgnoreCase(getString(R.string.infinity))?Double.POSITIVE_INFINITY:Double.parseDouble(raw);if(index<0)for(int item=0;item<6;item++)document.setEndlessBattleDurationMinutes(item,minutes);else document.setEndlessBattleDurationMinutes(index,minutes);persistApplied();}catch(Exception e){Toast.makeText(this,R.string.invalid_number,Toast.LENGTH_SHORT).show();}}).show(); }
     private void editOrbsAndMaterials() { String[] actions=getResources().getStringArray(R.array.orb_material_actions);new AlertDialog.Builder(this).setTitle(R.string.orb_material_title).setItems(actions,(d,i)->runFieldAction(()->{if(i==0)editTalentOrbs();else editBaseMaterials();})).setNegativeButton(R.string.close,null).show(); }
     private void editTalentOrbs() { String[] actions=getResources().getStringArray(R.array.talent_orb_actions);new AlertDialog.Builder(this).setTitle(R.string.talent_orbs_title).setItems(actions,(d,i)->runFieldAction(()->{if(i==0)addTalentOrb();else if(i==3)chooseBatchOrbGrade();else if(document.talentOrbCount()==0)Toast.makeText(this,R.string.no_talent_orbs,Toast.LENGTH_SHORT).show();else if(i==1)chooseTalentOrb(false);else chooseTalentOrb(true);})).setNegativeButton(R.string.close,null).show(); }
     private void chooseBatchOrbGrade() { String[] source=getResources().getStringArray(R.array.talent_orb_grades);String[] grades=java.util.Arrays.copyOf(source,source.length);grades[grades.length-1]=getString(R.string.talent_orb_all_grade);new AlertDialog.Builder(this).setTitle(R.string.talent_orb_batch_grade_title).setItems(grades,(d,choice)->editTalentOrbsAtGrade(choice==grades.length-1?-1:choice)).setNegativeButton(R.string.close,null).show(); }
@@ -1084,14 +1188,14 @@ public final class MainActivity extends AppCompatActivity {
     private void chooseGamblingStart(SaveDocument.GamblingTable type,boolean remove) { int count=document.gamblingStartCount(type);if(count==0){Toast.makeText(this,R.string.no_gambling_records,Toast.LENGTH_SHORT).show();return;}String[] rows=new String[count];for(int i=0;i<count;i++)rows[i]=getString(R.string.gambling_row,document.gamblingStartKey(type,i),document.gamblingStartDate(type,i));new AlertDialog.Builder(this).setTitle(R.string.gambling_title).setItems(rows,(d,i)->{if(remove){document.removeGamblingStart(type,i);persistApplied();}else editNumberText(rows[i],document.gamblingStartDate(type,i),v->document.setGamblingStartDate(type,i,v));}).setNegativeButton(R.string.close,null).show(); }
     private void editPassAndRestart() { String[] actions=getResources().getStringArray(R.array.pass_restart_actions);new AlertDialog.Builder(this).setTitle(R.string.pass_restart_title).setItems(actions,(d,i)->{if(i==0)editNumberText(actions[i],Math.max(1,document.goldPassOfficerId()),v->document.grantGoldPass(v,System.currentTimeMillis()/1000L,30));else if(i==1){document.removeGoldPass();persistApplied();}else{document.setRestartPackState(1);persistApplied();}}).setNegativeButton(R.string.close,null).show(); }
     private interface LongChange { void apply(long value); }
-    private void editLong(int title,long current,LongChange change) { EditText field=new EditText(this);field.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);field.setText(String.valueOf(current));new AlertDialog.Builder(this).setTitle(title).setView(field).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{try{change.apply(Long.parseLong(field.getText().toString()));workingCopy=document.toBytes();persistSession(false,getString(title));}catch(NumberFormatException e){Toast.makeText(this,R.string.invalid_number,Toast.LENGTH_SHORT).show();}}).show(); }
-    private void editLongText(String title,long current,LongChange change) { EditText field=new EditText(this);field.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_SIGNED);field.setText(String.valueOf(current));new AlertDialog.Builder(this).setTitle(title).setView(field).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{try{change.apply(Long.parseLong(field.getText().toString()));workingCopy=document.toBytes();persistSession(false,title);}catch(NumberFormatException e){Toast.makeText(this,R.string.invalid_number,Toast.LENGTH_SHORT).show();}}).show(); }
-    private void requestMissionId(int[] ids,IndexChange change) { EditText field=new EditText(this);field.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);field.setHint(R.string.mission_id_hint);new AlertDialog.Builder(this).setTitle(R.string.mission_id_label).setView(field).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{try{int id=Integer.parseInt(field.getText().toString());boolean found=false;for(int value:ids)if(value==id){found=true;break;}if(!found)throw new NumberFormatException();change.apply(id);}catch(NumberFormatException e){Toast.makeText(this,R.string.invalid_mission_id,Toast.LENGTH_SHORT).show();}}).show(); }
-    private void requestEnemyGuideId(IndexChange change) { EditText field=new EditText(this);field.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);field.setHint(getString(R.string.enemy_id_hint,2,document.enemyGuideCount()+1));new AlertDialog.Builder(this).setTitle(R.string.enemy_id_label).setView(field).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{try{int displayed=Integer.parseInt(field.getText().toString());if(displayed<2||displayed>document.enemyGuideCount()+1)throw new NumberFormatException();change.apply(displayed-2);}catch(NumberFormatException e){Toast.makeText(this,R.string.invalid_number,Toast.LENGTH_SHORT).show();}}).show(); }
+    private void editLong(int title,long current,LongChange change) { EditText field=new EditText(this);field.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);field.setText(String.valueOf(current));new AlertDialog.Builder(this).setTitle(title).setView(dialogInput(field)).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{try{change.apply(Long.parseLong(field.getText().toString()));workingCopy=document.toBytes();persistSession(false,getString(title));}catch(NumberFormatException e){Toast.makeText(this,R.string.invalid_number,Toast.LENGTH_SHORT).show();}}).show(); }
+    private void editLongText(String title,long current,LongChange change) { EditText field=new EditText(this);field.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_SIGNED);field.setText(String.valueOf(current));new AlertDialog.Builder(this).setTitle(title).setView(dialogInput(field)).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{try{change.apply(Long.parseLong(field.getText().toString()));workingCopy=document.toBytes();persistSession(false,title);}catch(NumberFormatException e){Toast.makeText(this,R.string.invalid_number,Toast.LENGTH_SHORT).show();}}).show(); }
+    private void requestMissionId(int[] ids,IndexChange change) { EditText field=new EditText(this);field.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);field.setHint(R.string.mission_id_hint);new AlertDialog.Builder(this).setTitle(R.string.mission_id_label).setView(dialogInput(field)).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{try{int id=Integer.parseInt(field.getText().toString());boolean found=false;for(int value:ids)if(value==id){found=true;break;}if(!found)throw new NumberFormatException();change.apply(id);}catch(NumberFormatException e){Toast.makeText(this,R.string.invalid_mission_id,Toast.LENGTH_SHORT).show();}}).show(); }
+    private void requestEnemyGuideId(IndexChange change) { EditText field=new EditText(this);field.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);field.setHint(getString(R.string.enemy_id_hint,2,document.enemyGuideCount()+1));new AlertDialog.Builder(this).setTitle(R.string.enemy_id_label).setView(dialogInput(field)).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{try{int displayed=Integer.parseInt(field.getText().toString());if(displayed<2||displayed>document.enemyGuideCount()+1)throw new NumberFormatException();change.apply(displayed-2);}catch(NumberFormatException e){Toast.makeText(this,R.string.invalid_number,Toast.LENGTH_SHORT).show();}}).show(); }
     private void runFieldAction(Runnable action) { try{action.run();}catch(RuntimeException error){showFieldError(error);} }
     private interface IndexChange { void apply(int index); }
-    private void requestIndex(int title,int count,IndexChange change) { if(count<=0){showFieldError();return;}EditText field=new EditText(this);field.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);field.setHint(getString(R.string.index_range,count-1));new AlertDialog.Builder(this).setTitle(title).setView(field).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{try{int value=Integer.parseInt(field.getText().toString());if(value<0||value>=count)throw new NumberFormatException();change.apply(value);}catch(NumberFormatException e){Toast.makeText(this,R.string.invalid_number,Toast.LENGTH_SHORT).show();}catch(RuntimeException e){showFieldError();}}).show(); }
-    private void requestNumberRange(int title,int min,int max,IndexChange change) { EditText field=new EditText(this);field.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);field.setHint(getString(R.string.number_range,min,max));new AlertDialog.Builder(this).setTitle(title).setView(field).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{try{int value=Integer.parseInt(field.getText().toString());if(value<min||value>max)throw new NumberFormatException();change.apply(value);}catch(NumberFormatException e){Toast.makeText(this,R.string.invalid_number,Toast.LENGTH_SHORT).show();}catch(RuntimeException e){showFieldError();}}).show(); }
+    private void requestIndex(int title,int count,IndexChange change) { if(count<=0){showFieldError();return;}EditText field=new EditText(this);field.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);field.setHint(getString(R.string.index_range,count-1));new AlertDialog.Builder(this).setTitle(title).setView(dialogInput(field)).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{try{int value=Integer.parseInt(field.getText().toString());if(value<0||value>=count)throw new NumberFormatException();change.apply(value);}catch(NumberFormatException e){Toast.makeText(this,R.string.invalid_number,Toast.LENGTH_SHORT).show();}catch(RuntimeException e){showFieldError();}}).show(); }
+    private void requestNumberRange(int title,int min,int max,IndexChange change) { EditText field=new EditText(this);field.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);field.setHint(getString(R.string.number_range,min,max));new AlertDialog.Builder(this).setTitle(title).setView(dialogInput(field)).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{try{int value=Integer.parseInt(field.getText().toString());if(value<min||value>max)throw new NumberFormatException();change.apply(value);}catch(NumberFormatException e){Toast.makeText(this,R.string.invalid_number,Toast.LENGTH_SHORT).show();}catch(RuntimeException e){showFieldError();}}).show(); }
     private void persistApplied() { workingCopy=document.toBytes();persistSession(false,getString(R.string.history_batch_edit));Toast.makeText(this,R.string.edit_applied,Toast.LENGTH_SHORT).show(); }
     private void editTreasureGroup() {
         if (!document.hasItemProfile()) { unsupportedVersion(); return; }
@@ -1112,7 +1216,7 @@ public final class MainActivity extends AppCompatActivity {
     }
     private void editNumberText(String label, int current, NumberChange change) {
         EditText field = new EditText(this); field.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_SIGNED); field.setText(String.valueOf(current));
-        AlertDialog dialog = new AlertDialog.Builder(this).setTitle(label).setView(field).setNegativeButton(R.string.close, null).setPositiveButton(android.R.string.ok, (window, which) -> {
+        AlertDialog dialog = new AlertDialog.Builder(this).setTitle(label).setView(dialogInput(field)).setNegativeButton(R.string.close, null).setPositiveButton(android.R.string.ok, (window, which) -> {
             final int value;
             try { value=Integer.parseInt(field.getText().toString().trim()); } catch (NumberFormatException ignored) { Toast.makeText(this,R.string.invalid_number,Toast.LENGTH_SHORT).show();return; }
             try { change.apply(value); } catch (IllegalArgumentException error) { reportError("editor-value", error); Toast.makeText(this,R.string.invalid_number,Toast.LENGTH_SHORT).show();return; } catch (RuntimeException error) { showFieldError(error);return; }
@@ -1172,7 +1276,7 @@ public final class MainActivity extends AppCompatActivity {
             });
         });
     }
-    private void editString(String label,String current,StringChange change) { EditText field=new EditText(this);field.setSingleLine(true);field.setText(current);new AlertDialog.Builder(this).setTitle(label).setView(field).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{try{change.apply(field.getText().toString());workingCopy=document.toBytes();persistSession(false,label);}catch(Exception e){Toast.makeText(this,R.string.invalid_credential_length,Toast.LENGTH_LONG).show();}}).show(); }
+    private void editString(String label,String current,StringChange change) { EditText field=new EditText(this);field.setSingleLine(true);field.setText(current);new AlertDialog.Builder(this).setTitle(label).setView(dialogInput(field)).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{try{change.apply(field.getText().toString());workingCopy=document.toBytes();persistSession(false,label);}catch(Exception e){Toast.makeText(this,R.string.invalid_credential_length,Toast.LENGTH_LONG).show();}}).show(); }
 
     private void showHistory() {
         if(sessionId==null){Toast.makeText(this,R.string.history_restore_failed,Toast.LENGTH_SHORT).show();return;}
@@ -1220,18 +1324,54 @@ public final class MainActivity extends AppCompatActivity {
         }
     }
     private void toggleSessions(){if(sessionPanel.getVisibility()==View.VISIBLE)hideSessions();else showSessions();}
-    private void showSessions(){refreshSessionList();sessionPanel.animate().cancel();sessionPanel.setVisibility(View.VISIBLE);sessionPanel.setAlpha(0f);sessionPanel.setTranslationX(-dp(48));sessionPanel.animate().alpha(1f).translationX(0f).setDuration(220).start();}
-    private void hideSessions(){sessionPanel.animate().cancel();sessionPanel.animate().alpha(0f).translationX(-dp(48)).setDuration(180).withEndAction(()->{sessionPanel.setVisibility(View.GONE);sessionPanel.setAlpha(1f);sessionPanel.setTranslationX(0f);}).start();}
+    private void showSessions(){
+        refreshSessionList();
+        sessionPanel.animate().cancel(); sessionScrim.animate().cancel();
+        sessionScrim.setVisibility(View.VISIBLE); sessionScrim.setAlpha(0f); sessionScrim.animate().alpha(1f).setDuration(180).start();
+        sessionPanel.setVisibility(View.VISIBLE); sessionPanel.setAlpha(0f); sessionPanel.setTranslationX(-dp(48));
+        sessionPanel.animate().alpha(1f).translationX(0f).setDuration(220).start();
+    }
+    private void hideSessions(){
+        sessionPanel.animate().cancel(); sessionScrim.animate().cancel();
+        sessionPanel.animate().alpha(0f).translationX(-dp(48)).setDuration(180).withEndAction(()->{
+            sessionPanel.setVisibility(View.GONE); sessionPanel.setAlpha(1f); sessionPanel.setTranslationX(0f);
+        }).start();
+        sessionScrim.animate().alpha(0f).setDuration(160).withEndAction(()->{sessionScrim.setVisibility(View.GONE);sessionScrim.setAlpha(1f);}).start();
+    }
     private void startNewSession(){if(!persistSession(true))return;sessionId=null;document=null;workingCopy=null;openedName=null;accountPassword=null;insideCategory=false;hideSessions();showHome();}
+    private final class SessionRowAdapter extends BaseAdapter {
+        private final List<SessionStore.Session> sessions;
+        SessionRowAdapter(List<SessionStore.Session> sessions) { this.sessions = sessions; }
+        @Override public int getCount() { return sessions.size(); }
+        @Override public Object getItem(int position) { return sessions.get(position); }
+        @Override public long getItemId(int position) { return position; }
+        @Override public View getView(int position, View recycled, ViewGroup parent) {
+            View row = recycled == null ? LayoutInflater.from(MainActivity.this).inflate(R.layout.row_session, parent, false) : recycled;
+            if (row.getTag() == null) {
+                row.setTag(Boolean.TRUE); row.setAlpha(0f); row.setTranslationX(-dp(8));
+                row.animate().alpha(1f).translationX(0f).setStartDelay(Math.min(position * 28L, 180L)).setDuration(220).start();
+            }
+            SessionStore.Session session = sessions.get(position);
+            ((TextView) row.findViewById(R.id.sessionName)).setText(session.name);
+            TextView badge = row.findViewById(R.id.sessionBadge);
+            boolean current = session.id.equals(sessionId);
+            badge.setText(current ? getString(R.string.session_current_badge) : "");
+            badge.setVisibility(current ? View.VISIBLE : View.GONE);
+            String modified = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(new Date(session.modifiedAt));
+            ((TextView) row.findViewById(R.id.sessionMeta)).setText(getString(R.string.session_meta, modified, session.save.length));
+            return row;
+        }
+    }
+
     private void configureSessionList(){
         sessionList.setOnItemClickListener((parent,row,position,id)->{try{List<SessionStore.Session> sessions=sessionStore.list();if(position>=sessions.size())return;openSession(sessions.get(position));hideSessions();}catch(Exception error){Toast.makeText(this,R.string.session_switch_failed,Toast.LENGTH_LONG).show();}});
         sessionList.setOnItemLongClickListener((parent,row,position,id)->{try{List<SessionStore.Session> sessions=sessionStore.list();if(position<sessions.size())showSessionActions(sessions.get(position));}catch(Exception error){Toast.makeText(this,R.string.session_switch_failed,Toast.LENGTH_LONG).show();}return true;});
         refreshSessionList();
     }
-    private void refreshSessionList(){try{List<SessionStore.Session> sessions=sessionStore.list();String[] rows=new String[sessions.size()];for(int i=0;i<rows.length;i++)rows[i]=sessions.get(i).name+(sessions.get(i).id.equals(sessionId)?getString(R.string.current_suffix):"");sessionList.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,rows));}catch(Exception ignored){sessionList.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,new String[0]));}}
+    private void refreshSessionList(){try{sessionList.setAdapter(new SessionRowAdapter(sessionStore.list()));}catch(Exception ignored){sessionList.setAdapter(new SessionRowAdapter(new ArrayList<>()));}}
     private void openSession(SessionStore.Session session)throws Exception{if(document!=null&&!persistSession(true))return;SaveDocument replacement=SaveDocument.open(session.save);sessionStore.setCurrent(session.id);sessionId=session.id;document=replacement;workingCopy=session.save;synchronized(apiDocumentLock){apiInitialCopy=workingCopy.clone();}openedName=session.name;accountPassword=session.password;showEditor();refreshSessionList();}
     private void showSessionActions(SessionStore.Session session){String[] actions={getString(R.string.rename_session),getString(R.string.delete_session)};new AlertDialog.Builder(this).setTitle(session.name).setItems(actions,(d,i)->{if(i==0)renameSession(session);else deleteSession(session);}).setNegativeButton(R.string.close,null).show();}
-    private void renameSession(SessionStore.Session session){EditText field=new EditText(this);field.setSingleLine(true);field.setText(session.name);new AlertDialog.Builder(this).setTitle(R.string.rename_session).setView(field).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{try{sessionStore.rename(session.id,field.getText().toString());SessionStore.Session renamed=sessionStore.load(session.id);if(session.id.equals(sessionId)&&renamed!=null){openedName=renamed.name;title.setText(openedName);}refreshSessionList();}catch(Exception error){Toast.makeText(this,R.string.session_save_failed,Toast.LENGTH_LONG).show();}}).show();}
+    private void renameSession(SessionStore.Session session){EditText field=new EditText(this);field.setSingleLine(true);field.setText(session.name);new AlertDialog.Builder(this).setTitle(R.string.rename_session).setView(dialogInput(field)).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{try{sessionStore.rename(session.id,field.getText().toString());SessionStore.Session renamed=sessionStore.load(session.id);if(session.id.equals(sessionId)&&renamed!=null){openedName=renamed.name;title.setText(openedName);}refreshSessionList();}catch(Exception error){Toast.makeText(this,R.string.session_save_failed,Toast.LENGTH_LONG).show();}}).show();}
     private void deleteSession(SessionStore.Session session){new AlertDialog.Builder(this).setTitle(R.string.delete_session).setMessage(R.string.delete_session_confirm).setNegativeButton(R.string.close,null).setPositiveButton(R.string.delete_session,(d,w)->{try{boolean current=session.id.equals(sessionId);sessionStore.delete(session.id);if(current){sessionId=null;document=null;workingCopy=null;openedName=null;accountPassword=null;SessionStore.Session next=sessionStore.load();if(next==null)showHome();else openSession(next);}refreshSessionList();}catch(Exception error){Toast.makeText(this,R.string.session_discard_failed,Toast.LENGTH_LONG).show();}}).show();}
     private boolean persistSession() { return persistSession(false,null); }
     private boolean persistSession(boolean reportFailure) { return persistSession(reportFailure,null); }
@@ -1241,6 +1381,15 @@ public final class MainActivity extends AppCompatActivity {
     private void confirmDiscard() { new AlertDialog.Builder(this).setTitle(R.string.discard_session).setMessage(R.string.discard_confirm).setNegativeButton(R.string.close,null).setPositiveButton(R.string.discard_session,(d,w)->{try{if(sessionId!=null)sessionStore.delete(sessionId);sessionId=null;document=null;workingCopy=null;openedName=null;accountPassword=null;SessionStore.Session next=sessionStore.load();if(next==null)showHome();else openSession(next);refreshSessionList();}catch(Exception error){Toast.makeText(this,R.string.session_discard_failed,Toast.LENGTH_LONG).show();}}).show(); }
     private View inflate(int layout) { content.removeAllViews(); View v = LayoutInflater.from(this).inflate(layout, content, false);v.setAlpha(0f);v.setTranslationY(dp(12));content.addView(v);v.animate().alpha(1f).translationY(0f).setDuration(200).start();return v; }
     private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
+    /** Gives every single-field dialog the same readable horizontal rhythm. */
+    private FrameLayout dialogInput(EditText field) {
+        FrameLayout container = new FrameLayout(this);
+        container.setPadding(dp(24), dp(8), dp(24), dp(4));
+        field.setMinHeight(dp(52));
+        field.setPadding(dp(12), dp(4), dp(12), dp(4));
+        container.addView(field, new FrameLayout.LayoutParams(-1, -2));
+        return container;
+    }
     private String displayName(Uri uri) {
         try (var cursor = getContentResolver().query(uri, new String[]{OpenableColumns.DISPLAY_NAME}, null, null, null)) {
             if (cursor != null && cursor.moveToFirst()) {String name=cursor.getString(0);if(name!=null&&!name.trim().isEmpty())return name;}
