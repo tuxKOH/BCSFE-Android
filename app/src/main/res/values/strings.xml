@@ -75,7 +75,12 @@
     <string-array name="form_actions"><item>Unlock available True Forms</item><item>Force all True Forms</item><item>Remove True Forms</item><item>Unlock available Fourth Forms</item><item>Force all Fourth Forms</item><item>Remove Fourth Forms</item></string-array>
     <string name="back">Back</string>
     <string name="yes">Yes</string><string name="no">No</string><string name="cat_id_label">Cat ID</string><string name="cat_number">Cat %1$d</string><string name="index_range">Valid range: 0–%1$d</string>
-    <string-array name="cat_editor_actions"><item>Edit a cat by ID</item><item>Get all obtainable cats</item><item>Unlock all cats</item><item>Remove all cats (keep progression)</item><item>Set all base levels</item><item>Set all plus levels</item><item>Remove and fully reset all cats</item></string-array><string name="all_cat_base_level">Base level for all cats</string><string name="all_cat_plus_level">Plus level for all cats</string>
+    <string-array name="cat_editor_actions"><item>Edit a cat by ID and name</item><item>Get all obtainable cats</item><item>Unlock all cats</item><item>Remove all cats (keep progression)</item><item>Set all base levels</item><item>Set all plus levels</item><item>Remove and fully reset all cats</item></string-array><string name="all_cat_base_level">Base level for all cats</string><string name="all_cat_plus_level">Plus level for all cats</string>
+    <string name="cat_picker_title">Edit a cat by ID and name</string>
+    <string name="cat_search_hint">id / name</string>
+    <string name="cat_search_empty">No matching cats</string>
+    <string name="cat_named_row">%1$s (%2$d)</string>
+    <string name="unlock_all_cats_warning">This option includes abnormal cats such as Leopard Cat and may cause data errors. For obtainable cats, use Get all obtainable cats.</string>
     <string-array name="cat_detail_labels"><item>Unlocked</item><item>Base level</item><item>Plus level</item><item>Remove and fully reset this cat</item></string-array><string name="cat_current_form_label">Current form: %1$d</string><string name="cat_current_form_title">Choose current form</string><string-array name="cat_form_stages"><item>First form (0)</item><item>Second form (1)</item><item>True form (2)</item><item>Fourth form (3)</item></string-array>
     <string name="cat_extras_title">Talents and Cat Guide</string><string-array name="cat_extra_actions"><item>Toggle Cat Guide reward by cat ID</item><item>Edit talents by cat ID</item><item>Collect all Cat Guide rewards</item><item>Remove all Cat Guide rewards</item><item>Max every available talent</item></string-array><string name="all_talent_level">Level for every available talent</string>
     <string name="talents_title">Talents</string><string name="max_all_talents">Max all talents</string><string name="no_talents">This cat has no talent records.</string><string name="talent_row">Talent %1$d · Level %2$d</string><string name="talent_id">Talent %1$d</string>
@@ -186,4 +191,3526 @@
     <string name="root_no_any_game">Could not detect a Battle Cats installation for any region on this phone.</string><string name="root_custom_package">Custom package</string><string name="root_custom_package_hint">e.g. jp.co.ponos.battlecats</string><string name="root_invalid_package">Enter a valid Android package name.</string><string name="root_write_target">Choose write target</string>
     <string name="session_current_badge">CURRENT</string>
     <string name="session_meta">Edited %1$s · %2$d bytes</string>
+    <string name="cat_abnormal">Abnormal</string>
+    <string name="cat_named_title">%1$s.%2$d</string>
+    <string name="cat_filters">Filters</string>
+    <string name="cat_filter_stage">Form %1$d</string>
+    <string name="cat_filter_stage_short">%1$d</string>
+    <string name="cat_filter_abnormal">Hide abnormal cats</string>
+    <string name="cat_filter_rarity">Rarity</string>
+    <string-array name="cat_filter_rarities"><item>Normal</item><item>EX</item><item>Rare</item><item>Super Rare</item><item>Uber Rare</item><item>Legend Rare</item></string-array>
+    <!-- BEGIN GENERATED CAT NAMES -->
+    <string-array name="cat_names_en">
+        <item>"Cat / Macho Cat / Mohawk Cat"</item>
+        <item>"Tank Cat / Wall Cat / Eraser Cat"</item>
+        <item>"Axe Cat / Brave Cat / Dark Cat"</item>
+        <item>"Gross Cat / Sexy Legs Cat / Macho Leg Cat"</item>
+        <item>"Cow Cat / Giraffe Cat / Lion Cat"</item>
+        <item>"Bird Cat / UFO Cat / The Flying Cat"</item>
+        <item>"Fish Cat / Whale Cat / Island Cat"</item>
+        <item>"Lizard Cat / Dragon Cat / King Dragon Cat"</item>
+        <item>"Titan Cat / Mythical Titan Cat / Jamiera Cat"</item>
+        <item>"Actress Cat / Mother Cat / Beefcake Cat"</item>
+        <item>"Kung Fu Cat / Drunken Master Cat / Dancer Cat"</item>
+        <item>"Mr. / Super Mr. / Hyper Mr."</item>
+        <item>"Bondage Cat / Bondage CatNEO / Ultimate Bondage Cat"</item>
+        <item>"Dom Cat / Executioner / Dark Lazer"</item>
+        <item>"Cats in a Box / Cat Gang / Heavy Assault C.A.T."</item>
+        <item>"Panties Cat / Leaf Cat / Lollycat"</item>
+        <item>"Moneko / Miss MONEKO / Superstar MONEKO"</item>
+        <item>"Tricycle Cat / Biker Cat / Unicycle Cat"</item>
+        <item>"Ninja Cat / Ninja Frog Cat / Flying Ninja Cat"</item>
+        <item>"Zombie Cat / Devil Cat / Skelecat"</item>
+        <item>"Samurai Cat / Knight Cat / Pastry Cat"</item>
+        <item>"Sumo Cat / Madame Sumo / Riceball Cat"</item>
+        <item>"Boogie Cat / Samba Cat / Gato Amigo"</item>
+        <item>"Skirt Cat / Tights Cat / Loincloth Cat"</item>
+        <item>"Valkyrie Cat / True Valkyrie Cat / Holy Valkyrie Cat"</item>
+        <item>"Bahamut Cat / Crazed Bahamut Cat / Awakened Bahamut Cat"</item>
+        <item>"Kerihime / Full color Kerihime / Bridal Princess Punt"</item>
+        <item>"Cat Princess / Cat Princess beauty / "</item>
+        <item>"Capsule Cat / Cramped Cats / "</item>
+        <item>"Masked Cat / Luchador Cat / Luchador Cat"</item>
+        <item>"Bodhisattva Cat / Avalokitesvara Cat / Tathagata Cat"</item>
+        <item>"Delinquent Cat / Angry Delinquent Cat / Ultra Delinquent Cat"</item>
+        <item>"Hip Hop Cat / Dancing Flasher Cat / Can Can Cat"</item>
+        <item>"Kotatsu Cat / Sadako Cat / Octopus Cat"</item>
+        <item>"Nekoluga / Unknown Cat / Ultralan Pasalan"</item>
+        <item>"Nerd Cat / Hacker Cat / Cyberpunk Cat"</item>
+        <item>"Swimmer Cat / Butterfly Cat / Fishman Cat"</item>
+        <item>"Pogo Cat / Masai Cat / Jiangshi Cat"</item>
+        <item>"Wheel Cat / Solar Cat / Chill Cat"</item>
+        <item>"Apple Cat / Face Cat / iCat"</item>
+        <item>"Bath Cat / Sexy Bathtub Cat / Luxury Bath Cat"</item>
+        <item>"Salon Cat / Paris Cat / Cyborg Cat"</item>
+        <item>"Ice Cat / Ice Queen Cat / Ice Crystal Cat"</item>
+        <item>"Cat Machine / Cat Machine Mk 2 / Cat Machine Mk 3"</item>
+        <item>"Lesser Demon Cat / Greater Demon Cat / Greater Balrog Cat"</item>
+        <item>"Maiko Cat / Geisha Cat / "</item>
+        <item>"Jurassic Cat / Jurassic Cat Sitter / Catasaurus"</item>
+        <item>"Viking Cat / Thor Cat / Maximum the Fighter"</item>
+        <item>"Pirate Cat / Captain Cat / Dread Pirate Catley"</item>
+        <item>"Thief Cat / Phantom Thief Cat / Goemon Cat"</item>
+        <item>"Bishop Cat / Monk Cat / Sanzo Cat"</item>
+        <item>"Fortune Teller Cat / Fisherman Cat / Doctor Cat"</item>
+        <item>"Shaman Cat / Necromancer Cat / Necro-Dancer Cat"</item>
+        <item>"Evangelist Cat / Filibuster Cat / Filibuster Cat"</item>
+        <item>" /  / "</item>
+        <item>"Witch Cat / Sorceress Cat / Enchantress Cat"</item>
+        <item>"Archer Cat / Cupid Cat / Cataur"</item>
+        <item>"Marauder Cat / Berserker Cat / Paladin Cat"</item>
+        <item>"Swordsman Cat / Sword Master Cat / Elemental Duelist Cat"</item>
+        <item>"Baby Cat / Baby Cats / Cats in the Cradle / Cats in the Stroller"</item>
+        <item>"Bronze Cat / Michelangelo Cat / Quizmaster Cat"</item>
+        <item>"Sushi Cat / Fried Shrimp Cat / Roe Cat"</item>
+        <item>"Toy Machine Cat / Vendor Cat / Vendor Cat"</item>
+        <item>"Sports Day Cat / Kidnapper Cats / Rampage Cats"</item>
+        <item>"Swordsman / Swordsman Johnny / Swordsman Johnny"</item>
+        <item>"Cow Princess / Giraffe Princess / Giraffe Princess"</item>
+        <item>"PPT48 / Dark PPT48 / PPT46"</item>
+        <item>"Li\'l Gau / Li\'l Gau Gau / Crystal Li\'l Gau Gau"</item>
+        <item>"Reaper / Reaper 999 / Judgment"</item>
+        <item>"Sleeping Beauty Punt / Sleeping Beauty Punt II / Oversleeping Beauty Punt"</item>
+        <item>"Salaryman Cat / Grudge Cat / Ritual Cat"</item>
+        <item>"Sanada Yukimura / Wargod Yukimura / Immortal Yukimura"</item>
+        <item>"Maeda Keiji / Wargod Keiji / Immortal Keiji"</item>
+        <item>"Oda Nobunaga / Wargod Nobunaga / Immortal Nobunaga / Phantasmal Nobunaga"</item>
+        <item>"Reindeer Fish Cat / Sashimi Cat / Xmas Pudding Cat"</item>
+        <item>"Windy / Windy, type α / Divine Windy α / Ultimate Windy α"</item>
+        <item>"Thundia / Thundia, type β / Divine Thundia β / Ultimate Thundia β"</item>
+        <item>"Droid Cat / Droid Cat Mk 2 / SpringDroid"</item>
+        <item>"Space Cat / Major Space Cat / Space Marine Cat"</item>
+        <item>"Adult Cat / Sick Cat / Prisoner Cat"</item>
+        <item>"Evil Cat / Gentleman Cat / Gentleman Bros."</item>
+        <item>"Doll Cats / Cat-o-tron / Nyalladin"</item>
+        <item>"Blue Shinobi / Orange Shinobi / Orange Shinobi"</item>
+        <item>"Sodom / Earth King Sodom / God-Emperor Sodom"</item>
+        <item>"Megidora / Holy Dragon Megidora / God-Emperor Megidora"</item>
+        <item>"Vars / Dragon King Vars / God-Emperor Vars"</item>
+        <item>"Kamukura / God Dragon Kamukura / God-Emperor Kamukura"</item>
+        <item>"Raiden / Dragonslayer Raiden / God-Emperor Raiden"</item>
+        <item>"Rope Jump Cat / Pair Rope Jump Cat / Noodle Cats"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"Crazed Cat / Crazed Macho Cat / Manic Mohawk Cat"</item>
+        <item>"Crazed Tank Cat / Crazed Wall Cat / Manic Eraser Cat"</item>
+        <item>"Crazed Axe Cat / Crazed Brave Cat / Manic Dark Cat"</item>
+        <item>"Crazed Gross Cat / Crazed Sexy Legs Cat / Manic Macho Legs"</item>
+        <item>"Crazed Cow Cat / Crazed Giraffe Cat / Manic Lion Cat"</item>
+        <item>"Crazed Bird Cat / Crazed UFO Cat / Manic Flying Cat"</item>
+        <item>"Crazed Fish Cat / Crazed Whale Cat / Manic Island Cat"</item>
+        <item>"Crazed Lizard Cat / Crazed Dragon Cat / Manic King Dragon"</item>
+        <item>"Crazed Titan Cat / Crazed M. Titan Cat / Manic Jamiera Cat"</item>
+        <item>"Maiden Cat / Sportsgirl Cat / Wrestling Cat"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"Cabaret Cat / Mega Cat / Mega Cat EX"</item>
+        <item>"Koi Cat / Gross Koi Cat / Kiss and Koi"</item>
+        <item>"Kuu / Kuu, type γ / Divine Kuu γ"</item>
+        <item>"Kai / Kai, type μ / Divine Kai μ"</item>
+        <item>"Coppermine / Coppermine, type κ / Divine Coppermine κ"</item>
+        <item>"Cat Bros / Secret Base / Secret Base"</item>
+        <item>"Madam Bride / Madam King / Madam the Savannah"</item>
+        <item>"Celesse / Celesse CC / Celesse CC"</item>
+        <item>"Nono / Nono CC / Frolicking Nono CC"</item>
+        <item>"Olga / Olga CC / Olga CC"</item>
+        <item>"Norn / Norn CC / Norn CC"</item>
+        <item>"Yoichi / Yoichi CC / Yoichi CC"</item>
+        <item>"Serum / Serum CC / Serum CC"</item>
+        <item>"Fuu / Fuu CC / Fuu CC"</item>
+        <item>"Aura / Aura CC / Aura CC"</item>
+        <item>"Rei / Rei CC / Rei CC"</item>
+        <item>"Wyvern / Wyvern Cat / Wyvern and Alec"</item>
+        <item>"Healer / Healer CC / Healer Cat CC"</item>
+        <item>"Merc / Merc CC / Merc &amp; Cat CC"</item>
+        <item>"Vacation Queen / Office Lady Cat / Call Center Cat"</item>
+        <item>"Bean Cats / Brah Cats / Val Val Cat"</item>
+        <item>"Date Masamune / Wargod Masamune / Immortal Masamune"</item>
+        <item>"Takeda Shingen / Wargod Shingen / Immortal Shingen"</item>
+        <item>"Clockwork Cat / Puppetmaster Cat / Puppetmaster &amp; Charley"</item>
+        <item>"Flower Cat / Cooldown Cat / Bombercat"</item>
+        <item>"Vengeful Cat / Groucho Cat / Kite Cat"</item>
+        <item>"Gold Cat / Gold Macho Cat / Glittering Macho Cat"</item>
+        <item>"Ururun Wolf / Ururun Cat / Awakened Ururun"</item>
+        <item>"Neneko / Miss NENEKO / Miss NENEKO"</item>
+        <item>"Kung Fu Cat X / Drunken Master Cat X / Iron Claw X"</item>
+        <item>" /  / "</item>
+        <item>"Urashima Taro / Guardian Gamereon / King Gamereon"</item>
+        <item>"The Grateful Crane / Super Galaxy Cosmo / Ultima Galaxy Cosmo / Supernova Cosmo"</item>
+        <item>"Momotaro / The Peach Angels / The Peach Devils"</item>
+        <item>"Kasa Jizo / Jizo\'s Moving Castle / Jizo\'s Mega-Castle / Ultra Kasa Jizo"</item>
+        <item>"Princess Kaguya / The Death Moon / The Chaos Moon / Ultra Kaguya"</item>
+        <item>" /  / "</item>
+        <item>"Squish Ball Cat / Muscleman Cat / Muscleman Cat"</item>
+        <item>"God / Secret God / Secret God"</item>
+        <item>" /  / "</item>
+        <item>"Nurse Cat / Heartful Nurse Cat / Joyful Nurse Cat"</item>
+        <item>"Cat Base Mini / Cat Base Jr. / Cat Base Ultra"</item>
+        <item>"Cat Gunslinger / Cat Eastwood / Rodeo Cat"</item>
+        <item>"Stilts Cat / Totem Cat / Acrobat Cats"</item>
+        <item>"Tin Cat / Plane Cat / Robocat"</item>
+        <item>"Rocker Cat / Artist Cat / Ramen Cat"</item>
+        <item>"Mer-Cat / Commando Cat / Cameraman Cat"</item>
+        <item>"Juliet Cat / Princess Juliet Cat / Juliet the Maiko"</item>
+        <item>"Weightlifter Cat / Ring Girl Cat / Pizza Cat"</item>
+        <item>"Figure Skating Cats / Drama Cats / Slapstick Cats"</item>
+        <item>"Cat Toaster / Cat Projector / Catophone"</item>
+        <item>"Hoop Cat / Showoff Cat / Hoopmaster Cat"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"Uesugi Kenshin / Wargod Kenshin / Immortal Kenshin / Hellrider Kenshin"</item>
+        <item>"Kalisa / Kalisa, type χ / Divine Kalisa χ"</item>
+        <item>"Yurinchi / Phoenix Yurinchi / Gekirinchi"</item>
+        <item>"Crazed Princess Punt / Crazed Princess Punt CC / Manic Princess Punt"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"Asiluga / Asilan Pasalan / Assassinlan Pasalan"</item>
+        <item>"Kubiluga / Kubilan Pasalan / E. Kubilan Pasalan"</item>
+        <item>"Tecoluga / Tesalan Pasalan / Lufalan Pasalan"</item>
+        <item>"Balaluga / Balalan Pasalan / Piccolan Pasalan"</item>
+        <item>"Li\'l Nyandam / Dark Emperor Catdam / Schoolbus Nyandam"</item>
+        <item>"Baby Mola / Young Man Mola / Citizen Mola"</item>
+        <item>"Mola King / Living Legend / Master of the Pacific"</item>
+        <item>"Meowla Meowla / Catorpedo / Catorpedo"</item>
+        <item>"Marshmallow Cat / Creepmallow / Creepmallow"</item>
+        <item>"Dioramos / Archdragon Dioramos / God-Emperor Dioramos / Ascendant Dioramos"</item>
+        <item>" /  / "</item>
+        <item>"Takuya ＆ Yuki / Takuya, Yuki ＆ Cat / Takuya＆ Lovely Yuki"</item>
+        <item>"Mystery Girl Yuki / Mystery Yuki ＆ Cat / Mystery Catgirl Yuki"</item>
+        <item>"Yuki Cat / Lovely Yuki Cat / Lovely Yuki Cat"</item>
+        <item>" /  / "</item>
+        <item>"Cat Kart R / Cat Kart G / Cat Kart P"</item>
+        <item>"Mr. Ninja / Mint / Mint"</item>
+        <item>"Hearscht / Hearscht CC / Revolutionary Hearscht CC"</item>
+        <item>"Cornelia / Cornelia CC / Cornelia CC"</item>
+        <item>"Juvens / Juvens CC / Holiday Juvens CC"</item>
+        <item>"Mystica / Mystica CC / Savior Mystica CC"</item>
+        <item>"Alois / Alois CC / Alois CC"</item>
+        <item>"Citrouille / Citrouille CC / Citrouille CC"</item>
+        <item>"Titi / Titi CC / Titi Cat CC"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"Akira / Shadow Akira / Inferno Akira"</item>
+        <item>"Mekako Saionji / Dr. Mekako / Mission Control Mekako"</item>
+        <item>"Catman / Dark Catman / Ultimate Catman"</item>
+        <item>"Psychocat / Neo Psychocat / Corrupted Psychocat"</item>
+        <item>"Onmyoji Cat / Magica Cat / Thaumaturge Cat"</item>
+        <item>"Surfer Cat / Castaway Cat / Seafarer Cat"</item>
+        <item>"Metal Cat / Metal Macho / Metal Macho"</item>
+        <item>"Drumcorps Cat / Banner Cat / Mochi Cat"</item>
+        <item>"Baozi Cat / Big Baozi / Big Baozi"</item>
+        <item>"Kachi-Kachi / Fire Squad Kachiyama / Kachiyama Assault Brigade"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"Li\'l Cat / Li\'l Macho Cat / Li\'l Mohawk Cat"</item>
+        <item>"Li\'l Tank Cat / Li\'l Wall Cat / Li\'l Eraser Cat"</item>
+        <item>"Li\'l Axe Cat / Li\'l Brave Cat / Li\'l Dark Cat"</item>
+        <item>"The White Rabbit / The Black Cat / The Grey Fox / The Spectral Cat"</item>
+        <item>"Catburger / Cat Royale / Value Meal Cat"</item>
+        <item>"HYAKUTARO / HYAKUTARO CC / HYAKUTARO CC"</item>
+        <item>"MARCO / MARCO CC / MARCO CC"</item>
+        <item>"TARMA / TARMA CC / TARMA CC"</item>
+        <item>"ERI / ERI CC / ERI CC"</item>
+        <item>"FIO / FIO CC / FIO CC"</item>
+        <item>"SV-001 / SV-001 CC / SV-001 CC"</item>
+        <item>"ALLEN O\'NEIL / ALLEN O\'NEIL CC / ALLEN O\'NEIL CC"</item>
+        <item>"MARS PEOPLE / MARS PEOPLE CC / MARS PEOPLE CC"</item>
+        <item>"HUGE HERMIT / HUGE HERMIT CC / GOLDEN HUGE HERMIT CC"</item>
+        <item>"JUPITER KING / JUPITER KING CC / GOLDEN JUPITER CC"</item>
+        <item>"DONALD MORDEN / GENERAL MORDEN / GOLDEN MORDEN CC"</item>
+        <item>"HI-DO / HI-DO CC / HI-DO MK III"</item>
+        <item>"Warlock and Pierre / Dark Merchant Babil / Mad Doctor Klay"</item>
+        <item>"Pumpcat / Cat O\'Lantern / Harbinger Cat"</item>
+        <item>"Gloomy Neneko / Witchy Neneko / Costumed Witchy Neneko"</item>
+        <item>"Hallowindy / Hallowindy, type α / "</item>
+        <item>"Spooky Thundia / Spooky Thundia, type β / Spooky Thundia, type β"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"Freshman Cat Jobs / Prof. Cat Jobs / Headmaster Cat Jobs"</item>
+        <item>"Rich Cat III / Rich Cat Sr. / Richest Cat"</item>
+        <item>"Sniper the Recruit / Sniper the Heavy / Sniper the Deadeye"</item>
+        <item>"Togeluga / Togelan Pasalan / Shishilan Pasalan"</item>
+        <item>"Frosty Kai / Frosty Kai, type μ / Frostspirit Kai, type μ"</item>
+        <item>"Santa Kuu / Santa Kuu, type γ / Santa Kuu, type γ"</item>
+        <item>"Holy Coppermine / Holy Coppermine, type κ / Holy Coppermine, type κ"</item>
+        <item>"A Gift of Cats / Cat\'s Gift / Cat\'s Gift"</item>
+        <item>"Li\'l Gross Cat / Li\'l Sexy Legs Cat / Li\'l Macho Legs Cat"</item>
+        <item>"Li\'l Cow Cat / Li\'l Giraffe Cat / Li\'l Lion Cat"</item>
+        <item>"Li\'l Bird Cat / Li\'l UFO Cat / Li\'l Flying Cat"</item>
+        <item>"Undead Cat / Bake-Nyanko / Extra-Life Cat"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"Thunder God Zeus / The Majestic Zeus / Almighty Zeus"</item>
+        <item>"Anubis the Protector / Anubis the Unblemished / Almighty Anubis"</item>
+        <item>"Radiant Aphrodite / Megaphrodite / Almighty Aphrodite"</item>
+        <item>"Catway / Drone Cat / Time Traveller Cat"</item>
+        <item>"Hayabusa / Oni Hayabusa / Akuma Hayabusa"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"Catornado / Hurricat / Catyphoon"</item>
+        <item>"Red Riding Mina / Crimson Mina / Awakened Mina"</item>
+        <item>"Baby Gao / Mighty Lord Gao / Mighty Lord Gao"</item>
+        <item>"Crazed Yuki / Crazed Yuki &amp; Cat / Crazed Catgirl Yuki"</item>
+        <item>"Shining Amaterasu / Glorious Amaterasu / Almighty Amaterasu"</item>
+        <item>"Splendid Ganesha / Exalted Ganesha / Almighty Ganesha"</item>
+        <item>"Cheerleader Cat / Waitress Cat / Soba Cat"</item>
+        <item>"Tropical Kalisa / Tropical Kalisa, type χ / Tropical Kalisa, type χ"</item>
+        <item>"Midsummer Rabbit / Midsummer Cat / Brightsummer Cat"</item>
+        <item>"Sunny Neneko / Seaside Neneko / Early Summer Neneko"</item>
+        <item>"Funghi / Funghi \'n\' Cat / Funghi \'n\' Cat"</item>
+        <item>"Tanky / Tanky \'n\' Cat / Tanky \'n\' Cat"</item>
+        <item>"White Cat / Gross White Cat / Gross White Cat"</item>
+        <item>"Fortressy / Castley / Castley"</item>
+        <item>" /  / "</item>
+        <item>"Awa-Odori Cat / So-Ran Cat / Gorgeous Groovin\' Cat"</item>
+        <item>"Pai-Pai / Pai-Pai Z / Pai-Pai DX"</item>
+        <item>"Express Cat / Maglev Cat / Bullet Train Cat"</item>
+        <item>" /  / "</item>
+        <item>"Strike Unit R.E.I. / Assault Unit R.E.I. / Flight Unit R.E.I."</item>
+        <item>"Little Leaguer Cat / Major Leaguer Cat / Golfer Cat"</item>
+        <item>"Madoka Kaname / Madoka &amp; Cat / Ultimate Madoka"</item>
+        <item>"Homura Akemi / Homura &amp; Cat / Devil Homura"</item>
+        <item>"Sayaka Miki / Sayaka &amp; Cat / Sayaka &amp; Cat"</item>
+        <item>"Mami Tomoe / Mami &amp; Cat / Mami &amp; Cat"</item>
+        <item>"Kyoko Sakura / Kyoko &amp; Cat / Kyoko &amp; Cat"</item>
+        <item>"Kyubey / Kyubey &amp; Cat / Kyubey &amp; Cat"</item>
+        <item>"Madoka Cat / Magical Girl Madoka Cat / Magical Girl Madoka Cat"</item>
+        <item>"Homura Cat / Magical Girl Homura Cat / Magical Girl Homura Cat"</item>
+        <item>"Sayaka Cat / Magical Girl Sayaka Cat / Magical Girl Sayaka Cat"</item>
+        <item>"Mami Cat / Magical Girl Mami Cat / Magical Girl Mami Cat"</item>
+        <item>"Kyoko Cat / Magical Girl Kyoko Cat / Magical Girl Kyoko Cat"</item>
+        <item>"Li\'l Madoka / Li\'l Magical Girl Madoka / Li\'l Ultimate Madoka"</item>
+        <item>"Li\'l Homura / Li\'l Magical Girl Homura / Li\'l Devil Homura"</item>
+        <item>"Kyubey Cat / Tank Kyubey Cat / Tank Kyubey Cat"</item>
+        <item>"Lilith Cat / Succubus Cat / Queen Succubus Cat"</item>
+        <item>"Food Stall Cat / Delivery Cat / Cafeteria Cat"</item>
+        <item>"Mighty Kat-A-Pult / CAT-6 Siege Engine / CAT-8 Behemoth / CAT-10 Gigapult"</item>
+        <item>"Mighty Drednot / B.C.S. Lionheart / B.C.S. Tigerclaw / B.C.S. Beartooth"</item>
+        <item>"Mighty Bomburr / NEK-0 Sky Fortress / NEK-02 Air Citadel / NEK-03 Cloud Emperor"</item>
+        <item>"Vaulter Cat / Polevaulter Cat / Housewife Cat"</item>
+        <item>"Gardener Cat / Lumbercat / Weedwacker Cat"</item>
+        <item>" /  / "</item>
+        <item>"Yuletide Nurse / Yule Knight Nurse / Xmas Spirit Nurse"</item>
+        <item>"Li\'l Fish Cat / Li\'l Whale Cat / Li\'l Island Cat"</item>
+        <item>"Li\'l Lizard Cat / Li\'l Dragon Cat / Li\'l King Dragon Cat"</item>
+        <item>"Li\'l Titan Cat / Li\'l Mythical Titan / Li\'l Jamiera Cat"</item>
+        <item>"Years-End Neneko / New Year Neneko / Festive New Year Neneko"</item>
+        <item>"PIKOTARO / NEKOTARO / NEKOTARO"</item>
+        <item>"Wrathful Poseidon / Valiant Poseidon / Almighty Poseidon"</item>
+        <item>"CPAC / PPAP / PPAP"</item>
+        <item>"Miko Mitama / Mitama the Oracle / Mitama the Oracle"</item>
+        <item>"Killer Cat / True Killer Cat / Radical Cat"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"Sarukani / Rock Revengers / The One-Hit Wonders"</item>
+        <item>"Miyamoku Musashi / Heroic Musashi / Awakened Musashi"</item>
+        <item>"Curling Cat / Cleanerbot Cat / Green Shell Cat"</item>
+        <item>"Welterweight Cat / Heavyweight Cat / Ectoweight Cat"</item>
+        <item>"Mobius / Miraculous Mobius / Miraculous Mobius"</item>
+        <item>"Belial / Reckless Belial / Reckless Belial"</item>
+        <item>"Happy 100 / Heartful Happy 100 / Heartful Happy 100"</item>
+        <item>"Eggy Cat / Easter Cat / Easter Egg Cat"</item>
+        <item>"Springtime Kenshin / Full-Bloom Kenshin / Spring Breeze Kenshin"</item>
+        <item>"Bunny &amp; Canard / Disciple Psychoduck / Malevolent Mad-Duck"</item>
+        <item>"Easter Neneko / Hoppity Neneko / Blossoming Neneko"</item>
+        <item>"Shadow Gao / Diabolic Gao / Diabolic Gao"</item>
+        <item>"Trickster Himeyuri / Himeyuri Ninetails / Fox Queen Himeyuri"</item>
+        <item>"Sea Maiden Ruri / Sea Mistress Ruri / Mer-Queen Ruri"</item>
+        <item>"Queen Reika / Pharaoh Reika / Eternal Reika"</item>
+        <item>"HMS Princess / HMS Princess CC / HMS Princess II CC"</item>
+        <item>"Imagawa Yoshimoto / Wargod Yoshimoto / Immortal Yoshimoto"</item>
+        <item>" /  / "</item>
+        <item>"Redhead Yuki Cat / Redhead Lovely Yuki Cat / Redhead Muscled Yuki Cat"</item>
+        <item>"Lost World Yuki / Lost World Yuki ＆ Cat / Lost World Catgirl Yuki"</item>
+        <item>"Maneki Cat / Neo Maneki Cat / Neo Maneki Cat"</item>
+        <item>"Slug Jockey Cat / Slugcat / Slugcat"</item>
+        <item>"Orthos / Orthos CC / Artist Orthos CC"</item>
+        <item>"Michelia / Michelia CC / Naptime Michelia CC"</item>
+        <item>"Todomeki / Todomeki CC / Todomeki CC"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"Twinstars / Twinstars, type Φ / Divine Twinstars Φ"</item>
+        <item>"Hermit Cat / Grandmaster Cat / Masked Grandmaster Cat"</item>
+        <item>" /  / "</item>
+        <item>"Seashore Kai / Seashore Kai, type μ / Seashore Kai, type μ"</item>
+        <item>"Mighty Rekon Korps / Orbital Platform Armageddon / Orbital Annihilator Ragnarok"</item>
+        <item>" /  / "</item>
+        <item>"Wolfchild Deale / Wolf Princess Deale / Jester Queen Deale"</item>
+        <item>"Graveflower Verbena / Verbena the Bride / Opulent Verbena"</item>
+        <item>"Bora / Bazibon / Bazibastra / Bazifenix"</item>
+        <item>"Mizli / Marinmizu / Mizuririn / Mizunade"</item>
+        <item>"Aer / Erphuan / Aervanta / Aervantex"</item>
+        <item>"Saber / Saber CC / Saber Alter CC"</item>
+        <item>"Rin Tohsaka / Rin Tohsaka CC / Rin Tohsaka CC"</item>
+        <item>"Illyasviel / Illyasviel CC / Illyasviel CC"</item>
+        <item>"Archer / Archer CC / Archer CC"</item>
+        <item>"Lancer / Lancer CC / Lancer CC"</item>
+        <item>"Rider / Rider CC / Rider CC"</item>
+        <item>"Gilgamesh / Gilgamesh CC / Gilgamesh CC"</item>
+        <item>"Saber the Cat / Heroic Spirit Saber Cat / Saber Alter Cat"</item>
+        <item>"Sakura the Cat / Apron Sakura Cat / Dreaming Sakura Cat"</item>
+        <item>"Rin the Cat / Mage Rin Cat / Mage Rin Cat"</item>
+        <item>"Illya the Cat / Snow Faerie Illya / Snow Faerie Illya"</item>
+        <item>"Li\'l Shirou / Li\'l Shirou CC / Li\'l Shirou CC"</item>
+        <item>"Li\'l Sakura / Li\'l Sakura CC / Li\'l Sakura CC"</item>
+        <item>"Coin Cat / Macho Coin Cat / Macho Coin Cat"</item>
+        <item>"Rover Cat / Rover Cat Mk II / Catellite"</item>
+        <item>"Fencer Cat / Kendo Cat / The Kitty of Liberty"</item>
+        <item>"Dark Mitama / Gothic Mitama / Gothic Mitama"</item>
+        <item>"Volley Cat / Ballet Cat / Curry Cat"</item>
+        <item>"D\'artanyan / Meow-sketeer / Meow-sketeer"</item>
+        <item>"Farmer Cat / Harvest Cat / Harvest Cat"</item>
+        <item>"Glass Cat / Macho Glass Cat / Macho Crystal Cat"</item>
+        <item>"Masked Yulala / Mystic Yulala / Spiritual Yulala"</item>
+        <item>"Satori Hikami &amp; Cat / Satori Hikami &amp; Cat CC / Satori Hikami &amp; Cat CC"</item>
+        <item>"Akio Yabe / Akio Yabe CC / Akio &amp; Gunder CC"</item>
+        <item>"Sairi Nijitani / Sairi Nijitani CC / Sairi Nijitani CC"</item>
+        <item>"Misaki Konno / Misaki Konno CC / Misaki Konno CC"</item>
+        <item>"Ren Katagiri / Ren Katagiri CC / Ren Katagiri CC"</item>
+        <item>"Karin Nekozuka / Karin Nekozuka CC / Karin Nekozuka CC"</item>
+        <item>"Aoi Hayakawa / Aoi Hayakawa CC / Baseball Mask α"</item>
+        <item>"Mizuki Tachibana / Mizuki Tachibana CC / Baseball Mask β"</item>
+        <item>"Hijiri Rokudo / Hijiri Rokudo CC / Baseball Mask γ"</item>
+        <item>"Saki Nijima / Saki Nijima CC / Samba Saki CC"</item>
+        <item>"Subaru Hoshi / Subaru Hoshi CC / Dark Subaru CC"</item>
+        <item>"Miyabi Oyama / Miyabi Oyama CC / Baseball Mask δ"</item>
+        <item>"Ganglion / Ganglion the Ancient / Ganglion the Unleashed"</item>
+        <item>"Sakura Sonic / Afterschool Sakura / Sacred Blade Sakura / Sacred Blade Sakura Z"</item>
+        <item>" /  / "</item>
+        <item>"Mentori / Mentori CC / Mentori CC"</item>
+        <item>"Imoto / Imoto CC / Imoto CC"</item>
+        <item>"Voli / Volta / Gigavolta"</item>
+        <item>"Shinji &amp; Cat / Plug Suit Shinji / Plug Suit Shinji Black"</item>
+        <item>"Gendo &amp; Fuyutsuki Cats / Moon Gendo &amp; Fuyutsuki Cats / Moon Gendo &amp; Fuyutsuki Cats"</item>
+        <item>"Giraffe Unit-01 / Giraffe Unit-02 / Giraffe Unit-02"</item>
+        <item>"Kaworu &amp; Cat / Plug Suit Kaworu / Moon Kaworu"</item>
+        <item>"Rei Cat / Ayanami Cat (TBC) / Ayanami Cat (TBC)"</item>
+        <item>"Asuka Cat / Apron Asuka / Apron Asuka"</item>
+        <item>"Mari Cat / Special Ops Mari / Special Ops Mari"</item>
+        <item>"Rei Ayanami / Plug Suit Rei / Reunion Li\'l Rei"</item>
+        <item>"Asuka Langley / Plug Suit Asuka / Eyepatch Li\'l Asuka"</item>
+        <item>"Mari Illustrious / Plug Suit Mari / Plug Suit Mari"</item>
+        <item>"EVA Unit-00 / EVA Unit-00 &amp; Cat / EVA Unit-00 &amp; Cat"</item>
+        <item>"EVA Unit-01 / EVA Unit-01 &amp; Cat / Determined Unit-01 &amp; Cat"</item>
+        <item>"EVA Unit-02 / EVA Unit-02 &amp; Cat / Unit-02, Code 777"</item>
+        <item>"Shinji Cat / Toji &amp; Kensuke Cats / Toji &amp; Kensuke Cats"</item>
+        <item>"Moon Operators / NERV Moon / NERV Moon"</item>
+        <item>"Mighty Thermae D-Lux / Subterra Guardians / Subterra Sentinels / Subterra Saviors"</item>
+        <item>"Crazed Moneko / Corrupted Moneko / Corrupted Moneko"</item>
+        <item>"Pokota / Pokota CC / Pokota CC"</item>
+        <item>"Ovis / Ovis CC / Ovis CC"</item>
+        <item>"Coco / Coco CC / Coco CC"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"Mecha-Bun / Mecha-Bun Mk II / Ultimate Mecha-Bun"</item>
+        <item>"Cat Clan Heroes / Cat Guild Heroes / Cat Quest Heroes / Heavenly Cat Heroes"</item>
+        <item>"Souma Cat / Stylish Souma Cat / Stylish Souma Cat"</item>
+        <item>"Otaku Geek Cat / Hacker Geek Cat / Hacker Geek Cat"</item>
+        <item>" /  / "</item>
+        <item>"Detective Vigler / Inspector Gabriel / Section Chief Gravicci / Arcane Commissioner Gravicci"</item>
+        <item>"Betakkuma / Black Betakkuma / Black Betakkuma"</item>
+        <item>"Nekokkuma / Killer Nekokkuma / Killer Nekokkuma"</item>
+        <item>" /  / "</item>
+        <item>"Li\'l Valkyrie / Wind Dancer Valkyrie / Wind Dancer Valkyrie"</item>
+        <item>"Nobiluga / Nobilan Pasalan / Mystican Pasalan"</item>
+        <item>"Cat God the Great / Cat God the Awesome / Cat God the Golden"</item>
+        <item>"Waverider Kuu / Waverider Kuu, type γ / Waverider Kuu, type γ"</item>
+        <item>"Empress Chronos / Chronos the Infinite / Almighty Chronos"</item>
+        <item>"Bebe / Nagisa &amp; Cat / Law of Cycles Nagisa"</item>
+        <item>"D\'arktanyan / Valiant D\'arktanyan / Valiant D\'arktanyan"</item>
+        <item>"Lone Cat and Kitten / Vendor Cat and Kitten / Tourist Cat"</item>
+        <item>"Driller Cat / Power Driller Cat / Neo Driller Cat"</item>
+        <item>"Piledriver Cat / Power Piledriver Cat / Neo Piledriver Cat"</item>
+        <item>"Cutter Cat / Power Cutter Cat / Neo Cutter Cat"</item>
+        <item>"Backhoe Cat / Power Backhoe Cat / Neo Backhoe Cat"</item>
+        <item>"Miter Saw Cat / Power Saw Cat / Neo Saw Cat"</item>
+        <item>"Musashi Miyamoto / Wargod Miyamoto / Immortal Miyamoto"</item>
+        <item>"Jeanne / Jeanne, type ψ / Divine Jeanne ψ"</item>
+        <item>"High Lord Babel / Babel the Darkflame / God-Emperor Babel"</item>
+        <item>"Ushiwakamaru / Colossal Benkei / Colossal Benkei"</item>
+        <item>"Primordial Cat / Modern Cat / Future Cat"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"Wonder MOMOCO / Cutie MOMOCO / Starlight MOMOCO"</item>
+        <item>"Sakura Matou / Sakura Matou CC / Dark Sakura CC"</item>
+        <item>"Shirou the Cat / Novice Mage Shirou Cat / Novice Mage Shirou Cat"</item>
+        <item>"Archer the Cat / Heroic Spirit Archer Cat / Heroic Spirit Archer Cat"</item>
+        <item>"Rider the Cat / Heroic Spirit Rider Cat / Heroic Spirit Rider Cat"</item>
+        <item>"Kotomine &amp; Gilgamesh Cats / Gilgamesh &amp; Kotomine Cats / Gilgamesh &amp; Kotomine Cats"</item>
+        <item>"Legeluga / Legelan Pasalan / Legelan Pasalan"</item>
+        <item>"Filibuster Cat X / Filibuster Cat Y / Metafilibuster"</item>
+        <item>"Mighty Kristul Muu / Doom Engine Pandora / Doom Engine Pandora"</item>
+        <item>"Dogumaru / Doguemon / Reborn Warrior Doguemon"</item>
+        <item>" /  / "</item>
+        <item>"Black Zeus / Dark Lord Zeus / Dark Lord Zeus"</item>
+        <item>"Super Zeus / All-Powerful Super Zeus / Super S-Zeus"</item>
+        <item>"Holy Phoenix / Holy Warrior Phoenix / Head Rococo"</item>
+        <item>"Super Devil / Imposter Super Devil / Super D-Devil"</item>
+        <item>"Satanmaria / Wondermaria / Wondermaria"</item>
+        <item>"Heracrist / Perfect Heracrist / "</item>
+        <item>"Fiendish Nero / Beastly Nero / Beastly Nero"</item>
+        <item>"Prince Yamato / Holy Yamato / Rampaging Yamato"</item>
+        <item>"Rosary Angel / Cross Angel / Strike Angel"</item>
+        <item>"Wakamiko Cat / Warrior King Cat / Warrior King Cat"</item>
+        <item>"Cat Devil / Infernal Cat / Infernal Cat"</item>
+        <item>"Nekonosuke / Old Guardian Cat / Old Guardian Cat"</item>
+        <item>"Lumina / Luminalia / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"Doktor Heaven / Professor Abyss / Professor Abyss"</item>
+        <item>"Benevolent Souma / Souma ＆ Cat / Cat-Eared Souma"</item>
+        <item>"Kano ＆ Souma / Kano ＆ Souma ＆ Cat / Kano ＆ Souma ＆ Cat"</item>
+        <item>"Li\'l Valkyrie Dark / Dark Rider Valkyrie / Dark Rider Valkyrie"</item>
+        <item>"Calette / Calette CC / Calette CC"</item>
+        <item>"Hina / Swordswoman Hina / Swordswoman Hina"</item>
+        <item>"EVA Unit-08 / EVA Unit-08 &amp; Cat / EVA Unit-08 &amp; Cat"</item>
+        <item>"AAA Wunder / NNN Wunder / Vanished NNN Wunder"</item>
+        <item>"Misato Katsuragi / Captain Misato / Captain Misato"</item>
+        <item>"Ritsuko Akagi / First Officer Ritsuko / First Officer Ritsuko"</item>
+        <item>"Rei Ayanami (???) / Awakened Ayanami / Awakened Ayanami"</item>
+        <item>" /  / "</item>
+        <item>"Gaia the Creator / Gaia the Supreme / Gaia the Supreme"</item>
+        <item>"Seabreeze Coppermine / Seabreeze Coppermine, type κ / Seabreeze Coppermine, type κ"</item>
+        <item>"Matador Cat / Flamenco Cat / Bellydance Cat"</item>
+        <item>"Narita Kaihime / Wargod Kaihime / Immortal Kaihime / Cleansing Flame Kaihime"</item>
+        <item>"Shakurel Cat / Shakurel Macho Cat / Shakurel Macho Cat"</item>
+        <item>"Shakurel Lion / Shakurel Lion CC / Shakurel Lion CC"</item>
+        <item>"Shakurel Tiger / Shakurel Tiger CC / Shakurel Tiger CC"</item>
+        <item>"Shakurel Panda / Shakurel Panda CC / Shakurel Panda CC"</item>
+        <item>"Cat Bros / Baka Cat Bros / Baka Cat Bros"</item>
+        <item>"Myrcia / Myrcia, type ξ / Divine Myrcia ξ"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"Relentless Gladios / Gladios the Annihilator / God-Emperor Gladios"</item>
+        <item>"Eyewaltz / Eyewaltz CC / Nameless Eyewaltz CC"</item>
+        <item>"Mightycat / Supercat / Ironcat"</item>
+        <item>"Ryu Cat / Ryu Cat CC / Ryu Cat CC"</item>
+        <item>"Chun-Li Cat / Chun-Li Cat CC / Chun-Li Cat CC"</item>
+        <item>"Akuma / Akuma CC / Akuma CC"</item>
+        <item>"Ryu / Ryu CC / Kage"</item>
+        <item>"Chun-Li / Chun-Li CC / Chun-Li CC"</item>
+        <item>"Guile / Guile CC / Guile CC"</item>
+        <item>"Zangief / Zangief CC / Zangief CC"</item>
+        <item>"Blanka / Blanka CC / Blanka CC"</item>
+        <item>"Dhalsim / Dhalsim CC / Dhalsim CC"</item>
+        <item>"Ken / Ken CC / Crimson King of Battle Ken"</item>
+        <item>"Akuma Giraffe / Akuma Lion / Akuma Lion"</item>
+        <item>"Lasvoss / Ultimate Lasvoss / Lasvoss Reborn"</item>
+        <item>"Good-Luck Ebisu / Bad-Luck Ebisu / Bad-Luck Ebisu"</item>
+        <item>"Medusa Cat / Twintail Medusa Cat / Naga Cat"</item>
+        <item>"Nymph Cat / Medalist Cat / Fiend Cat"</item>
+        <item>"Wushu Cat / Sifu Cat / Shigong Cat"</item>
+        <item>" /  / "</item>
+        <item>"Kintaro / Kinrangers RoboForce / Kinrangers GigaForce"</item>
+        <item>"Snow Angel Twinstars / Snow Angel Twinstars, type Φ / Snow Angel Twinstars, type Φ"</item>
+        <item>"Slime Cat / Jellycat / Jelly Dumpling Cat"</item>
+        <item>"Cossack Cat / Vodka Cat / Royal Guard Cat"</item>
+        <item>"Kasli the Scourge / Ritual Saint Kasli / Ritual Saint Kasli"</item>
+        <item>"Herme / Herme CC / Herme CC"</item>
+        <item>"Teacher BearCat / Assassin BearCat / Cadaver BearCat"</item>
+        <item>"Urs &amp; Fenrir / Urs &amp; Minka / Awakened Urs"</item>
+        <item>"Sharpshooter Saki / Nighthunter Saki / Bad Blaster Saki"</item>
+        <item>"Hades the Punisher / Hades the Deathdealer / Almighty Hades"</item>
+        <item>"Hatsune Miku / Hatsune Miku CC / Hatsune Miku CC"</item>
+        <item>"Sakura Miku / Sakura Miku CC / Sakura Miku CC"</item>
+        <item>"Kagamine Rin &amp; Len / Kagamine Rin &amp; Len CC / Kagamine Rin &amp; Len CC"</item>
+        <item>"Miku Cat / Miku Cat CC / Miku Cat CC"</item>
+        <item>"Rugby Cat / Quarterback Cat / Gridiron Cat"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"Kasli the Bane / Kasli, Daughter of Chaos / Kasli, Daughter of Chaos"</item>
+        <item>"Kyosaka Nanaho / True Kyosaka Nanaho / True Kyosaka Nanaho"</item>
+        <item>"Phantom Cat / Miasma Cat / Bubble Cat"</item>
+        <item>"Papaluga / Papalan Pasalan / Sukelan Kakulan"</item>
+        <item>"Night Oracle Rei / Heavenly Herald Rei / Heavenly Herald Rei"</item>
+        <item>"The 4th Angel / 4th Angel Cat / 4th Angel Cat"</item>
+        <item>"The 6th Angel / 6th Angel Cat / 6th Angel Cat"</item>
+        <item>"The 10th Angel / 10th Angel Cat / 10th Angel Cat"</item>
+        <item>"The 9th Angel / 9th Angel Cat / 9th Angel Cat"</item>
+        <item>"Kaworu Cat / Moon Kaworu Cat / Moon Kaworu Cat"</item>
+        <item>"Bakery Cat / Boomerang Cat / Fried Chicken Cat"</item>
+        <item>"Master Uril / Mystic Uril / Esoteric Uril"</item>
+        <item>"Shaman Khan / All-Loving Shaman Khan / All-Loving Shaman Khan"</item>
+        <item>"Holy Knight Alibaba / Holy King Alibaba / Ghost Alibaba"</item>
+        <item>"Heavenly Jack / Heavenly Lord Jack / Heavenly Lord Jack"</item>
+        <item>"Gacha Cat / Lucky Gacha Cat / Lucky Gacha Cat"</item>
+        <item>"Hell Warden Emma / Hell Sentinel Emma / Hell Commissioner Emma"</item>
+        <item>"Megurine Luka / Megurine Luka CC / Megurine Luka CC"</item>
+        <item>"MEIKO &amp; Cat / MEIKO &amp; Cat CC / MEIKO &amp; Cat CC"</item>
+        <item>"Luka Cat / Luka Cat CC / Luka Cat CC"</item>
+        <item>"Squirtgun Saki / Aquabuster Saki / Aquablaster Saki"</item>
+        <item>"Summerluga / Bikinilan Pasalan / Fabulous Pasalan"</item>
+        <item>"Suntan Cat / Macho Suntan Cat / Permed Suntan Cat"</item>
+        <item>"Lifeguard Cats / Sweet Bro Cats / Gelato Bro Cats"</item>
+        <item>" /  / "</item>
+        <item>"Idi:N / Idi:N2 / Idi:NX"</item>
+        <item>"Gravi / Gravolo / Gravolodon"</item>
+        <item>"Skull Rider Vars / Nightmare King Vars / Halloween Knight Vars"</item>
+        <item>"E. Honda / E. Honda CC / E. Honda CC"</item>
+        <item>"Balrog / Balrog CC / Balrog CC"</item>
+        <item>"Vega / Vega CC / Vega CC"</item>
+        <item>"Sagat / Sagat CC / Sagat CC"</item>
+        <item>"M. Bison / M. Bison CC / M. Bison CC"</item>
+        <item>"C. Honda / C. Honda CC / C. Honda CC"</item>
+        <item>"Balrog Cat / Balrog Cat CC / Balrog Cat CC"</item>
+        <item>"Vega Cat / Vega Cat CC / Vega Cat CC"</item>
+        <item>"Sagat Cat / Sagat Cat CC / Sagat Cat CC"</item>
+        <item>"M. Bison Cat / M. Bison Cat CC / M. Bison Cat CC"</item>
+        <item>"Stone Cat / Boulder Cat / Boulder Cat"</item>
+        <item>"Hatsune Miku: MM2020 Osaka / Hatsune Miku CC: MM2020 Osaka / Hatsune Miku CC: MM2020 Osaka"</item>
+        <item>"Hatsune Miku: MM2020 Tokyo / Hatsune Miku CC: MM2020 Tokyo / Hatsune Miku CC: MM2020 Tokyo"</item>
+        <item>"Keiji Claus / Maeda Christmas / Maeda Christmas DX"</item>
+        <item>"Baby Garu / Mighty Aegis Garu / Mighty Aegis Garu"</item>
+        <item>"Emperor Cat / Tyrant Cat / Tyrant Cat"</item>
+        <item>"Sweet Aphrodite / Chocoladite / Chocoladite"</item>
+        <item>"First-Love Myrcia / First-Love Myrcia ξ / First-Love Myrcia ξ"</item>
+        <item>"Valentine\'s Neneko / Sweetheart Neneko / True Love Neneko"</item>
+        <item>"Snow Miku 2021 / Snow Miku CC 2021 / Snow Miku CC 2021"</item>
+        <item>"KAITO &amp; Cat / KAITO &amp; Cat CC / KAITO &amp; Cat CC"</item>
+        <item>"Neko Rin / Neko Rin CC / Neko Rin CC"</item>
+        <item>"Neko Len / Neko Len CC / Neko Len CC"</item>
+        <item>"Mighty Aethur Ltd. / Atlantis Logistix / Ultra Atlantis Logistix"</item>
+        <item>"Blooming Kamukura / Everbloom Kamukura / Everbloom Lord Kamukura"</item>
+        <item>"Ranma Saotome (M) / Ranma Saotome (F) / Ranma Saotome (F)"</item>
+        <item>"Akane Tendo / Akane Tendo (Gi) / Akane Tendo (Gi)"</item>
+        <item>"Ryoga Hibiki (Pig) / Ryoga Hibiki / Ryoga Hibiki"</item>
+        <item>"Shampoo (Cat) / Shampoo / Shampoo"</item>
+        <item>"Mousse (Duck) / Mousse / Mousse"</item>
+        <item>"Happosai / Happosai (Lewd) / Happosai (Lewd)"</item>
+        <item>"Ukyo Kuonji (GR) / Ukyo Kuonji / Ukyo Kuonji"</item>
+        <item>"Tatewaki Kuno (Gi) / Tatewaki Kuno / Tatewaki Kuno"</item>
+        <item>"Ranma Cat (M) / Ranma Cat (F) / Ranma Cat (F)"</item>
+        <item>"Akane Cat / Akane Cat (Gi) / Akane Cat (Gi)"</item>
+        <item>"Panda Cat / Genma Cat / Genma Cat"</item>
+        <item>"Adventurer Kanna / Swashbuckler Kanna / Fabled Adventure Girl Kanna"</item>
+        <item>" /  / "</item>
+        <item>"Dark Aegis Garu / Dark Beastlord Garu / Dark Beastlord Garu"</item>
+        <item>"Gold Brick Cat / King Ingot Cat / King Nekokhamen"</item>
+        <item>"Godzilla Cat / Shin Godzilla Cat / Shin Godzilla Cat"</item>
+        <item>"Princess Cat / Empress Cat / Empress Cat"</item>
+        <item>"Elder Mask Doron / Cat Mask Doron / Awakened Doron"</item>
+        <item>"Kaguya of the Coast / The Southern Sun / The Southern Sunflare"</item>
+        <item>"Kabuto Cat / Golden Kabuto Cat / Golden Kabuto Cat"</item>
+        <item>"Kuwagata Cat / King Kuwagata Cat / King Kuwagata Cat"</item>
+        <item>"Summoner Satoru / Dark Summoner Satoru / Devil Hunter Satoru"</item>
+        <item>"Amakusa Shiro / Wargod Amakusa / Immortal Amakusa"</item>
+        <item>"Lilin / Lilin, type π / Divine Lilin π"</item>
+        <item>"Hevijak the Wicked / Wicked King Hevijak / God-Emperor Hevijak"</item>
+        <item>"Aku Researcher / Evil Aku Researcher / Cat Researcher"</item>
+        <item>"Jagando Jr. / Lord of Ruin Jagando Jr. / Lord of Ruin Jagando Jr."</item>
+        <item>"Pied Piper Cat / Komuso Cat / Brass Cat"</item>
+        <item>"Kunio-kun / Dodgeball Kunio-kun / Dodgeball Kunio-kun"</item>
+        <item>"Furiluga / Furilan Pasalan / Ragelan Pasalan"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"Brainwashed Cat / Brainwashed Macho Cat / Brainwashed Mohawk Cat"</item>
+        <item>"Calligraphy Cat / Tea Master Cat / Tea Master Cat"</item>
+        <item>"Yamii / Yaminoir / Yaminora"</item>
+        <item>"Mighty Deth-Troy-R / Siege Walker Diabolosa / Obliterator Diabolosa"</item>
+        <item>"Shitakiri Sparrow / Chunchun Haunters / Grand Chunchun Haunters"</item>
+        <item>"White Knight Cyclops / Black Knight Kyklops / Demon Knight Kyklops"</item>
+        <item>"Million-Dollar Cat / Hundred-Million-Dollar Cat / Hundred-Million-Dollar Cat"</item>
+        <item>"Brainwashed Tank Cat / Brainwashed Wall Cat / Brainwashed Eraser Cat"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"Iz the Dancer / Iz the Alluring Dancer / Iz the Alluring Dancer"</item>
+        <item>"Lucifer the Fallen / Grand Lucifer / Almighty Lucifer"</item>
+        <item>"Superfeline / Superfeline II / True Superfeline"</item>
+        <item>"Sweet Love Mekako / Bittersweet Mekako / Minty Love Mekako"</item>
+        <item>"Brainwashed Axe Cat / Brainwashed Brave Cat / Brainwashed Dark Cat"</item>
+        <item>"Firecracker Cat / Macho Firecracker Cat / Macho Firecracker Cat"</item>
+        <item>"Terun / Terun, type ζ / Divine Terun ζ"</item>
+        <item>"Lovestruck Lesser Demon / Lovestruck Greater Demon / Lovestruck Greater Demon"</item>
+        <item>"Hattori Hanzo / Wargod Hanzo / Immortal Hanzo"</item>
+        <item>"Secret Crush Cat / Girlfriend Cat / Girlfriend Cat"</item>
+        <item>"Tomboy Lion Cat / Iron-Masked Lion Cat / Iron-Masked Lion Cat"</item>
+        <item>"Chalkboard Eraser Cat / Chalkboard Punk Cat / Chalkboard Punk Cat"</item>
+        <item>"Elder Beast Naala / Storm Beast Naala / Awakened Naala"</item>
+        <item>"Brainwashed Gross Cat / Brainwashed Sexy Legs Cat / Brainwashed Macho Legs Cat"</item>
+        <item>"Bliza / Blizana / Blizarena"</item>
+        <item>"Ancient Egg: N001 / Mystic Egg: N001 / Haniwa Cat"</item>
+        <item>"Iz the Dancer of Grief / Iz the Lady of Mourning / Iz the Lady of Mourning"</item>
+        <item>"Ancient Egg: N101 / Cinnabar Egg: N101 / Courier Cat"</item>
+        <item>"Ancient Egg: N102 / Teal Egg: N102 / Catarzan"</item>
+        <item>"Sea Serpent Daliasan / Sea King Daliasan / God-Emperor Daliasan"</item>
+        <item>"Chronos the Bride / Wedding Chronos / Wedding Chronos"</item>
+        <item>"Brainwashed Cow Cat / Brainwashed Giraffe Cat / Brainwashed Lion Cat"</item>
+        <item>"Ancient Egg: N103 / Dark Egg: N103 / Gas Mask Cat"</item>
+        <item>"Ancient Egg: N104 / Green Egg: N104 / Surgeon Cat"</item>
+        <item>"Ancient Egg: N201 / Dark Egg: N201 / Exorcist Cat"</item>
+        <item>"Night Beach Lilin / Night Beach Lilinπ / Night Beach Lilinπ"</item>
+        <item>"Brainwashed Bird Cat / Brainwashed UFO Cat / Brainwashed Flying Cat"</item>
+        <item>"Cat Tengu / Grand Yokai Tengu / Immortal Master Tengu"</item>
+        <item>"Ancient Egg: N003 / Evil Egg: N003 / Cat Cactus"</item>
+        <item>"Ancient Egg: N202 / Cinnabar Egg: N202 / Armored Firefly Cat"</item>
+        <item>"Ranma Saotome (Leotard) / Ranma Saotome (Cheer) / Ranma Saotome (Cheer)"</item>
+        <item>"Genma Saotome (Panda) / Genma Saotome / Genma Saotome"</item>
+        <item>"ネコチーター / ネコチーター / ネコチーター"</item>
+        <item>"Mighty Carrowsell / Extraterrestrial Envanz / Extradimensional Envanz"</item>
+        <item>"Ancient Egg: N105 / Teal Egg: N105 / Racquet Cat"</item>
+        <item>"Ancient Egg: N106 / Amber Egg: N106 / Mushroom Cat"</item>
+        <item>"Osamu Mikumo &amp; Cat / Osamu Mikumo &amp; Cat CC / Osamu Mikumo &amp; Cat CC"</item>
+        <item>"Yuma Kuga &amp; Cat / Yuma Kuga &amp; Cat CC / Yuma Kuga &amp; Cat CC"</item>
+        <item>"Chika Amatori &amp; Cat / Chika Amatori &amp; Cat CC / Chika Amatori &amp; Cat CC"</item>
+        <item>"Sakura / Sakura CC / Sakura CC"</item>
+        <item>"Luke / Luke CC / Luke CC"</item>
+        <item>"Spectral Goth Vega / Illusory Guardian Vega / Lady of Deception Vega"</item>
+        <item>"Count Yukimura / Nosferatu Yukimura / Vampiric Yukimura"</item>
+        <item>"Brainwashed Fish Cat / Brainwashed Whale Cat / Brainwashed Island Cat"</item>
+        <item>"Ancient Egg: N004 / Mystic Egg: N004 / Supercar Cat"</item>
+        <item>"Goddess of Light Sirius / Goddess of Sunrise Sirius / Goddess of Sunrise Sirius"</item>
+        <item>"Reindeer Terun / Reindeer Terunζ / Reindeer Terunζ"</item>
+        <item>"Brainwashed Lizard Cat / Brainwashed Dragon Cat / Brainwashed King Dragon Cat"</item>
+        <item>"Meditation Cat / Paragon Cat / Paragon Cat"</item>
+        <item>"Child of Destiny Phono / King of Destiny Phonoa / King of Destiny Phonoa"</item>
+        <item>"Ancient Egg: N000 / Elder Egg: N000 / Ape Lord Luza"</item>
+        <item>"Issun Boshi / Oni Landshaker Kozuchimaru / Oni Battlepod Kozuchimaru"</item>
+        <item>"White Butler Vigler / Black Butler Vigler / Black Butler Vigler"</item>
+        <item>"Brainwashed Titan Cat / Brainwashed Mythic Titan / Brainwashed Jamiera Cat"</item>
+        <item>"Killer Tank Cat / True Killer Tank Cat / True Killer Tank Cat"</item>
+        <item>"Class Rep Cat / Stealth Class Rep Cat / Stealth Class Rep Cat"</item>
+        <item>"Ancient Egg: N107 / Violet Egg: N107 / Cat Chief"</item>
+        <item>"Thunder Jack / Bloody Jack / Lightning Jack"</item>
+        <item>"Rabbit Satoru / Rabbit Champion Satoru / Rabbit Champion Satoru"</item>
+        <item>"Ancient Egg: N005 / Mystic Egg: N005 / Hitman Cat"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"King of Doom Phono / King of Extinction Phono / King of Extinction Phono"</item>
+        <item>"Ancient Egg: N108 / Teal Egg: N108 / Soap Cat"</item>
+        <item>"Ancient Egg: N109 / Dark Egg: N109 / Barrel Cat"</item>
+        <item>"Jetpack Cat / Kinjirou Cat / Kinjirou Cat"</item>
+        <item>"One-Eyed Asuka / Blue-Eyed Asuka / Blue-Eyed Asuka"</item>
+        <item>"EVA Unit-13 / EVA Unit-13 &amp; Cat / EVA Unit-13 &amp; Cat"</item>
+        <item>"Betrothed Balaluga / Betrothed Pasalan / Betrothed Pasalan"</item>
+        <item>"Kaoluga / Kaolan Pasalan / Kaolan Tatalan"</item>
+        <item>"Ancient Egg: N203 / Violet Egg: N203 / Clown Cat"</item>
+        <item>"Coastal Explorer Kanna / Deep-Diver Kanna / Great Deep-Diver Kanna"</item>
+        <item>"Mighty Sphinx Korps / Attack Battalion Convoys / Hyper Battalion Convoys"</item>
+        <item>"Ancient Egg: N111 / Mystic Egg: N111 / Cop Cat"</item>
+        <item>"Ancient Egg: N110 / Amber Egg: N110 / Farmboy Cat"</item>
+        <item>"Maize Cat / Cone Cat / Cone Cat"</item>
+        <item>"Tekachi / Tetsukachi / Adamankachi"</item>
+        <item>"Ancient Egg: N006 / Devil Egg: N006 / Fallen Bear Cat"</item>
+        <item>"High School Kingpin Riki / Dodgeball Riki / Dodgeball Riki"</item>
+        <item>"Hatsune Miku XVI / Hatsune Miku XVI CC / Hatsune Miku XVI CC"</item>
+        <item>"Lightmother Aset / Nefer Aset / Almighty Aset"</item>
+        <item>"Ancient Egg: N112 / Mystic Egg: N112 / Cat Egg Pod"</item>
+        <item>"Ninja Girl Tomoe / Gourmand Ninja Girl Tomoe / Sugar Rush Shinobi Tomoe"</item>
+        <item>"Medal King / Medal Emperor / Medal Emperor"</item>
+        <item>"SOL DAE ROKKER / SOL DAE ROKKER CC / SOL DAE ROKKER CC"</item>
+        <item>"Master of Mind Soractes / Master of Mind Catcrates / Master of Mind Catcrates"</item>
+        <item>"730_1"</item>
+        <item>"Ancient Egg: N204 / Cinnabar Egg: N204 / Lion Dancer Cat"</item>
+        <item>"Daybreaker Izanagi / Dawnbringer Izanagi / Dawnbringer Izanagi"</item>
+        <item>"733_1"</item>
+        <item>"Pegasa / Pegasa, type ν / Pegasa, type ν"</item>
+        <item>"735_1"</item>
+        <item>"Principal Cat / Midlife Crisis Cat / Midlife Crisis Cat"</item>
+        <item>"Frozen Rose Cat / Arctic Bloom Cat / Arctic Bloom Cat"</item>
+        <item>"Floral Kalisa / Floral Kalisa, type χ / Floral Kalisa, type χ"</item>
+        <item>"Izanami of Dusk / Izanami of Eventide / Izanami of Eventide"</item>
+        <item>"740_1"</item>
+        <item>"Trash Cat / Mimic Cat / Mimic Cat"</item>
+        <item>"Voluptuous Peony - Daji / Daji &amp; Cat / Daji &amp; Cat"</item>
+        <item>"Mollyanna Cat / Mesmerizing Tune - Mollyanna / Mesmerizing Tune - Mollyanna"</item>
+        <item>"Madhead / Madhead Cat / Madhead Cat"</item>
+        <item>"Felix the Cat Duke Cat / Mercenary Leader Felix Cat / Mercenary Leader Felix Cat"</item>
+        <item>"Dotty Cat / Birthday Dotty Cat / Birthday Dotty Cat"</item>
+        <item>"Kenshin Himura / Kenshin Himura CC / Kenshin Himura CC"</item>
+        <item>"Sanosuke Sagara / Sanosuke Sagara CC / Sanosuke Sagara CC"</item>
+        <item>"Aoshi Shinomori / Aoshi Shinomori CC / Aoshi Shinomori CC"</item>
+        <item>"Hajime Saito / Hajime Saito CC / Hajime Saito CC"</item>
+        <item>"Li\'l Kaoru / Li\'l Kaoru CC / Li\'l Kaoru CC"</item>
+        <item>"Li\'l Yahiko / Li\'l Yahiko CC / Li\'l Yahiko CC"</item>
+        <item>"Kenshin Cat / Battosai Cat / Battosai Cat"</item>
+        <item>"Kaoru Cat / Swordscat Kaoru / Swordscat Kaoru"</item>
+        <item>"Akechi Mitsuhide / Wargod Mitsuhide / Wargod Mitsuhide"</item>
+        <item>"756_1"</item>
+        <item>"Cake Machine / Wedding Cake Machine / Wedding Cake Machine"</item>
+        <item>"Ancient Egg: N205 / Violet Egg: N205 / Bride Cat"</item>
+        <item>"Trixi the Merc / Trixi the Revenant / Trixi the Revenant"</item>
+        <item>"Music Fest Thundia / Music Fest Thundia β / Music Fest Thundia β"</item>
+        <item>"Gunduros / Ballistic Dragon Gunduros / Ballistic Dragon Gunduros"</item>
+        <item>"762_1"</item>
+        <item>" /  / "</item>
+        <item>"Dynasaurus Cat / Mecha Dynasaurus Cat / Mecha Dynasaurus Cat"</item>
+        <item>"765_1"</item>
+        <item>"Ancient Egg: N206 / Cinnabar Egg: N206 / Clam Cat"</item>
+        <item>"Sardine / Sardine CC / Sardine CC"</item>
+        <item>"Squid / Squid CC / Squid CC"</item>
+        <item>"Taitenki / Taitenki CC / Taitenki CC"</item>
+        <item>"Hanasaka Cat / Ravenous Cherry / Ravenous Cherry"</item>
+        <item>"771-1"</item>
+        <item>"Master of Life Dr. Nova / Master of Life Catnova / Master of Life Catnova"</item>
+        <item>"Pumpkin Sodom / Sodom-o\'-Lantern / Sodom-o\'-Lantern"</item>
+        <item>"Mummy Sumo / Mama Mummy Sumo / Mama Mummy Sumo"</item>
+        <item>"Mech Patrol Axel / Steel Sergeant Axel / Steel Sergeant Axel"</item>
+        <item>"776-1"</item>
+        <item>"Lieutenant Cat / Commander Cat / Commander Cat"</item>
+        <item>"Winter General Kaihime / Winter Commander Kaihime / Winter Commander Kaihime"</item>
+        <item>"Madoka Cat &amp; Homura / Magical Cat☆ Magica / Magical Cat☆ Magica"</item>
+        <item>"Celestial Child Luna / Salvation\'s Daughter Lunacia / Salvation\'s Daughter Lunacia"</item>
+        <item>"Bowler Cat / Dodgeballer Cat / Dodgeballer Cat"</item>
+        <item>"Mamoluga / Mamolan Pasalan / Mamolan Pasalan"</item>
+        <item>"783-1"</item>
+        <item>"Koneko / Superstar Koneko / Superstar Koneko"</item>
+        <item>" /  / "</item>
+        <item>"Killer Gross Cat / True Killer Gross Cat / True Killer Gross Cat"</item>
+        <item>"The Amazing Catman / Illusionist Catman / Illusionist Catman"</item>
+        <item>"Netherworld Nymph Lunacia / Death\'s Daughter Lunacia / Death\'s Daughter Lunacia"</item>
+        <item>" /  / 789-2"</item>
+        <item>"Baki Hanma / Baki Hanma CC / Baki Hanma CC"</item>
+        <item>"Retsu Kaioh / Retsu Kaioh CC / Retsu Kaioh CC"</item>
+        <item>"Kaoru Hanayama / Kaoru Hanayama CC / Kaoru Hanayama CC"</item>
+        <item>"Katsumi Orochi / Katsumi Orochi CC / Katsumi Orochi CC"</item>
+        <item>"Jack Hammer / Jack Hammer CC / Jack Hammer CC"</item>
+        <item>"Ogre Cat / Ogre Cat Face / Ogre Cat Face"</item>
+        <item>"Li\'l Baki / Li\'l Baki CC / Li\'l Baki CC"</item>
+        <item>"Baki Cat / Baki Cat CC / Baki Cat CC"</item>
+        <item>"Kaioh Cat / Kaioh Cat CC / Kaioh Cat CC"</item>
+        <item>"Doppo Cat / Doppo Cat CC / Doppo Cat CC"</item>
+        <item>"Mighty Morta-Loncha / Grandiose Gunhauzer / Grandiose Gunhauzer"</item>
+        <item>"801-1"</item>
+        <item>"Master of Logic Newtone / Master of Logic Mewtone / Master of Logic Mewtone"</item>
+        <item>"802-1"</item>
+        <item>"Sonic / Sonic &amp; Cat / Sonic &amp; Cat"</item>
+        <item>"Tails / Tails &amp; Cat / Tails &amp; Cat"</item>
+        <item>"Knuckles / Knuckles &amp; Cat / Knuckles &amp; Cat"</item>
+        <item>"Shadow / Shadow &amp; Cat / Shadow &amp; Cat"</item>
+        <item>"Sonic Cat / Sonic Cat CC / Sonic Cat CC"</item>
+        <item>"Tails Cat / Tails Cat CC / Tails Cat CC"</item>
+        <item>"Shadow Cat / Shadow Cat CC / Shadow Cat CC"</item>
+        <item>"Agent Staal / Edgemaster Staal / Edgemaster Staal"</item>
+        <item>"Victorious Skanda / Zeta Skanda / Zeta Skanda"</item>
+        <item>"812-1"</item>
+        <item>"Tasmanian Giant Crab / Tasmanian Giant Crab CC / Tasmanian Giant Crab CC"</item>
+        <item>"Mass Production EVA / Mass Production EVA-Cat / Mass Production EVA-Cat"</item>
+        <item>"Moonshade Kaworu / Moon Disciple Kaworu / Moon Disciple Kaworu"</item>
+        <item>"817-1"</item>
+        <item>"Komori / Moririn / Moririn"</item>
+        <item>"819-1"</item>
+        <item>"Carpenter Cat / Rapper Cat / Rapper Cat"</item>
+        <item>"Seaside Pegasa / Seaside Pegasa v / Seaside Pegasa v"</item>
+        <item>"822_1"</item>
+        <item>"Consultant Cat / Business Partner Cat / Business Partner Cat"</item>
+        <item>" /  / "</item>
+        <item>"Sorceress Sidmi / Flame Mage Sidmi / Flame Mage Sidmi"</item>
+        <item>"826-1"</item>
+        <item>"Cammy / Cammy CC / Cammy CC"</item>
+        <item>"Juri / Juri CC / Juri CC"</item>
+        <item>"Zangief Cat / Zangief Cat CC / Zangief Cat CC"</item>
+        <item>"Jamie Cat / Jamie Cat CC / Jamie Cat CC"</item>
+        <item>"Raclesa / Raclesa, type Σ / Raclesa, type Σ"</item>
+        <item>"Scarf Cat / Red Nyanko Ranger / Red Nyanko Ranger"</item>
+        <item>"Fedora Cat / Blue Nyanko Ranger / Blue Nyanko Ranger"</item>
+        <item>"Helmet Cat / Yellow Nyanko Ranger / Yellow Nyanko Ranger"</item>
+        <item>"Goggles Cat / Green Nyanko Ranger / Green Nyanko Ranger"</item>
+        <item>"Ribbon Cat / Pink Nyanko Ranger / Pink Nyanko Ranger"</item>
+        <item>"Giga-Nyan Rex / Giga-Nyan Prime DX / Giga-Nyan Prime DX"</item>
+        <item>"Squire Luno / Lunos the Luminous / Lunos the Luminous"</item>
+        <item>"839-1"</item>
+        <item>"840-1"</item>
+        <item>"Tanjiro Kamado / Tanjiro Kamado CC / Tanjiro Kamado CC"</item>
+        <item>"Nezuko Kamado / Nezuko Kamado CC / Nezuko Kamado CC"</item>
+        <item>"Zenitsu Agatsuma / Zenitsu Agatsuma CC / Zenitsu Agatsuma CC"</item>
+        <item>"Inosuke Hashibira / Inosuke Hashibira CC / Inosuke Hashibira CC"</item>
+        <item>"Giyu Tomioka / Giyu Tomioka CC / Giyu Tomioka CC"</item>
+        <item>"Shinobu Kocho / Shinobu Kocho CC / Shinobu Kocho CC"</item>
+        <item>"Kyojuro Rengoku / Kyojuro Rengoku CC / Kyojuro Rengoku CC"</item>
+        <item>"Li\'l Sakonji Urokodaki / Li\'l Sakonji Urokodaki CC / Li\'l Sakonji Urokodaki CC"</item>
+        <item>"Tanjiro Cat / Tanjiro Cat CC / Tanjiro Cat CC"</item>
+        <item>"Nezuko Cat / Nezuko Cat CC / Nezuko Cat CC"</item>
+        <item>"Fuma Kotaro / Wargod Kotaro / Wargod Kotaro"</item>
+        <item>"Paperboy Cat / Bargain Cat / Bargain Cat"</item>
+        <item>"Killer Cowbird Cat / True Killer Cowbird Cat / True Killer Cowbird Cat"</item>
+        <item>"Occultist Cat / Gyaru Cat / Gyaru Cat"</item>
+        <item>"Master of Selection Darvin / Master of Selection Clawvin / Master of Selection Clawvin"</item>
+        <item>"856_1"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"Lone Moon Lunos / Lunos the Eclipsed / Lunos the Eclipsed"</item>
+        <item>"861_1"</item>
+        <item>"Vornado / Tempest King Vornado / Tempest King Vornado"</item>
+        <item>"Hanzo the Betrothed / Hanzo the Groom / Hanzo the Groom"</item>
+        <item>"The Invisible Cat / Groom Cat / Groom Cat"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"Akane Tounji / Let\'s Go! Akane / Let\'s Go! Akane"</item>
+        <item>"Ancient Egg: N207 / Onyx Egg: N207 / Tycoon Cat"</item>
+        <item>"Ancient Egg: N208 / Green Egg: N208 / Combat Crawfish Cat"</item>
+        <item>"Jungle Gourmet Tomoe / Canopy Queen Tomoe / Canopy Queen Tomoe"</item>
+        <item>""</item>
+        <item>""</item>
+        <item>""</item>
+    </string-array>
+    <string-array name="cat_names_tw">
+        <item>"貓咪 / 健美貓 / 摩西根貓"</item>
+        <item>"坦克貓 / 牆貓 / 橡皮貓"</item>
+        <item>"戰鬥貓 / 勇者貓 / 暗黑貓"</item>
+        <item>"噁心貓 / 美腿貓 / 筋肉美腿貓"</item>
+        <item>"牛貓 / 長頸鹿貓 / 獅子貓"</item>
+        <item>"鳥貓 / UFO貓 / 天空之貓"</item>
+        <item>"魚貓 / 鯨貓 / 島貓"</item>
+        <item>"蜥蜴貓 / 龍貓 / 龍王貓"</item>
+        <item>"巨神貓 / 巨人貓 / 賈拉米貓"</item>
+        <item>"女優貓 / 聖母貓 / 猛男貓"</item>
+        <item>"功夫貓 / 醉拳貓 / 舞者貓"</item>
+        <item>"Mr. / Super Mr. / Hyper Mr."</item>
+        <item>"緊縛貓 / 緊縛貓NEO / 極上緊縛貓"</item>
+        <item>"女王貓 / 處刑人 / 暗黑姊"</item>
+        <item>"箱貓 / 惡少貓 / 重機C・A・T"</item>
+        <item>"三角褲貓 / 葉子貓 / 害羞貓"</item>
+        <item>"萌貓 / 偶像萌貓 / 超級偶像萌貓"</item>
+        <item>"輪輪貓 / 越野貓 / 單輪車貓"</item>
+        <item>"忍者貓 / 蛤蟆忍者貓 / 飛天忍者貓"</item>
+        <item>"殭屍貓 / 惡魔貓 / 骷髏貓"</item>
+        <item>"武士貓 / 騎士貓 / 西點師傅"</item>
+        <item>"相撲貓 / 相撲女士 / 貓飯糰"</item>
+        <item>"狂歡貓 / 嘉年華貓 / ＡＭＩＧＯ貓"</item>
+        <item>"短裙貓 / 絲襪貓 / 兜襠布貓"</item>
+        <item>"瓦爾基麗貓 / 真・瓦爾基麗貓 / 瓦爾基麗貓・聖"</item>
+        <item>"姆特貓 / 狂亂姆特貓 / 覺醒姆特貓"</item>
+        <item>"飛踢公主 / 全彩飛踢公主 / 婚紗飛踢公主"</item>
+        <item>"貓公主 / 美貓公主 / "</item>
+        <item>"膠囊貓 / 膠囊兄弟貓 / "</item>
+        <item>"面具貓 / 摔角選手貓 / 摔角選手貓"</item>
+        <item>"菩薩貓 / 千手貓 / 如來貓"</item>
+        <item>"貓咪番長 / 憤怒的貓咪番長 / 押忍！貓咪番長"</item>
+        <item>"放浪貓弟 / 裸舞貓 / 康康舞貓"</item>
+        <item>"暖桌貓 / 電視貓 / 章魚壺貓"</item>
+        <item>"不明貓 / 不明白骨貓 / 超人白骨貓"</item>
+        <item>"御宅貓 / 駭客貓 / 高階駭客貓"</item>
+        <item>"快泳貓 / 蝶泳貓 / 半魚人貓"</item>
+        <item>"跳跳貓 / 馬賽貓 / 跳跳殭屍貓"</item>
+        <item>"車輪貓 / 太陽貓 / 雪花貓"</item>
+        <item>"蘋果貓 / 臉貓 / iCat"</item>
+        <item>"浴缸貓 / 性感浴缸貓 / 黃金浴缸貓"</item>
+        <item>"美容貓 / 巴黎時尚貓 / 窈窕佳人貓"</item>
+        <item>"冰雪貓 / 冰雪女王貓 / 冰雪水晶貓"</item>
+        <item>"機器貓 / 機器貓・破 / 機器貓・滅"</item>
+        <item>"惡鬼喵魔 / 鬼神喵魔 / 獄炎鬼喵魔"</item>
+        <item>"藝妓貓 / 小百合 / "</item>
+        <item>"侏羅貓 / 侏羅貓保姆 / 侏羅恐龍貓"</item>
+        <item>"鬥士貓 / 重量級鬥士貓 / 極限鬥士貓"</item>
+        <item>"海賊貓 / 虎克貓船長 / 喵克・史派羅"</item>
+        <item>"小偷貓 / 怪盜貓 / 五右衛門貓"</item>
+        <item>"僧侶貓 / 和尚貓 / 法師貓"</item>
+        <item>"占卜貓 / 漁民貓 / 醫師貓"</item>
+        <item>"薩滿貓 / 通靈貓 / 魔舞通靈貓"</item>
+        <item>"福音傳教貓 / 議事阻撓貓 / 議事阻撓貓"</item>
+        <item>" /  / "</item>
+        <item>"魔女貓 / 女巫貓 / 美魔女貓"</item>
+        <item>"弓箭手貓 / 丘比特貓 / 射手座貓"</item>
+        <item>"巨劍騎士貓 / 狂戰士貓 / 聖騎士貓"</item>
+        <item>"魔劍士貓 / 雙劍魔劍士貓 / 雙焰舞魔劍士貓"</item>
+        <item>"貓咪Baby / 貓咪Babies / 貓咪嬰兒車 / 貓咪嬰兒世界"</item>
+        <item>"銅像貓 / 行動藝術貓 / 貓咪猜謎王"</item>
+        <item>"壽司貓 / 炸蝦貓 / 極品鮭卵貓"</item>
+        <item>"轉蛋機貓 / 長型轉蛋機貓 / 長型轉蛋機貓"</item>
+        <item>"運動會貓 / 綁匪貓 / 倒棒貓"</item>
+        <item>"劍客 / 劍客強尼 / 劍客強尼"</item>
+        <item>"牛公主 / 長頸鹿公主 / 長頸鹿公主"</item>
+        <item>"KHM48 / 暗黑KHM48 / KHM46"</item>
+        <item>"小暴龍 / 小暴暴龍 / 水晶小暴暴龍"</item>
+        <item>"鐮刀使者 / 鐮刀使者999 / 審判使者"</item>
+        <item>"飛踢睡美人 / 飛踢睡美人II / 熟睡飛踢睡美人"</item>
+        <item>"上班族貓 / 怨恨貓 / 火舞貓"</item>
+        <item>"真田幸村 / 武神・真田幸村 / 飛翔武神・真田幸村"</item>
+        <item>"前田慶次 / 武神・前田慶次 / 憤怒武神・前田慶次"</item>
+        <item>"織田信長 / 武神・織田信長 / 天魔・織田信長 / 夢幻天魔・織田信長"</item>
+        <item>"馴鹿魚 / 魚貓的刺身 / 聖誕樹幹蛋糕貓"</item>
+        <item>"風神溫蒂 / 風神溫蒂α / 疾風神溫蒂α / 究極溫蒂α"</item>
+        <item>"雷神珊迪亞 / 雷神珊迪亞β / 迅雷神珊迪亞β / 究極珊迪亞β"</item>
+        <item>"Droid / Droid喵 / Droid春"</item>
+        <item>"貓和宇宙 / 喵亞少校 / 驅動戰士貓咪"</item>
+        <item>"成人貓 / 病人貓 / 囚犯貓"</item>
+        <item>"我是鬼 / 紳士貓 / 紳士貓同盟"</item>
+        <item>"人偶貓咪 / 超合金貓 / 神燈貓"</item>
+        <item>"忍者貓～藍～ / 忍者貓～橘～ / 忍者貓～橘～"</item>
+        <item>"地龍索多姆 / 地龍王索多姆 / 地龍皇帝索多姆"</item>
+        <item>"聖龍梅基多拉 / 聖龍王梅基多拉 / 聖龍皇帝梅基多拉"</item>
+        <item>"龍騎士巴魯斯 / 龍騎士王巴魯斯 / 龍騎士皇帝巴魯斯"</item>
+        <item>"神龍卡姆庫拉 / 神龍王卡姆庫拉 / 神龍皇帝卡姆庫拉"</item>
+        <item>"龍戰機雷電 / 龍戰機王雷電 / 龍戰機皇帝雷電"</item>
+        <item>"跳繩貓 / 雙人跳繩貓 / 雙人桿麵貓"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"狂亂貓 / 狂亂健美貓 / 大狂亂摩西根貓"</item>
+        <item>"狂亂坦克貓 / 狂亂牆貓 / 大狂亂橡皮貓"</item>
+        <item>"狂亂戰鬥貓 / 狂亂勇者貓 / 大狂亂暗黑貓"</item>
+        <item>"狂亂噁心貓 / 狂亂美腿貓 / 大狂亂筋肉美腿貓"</item>
+        <item>"狂亂牛貓 / 狂亂長頸鹿貓 / 大狂亂獅子貓"</item>
+        <item>"狂亂鳥貓 / 狂亂UFO貓 / 大狂亂天空之貓"</item>
+        <item>"狂亂魚貓 / 狂亂鯨貓 / 大狂亂島貓"</item>
+        <item>"狂亂蜥蜴貓 / 狂亂龍貓 / 大狂亂龍王貓"</item>
+        <item>"狂亂巨神貓 / 狂亂巨人貓 / 大狂亂賈拉米貓"</item>
+        <item>"少女貓 / 運動女貓 / 摔角女貓"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"歌謠貓 / 歌后貓 / 歌后貓EX"</item>
+        <item>"至死不渝的戀情 / 戀愛・the・Night / 超越熱吻之戀"</item>
+        <item>"猿帝・悟空貓 / 猿帝・悟空貓γ / 金猿帝・悟空貓γ"</item>
+        <item>"召喚・八戒貓 / 召喚・八戒貓μ / 大召喚・八戒貓μ"</item>
+        <item>"寶杖使者・悟淨貓 / 寶杖使者・悟淨貓κ / 光寶杖使者・悟淨貓κ"</item>
+        <item>"貓咪三兄弟 / 秘密要塞貓克羅斯 / 秘密要塞貓克羅斯"</item>
+        <item>"新娘太太 / 國王太太 / 大草原太太"</item>
+        <item>"賽蕾絲 / 賽蕾絲CC / "</item>
+        <item>"諾諾 / 諾諾CC / 躍動的白貓諾諾CC"</item>
+        <item>"奧爾加 / 奧爾加CC / "</item>
+        <item>"諾倫 / 諾倫CC / "</item>
+        <item>"優依 / 優依CC / "</item>
+        <item>"賽拉姆 / 賽拉姆CC / "</item>
+        <item>"弗舞 / 弗舞CC / "</item>
+        <item>"阿烏拉 / 阿烏拉CC / "</item>
+        <item>"雷伊 / 雷伊CC / "</item>
+        <item>"飛翼龍 / 喵翼龍 / 喵翼龍＆阿雷克"</item>
+        <item>"癒術士 / 癒術士CC / 喵化癒術士CC"</item>
+        <item>"梅露可 / 梅露可CC / 貓咪與梅露可CC"</item>
+        <item>"女王的假期 / 普通的ＯＬ / 總機的ＯＬ"</item>
+        <item>"豌豆貓 / 內在美貓 / 瓦爾裝甲貓"</item>
+        <item>"伊達政宗 / 武神・伊達政宗 / 邪眼龍武神・伊達政宗"</item>
+        <item>"武田信玄 / 武神・武田信玄 / 猛牛武神・武田信玄"</item>
+        <item>"機關人偶貓 / 人型師貓 / 人型師與鬼娃貓"</item>
+        <item>"花盆貓 / 風扇貓 / 炸彈貓"</item>
+        <item>"幽魂吶吶 / 大鼻子眼鏡 / 風箏貓"</item>
+        <item>"黃金貓 / 黃金健美貓 / 黃金耀眼健美貓"</item>
+        <item>"狼與少女 / 小咪與少女 / 覺醒的小咪與少女"</item>
+        <item>"萌萌貓 / 偶像萌萌貓 / 偶像萌萌貓"</item>
+        <item>"功夫貓Ｇ / 醉拳貓Ｇ / 剛拳貓Ｇ"</item>
+        <item>" /  / "</item>
+        <item>"浦島太郎 / 龍宮獸・變色龍 / 龍宮超獸・變色龍王"</item>
+        <item>"白鶴貓 / 銀河戰士・小宇宙 / 究極戰士・黃金小宇宙 / 究極勇者・超級小宇宙"</item>
+        <item>"桃太郎 / 爆走兄弟・桃星 / 爆走兄弟・桃色正義"</item>
+        <item>"斗笠地藏 / 地藏要塞・神威 / 地藏要塞・金甲神威 / 超級斗笠地藏"</item>
+        <item>"輝夜姬 / 破壞衛星・死之月 / 破壞衛星・混沌之月 / 超級輝夜姬"</item>
+        <item>"跆拳貓 / 跆拳貓ＨＧ / "</item>
+        <item>"滾滾貓 / 壯壯貓 / 壯壯貓"</item>
+        <item>"天神 / 謎之神 / 謎之神"</item>
+        <item>" /  / "</item>
+        <item>"貓護士 / 愛心貓護士 / 粉紅喜悅貓護士"</item>
+        <item>"貓咪城Mｉｎｉ / 貓咪城Ｊｒ / 貓咪城Max"</item>
+        <item>"神槍手貓 / 木馬牛仔哥 / 騎牛機神槍手貓"</item>
+        <item>"高蹺貓 / 圖騰柱貓 / 貓咪特技團"</item>
+        <item>"發條貓 / 飛機貓 / 機械人貓"</item>
+        <item>"搖滾貓 / 藝術家貓 / 拉麵王貓"</item>
+        <item>"人魚貓 / 女兵貓 / 攝影師貓"</item>
+        <item>"窗邊少女貓 / 窗邊躁女貓 / 窗邊舞妓貓"</item>
+        <item>"舉重貓 / 舉牌女郎貓 / 外送貓"</item>
+        <item>"冰刀二人組 / 調戲二人組 / 旺福二人組"</item>
+        <item>"麵包機貓 / 貓咪投影機 / 貓咪留聲機"</item>
+        <item>"呼拉圈貓 / 三層呼拉圈貓 / 五層呼拉圈貓"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"上杉謙信 / 武神・上杉謙信 / 亂爆武神・上杉謙信 / 多聞天軍神・上杉謙信"</item>
+        <item>"冥界卡莉法 / 冥界卡莉法Ｘ / 冥界卡莉法ＸＸ"</item>
+        <item>"幽靈鷙 / 轉生靈鳥幽靈鷙 / 怒靈鷙"</item>
+        <item>"狂亂飛踢公主 / 狂亂飛踢公主CC / 大狂亂飛踢公主"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"踢腳貓 / 長腳白骨貓 / 我打打打長腳白骨貓"</item>
+        <item>"頭槌貓 / 長頸白骨貓 / E・長頸白骨貓"</item>
+        <item>"手甩貓 / 長手白骨貓 / 草帽長手白骨貓"</item>
+        <item>"異能貓 / 異能白骨貓 / 閃光異能白骨貓"</item>
+        <item>"小戰士貓彈 / 喵彈人 / 覺醒的小戰士貓彈"</item>
+        <item>"廚房曼波魚 / 工房曼波魚 / 社會的一員"</item>
+        <item>"曼波魚王 / 生存傳說 / 太平洋之主"</item>
+        <item>"喵波 / 猛波 / 猛波"</item>
+        <item>"棉花糖貓 / 長腳棉花糖貓 / 長腳棉花糖貓"</item>
+        <item>"霸龍迪歐拉姆斯 / 霸龍王迪歐拉姆斯 / 霸龍皇帝迪歐拉姆斯 / 大霸龍皇帝迪歐拉姆斯"</item>
+        <item>" /  / "</item>
+        <item>"拓也與小雪 / 拓也與小雪與貓咪 / 拓也與美腿小雪"</item>
+        <item>"神秘少女小雪 / 神秘少女小雪＆貓咪 / 神秘貓耳少女小雪"</item>
+        <item>"小雪貓 / 美腿小雪貓 / 美腿小雪貓"</item>
+        <item>" /  / "</item>
+        <item>"貓咪賽車R / 貓咪賽車G / 貓咪賽車G"</item>
+        <item>"Mr. Ninja / 糖糖 / 糖糖"</item>
+        <item>"哈爾修特 / 哈爾修特CC / 革命的哈爾修特CC"</item>
+        <item>"可納莉亞 / 可納莉亞CC / "</item>
+        <item>"悠凡斯 / 悠凡斯CC / 假日的騎士悠凡斯CC"</item>
+        <item>"米絲蒂卡 / 米絲蒂卡CC / 寂救的米絲蒂卡CC"</item>
+        <item>"阿洛伊斯 / 阿洛伊斯CC / "</item>
+        <item>"斯托魯伊悠 / 斯托魯伊悠CC / "</item>
+        <item>"推推 / 推推CC / 貓咪推推CC"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"阿激拉 / 幻影・阿激拉 / 獄炎・阿激拉"</item>
+        <item>"西園寺機器子 / 怪博士Dr.機器子 / 航太博士Dr.機器子"</item>
+        <item>"貓俠大帝 / 黑暗貓俠 / 雷霆貓俠"</item>
+        <item>"超能力貓 / 新世紀超能力貓 / 超能力貓魔俠"</item>
+        <item>"貓咪陰陽師 / 魔法少女貓 / 貓咪大魔王"</item>
+        <item>"衝浪貓 / 漂流貓 / 貓咪漂流記"</item>
+        <item>"鋼鐵貓 / 鋼鐵健美貓 / 鋼鐵健美貓"</item>
+        <item>"儀隊指揮貓 / 舉牌貓 / 搗麻糬貓"</item>
+        <item>"小籠包貓咪 / 大籠包貓咪 / 大籠包貓咪"</item>
+        <item>"咔嚓咔嚓山崽子 / 炎護射擊車ㄛ一ㄛ一 / 豪炎狙擊車ㄛ一ㄛ一"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"小小貓 / 小小健美貓 / 小小摩西根貓"</item>
+        <item>"小小坦克貓 / 小小牆貓 / 小小橡皮貓"</item>
+        <item>"小小戰鬥貓 / 小小勇者貓 / 小小暗黑貓"</item>
+        <item>"白兔女俠 / 黑貓女俠 / 灰狐女俠 / 鎧貓女俠"</item>
+        <item>"漢堡貓 / 漢堡王者貓 / 漢堡套餐貓"</item>
+        <item>"百太郎 / 百太郎CC / 百太郎CC"</item>
+        <item>"馬可 / 馬可CC / 馬可CC"</item>
+        <item>"塔瑪 / 塔瑪CC / 塔瑪CC"</item>
+        <item>"英里 / 英里CC / 英里CC"</item>
+        <item>"菲歐 / 菲歐CC / 菲歐CC"</item>
+        <item>"SV-001 / SV-001CC / SV-001CC"</item>
+        <item>"艾倫‧歐尼爾 / 艾倫‧歐尼爾CC / 艾倫‧歐尼爾CC"</item>
+        <item>"火星人 / 火星人CC / 火星人CC"</item>
+        <item>"超巨型戰車 / 超巨型戰車CC / 黃金超巨型戰車CC"</item>
+        <item>"木星王者 / 木星王者CC / 黃金木星王者CC"</item>
+        <item>"惡魔化身・莫丁 / 惡魔化身・莫丁CC / 黃金惡魔化身・莫丁CC"</item>
+        <item>"海德 / 海德CC / 海德MK III CC"</item>
+        <item>"咒術師死亡小丑 / 暗黑商人巴比倫 / 奇術科學者狂G"</item>
+        <item>"南瓜貓 / 燈籠貓 / 死神貓"</item>
+        <item>"萬聖萌萌貓 / 萬聖魔女萌萌貓 / 萬聖變裝萌萌貓"</item>
+        <item>"甜心溫蒂 / 甜心溫蒂α / "</item>
+        <item>"惡魔珊迪亞 / 惡魔珊迪亞β / 惡魔珊迪亞β"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"洞悉先機貓 / 貓茶水博士 / 貓茶水名譽客座教授"</item>
+        <item>"土豪弟 / 土豪爹 / 土豪爹的爹"</item>
+        <item>"狙擊手學徒 / 貓骷髏 / 貓骷髏13"</item>
+        <item>"刺骨貓 / 刺骨白骨貓 / 山神白骨貓"</item>
+        <item>"雪人騎士・雪白八戒貓 / 雪人騎士・雪白八戒貓μ / 雪妖精・雪白八戒貓μ"</item>
+        <item>"聖誕樹帝・喜紅悟空貓 / 聖誕樹帝・喜紅悟空貓γ / 聖誕樹帝・喜紅悟空貓γ"</item>
+        <item>"聖善修女・翡藍悟淨貓 / 聖善修女・翡藍悟淨貓κ / 聖善修女・翡藍悟淨貓κ"</item>
+        <item>"聖誕禮物貓 / 聖誕貓禮物 / 聖誕貓禮物"</item>
+        <item>"小小噁心貓 / 小小美腿貓 / 小小筋肉美腿貓"</item>
+        <item>"小小牛貓 / 小小長頸鹿貓 / 小小獅子貓"</item>
+        <item>"小小鳥貓 / 小小UFO貓 / 小小天空之貓"</item>
+        <item>"半死半活貓 / 幽靈貓 / 死而復活貓"</item>
+        <item>"劍士 / 水手服劍士 / 明王劍士"</item>
+        <item>"騎馬兵 / 森之騎兵 / 勇猛黑騎兵"</item>
+        <item>"阿修羅 / 武者阿修羅 / 羅睺阿修羅"</item>
+        <item>"戰鬥熱氣球 / 海盜戰鬥熱氣球 / UFO戰鬥熱氣球"</item>
+        <item>"龍騎士 / 骨龍騎士 / 火龍騎士"</item>
+        <item>"萌貓女 / 可愛萌貓女 / 虛擬萌貓女"</item>
+        <item>"獨眼藍胖 / 鋼鐵獨眼藍胖 / 時空獨眼藍胖"</item>
+        <item>"巨魔像 / 巨大兔玩偶魔像 / 火山巨魔像"</item>
+        <item>"天空神宙斯 / 巨神宙斯 / G巨神宙斯"</item>
+        <item>"守護神阿努比斯 / 無瑕神阿努比斯 / G無瑕神阿努比斯"</item>
+        <item>"美女神阿芙蘿黛蒂 / 大女神美嘉蘿黛蒂 / G大女神美嘉蘿黛蒂"</item>
+        <item>"賽格威貓 / 無人機貓 / 時光機貓"</item>
+        <item>"天誅飛隼 / 斬魔飛隼 / 滅殺飛隼"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"颱風貓 / 颶風貓 / 暴風貓"</item>
+        <item>"貓紅帽咪娜 / 蝴蝶結紅帽咪娜 / 覺醒的蝴蝶結紅帽咪娜"</item>
+        <item>"幼獸加歐 / 皇獸牙王 / 皇獸牙王"</item>
+        <item>"狂亂的小雪 / 狂亂的小雪＆貓咪 / 狂亂的貓耳小雪"</item>
+        <item>"太陽神天照 / 大御神天照 / G大御神天照"</item>
+        <item>"象頭神迦內薩 / 睿智神迦內薩 / G睿智神迦內薩"</item>
+        <item>"啦啦隊貓 / 女侍應貓 / 送麵貓"</item>
+        <item>"熱帶卡莉法 / 熱帶卡莉法X / 熱帶卡莉法X"</item>
+        <item>"盛夏白兔女俠 / 盛夏黑貓女俠 / 耀眼夏日女俠"</item>
+        <item>"夏色萌萌貓 / 海邊萌萌貓 / 初夏海邊萌萌貓"</item>
+        <item>"菇菇 / 菇菇＆貓咪 / 菇菇＆貓咪"</item>
+        <item>"菇菇坦克 / 菇菇坦克＆貓咪 / 菇菇坦克＆貓咪"</item>
+        <item>"白喵菇菇 / 噁心白喵菇菇 / 噁心白喵菇菇"</item>
+        <item>"要塞菇菇 / 菇菇＆要塞貓咪 / 菇菇＆要塞貓咪"</item>
+        <item>" /  / "</item>
+        <item>"阿波舞貓 / 素蘭舞貓 / 金光閃閃舞貓"</item>
+        <item>"貓飯拳派派 / 貓飯拳派派Z / 貓拳王派派DX"</item>
+        <item>"貓咪特急 / 貓咪超特急 / 貓咪自強號特急"</item>
+        <item>"狂亂小籠包貓咪 / 狂亂大籠包貓咪 / 狂亂大籠包貓咪"</item>
+        <item>"閃電機兵飛雷 / 閃電機兵焰雷 / 閃電輝兵銀雷"</item>
+        <item>"貓咪球兒 / 大聯盟貓 / 高球選手貓"</item>
+        <item>"鹿目圓 / 小圓＆貓咪 / 終極圓"</item>
+        <item>"曉美焰 / 小焰＆貓咪 / 惡魔焰"</item>
+        <item>"美樹沙耶香 / 沙耶香＆貓咪 / 沙耶香＆貓咪"</item>
+        <item>"巴麻美 / 麻美＆貓咪 / 麻美＆貓咪"</item>
+        <item>"佐倉杏子 / 杏子＆貓咪 / 杏子＆貓咪"</item>
+        <item>"丘比 / 丘比＆貓咪 / 丘比＆貓咪"</item>
+        <item>"小圓貓 / 魔法少女小圓貓 / 魔法少女小圓貓"</item>
+        <item>"小焰貓 / 魔法少女小焰貓 / 魔法少女小焰貓"</item>
+        <item>"沙耶香貓 / 魔法少女沙耶香貓 / 魔法少女沙耶香貓"</item>
+        <item>"麻美貓 / 魔法少女麻美貓 / 魔法少女麻美貓"</item>
+        <item>"杏子貓 / 魔法少女杏子貓 / 魔法少女杏子貓"</item>
+        <item>"小小圓 / 魔法少女小小圓 / 究極小小圓"</item>
+        <item>"小小焰 / 魔法少女小小焰 / 惡魔小小焰"</item>
+        <item>"丘比貓 / 坦克丘比 / 坦克丘比"</item>
+        <item>"幽影冰雪貓 / 幻象冰雪貓 / 魅魔冰雪貓"</item>
+        <item>"叫賣貓 / 宅配貓 / 打飯貓"</item>
+        <item>"帝國陸軍・石砲隊 / 擊滅戰車・陸王砲 / 超擊滅戰車・陸王砲 / 極擊滅戰車・陸王砲"</item>
+        <item>"古代軍船・戰槳隊 / 無敵艦隊・海皇錐 / 超無敵艦隊・海皇錐 / 極無敵艦隊・海皇錐"</item>
+        <item>"飛空襲擊・轟炸隊 / 飛行戰艦・空帝雷 / 超飛行戰艦・空帝雷 / 極飛行戰艦・空帝雷"</item>
+        <item>"業餘撐杆跳貓 / 職業撐杆跳貓 / 全職家庭主婦貓"</item>
+        <item>"樹剪貓 / 電鋸貓 / 割草貓"</item>
+        <item>" /  / "</item>
+        <item>"聖燭貓護士 / 聖母貓護士 / 聖母瑪利亞貓護士"</item>
+        <item>"小小魚貓 / 小小鯨貓 / 小小島貓"</item>
+        <item>"小小蜥蜴貓 / 小小龍貓 / 小小龍王貓"</item>
+        <item>"小小巨神貓 / 小小巨人貓 / 小小賈拉米貓"</item>
+        <item>"大掃除萌萌貓 / 喜氣洋洋萌萌貓 / 新年新衣萌萌貓"</item>
+        <item>"PIKO太郎 / 貓咪太郎 / 貓咪太郎"</item>
+        <item>"海王神波塞頓 / 海龍騎波塞頓 / G海龍騎波塞頓"</item>
+        <item>"CPAC / PPAP / PPAP"</item>
+        <item>"巫女姬御靈 / 白無垢御靈 / 白無垢御靈"</item>
+        <item>"殺意貓 / 真・殺意貓 / 改過向善貓"</item>
+        <item>"三原慧悟 / 一二三～原偶像貓 / 偶像三原＆貓咪"</item>
+        <item>" /  / "</item>
+        <item>"猴蟹大戰貓 / 爆音樂奏猴蟹天團 / 超音樂奏猴蟹天團"</item>
+        <item>"宮木武藏 / 主演　宮木武藏 / 覺醒　宮木武藏"</item>
+        <item>"冰壺貓 / 地板清潔機器貓 / 貓咪烏龜車"</item>
+        <item>"拳擊手貓 / 拳擊冠軍貓 / 復仇貓"</item>
+        <item>"莫比烏斯 / 奇蹟調和莫比烏斯 / 奇蹟調和莫比烏斯"</item>
+        <item>"貝利亞 / 猛進大叛徒貝利亞 / 猛進大叛徒貝利亞"</item>
+        <item>"哈皮100 / 幸福連鎖哈皮100 / 幸福連鎖哈皮100"</item>
+        <item>"彩蛋貓 / 彩蛋貓之２ / 彩蛋貓之３"</item>
+        <item>"上杉謙信・春 / 上杉謙信・春爛漫 / 上杉謙信・春光明媚"</item>
+        <item>"彩蛋師白鴨小丑 / 闇蛋師黑鴨小丑 / 極惡蛋師怪鴨小丑"</item>
+        <item>"復活節萌萌貓 / 復活節兔萌萌貓 / 花開復活節兔萌萌貓"</item>
+        <item>"黑獸牙王 / 皇獸黑暗牙王 / 皇獸黑暗牙王"</item>
+        <item>"俏狐娘百荷 / 九尾魅狐姬百荷 / 豐穰的狐姬百荷"</item>
+        <item>"美人魚琉璃 / 珍珠人魚姬琉璃 / 龍宮人魚姬琉璃"</item>
+        <item>"木乃伊梨香 / 寶座法老姬梨香 / 黃金法老姬梨香 / "</item>
+        <item>"飛踢公主號 / 飛踢公主號CC / 豪華飛踢公主號CC"</item>
+        <item>"今川義元 / 武神・今川義元 / 鬼火武神・今川義元"</item>
+        <item>" /  / "</item>
+        <item>"紅髮小雪貓 / 紅髮美腿小雪貓 / 紅髮筋肉美腿小雪貓"</item>
+        <item>"失去世界的小雪 / 失去世界的小雪＆貓咪 / 失去世界的貓耳小雪"</item>
+        <item>"招財貓 / 貓神抱稻 / 貓神抱稻"</item>
+        <item>"鼻涕蟲與貓 / 鼻涕蟲騎貓 / 鼻涕蟲騎貓"</item>
+        <item>"奧爾托斯 / 奧爾托斯CC / 彩色的奧爾托斯CC"</item>
+        <item>"米希利亞 / 米希利亞CC / 午睡的米希利亞CC"</item>
+        <item>"留姬 / 留姬CC / "</item>
+        <item>"蛋黃貓 / 蛋包飯貓 / 班尼迪克蛋黃貓"</item>
+        <item>"來盤蛋黃哥 / 來盤培根蛋黃哥 / 來盤培根蛋黃哥"</item>
+        <item>"慵懶布丁蛋黃哥 / 焦糖布丁蛋黃哥 / 焦糖布丁蛋黃哥"</item>
+        <item>"蛋黃人軍團 / 貓咪蛋黃人軍團 / 貓咪蛋黃人軍團"</item>
+        <item>"雙掌星西兒＆小毬 / 雙掌星西兒＆小毬Φ / 雙輝星西兒＆小毬Φ"</item>
+        <item>"貓咪仙人 / 貓咪老仙 / 假面的貓咪仙人"</item>
+        <item>"貓奴巧克力 / 貓咪與巧克力 / 貓化巧克力"</item>
+        <item>"常夏果實八戒貓 / 常夏果實八戒貓μ / 常夏果實八戒貓μ"</item>
+        <item>"觀測兵器・探天隊 / 時空基地・星隕爆 / 超時空基地・星隕爆"</item>
+        <item>" /  / "</item>
+        <item>"狼來妹迪兒 / 虛榮小狼女迪兒 / 小丑女狼迪兒"</item>
+        <item>"不死女薇薇 / 死靈新嫁娘薇薇 / 滿腹新嫁娘薇薇"</item>
+        <item>"火精靈梅拉 / 火焰精靈梅拉邦 / 火焰精靈王猛火梅拉邦 / 火焰大精靈浴火梅拉邦"</item>
+        <item>"水精靈密茲 / 流水精靈密茲曼 / 流水精靈王激流密茲曼 / 流水大精靈蝶翼密茲曼"</item>
+        <item>"風精靈艾爾 / 暴風精靈艾爾方 / 暴風精靈王艾爾方帝 / 暴風大精靈艾爾方大帝"</item>
+        <item>"Saber / Saber CC / Saber Alter CC"</item>
+        <item>"遠坂凜 / 遠坂凜CC / 遠坂凜CC"</item>
+        <item>"伊莉雅蘇菲爾 / 伊莉雅蘇菲爾CC / 伊莉雅蘇菲爾CC"</item>
+        <item>"Archer / Archer CC / Archer CC"</item>
+        <item>"Lancer / Lancer CC / Lancer CC"</item>
+        <item>"Rider / Rider CC / Rider CC"</item>
+        <item>"Gilgamesh / Gilgamesh CC / Gilgamesh CC"</item>
+        <item>"貓Saber / 英靈貓Saber / 貓Saber Alter"</item>
+        <item>"貓咪櫻 / 穿圍裙的貓咪櫻 / 有夢想的貓咪櫻"</item>
+        <item>"貓咪凜 / 魔術師貓咪凜 / 魔術師貓咪凜"</item>
+        <item>"伊莉雅貓 / 雪中妖精伊莉雅貓 / 雪中妖精伊莉雅貓"</item>
+        <item>"小小士郎 / 小小士郎CC / 小小士郎CC"</item>
+        <item>"小小櫻 / 小小櫻CC / 小小櫻CC"</item>
+        <item>"紀念幣貓 / 紀念幣健美貓 / 紀念幣健美貓"</item>
+        <item>"貓咪探測器 / 智能BB貓MkⅡ / 衛星貓"</item>
+        <item>"擊劍貓 / 劍道貓 / 自由貓神"</item>
+        <item>"黑無垢御靈 / 深靛黑蝶御靈 / 深靛黑蝶御靈"</item>
+        <item>"排球貓 / 芭蕾貓 / 咖哩貓"</item>
+        <item>"幼傑達太貓 / 英傑達太貓 / 英傑達太貓"</item>
+        <item>"農人貓 / 蕪菁農家貓 / 蕪菁農家貓"</item>
+        <item>"玻璃貓 / 玻璃健美貓 / 水晶健美貓"</item>
+        <item>"神秘假面烏拉拉 / 貓咪假面烏拉拉 / 貓神面烏拉拉"</item>
+        <item>"冰上聰里＆貓咪 / 冰上聰里＆貓咪CC / 冰上聰里＆貓咪CC"</item>
+        <item>"矢部明雄 / 矢部明雄CC / 矢部＆剛達機器人CC"</item>
+        <item>"虹谷彩理 / 虹谷彩理CC / 虹谷彩理CC"</item>
+        <item>"紺野美崎 / 紺野美崎CC / 紺野美崎CC"</item>
+        <item>"片桐戀 / 片桐戀CC / 片桐戀CC"</item>
+        <item>"貓塚花凜 / 貓塚花凜CC / 貓塚花凜CC"</item>
+        <item>"早川蒼 / 早川蒼CC / 野球人1號CC"</item>
+        <item>"橘水月 / 橘水月CC / 野球人2號CC"</item>
+        <item>"六道聖 / 六道聖CC / 野球人3號CC"</item>
+        <item>"新島早紀 / 新島早紀CC / 森巴新島早紀CC"</item>
+        <item>"星井昴 / 星井昴CC / 暗黑昴CC"</item>
+        <item>"小山雅 / 小山雅CC / 野球人5號CC"</item>
+        <item>"古龍剛格利昂 / 古龍王剛格利昂 / 古龍皇剛格利昂"</item>
+        <item>"風隼櫻 / 女高生風隼櫻 / 天誅・風隼櫻 / 天誅Z・風隼櫻"</item>
+        <item>" /  / "</item>
+        <item>"懶得鳥 / 懶得鳥CC / 懶得鳥CC"</item>
+        <item>"直白妹 / 直白妹CC / 直白妹CC"</item>
+        <item>"雷精靈波特 / 天雷精靈皮卡波特 / 天雷精靈王基加波特"</item>
+        <item>"小小真嗣 / 作戰服小小真嗣 / 黑色作戰服小小真嗣"</item>
+        <item>"源堂貓與冬月貓 / 月之源堂貓＆冬月貓 / 月之源堂貓＆冬月貓"</item>
+        <item>"長頸鹿貓初號機 / 長頸鹿貓2號機 / 長頸鹿貓2號機"</item>
+        <item>"小小薰 / 作戰服小小薰 / 月下少年薰"</item>
+        <item>"零貓 / 綾波零貓（暫稱） / 綾波零貓（暫稱）"</item>
+        <item>"明日香貓 / 圍裙明日香貓 / 圍裙明日香貓"</item>
+        <item>"真理貓 / 秘密入境真理貓 / 秘密入境真理貓"</item>
+        <item>"小小零 / 作戰服小小零 / 重逢的小小零"</item>
+        <item>"小小明日香 / 作戰服小小明日香 / 眼罩小小明日香"</item>
+        <item>"小小真理 / 作戰服小小真理 / 作戰服小小真理"</item>
+        <item>"EVA零號機 / EVA零號機&amp;貓咪 / EVA零號機&amp;貓咪"</item>
+        <item>"EVA初號機 / EVA初號機&amp;貓咪 / 決意的EVA初號機&amp;貓咪"</item>
+        <item>"EVA2號機 / EVA2號機&amp;貓咪 / EVA改2號機 Code 777"</item>
+        <item>"真嗣貓 / 冬二貓&amp;劍介貓 / 冬二貓&amp;劍介貓"</item>
+        <item>"通訊聯絡機零月 / 作戰指揮機初月 / 作戰指揮機初月"</item>
+        <item>"溫泉天堂・浴場隊 / 地底戰隊・土龍鑽 / 超地底戰隊・土龍鑽 / 極地底戰隊・土龍鑽"</item>
+        <item>"狂亂萌貓 / 狂亂偶像萌貓 / 狂亂偶像萌貓"</item>
+        <item>"POKOTA / POKOTA CC / POKOTA CC"</item>
+        <item>"OVIS / OVIS CC / OVIS CC"</item>
+        <item>"COCO / COCO CC / COCO CC"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"噴噴貓騎士 / 機械噴噴騎士 / 噴噴貓騎士L號"</item>
+        <item>"貓咪鬥惡龍 / 貓咪鬥惡龍XI / 貓咪鬥惡龍XI-2 / 貓咪鬥惡龍之天堂聖殿"</item>
+        <item>"蒼真貓 / 瀟灑蒼真貓 / 瀟灑蒼真貓"</item>
+        <item>"祖克柏貓 / 駭客祖克柏貓 / 駭客祖克柏貓"</item>
+        <item>"蛋黃機器貓 / 蛋黃機器貓・蛋 / 蛋黃機器貓・蛋"</item>
+        <item>"亡者偵探吳仲力 / 魔界偵探吳仲力 / 魔神偵探吳仲力 / 聖魔偵探吳仲力"</item>
+        <item>"賤萌熊 / 賤萌黑熊 / 賤萌黑熊"</item>
+        <item>"賤萌貓 / 殺意賤萌貓 / 殺意賤萌貓"</item>
+        <item>"白貓劍士 / 黑貓劍士 / 黑貓劍士"</item>
+        <item>"小小瓦爾基麗貓 / 寶島瓦爾姬娘 / 寶島瓦爾姬娘"</item>
+        <item>"捲捲貓 / 捲捲白骨貓 / 頭巾捲捲白骨貓"</item>
+        <item>"激・神 / 超・神 / 超・金光閃閃神"</item>
+        <item>"灼熱海灘悟空貓 / 灼熱海灘悟空貓γ / 灼熱海灘悟空貓γ"</item>
+        <item>"時空神克羅諾絲 / 時空之鑰克羅諾絲 / G時空之鑰克羅諾絲"</item>
+        <item>"蓓蓓 / 小渚＆貓咪 / 圓環之理的使者渚"</item>
+        <item>"影傑漆黑達太貓 / 闇傑漆黑達太貓 / 闇傑漆黑達太貓"</item>
+        <item>"帶子貓 / 推車攤販貓 / 行李推車貓"</item>
+        <item>"地底戰隊・地殼鑽 / 地底戰隊・強力地殼鑽 / 正宗・強力地殼鑽"</item>
+        <item>"地底戰隊・木樁釘 / 地底戰隊・強力木樁釘 / 正宗・強力木樁釘"</item>
+        <item>"地底戰隊・大力鉗 / 地底戰隊・強力大力鉗 / 正宗・強力大力鉗"</item>
+        <item>"地底戰隊・貓怪手 / 地底戰隊・強力貓怪手 / 正宗・強力貓怪手"</item>
+        <item>"地底戰隊・電鋸手 / 地底戰隊・強力電鋸手 / 正宗・強力電鋸手"</item>
+        <item>"宮本武藏 / 劍神・宮本武藏 / 無雙劍神・宮本武藏"</item>
+        <item>"聖女貓會長貞德 / 聖女貓會長貞德ψ / 神聖女貓會長貞德ψ"</item>
+        <item>"天龍城巴比貓塔 / 魔城龍巴比貓塔 / 天魔城龍巴比貓塔"</item>
+        <item>"貓若丸 / 巨大神兵弁慶 / 巨大神兵弁慶"</item>
+        <item>"古代貓 / 現代貓 / 未來貓"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"花漾桃子 / 甜心桃子 / 星光桃子"</item>
+        <item>"間桐櫻 / 間桐櫻CC / 黑櫻CC"</item>
+        <item>"士郎貓 / 實習魔術師士郎貓 / 實習魔術師士郎貓"</item>
+        <item>"Archer貓 / 英靈Archer貓 / 英靈Archer貓"</item>
+        <item>"Rider貓 / 英靈Rider貓 / 英靈Rider貓"</item>
+        <item>"言峰貓&amp;吉爾伽美什貓 / 吉爾伽美什貓&amp;言峰貓 / 吉爾伽美什貓&amp;言峰貓"</item>
+        <item>"奇幻貓 / 奇幻白骨貓 / 奇幻白骨貓"</item>
+        <item>"議事阻撓貓X / 議事阻撓貓Y / 異界阻撓貓"</item>
+        <item>"終末兵器・異滅堂 / 秘研機關・潘朵殿 / 秘研機關・潘朵殿"</item>
+        <item>"土偶喵丸 / 土偶叮噹 / 覺醒叮噹"</item>
+        <item>"麻吉貓＆貓咪旅行團 / 麻吉貓＆貓咪遊寶島 / 麻吉貓＆貓咪遊寶島"</item>
+        <item>"暗黑宙斯 / 闇次神子暗黑宙斯 / 闇次神子暗黑宙斯"</item>
+        <item>"超級宙斯 / 全能神超級宙斯 / 超級S宙斯"</item>
+        <item>"聖鳳凰 / 聖戰衣化聖鳳凰 / 首領洛可可"</item>
+        <item>"超級惡魔 / 偽神超級惡魔 / 超級D惡魔"</item>
+        <item>"撒旦瑪利亞 / 神奇瑪利亞 / 神奇瑪利亞"</item>
+        <item>"耶穌大力士 / 完美耶穌大力士 / "</item>
+        <item>"猊玀魔身 / 魔肖猊玀 / 魔肖猊玀"</item>
+        <item>"大和王子 / 大和王子神帝 / 大和王子爆神"</item>
+        <item>"十字架天使 / 黃金十字架天使 / 劍球十字架天使"</item>
+        <item>"貓咪若神子 / 貓咪神帝 / 貓咪神帝"</item>
+        <item>"貓咪惡魔 / 貓咪邪神 / 貓咪邪神"</item>
+        <item>"貓之助 / 貓老守 / 貓老守"</item>
+        <item>"奇幻精靈露米納 / 夢幻精靈露米納里亞 / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"超越科學者天域博士 / 時空科學者深淵博士 / 時空科學者深淵博士"</item>
+        <item>"祈求幸福的少年蒼真 / 祈求幸福的少年蒼真＆貓咪 / 祈求幸福的貓耳蒼真"</item>
+        <item>"佳乃與蒼真 / 佳乃與蒼真與貓咪 / 佳乃與蒼真與貓咪"</item>
+        <item>"酷黑小小瓦爾基麗貓 / 酷黑寶島瓦爾姬娘 / 酷黑寶島瓦爾姬娘"</item>
+        <item>"卡蕾特 / 卡蕾特CC / 卡蕾特CC"</item>
+        <item>"姬娜 / 劍士姬娜 / 劍士姬娜"</item>
+        <item>"EVA8號機 / EVA8號機&amp;貓咪 / EVA8號機&amp;貓咪"</item>
+        <item>"空中戰艦貓咪Wunder / 希望之船喵喵Wunder / 弒神之船喵喵Wunder"</item>
+        <item>"小小美里 / Wunder艦長小小美里 / Wunder艦長小小美里"</item>
+        <item>"小小律子 / Wunder副長小小律子 / Wunder副長小小律子"</item>
+        <item>"小小綾波零（暫稱） / 覺醒的小小綾波零 / 覺醒的小小綾波零"</item>
+        <item>"HAPPI / HAPPI&amp;麻吉貓 / HAPPI&amp;麻吉貓&amp;貓咪"</item>
+        <item>"大地女神蓋婭 / 至高無上女神蓋婭 / 至高無上女神蓋婭"</item>
+        <item>"潮風水手悟淨貓 / 潮風水手悟淨貓κ / 潮風水手悟淨貓κ"</item>
+        <item>"鬥牛士貓 / 佛朗明哥舞貓 / 異國風情貓"</item>
+        <item>"成田甲斐 / 武神・成田甲斐 / 豪炎姬武神・成田甲斐 / 煉獄無雙・成田甲斐"</item>
+        <item>"戽斗貓 / 戽斗健美貓 / 戽斗健美貓"</item>
+        <item>"戽斗獅子 / 戽斗獅子CC / 戽斗獅子CC"</item>
+        <item>"戽斗老虎 / 戽斗老虎CC / 戽斗老虎CC"</item>
+        <item>"戽斗熊貓 / 戽斗熊貓CC / 戽斗熊貓CC"</item>
+        <item>"貓咪兄弟S / 貓咪笨呆兄弟S / 貓咪笨呆兄弟S"</item>
+        <item>"英雄令媛蜜斯 / 英雄令媛蜜斯ξ / 絢爛令媛蜜斯ξ"</item>
+        <item>" /  / "</item>
+        <item>"貓大叔【店主】 / 貓大叔【現役】 / 貓大叔【現役】"</item>
+        <item>"角龍格拉迪歐斯 / 角龍王格拉迪歐斯 / 角龍皇帝格拉迪歐斯"</item>
+        <item>"艾沃茲 / 艾沃茲CC / 無名的艾沃茲CC"</item>
+        <item>"超人貓 / 硬漢超人貓 / 鋼鐵超人貓"</item>
+        <item>"隆貓 / 隆貓CC / 隆貓CC"</item>
+        <item>"春麗貓 / 春麗貓CC / 春麗貓CC"</item>
+        <item>"豪鬼 / 豪鬼CC / 豪鬼CC"</item>
+        <item>"隆 / 隆CC / 暗影之人"</item>
+        <item>"春麗 / 春麗CC / 春麗CC"</item>
+        <item>"蓋爾 / 蓋爾CC / 蓋爾CC"</item>
+        <item>"桑吉爾夫 / 桑吉爾夫CC / 桑吉爾夫CC"</item>
+        <item>"布蘭卡 / 布蘭卡CC / 布蘭卡CC"</item>
+        <item>"塔爾錫 / 塔爾錫CC / 塔爾錫CC"</item>
+        <item>"肯 / 肯CC / 紅蓮格鬥王肯"</item>
+        <item>"豪鬼長頸鹿 / 豪鬼獅子 / 豪鬼獅子"</item>
+        <item>"拉斯沃斯 / 終極拉斯沃斯 / 真・拉斯沃斯"</item>
+        <item>"貓咪七福神 / 貓咪七福邪神 / 貓咪七福邪神"</item>
+        <item>"蛇髮貓杜莎 / 雙頭蛇髮貓杜莎 / 重量級蛇髮貓杜莎"</item>
+        <item>"湖中女神貓 / 奪牌貓 / 貓咪魔神"</item>
+        <item>"貓咪格鬥家 / 貓咪師傅 / 貓咪大師"</item>
+        <item>" /  / "</item>
+        <item>"金太郎 / 猛槍戰隊金呷勇 / 超槍戰隊金呷勇"</item>
+        <item>"冬天使西兒＆小毬 / 冬天使西兒＆小毬Φ / 冬天使西兒＆小毬Φ"</item>
+        <item>"史萊姆貓 / 水母貓 / 涼圓貓"</item>
+        <item>"哥薩克貓 / 伏特加貓 / 皇家衛兵貓"</item>
+        <item>"災難少女凱斯莉 / 祝祭聖女凱斯莉 / 祝祭聖女凱斯莉"</item>
+        <item>"艾露梅 / 艾露梅CC / 艾露梅CC"</item>
+        <item>"熊熊貓咪 / 黑熊貓咪 / 怪人熊熊貓咪"</item>
+        <item>"巨狼與烏爾斯 / 米凱與烏爾斯 / 覺醒的米凱與烏爾斯"</item>
+        <item>"狙擊天才沙紀 / 夜殺天才沙紀 / 爆破天才沙紀"</item>
+        <item>"冥界神黑帝斯 / 冥界之王黑帝斯 / G冥界之王黑帝斯"</item>
+        <item>"初音未來 / 初音未來CC / 初音未來CC"</item>
+        <item>"櫻花未來 / 櫻花未來CC / 櫻花未來CC"</item>
+        <item>"鏡音鈴&amp;連 / 鏡音鈴&amp;連CC / 鏡音鈴&amp;連CC"</item>
+        <item>"貓初音 / 貓初音CC / 貓初音CC"</item>
+        <item>"英式橄欖球貓 / 美式足球貓 / 戰鬥足球貓"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"禍根魔女凱斯莉 / 漆黑魔女凱斯莉 / 漆黑魔女凱斯莉"</item>
+        <item>"京坂七穗 / 京坂七穗・真 / 京坂七穗・真"</item>
+        <item>"幻影貓 / 煙影貓 / 泡泡貓"</item>
+        <item>"角擊貓 / 棒打白骨貓 / 令牌棒打白骨貓"</item>
+        <item>"白夜姬零 / 白天姬零 / 白天姬零"</item>
+        <item>"第4使徒 / 第4貓使徒 / 第4貓使徒"</item>
+        <item>"第6使徒 / 第6貓使徒 / 第6貓使徒"</item>
+        <item>"第10使徒 / 第10貓使徒 / 第10貓使徒"</item>
+        <item>"第9使徒 / 第9貓使徒 / 第9貓使徒"</item>
+        <item>"薰貓 / 月面薰貓 / 月面薰貓"</item>
+        <item>"麵包師傅貓 / 迴力鏢貓 / 炸雞爺爺貓"</item>
+        <item>"達人烏嚕哩 / 貓咪假面烏嚕哩 / 貓咪神面烏嚕哩"</item>
+        <item>"巫師汗 / 全情神巫師汗 / 全情神巫師汗"</item>
+        <item>"騎神阿里巴巴 / 阿里巴巴神帝 / 幽靈阿里巴巴"</item>
+        <item>"天子男傑克 / 神帝男傑克 / 神帝男傑克"</item>
+        <item>"稀有轉蛋貓 / 招福轉蛋貓 / 招福轉蛋貓"</item>
+        <item>"地獄警官艾瑪 / 地獄軍曹艾瑪 / 閻魔總長艾瑪"</item>
+        <item>"巡音流歌 / 巡音流歌CC / 巡音流歌CC"</item>
+        <item>"MEIKO＆貓咪 / MEIKO＆貓咪CC / MEIKO＆貓咪CC"</item>
+        <item>"貓咪流歌 / 貓咪流歌CC / 貓咪流歌CC"</item>
+        <item>"海漾狙擊天才沙紀 / 夜海惡殺天才沙紀 / 護海戰士天才沙紀"</item>
+        <item>"仲夏不明貓 / 魅惑不明貓 / 名媛不明貓"</item>
+        <item>"日曬貓 / 日曬健美貓 / 日曬爆炸頭貓"</item>
+        <item>"救生貓兄弟 / 糰子貓兄弟 / 冰淇淋貓兄弟"</item>
+        <item>" /  / "</item>
+        <item>"異弟:N / 異弟:N2 / 異弟:NX"</item>
+        <item>"石精靈滾瓦 / 岩石精靈伊瓦 / 岩石精靈王強韌伊瓦"</item>
+        <item>"龍騎士斯卡巴魯斯 / 暗夜梅亞巴魯斯 / 萬聖節騎士巴魯斯"</item>
+        <item>"E. HONDA / E. HONDA CC / E. HONDA CC"</item>
+        <item>"拜森 / 拜森CC / 拜森CC"</item>
+        <item>"巴洛克 / 巴洛克CC / 巴洛克CC"</item>
+        <item>"沙卡特 / 沙卡特CC / 沙卡特CC"</item>
+        <item>"貝卡 / 貝卡CC / 貝卡CC"</item>
+        <item>"C. HONDA / C. HONDA CC / C. HONDA CC"</item>
+        <item>"拜森貓 / 拜森貓CC / 拜森貓CC"</item>
+        <item>"巴洛克貓 / 巴洛克貓CC / 巴洛克貓CC"</item>
+        <item>"沙卡特貓 / 沙卡特貓CC / 沙卡特貓CC"</item>
+        <item>"貝卡貓 / 貝卡貓CC / 貝卡貓CC"</item>
+        <item>"岩貓 / 礦貓 / 礦貓"</item>
+        <item>"初音未來 MAGICAL MIRAI 2020大阪 / 初音未來CC MAGICAL MIRAI 2020大阪 / 初音未來CC MAGICAL MIRAI 2020大阪"</item>
+        <item>"初音未來 MAGICAL MIRAI 2020東京 / 初音未來CC MAGICAL MIRAI 2020東京 / 初音未來CC MAGICAL MIRAI 2020東京"</item>
+        <item>"聖誕慶次 / 聖誕樹慶次 / 聖誕樹慶次DX"</item>
+        <item>"幼獸加爾 / 帝獸加迪 / 帝獸加迪"</item>
+        <item>"貓咪王子 / 貓咪國王 / 貓咪國王"</item>
+        <item>"戀女神可可黛蒂 / 華麗黃金可可黛蒂 / 華麗黃金可可黛蒂"</item>
+        <item>"初戀令媛蜜斯 / 初戀令媛蜜斯ξ / 初戀令媛蜜斯ξ"</item>
+        <item>"情人節萌萌貓 / 情人節巧克力萌萌貓 / 真愛情人節萌萌貓"</item>
+        <item>"雪未來 2021 / 雪未來CC 2021 / 雪未來CC 2021"</item>
+        <item>"KAITO＆貓咪 / KAITO＆貓咪CC / KAITO＆貓咪CC"</item>
+        <item>"貓咪鈴 / 貓咪鈴CC / 貓咪鈴CC"</item>
+        <item>"貓咪連 / 貓咪連CC / 貓咪連CC"</item>
+        <item>"空中商店・探險家 / 運送兵團・文明組 / 超運送兵團・文明組"</item>
+        <item>"春龍卡姆庫拉 / 神春龍卡姆庫拉 / 神春龍王卡姆庫拉"</item>
+        <item>"早乙女亂馬(男) / 早乙女亂馬(女) / 早乙女亂馬(女)"</item>
+        <item>"天道茜 / 天道茜(道服) / 天道茜(道服)"</item>
+        <item>"響良牙(黑豬) / 響良牙 / 響良牙"</item>
+        <item>"珊璞(貓) / 珊璞 / 珊璞"</item>
+        <item>"沐絲(鴨) / 沐絲 / 沐絲"</item>
+        <item>"八寶齋 / 八寶齋(色鬼) / 八寶齋(色鬼)"</item>
+        <item>"久遠寺右京(男裝) / 久遠寺右京 / 久遠寺右京"</item>
+        <item>"九能帶刀(道服) / 九能帶刀 / 九能帶刀"</item>
+        <item>"貓亂馬(男) / 貓亂馬(女) / 貓亂馬(女)"</item>
+        <item>"貓小茜 / 貓小茜(道服) / 貓小茜(道服)"</item>
+        <item>"貓熊貓 / 貓玄馬 / 貓玄馬"</item>
+        <item>"冒險家佳奈 / 大冒險少女佳奈 / 傳說的冒險少女佳奈"</item>
+        <item>" /  / "</item>
+        <item>"黑獸加迪 / 帝獸黑暗加迪 / 帝獸黑暗加迪"</item>
+        <item>"金塊貓 / 金條貓 / 黃金法老貓"</item>
+        <item>"哥吉拉貓 / 正宗哥吉拉貓 / 正宗哥吉拉貓"</item>
+        <item>"貓咪王女 / 貓咪女王 / 貓咪女王"</item>
+        <item>"古神面多龍 / 貓神面多龍 / 覺醒貓神面多龍"</item>
+        <item>"陸海輝夜姬 / 南國衛星・陽光兵器 / 南國衛星・超級烈日兵器"</item>
+        <item>"獨角貓 / 黃金獨角貓 / 黃金獨角貓"</item>
+        <item>"鍬形貓 / 王者鍬形貓 / 王者鍬形貓"</item>
+        <item>"召喚少年小悟 / 惡魔召喚小悟 / 惡魔獵人小悟"</item>
+        <item>"天草四郎 / 魔神・天草四郎 / 怨恨魔神・天草四郎"</item>
+        <item>"妖賢女莉莉 / 妖賢女莉莉π / 大賢女莉莉π"</item>
+        <item>"邪龍赫維賈克 / 邪龍王赫維賈克 / 邪龍皇帝赫維賈克"</item>
+        <item>"惡魔研究家 / 邪惡的惡魔研究家 / 貓咪研究家"</item>
+        <item>"邪根德Jr / 破壞神邪根德Jr / 破壞神賈根德Jr"</item>
+        <item>"魔笛貓 / 虛無僧貓 / 銅管樂隊貓"</item>
+        <item>"熱血硬派國夫君 / 躲避球社國夫君 / 躲避球社國夫君"</item>
+        <item>"怒髮貓 / 髮鞭白骨貓 / 暴怒髮鞭白骨貓"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"遭洗腦的貓咪 / 遭洗腦的健美貓 / 遭洗腦的摩西根貓"</item>
+        <item>"書道貓 / 茶道貓 / 茶道貓"</item>
+        <item>"闇精靈亞米 / 暗黑精靈亞米諾瓦 / 暗黑精靈王亞米諾瓦多"</item>
+        <item>"超龍戰機・毀滅團 / 電磁戰機・殲滅團 / 超電磁戰機・殲滅團"</item>
+        <item>"舌切雀 / 妖怪結社沖沖衝 / 大妖怪結社沖沖衝"</item>
+        <item>"白騎士庫克洛普斯 / 黑騎士庫克洛普斯 / 神魔騎士庫克洛普斯"</item>
+        <item>"一百萬的貓 / 一億元的貓 / 一億元的貓"</item>
+        <item>"遭洗腦的坦克貓 / 遭洗腦的牆貓 / 遭洗腦的橡皮貓"</item>
+        <item>"小穹&amp;貓咪 / 小穹&amp;貓咪CC / 小穹&amp;貓咪CC"</item>
+        <item>"耐耐&amp;貓咪 / 耐耐&amp;貓咪CC / 耐耐&amp;貓咪CC"</item>
+        <item>"艾米莉亞&amp;貓咪 / 艾米莉亞&amp;貓咪CC / 艾米莉亞&amp;貓咪CC"</item>
+        <item>"婕兒&amp;貓咪 / 婕兒&amp;貓咪CC / 婕兒&amp;貓咪CC"</item>
+        <item>"歡笑揮舞孃 / 魅惑舞姬孃 / 魅惑舞姬孃"</item>
+        <item>"墮天神路西法 / 崇高之神路西法 / G崇高之神路西法"</item>
+        <item>"貓咪超人 / 貓咪超人Ⅱ / 真貓咪超人"</item>
+        <item>"白色情人機器子 / 苦甜參半機器子 / 最愛薄荷機器子"</item>
+        <item>"遭洗腦的戰鬥貓 / 遭洗腦的勇者貓 / 遭洗腦的暗黑貓"</item>
+        <item>"鞭炮貓 / 鞭炮健美貓 / 鞭炮健美貓"</item>
+        <item>"狩獵女孩媞倫 / 狩獵女孩媞倫ζ / 大狩獵女孩媞倫ζ"</item>
+        <item>"愛情番長惡鬼喵魔 / 戀愛番長鬼神喵魔 / 戀愛番長鬼神喵魔"</item>
+        <item>"服部半藏 / 忍神・服部半藏 / 絕影忍神・服部半藏"</item>
+        <item>"青梅竹馬喵美 / 女朋友喵美 / 女朋友喵美"</item>
+        <item>"淘氣獅子貓 / 鐵假面獅子貓 / 鐵假面獅子貓"</item>
+        <item>"板擦貓 / 番長板擦貓 / 番長板擦貓"</item>
+        <item>"古獸納拉 / 雷古獸納拉 / 覺醒古獸納拉"</item>
+        <item>"遭洗腦的噁心貓 / 遭洗腦的美腿貓 / 遭洗腦的筋肉美腿貓"</item>
+        <item>"冰精靈布莉茲 / 冰結精靈布莉莎娜 / 冰結精靈王布莉莎雷娜"</item>
+        <item>"遠古的蛋：N001 / 謎樣的蛋：N001 / 埴輪貓"</item>
+        <item>"悲嘆揮舞孃 / 哀悼黑暗舞姬孃 / 哀悼黑暗舞姬孃"</item>
+        <item>"遠古的蛋：N101 / 紅色的蛋：N101 / 飛腳貓"</item>
+        <item>"遠古的蛋：N102 / 藍色的蛋：N102 / 泰山貓"</item>
+        <item>"海龍達萊亞薩 / 海龍王達萊亞薩 / 海龍皇帝達萊亞薩"</item>
+        <item>"祝福神克羅諾絲 / 新娘克羅諾絲 / 新娘克羅諾絲"</item>
+        <item>"遭洗腦的牛貓 / 遭洗腦的長頸鹿貓 / 遭洗腦的獅子貓"</item>
+        <item>"遠古的蛋：N103 / 黑色的蛋：N103 / 防毒面具貓"</item>
+        <item>"遠古的蛋：N104 / 綠色的蛋：N104 / 手術貓"</item>
+        <item>"遠古的蛋：N201 / 邪惡的蛋：N201 / 驅魔貓"</item>
+        <item>"星光沙灘女莉莉 / 星光沙灘女莉莉π / 星光沙灘女莉莉π"</item>
+        <item>"遭洗腦的鳥貓 / 遭洗腦的UFO貓 / 遭洗腦的天空之貓"</item>
+        <item>"天狗貓 / 大妖怪天狗貓 / 大神仙天狗貓"</item>
+        <item>"遠古的蛋：N003 / 邪惡的蛋：N003 / 仙人掌貓"</item>
+        <item>"遠古的蛋：N202 / 紅色的蛋：N202 / 鎧甲螢火貓"</item>
+        <item>"早乙女亂馬(體操選手) / 早乙女亂馬(啦啦隊) / 早乙女亂馬(啦啦隊)"</item>
+        <item>"早乙女玄馬(熊貓) / 早乙女玄馬 / 早乙女玄馬"</item>
+        <item>"ネコチーター / ネコチーター / ネコチーター"</item>
+        <item>"周遊藝團・雜耍隊 / 奇襲怪光・幽浮隊 / 超奇襲怪光・幽浮隊"</item>
+        <item>"遠古的蛋：N105 / 藍色的蛋：N105 / 網球貓"</item>
+        <item>"遠古的蛋：N106 / 黃色的蛋：N106 / 香菇貓"</item>
+        <item>"三雲修＆貓咪 / 三雲修＆貓咪CC / 三雲修＆貓咪CC"</item>
+        <item>"空閑遊真＆貓咪 / 空閑遊真＆貓咪CC / 空閑遊真＆貓咪CC"</item>
+        <item>"雨取千佳＆貓咪 / 雨取千佳＆貓咪CC / 雨取千佳＆貓咪CC"</item>
+        <item>"櫻 / 櫻CC / 櫻CC"</item>
+        <item>"路克 / 路克CC / 路克CC"</item>
+        <item>"闇女神蓓卡 / 幻影加持闇女神蓓卡 / 虛影加持闇女神蓓卡"</item>
+        <item>"伯爵・真田幸村 / 吸血鬼・真田幸村 / 吸血鬼公爵・真田幸村"</item>
+        <item>"遭洗腦的魚貓 / 遭洗腦的鯨貓 / 遭洗腦的島貓"</item>
+        <item>"遠古的蛋：N004 / 謎樣的蛋：N004 / 小鴨車車貓"</item>
+        <item>"光之女神希莉烏斯 / 晨光女神希莉烏斯 / 晨光女神希莉烏斯"</item>
+        <item>"馴鹿女孩媞倫 / 馴鹿女孩媞倫ζ / 馴鹿女孩媞倫ζ"</item>
+        <item>"遭洗腦的蜥蜴貓 / 遭洗腦的龍貓 / 遭洗腦的龍王貓"</item>
+        <item>"石上10年貓 / 石上10年貓像 / 石上10年貓像"</item>
+        <item>"命運之子佛諾 / 天命之王佛挪 / 天命之王佛挪"</item>
+        <item>"遠古的蛋：N000 / 古代的蛋：N000 / 猿人貓露薩"</item>
+        <item>"一寸法師 / 鬼襲艇小槌號 / 鬼襲戰艇小槌號"</item>
+        <item>"白執事偵探吳仲力 / 黑執事偵探吳仲力 / 黑執事偵探吳仲力"</item>
+        <item>"遭洗腦的巨神貓 / 遭洗腦的巨人貓 / 遭洗腦的賈拉米貓"</item>
+        <item>"殺意坦克貓 / 真・殺意坦克貓 / 真・殺意坦克貓"</item>
+        <item>"班長貓 / 叛逆班長貓 / 叛逆班長貓"</item>
+        <item>"遠古的蛋：N107 / 紫色的蛋：N107 / 村長貓"</item>
+        <item>"閃電傑克 / 黑雷傑克 / 電光傑克"</item>
+        <item>"決鬥少年兔裝小悟 / 決鬥王者兔裝小悟 / 決鬥王者兔裝小悟"</item>
+        <item>"遠古的蛋：N005 / 謎樣的蛋：N005 / 殺手貓"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"非命之王佛挪 / 斷命之王黑暗佛挪 / 斷命之王黑暗佛挪"</item>
+        <item>"遠古的蛋：N108 / 藍色的蛋：N108 / 香皂貓"</item>
+        <item>"遠古的蛋：N109 / 邪惡的蛋：N109 / 海盜桶貓"</item>
+        <item>"噴射貓 / 貓宮金次郎 / 貓宮金次郎"</item>
+        <item>"獨眼少女明日香 / 藍眼魔女明日香 / 藍眼魔女明日香"</item>
+        <item>"EVA第13號機 / EVA第13號機&amp;貓咪 / EVA第13號機&amp;貓咪"</item>
+        <item>"婚紗異能貓 / 新娘異能貓 / 新娘異能貓"</item>
+        <item>"額頭貓 / 額頭白骨貓 / 盔甲額頭白骨貓"</item>
+        <item>"遠古的蛋：N203 / 紫色的蛋：N203 / 小丑貓"</item>
+        <item>"岸邊冒險家佳奈 / 大海潛水家佳奈 / 大海潛水家佳奈"</item>
+        <item>"建築兵團・運輸隊 / 突擊部隊・卡車隊 / 超突擊部隊・卡車隊"</item>
+        <item>"遠古的蛋：N111 / 謎樣的蛋：N111 / 警官貓"</item>
+        <item>"遠古的蛋：N110 / 黃色的蛋：N110 / 農夫貓"</item>
+        <item>"玉蜀黍貓 / 三角錐貓 / 三角錐貓"</item>
+        <item>"鐵精靈卡卿 / 鋼鐵精靈鐵卡卿 / 鋼鐵精靈王鋼鐵卡卿"</item>
+        <item>"遠古的蛋：N006 / 邪惡的蛋：N006 / 惡魔熊熊貓"</item>
+        <item>"花園高中老大阿力 / 躲避球社阿力 / 躲避球社阿力"</item>
+        <item>"初音未來 16th / 初音未來CC 16th / 初音未來CC 16th"</item>
+        <item>"光翼神伊西絲 / 美翼神伊西絲 / G美翼神伊西絲"</item>
+        <item>"遠古的蛋：N112 / 謎樣的蛋：N112 / 蛋蛋號貓"</item>
+        <item>"忍者女孩多萌耶 / 響食忍者多萌耶 / 美食極樂忍者多萌耶"</item>
+        <item>"徽章王貓 / 徽章大王貓 / 徽章大王貓"</item>
+        <item>"太陽神羅卡 / 太陽神羅卡CC / 太陽神羅卡CC"</item>
+        <item>"論之賢者蘇拉格底 / 論之賢者貓拉格底 / 論之賢者貓拉格底"</item>
+        <item>"730_1"</item>
+        <item>"遠古的蛋：N204 / 紅色的蛋：N204 / 舞獅貓"</item>
+        <item>"曉之伊邪那岐 / 曉光之伊邪那岐 / 曉光之伊邪那岐"</item>
+        <item>"733_1"</item>
+        <item>"鐵籠的姵卡薩 / 鐵籠的姵卡薩ν / 鐵籠的姵卡薩ν"</item>
+        <item>"735_1"</item>
+        <item>"校長貓 / 第二人生貓 / 第二人生貓"</item>
+        <item>"冰雪白星貓 / 冰雪巨星貓 / 冰雪巨星貓"</item>
+        <item>"春季卡莉法 / 春季卡莉法Ｘ / 春季卡莉法Ｘ"</item>
+        <item>"宵之伊邪那美 / 宵暗之伊邪那美 / 宵暗之伊邪那美"</item>
+        <item>"740_1"</item>
+        <item>"垃圾桶貓 / 寶箱貓 / "</item>
+        <item>"染香綺狐 ‧ 妲己 / 染香綺狐 ‧ 妲己＆貓咪 / 染香綺狐 ‧ 妲己＆貓咪"</item>
+        <item>"莫莉安娜貓 / 一曲傾心・莫莉安娜貓 / 一曲傾心・莫莉安娜貓"</item>
+        <item>"瘋頭 / 瘋頭貓 / 瘋頭貓"</item>
+        <item>"貓公爵 ‧ 費利克斯貓 / 傭兵貓團長 ‧ 費利克斯貓 / 傭兵貓團長 ‧ 費利克斯貓"</item>
+        <item>"點點貓 / 生日派對點點貓 / 生日派對點點貓"</item>
+        <item>"緋村劍心 / 緋村劍心CC / 緋村劍心CC"</item>
+        <item>"相樂左之助 / 相樂左之助CC / 相樂左之助CC"</item>
+        <item>"四乃森蒼紫 / 四乃森蒼紫CC / 四乃森蒼紫CC"</item>
+        <item>"齋藤一 / 齋藤一CC / 齋藤一CC"</item>
+        <item>"小小神谷薰 / 小小神谷薰CC / 小小神谷薰CC"</item>
+        <item>"小小彌彥 / 小小彌彥CC / 小小彌彥CC"</item>
+        <item>"劍心貓 / 拔刀齋貓 / 拔刀齋貓"</item>
+        <item>"神谷薰貓 / 劍道之花神谷薰貓 / 劍道之花神谷薰貓"</item>
+        <item>"明智光秀 / 武神・明智光秀 / 武神・明智光秀"</item>
+        <item>"756_1"</item>
+        <item>"婚禮蛋糕機器貓 / 婚禮蛋糕機器貓・祝 / 婚禮蛋糕機器貓・祝"</item>
+        <item>"遠古的蛋：N205 / 紫色的蛋：N205 / 新娘貓"</item>
+        <item>"炫幻傭兵特麗希 / 復仇傭兵特麗希 / 復仇傭兵特麗希"</item>
+        <item>"夏日音樂祭珊迪亞 / 夏日音樂祭珊迪亞β / 夏日音樂祭珊迪亞β"</item>
+        <item>"砲龍剛多羅斯 / 砲龍王剛多羅斯 / 砲龍王剛多羅斯"</item>
+        <item>"762_1"</item>
+        <item>" /  / "</item>
+        <item>"噴火恐龍貓 / 機械噴火恐龍貓 / 機械噴火恐龍貓"</item>
+        <item>"765_1"</item>
+        <item>"遠古的蛋：N206 / 紅色的蛋：N206 / 扇貝貓"</item>
+        <item>"沙丁魚 / 沙丁魚CC / 沙丁魚CC"</item>
+        <item>"烏賊 / 烏賊CC / 烏賊CC"</item>
+        <item>"戴天鬼 / 戴天鬼CC / 戴天鬼CC"</item>
+        <item>"開花爺爺 / 暴食怪樹大櫻 / 暴食怪樹大櫻"</item>
+        <item>"771-1"</item>
+        <item>"生命賢者Dr. 諾瓦 / 生命賢者貓諾瓦 / 生命賢者貓諾瓦"</item>
+        <item>"南瓜索多姆 / 南瓜燈索多姆 / 南瓜燈索多姆"</item>
+        <item>"木乃伊相撲貓 / 萬聖節變裝女士 / 萬聖節變裝女士"</item>
+        <item>"特命交警阿酷賽爾 / 酷頑夜警阿酷賽爾 / 酷頑夜警阿酷賽爾"</item>
+        <item>"776-1"</item>
+        <item>"見習武士貓 / 武將貓 / 武將貓"</item>
+        <item>"冬將軍・成田甲斐 / 冬大將軍・成田甲斐 / 冬大將軍・成田甲斐"</item>
+        <item>"小圓貓＆小焰 / 魔法結社貓咪小圓 / 魔法結社貓咪小圓"</item>
+        <item>"幼天女露娜 / 救濟天女露娜夏 / 救濟天女露娜夏"</item>
+        <item>"保齡球選手貓 / 躲避球選手貓 / 躲避球選手貓"</item>
+        <item>"眼擊貓 / 眼擊白骨貓 / 眼擊白骨貓"</item>
+        <item>"783-1"</item>
+        <item>"俏喵 / 超級明星俏喵 / 超級明星俏喵"</item>
+        <item>" /  / "</item>
+        <item>"殺意噁心貓 / 真・殺意噁心貓 / 真・殺意噁心貓"</item>
+        <item>"魔術師貓俠 / 幻術師貓俠 / 幻術師貓俠"</item>
+        <item>"冥佑天女露娜夏 / 寂滅天女黑露娜夏 / 寂滅天女黑露娜夏"</item>
+        <item>" /  / 789-2"</item>
+        <item>"範馬刃牙 / 範馬刃牙CC / 範馬刃牙CC"</item>
+        <item>"烈海王 / 烈海王CC / 烈海王CC"</item>
+        <item>"花山薰 / 花山薰CC / 花山薰CC"</item>
+        <item>"愚地克巳 / 愚地克巳CC / 愚地克巳CC"</item>
+        <item>"傑克・範馬 / 傑克・範馬CC / 傑克・範馬CC"</item>
+        <item>"勇次郎貓 / 鬼背貓 / 鬼背貓"</item>
+        <item>"小小刃牙 / 小小刃牙CC / 小小刃牙CC"</item>
+        <item>"刃牙貓 / 刃牙貓CC / 刃牙貓CC"</item>
+        <item>"海王貓 / 海王貓CC / 海王貓CC"</item>
+        <item>"獨步貓 / 獨步貓CC / 獨步貓CC"</item>
+        <item>"曲射砲台・砲擊團 / 迎擊砲隊・重砲團 / 迎擊砲隊・重砲團"</item>
+        <item>"801-1"</item>
+        <item>"理之賢者扭頓 / 理之賢者喵頓 / 理之賢者喵頓"</item>
+        <item>"802-1"</item>
+        <item>"索尼克 / 索尼克＆貓咪 / 索尼克＆貓咪"</item>
+        <item>"塔爾斯 / 塔爾斯＆貓咪 / 塔爾斯＆貓咪"</item>
+        <item>"納克魯斯 / 納克魯斯＆貓咪 / 納克魯斯＆貓咪"</item>
+        <item>"夏特 / 夏特＆貓咪 / 夏特＆貓咪"</item>
+        <item>"索尼克貓 / 索尼克貓CC / 索尼克貓CC"</item>
+        <item>"塔爾斯貓 / 塔爾斯貓CC / 塔爾斯貓CC"</item>
+        <item>"夏特貓 / 夏特貓CC / 夏特貓CC"</item>
+        <item>"頂尖特務史塔爾 / 王牌特務史塔爾 / 王牌特務史塔爾"</item>
+        <item>"護法神韋馱天 / 護法神韋天將軍 / 護法神韋天將軍"</item>
+        <item>"812-1"</item>
+        <item>"巨大擬濱蟹 / 巨大擬濱蟹CC / 巨大擬濱蟹CC"</item>
+        <item>"EVA量產機 / EVA貓量產機 / EVA貓量產機"</item>
+        <item>"月影少年薰 / 落月使者薰 / 落月使者薰"</item>
+        <item>"817-1"</item>
+        <item>"樹精靈小魔麗 / 樹木精靈魔麗林 / 樹木精靈魔麗林"</item>
+        <item>"819-1"</item>
+        <item>"木工貓 / 饒舌歌手貓 / 饒舌歌手貓"</item>
+        <item>"海濱姵卡薩 / 海濱姵卡薩ν / 海濱姵卡薩ν"</item>
+        <item>"822_1"</item>
+        <item>"顧問貓 / 經營夥伴貓 / 經營夥伴貓"</item>
+        <item>" /  / "</item>
+        <item>"魔導師希朵咪 / 火焰大魔導師希朵咪 / 火焰大魔導師希朵咪"</item>
+        <item>"826-1"</item>
+        <item>"倩咪 / 倩咪CC / 倩咪CC"</item>
+        <item>"蛛俐 / 蛛俐CC / 蛛俐CC"</item>
+        <item>"桑吉爾夫貓 / 桑吉爾夫貓CC / 桑吉爾夫貓CC"</item>
+        <item>"傑米貓 / 傑米貓CC / 傑米貓CC"</item>
+        <item>"獅子番長拉克雷斯 / 獅子番長拉克雷斯Σ / 獅子番長拉克雷斯Σ"</item>
+        <item>"領巾貓 / 紅戰士貓 / 紅戰士貓"</item>
+        <item>"禮帽貓 / 藍戰士貓 / 藍戰士貓"</item>
+        <item>"安全帽貓 / 黃戰士貓 / 黃戰士貓"</item>
+        <item>"護目鏡貓 / 綠戰士貓 / 綠戰士貓"</item>
+        <item>"彩帶貓 / 桃戰士貓 / 桃戰士貓"</item>
+        <item>"貓咪王 / 超偉大貓咪王DX / 超偉大貓咪王DX"</item>
+        <item>"幼騎士路諾 / 滿月騎士路諾斯 / 滿月騎士路諾斯"</item>
+        <item>"839-1"</item>
+        <item>"840-1"</item>
+        <item>"竈門炭治郎 / 竈門炭治郎CC / 竈門炭治郎CC"</item>
+        <item>"竈門禰󠄀豆子 / 竈門禰󠄀豆子CC / 竈門禰󠄀豆子CC"</item>
+        <item>"我妻善逸 / 我妻善逸CC / 我妻善逸CC"</item>
+        <item>"嘴平伊之助 / 嘴平伊之助CC / 嘴平伊之助CC"</item>
+        <item>"冨岡義勇 / 冨岡義勇CC / 冨岡義勇CC"</item>
+        <item>"胡蝶忍 / 胡蝶忍CC / 胡蝶忍CC"</item>
+        <item>"煉獄杏壽郎 / 煉獄杏壽郎CC / 煉獄杏壽郎CC"</item>
+        <item>"小小鱗瀧左近次 / 小小鱗瀧左近次CC / 小小鱗瀧左近次CC"</item>
+        <item>"炭治郎貓 / 炭治郎貓CC / 炭治郎貓CC"</item>
+        <item>"禰󠄀豆子貓 / 禰󠄀豆子貓CC / 禰󠄀豆子貓CC"</item>
+        <item>"風魔小太郎 / 蛇神・風魔小太郎 / 蛇神・風魔小太郎"</item>
+        <item>"送報貓 / 特賣貓 / 特賣貓"</item>
+        <item>"殺意牛鳥貓 / 真・殺意牛鳥貓 / 真・殺意牛鳥貓"</item>
+        <item>"熱衷靈異貓 / 辣妹貓 / 辣妹貓"</item>
+        <item>"淘之賢者達而文 / 淘之賢者貓而文 / 淘之賢者貓而文"</item>
+        <item>"856_1"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"孤月騎士路諾斯 / 晦月騎士黑路諾斯 / 晦月騎士黑路諾斯"</item>
+        <item>"861_1"</item>
+        <item>"嵐龍機沃爾內德 / 嵐龍機王沃爾內德 / 嵐龍機王沃爾內德"</item>
+        <item>"婚禮・服部半藏 / 新郎・服部半藏 / 新郎・服部半藏"</item>
+        <item>"透明貓 / 新郎貓 / 新郎貓"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"鐵腕女孩東雲寺茜 / 打工女孩東雲寺茜 / 打工女孩東雲寺茜"</item>
+        <item>"遠古的蛋：N207 / 黑色的蛋：N207 / 暴發戶貓"</item>
+        <item>"遠古的蛋：N208 / 綠色的蛋：N208 / 突擊小龍蝦貓"</item>
+        <item>"叢林獵人多萌耶 / 叢林大師多萌耶 / 叢林大師多萌耶"</item>
+        <item>""</item>
+        <item>""</item>
+        <item>""</item>
+    </string-array>
+    <string-array name="cat_names_jp">
+        <item>"ネコ / ネコビルダー / ネコモヒカン"</item>
+        <item>"タンクネコ / ネコカベ / ゴムネコ"</item>
+        <item>"バトルネコ / 勇者ネコ / 暗黒ネコ"</item>
+        <item>"キモネコ / 美脚ネコ / ムキあしネコ"</item>
+        <item>"ウシネコ / ネコキリン / ネコライオン"</item>
+        <item>"ネコノトリ / ネコＵＦＯ / 天空のネコ"</item>
+        <item>"ネコフィッシュ / ネコクジラ / ネコ島"</item>
+        <item>"ネコトカゲ / ネコドラゴン / ネコキングドラゴン"</item>
+        <item>"巨神ネコ / ネコダラボッチ / ネコジャラミ"</item>
+        <item>"ネコ女優 / ネコ聖母 / ネコマッチョ"</item>
+        <item>"カンフーにゃんこ / 酔拳にゃんこ / ネコダンサー"</item>
+        <item>"Mr. / Super Mr. / Hyper Mr."</item>
+        <item>"猫縛り / 猫縛りNEO / 猫縛り極上"</item>
+        <item>"女王猫 / 処刑人 / 暗黒嬢"</item>
+        <item>"ネコの箱詰め / ネコギャング / 重機C・A・T"</item>
+        <item>"ネコパンツ / ネコ葉っぱ / ネコぺろきゃん"</item>
+        <item>"もねこ / スターもねこ / スーパースターもねこ"</item>
+        <item>"ネコリンリン / ネコワイルド / イチリンリン"</item>
+        <item>"ネコ忍者 / ガマネコ忍者 / ムササビネコ忍者"</item>
+        <item>"ネコゾンビ / デビルネコ / ネコボーン"</item>
+        <item>"ネコざむらい / ネコナイト / ネコパティシエ"</item>
+        <item>"スモウネコ / マダム・ザ・スモウ / ネコにぎり"</item>
+        <item>"ネコフィーバー / ネコカーニバル / ネコアミーゴ"</item>
+        <item>"ネコスカート / ネコタイツ / ねこななふん"</item>
+        <item>"ネコヴァルキリー / ネコヴァルキリー・真 / ネコヴァルキリー・聖"</item>
+        <item>"ネコムート / 狂乱のネコムート / 覚醒のネコムート"</item>
+        <item>"ケリ姫 / フルカラーケリ姫 / ウェディングケリ姫"</item>
+        <item>"ネコひめ / ネコひめビューティ / ネコひめビューティ"</item>
+        <item>"ネコカプセル / ねこ盛り / ねこ盛り"</item>
+        <item>"マスクオブネコ / ネコレスラー / ネコレスラー"</item>
+        <item>"ネコぼさつ / ネコせんじゅ / ネコにょらい"</item>
+        <item>"ネコ番長 / 怒りのネコ番長 / 押忍！ネコ番長"</item>
+        <item>"ネコザイル / ネコ裸踊り / ネコカンカン"</item>
+        <item>"ねこタツ / ねこＴＶ / ねこタコつぼ"</item>
+        <item>"ネコルガ / ケサランパサラン / ウルトラケサラン"</item>
+        <item>"オタネコ / ネコハッカー / ネコスーパーハッカー"</item>
+        <item>"ネコスイマー / ネコバタフライ / ネコ半魚人"</item>
+        <item>"ネコホッピング / ネコマサイ / ネコキョンシー"</item>
+        <item>"ネコ車輪 / ネコ太陽 / ネコクール"</item>
+        <item>"ネコリンゴ / カオルくん / ネコアップル"</item>
+        <item>"ネコバスたぶ / セクシーネコバスたぶ / ネコバスたぶゴールデン"</item>
+        <item>"ネコエステ / ネコジェンヌ / ネコパーフェクト"</item>
+        <item>"ネコアイス / ネコアイスクイーン / ネコアイスクリスタル"</item>
+        <item>"ネコマシン / ネコマシン・破 / ネコマシン・滅"</item>
+        <item>"鬼にゃんま / 鬼神にゃんま / 獄炎鬼にゃんま"</item>
+        <item>"芸者ねこ / ネコでありんした / ネコでありんした"</item>
+        <item>"ねこジュラ / ねこジュラシッター / ねこジュラザウルス"</item>
+        <item>"ねこファイター / メガトンファイター / マキシマムファイター"</item>
+        <item>"ねこ海賊 / ニャーコック船長 / ニャック・スパロウ"</item>
+        <item>"ねこ泥棒 / 怪盗ニャコン / ネゴエモン"</item>
+        <item>"ねこ僧侶 / ねこ坊主 / ねこ法師"</item>
+        <item>"ねこ占い師 / ねこふんど師 / ねこ医師"</item>
+        <item>"ネコシャーマン / ネコラマンサー / ネコオドラマンサー"</item>
+        <item>"エヴァンジェリスト / フィリバスター / フィリバスター"</item>
+        <item>"10式戦車 / ネコ搭乗10式戦車 / ネコ搭乗10式戦車"</item>
+        <item>"ネコ魔女 / ネコマージョ / ネコビマージョ"</item>
+        <item>"ネコアーチャー / ネコキューピット / ネコいて座"</item>
+        <item>"ネコシュバリエ / ネコベルセルク / ネコパラディン"</item>
+        <item>"ネコ魔剣士 / 双剣ネコ魔剣士 / 双炎舞ネコ魔剣士"</item>
+        <item>"ねこベビー / ねこベビーズ / ネコベビーカーズ / ネコベビーワールド"</item>
+        <item>"ネコブ・ロンズ / 芸術のネコスタチュ / ネコクイズ王"</item>
+        <item>"ねこ寿司 / ねこリーゼント / ネコ極上"</item>
+        <item>"ネコポン / ネコポニョン / ネコポニョン"</item>
+        <item>"ネコ運動会 / ネコラッチ / ネコ棒倒し"</item>
+        <item>"剣士 / 剣士ジョニー / 剣士ジョニー"</item>
+        <item>"ウシ姫 / キリン姫 / キリン姫"</item>
+        <item>"KHM48 / ダークKHM48 / KHM46"</item>
+        <item>"チビガウ / チビガウガウ / クリスタルチビガウガウ"</item>
+        <item>"執行者 / 執行者999 / ジャッジメント"</item>
+        <item>"眠れるケリの美女 / 眠れるケリの美女Ⅱ / ひたすら眠れるケリの美女"</item>
+        <item>"ネコリーマン / ネコ怨み / ネコ火祭り"</item>
+        <item>"真田幸村 / 武神・真田幸村 / 飛翔の武神・真田幸村"</item>
+        <item>"前田慶次 / 武神・前田慶次 / 憤怒の武神・前田慶次"</item>
+        <item>"織田信長 / 武神・織田信長 / 天魔・織田信長 / 夢幻天魔・織田信長"</item>
+        <item>"トナカイフィッシュ / ネコ魚のお造り / フィッシュ・ド・ノエル"</item>
+        <item>"風神のウィンディ / 風神のウィンディα / 疾風神のウィンディα / アルティメットウィンディα"</item>
+        <item>"雷神のサンディア / 雷神のサンディアβ / 迅雷神のサンディアβ / アルティメットサンディアβ"</item>
+        <item>"ドロイド / ニャンドロイド / ハルドロイド"</item>
+        <item>"ネコと宇宙 / ニャア少佐 / 駆動戦士ネコ"</item>
+        <item>"にゃんこ成人 / にゃんこ病人 / にゃんこ囚人"</item>
+        <item>"吾輩は鬼である / ネコ紳士 / ネコ紳士同盟"</item>
+        <item>"ひなにゃんこ / 超号珍ニャジンガー / ニャラジン"</item>
+        <item>"ネコ忍者～青～ / ネコ忍者～橙～ / ネコ忍者～橙～"</item>
+        <item>"地龍ソドム / 地龍王ソドム / 地龍皇帝ソドム"</item>
+        <item>"聖龍メギドラ / 聖龍王メギドラ / 聖龍皇帝メギドラ"</item>
+        <item>"竜騎士バルス / 竜騎士王バルス / 竜騎士皇帝バルス"</item>
+        <item>"神龍かむくら / 神龍王かむくら / 神龍皇帝かむくら"</item>
+        <item>"竜戦機ライデン / 竜戦機王ライデン / 竜戦機皇帝ライデン"</item>
+        <item>"ネコなわとび / ネコネコなわとび / ネコ蕎麦屋"</item>
+        <item>"ニムエ / 帰化型ニムエ / 帰化型ニムエ"</item>
+        <item>"猿王 / SSS猿王 / SSS猿王"</item>
+        <item>"狂乱のネコ / 狂乱のネコビルダー / 大狂乱のネコモヒカン"</item>
+        <item>"狂乱のタンクネコ / 狂乱のネコカベ / 大狂乱のゴムネコ"</item>
+        <item>"狂乱のバトルネコ / 狂乱の勇者ネコ / 大狂乱の暗黒ネコ"</item>
+        <item>"狂乱のキモネコ / 狂乱の美脚ネコ / 大狂乱のムキあしネコ"</item>
+        <item>"狂乱のウシネコ / 狂乱のキリンネコ / 大狂乱のネコライオン"</item>
+        <item>"狂乱のネコノトリ / 狂乱のネコUFO / 大狂乱の天空のネコ"</item>
+        <item>"狂乱のネコフィッシュ / 狂乱のネコクジラ / 大狂乱のネコ島"</item>
+        <item>"狂乱のネコトカゲ / 狂乱のネコドラゴン / 大狂乱のネコキングドラゴン"</item>
+        <item>"狂乱の巨神ネコ / 狂乱のネコダラボッチ / 大狂乱のネコジャラミ"</item>
+        <item>"ネコ乙女 / モトコ / サホリ"</item>
+        <item>"弱酸性エル / 弱酸性エルCC / 弱酸性エルCC"</item>
+        <item>"レッドマローン / レッドマローンCC / レッドマローンCC"</item>
+        <item>"歌謡にゃんこ / メガにゃんこ / メガにゃんこEX"</item>
+        <item>"マジでコイしてる / コイ・the・Night / キスヨリ・ス・ゴイ"</item>
+        <item>"猿帝のクウ / 猿帝のクウγ / 金猿帝のクウγ"</item>
+        <item>"召し豚のカイ / 召し豚のカイμ / 召し猪のカイμ"</item>
+        <item>"宝杖のカッパーマイン / 宝杖のカッパーκ / 光宝杖のカッパーκ"</item>
+        <item>"にゃんこ３兄弟 / 秘密要塞ネコロス / 秘密要塞ネコロス"</item>
+        <item>"マダム・ザ・花嫁 / マダム・ザ・王様 / マダム・ザ・サバンナ"</item>
+        <item>"セレス / セレスCC / セレスCC"</item>
+        <item>"ノノ / ノノCC / 野跳ねる白猫ノノCC"</item>
+        <item>"オルガ / オルガCC / オルガCC"</item>
+        <item>"ノルン / ノルンCC / ノルンCC"</item>
+        <item>"よいち / よいちCC / よいちCC"</item>
+        <item>"セラム / セラムCC / セラムCC"</item>
+        <item>"フウ / フウCC / フウCC"</item>
+        <item>"アウラ / アウラCC / アウラCC"</item>
+        <item>"レイ / レイCC / レイCC"</item>
+        <item>"ワイバーン / ニャイバーン / ニャイバーン＆アレク"</item>
+        <item>"癒術士 / 癒術士CC / にゃんこ化癒術士ＣＣ"</item>
+        <item>"メルク / メルクCC / にゃんことメルクCC"</item>
+        <item>"女王様の休日 / いつものＯＬ / コールセンターのＯＬ"</item>
+        <item>"マメマメにゃんこ / ラブラブにゃんこ / ヴァルヴァルにゃんこ"</item>
+        <item>"伊達政宗 / 武神・伊達政宗 / 邪眼竜の武神・伊達政宗"</item>
+        <item>"武田信玄 / 武神・武田信玄 / 猛牛の武神・武田信玄"</item>
+        <item>"カラクリにゃんこ / ネコ人形師 / ネコチャッピー"</item>
+        <item>"ネコフラワー / にゃんこ扇風 / ネコボンバー"</item>
+        <item>"うらめしにゃん / ハナメガにゃん / 凧にゃん"</item>
+        <item>"金ネコ / 金ネコビルダー / 金ピカネコビルダー"</item>
+        <item>"ウルフとウルルン / タマとウルルン / 覚醒のタマとウルルン"</item>
+        <item>"ねねこ / スターねねこ / スターねねこ"</item>
+        <item>"カンフーにゃんこＧ / 酔拳にゃんこＧ / 剛拳にゃんこＧ"</item>
+        <item>"ヒカキン / ビキャキン / ムキャキン"</item>
+        <item>"うらしまタロウ / 竜宮獣ガメレオン / 竜宮超獣キングガメレオン"</item>
+        <item>"ツルの恩返し / 銀河戦士コスモ / 究極戦士コズミックコスモ / 究極勇者ウルトラコスモ"</item>
+        <item>"ももたろう / 爆走兄弟ピーチスター / 爆走兄弟ピーチジャスティス"</item>
+        <item>"かさじぞう / 地蔵要塞カムイ / 地蔵要塞ゼロカムイ / ウルトラかさじぞう"</item>
+        <item>"かぐやひめ / 破壊衛星デスムーン / 破壊衛星カオスムーン / ウルトラかぐやひめ"</item>
+        <item>"ネコンドー / ネコンドーＨＧ / ネコンドーＳＰ"</item>
+        <item>"ふにゅふにゅネコ / むきゅむきゅネコ / むきゅむきゅネコ"</item>
+        <item>"神様 / シークレット神様 / シークレット神様"</item>
+        <item>"ネコチュートリアル / 裏チュートリアル / 裏チュートリアル"</item>
+        <item>"ねこナース / ハートフルねこナース / ジョイフルねこナース"</item>
+        <item>"にゃんこ城Mini / にゃんこ城Jr / にゃんこ城Max"</item>
+        <item>"ねこガンマン / ねこウエスタン / ねこロデオ"</item>
+        <item>"たけうまねこ / トーテムねこ / ねこ雑技団"</item>
+        <item>"ブリキネコ / プレーンネコ / ネコロボット"</item>
+        <item>"ねこロッカー / ねこアーティスト / ねこラーメン道"</item>
+        <item>"ねこ人魚 / ねこソルジャー / ネコカメラマン"</item>
+        <item>"窓辺の乙女ネコ / 窓辺の姫君ネコ / 窓辺の舞妓にゃん"</item>
+        <item>"ネコバーベル / ネコRG / ネコデリバリー"</item>
+        <item>"ネコスケート / よいではにゃいか / にゃんでやねん"</item>
+        <item>"ネコトースター / ネコ映写機 / ネコクラシック"</item>
+        <item>"ねこフープ / ねこトリプルフープ / ねこグルグルフープ"</item>
+        <item>"156-1 / 156-2 / 156-3"</item>
+        <item>"ドラリー剣士 / ドラリー魔法使い / ドラリー魔法使い"</item>
+        <item>"ヌボボ / ゴールボ / ゴールボ"</item>
+        <item>"上杉謙信 / 武神・上杉謙信 / 暴威の武神・上杉謙信 / 毘沙門軍神・上杉謙信"</item>
+        <item>"冥界のカリファ / 冥界のＸカリファ / 冥界のＸＸカリファ"</item>
+        <item>"ユーリンチー / 転生霊鳥ユーリンチー / ゲキリンチー"</item>
+        <item>"狂乱のケリ姫 / 狂乱のケリ姫CC / 大狂乱のケリ姫"</item>
+        <item>"綾小路 翔 / 翔やん＆にゃんこ / 翔やん＆にゃんこ"</item>
+        <item>"早乙女 光 / 光＆にゃんこ / 光＆にゃんこ"</item>
+        <item>"西園寺 瞳 / トミー＆にゃんこ / トミー＆にゃんこ"</item>
+        <item>"星グランマニエ / ランマ＆にゃんこ / ランマ＆にゃんこ"</item>
+        <item>"白鳥松竹梅 / 松＆にゃんこ / 松＆にゃんこ"</item>
+        <item>"ネコヤンキー / ネコスケバン / ネコスケバン"</item>
+        <item>"アシルガ / アシランパサラン / アタタタアシラン"</item>
+        <item>"クビルガ / クビランパサラン / E・クビランパサラン"</item>
+        <item>"テコルガ / テサランパサラン / ムギワラテサラン"</item>
+        <item>"バララガ / バラランパサラン / ピカランバララン"</item>
+        <item>"コニャンダム / ネコニャンダム / 覚醒のネコニャンダム"</item>
+        <item>"厨房マンボウ / 工房マンボウ / 社会の一員"</item>
+        <item>"マンボ王 / 生ける伝説 / 太平洋の主"</item>
+        <item>"にゃんぼう / ネコトーピード / ネコトーピード"</item>
+        <item>"マシュマロにゃん / キモマロにゃん / キモマロにゃん"</item>
+        <item>"覇龍ディオラムス / 覇龍王ディオラムス / 覇龍皇帝ディオラムス / 大覇龍皇帝ディオラムス"</item>
+        <item>"極道にゃんこ / ヤクザヴァンパイア / ヤクザヴァンパイア"</item>
+        <item>"タクヤとユキ / タクヤとユキとネコ / タクヤとビューティユキ"</item>
+        <item>"謎の少女ユキ / 謎の少女ユキ＆ネコ / 謎のネコ耳少女ユキ"</item>
+        <item>"ゆきにゃん / ビューティゆきにゃん / ビューティゆきにゃん"</item>
+        <item>"183-1 / 183-2 / 183-2"</item>
+        <item>"にゃんこカートR / にゃんこカートG / にゃんこカートP"</item>
+        <item>"ミスターニンジャ / タンタン / タンタン"</item>
+        <item>"ハルシュト / ハルシュトCC / 革命のハルシュトCC"</item>
+        <item>"コーネリア / コーネリアCC / コーネリアCC"</item>
+        <item>"ユーヴェンス / ユーヴェンスCC / 休日の騎士様ユーヴェンスCC"</item>
+        <item>"ミスティカ / ミスティカCC / 寂救のミスティカCC"</item>
+        <item>"アロイス / アロイスCC / アロイスCC"</item>
+        <item>"シトルイユ / シトルイユCC / シトルイユCC"</item>
+        <item>"ティティ / ティティCC / ネコティティCC"</item>
+        <item>"山岡実乃里 / クイーンみのりん / クイーンみのりん"</item>
+        <item>"中村奏絵 / クイーンかにー / クイーンかにー"</item>
+        <item>"アキラ / シャドウ・アキラ / インフェルノ・アキラ"</item>
+        <item>"西園寺メカ子 / ドクトルDr.メカ子 / アストロDr.メカ子"</item>
+        <item>"キャットマンダディ / キャットマンダーク / キャットマンライジング"</item>
+        <item>"サイキックネコ / ネオサイキックネコ / デビルサイキックネコ"</item>
+        <item>"ねこ陰陽師 / 魔法少女ねこ / ねこ大魔王"</item>
+        <item>"ネコサーファー / ネコ漂流 / ネコ漂流記"</item>
+        <item>"メタルネコ / メタルネコビルダー / メタルネコビルダー"</item>
+        <item>"ドラムメニャー / プラカードにゃん / ネコぺったん"</item>
+        <item>"ネコ小籠包 / ネコ大籠包 / 大籠包にゃんこ"</item>
+        <item>"カチカチヤマンズ / 炎護射撃車ウーウー / 豪炎狙撃車ウーウー"</item>
+        <item>"アイルー / アイルー＆メラルー / アイルー＆メラルー"</item>
+        <item>"シェリア【キリン】 / シェリア【キリンX】 / シェリア【キリンX】"</item>
+        <item>"リオレウス / リオレウス＆にゃんこ / リオレウス＆にゃんこ"</item>
+        <item>"リオレイア / リオレイア＆にゃんこ / リオレイア＆にゃんこ"</item>
+        <item>"キリンネコ / キリンネコキリン / キリンネコキリン"</item>
+        <item>"ちびネコ / ちびネコビルダー / ちびネコモヒカン"</item>
+        <item>"ちびタンクネコ / ちびネコカベ / ちびゴムネコ"</item>
+        <item>"ちびバトルネコ / ちび勇者ネコ / ちび暗黒ネコ"</item>
+        <item>"ホワイトラビット / ブラックキャット / グレーフォックス / スペクトルキャット"</item>
+        <item>"にゃんこバーガー / にゃんこキングバーガー / にゃんこバーガーセット"</item>
+        <item>"百太郎 / 百太郎CC / 百太郎CC"</item>
+        <item>"マルコ / マルコCC / マルコCC"</item>
+        <item>"ターマ / ターマCC / ターマCC"</item>
+        <item>"エリ / エリCC / エリCC"</item>
+        <item>"フィオ / フィオCC / フィオCC"</item>
+        <item>"SV-001 / SV-001CC / SV-001CC"</item>
+        <item>"アレン・オニール / アレン・オニールCC / アレン・オニールCC"</item>
+        <item>"マーズピープル / マーズピープルCC / マーズピープルCC"</item>
+        <item>"ヒュージハーミット / ヒュージハーミットCC / ゴールデンヒュージハーミットCC"</item>
+        <item>"ジュピターキング / ジュピターキングCC / ゴールデンジュピターCC"</item>
+        <item>"モーデン元帥 / モーデン元帥CC / ゴールデンモーデンCC"</item>
+        <item>"ハイ・ドゥ / ハイ・ドゥCC / ハイ・ドゥ MK III CC"</item>
+        <item>"呪術師デスピエロ / 闇商人バビル / 奇術科学者クレイG"</item>
+        <item>"にゃんぷきん / ねこランタン / 死神ネコ"</item>
+        <item>"ハロウィンねねこ / ハロウィン魔女ねねこ / 仮装・ハロウィンねねこ"</item>
+        <item>"ウィンディスイート / ウィンディスイートα / ウィンディスイートα"</item>
+        <item>"デビルサンディア / デビルサンディアβ / デビルサンディアβ"</item>
+        <item>"おでん / おでんCC / おでんCC"</item>
+        <item>"光の神徒ヴァルキリー / 光の神徒ヴァルキリーCC / 光の神徒ヴァルキリーCC"</item>
+        <item>"神徒ブリュンヒルデ / 神徒ブリュンヒルデCC / 神徒ブリュンヒルデCC"</item>
+        <item>"神徒スルズ / 神徒スルズCC / 神徒スルズCC"</item>
+        <item>"豊穣の女神フレイヤ / 豊穣の女神フレイヤCC / 豊穣の女神フレイヤCC"</item>
+        <item>"軍神オーディン / 軍神オーディンCC / 軍神オーディンCC"</item>
+        <item>"おかめはちもくネコ / おかめの水博士 / おかめ名誉客員教授"</item>
+        <item>"ボンボンネコ / ネコボンのパパ / ネコボンのパパのパパ"</item>
+        <item>"見習いスニャイパー / ネゴルゴ / ネゴルゴ３１"</item>
+        <item>"トゲルガ / トゲランパサラン / デイダラトゲラン"</item>
+        <item>"雪だるまのスノーカイ / 雪だるまのスノーカイμ / 雪妖精のスノーカイμ"</item>
+        <item>"サンタのメリークウ / サンタのメリークウγ / サンタのメリークウγ"</item>
+        <item>"聖夜のシスターカッパー / 聖夜のシスターカッパーκ / 聖夜のシスターカッパーκ"</item>
+        <item>"ネコのプレゼント / ネコプレゼント / ネコプレゼント"</item>
+        <item>"ちびキモネコ / ちび美脚ネコ / ちびムキあしネコ"</item>
+        <item>"ちびウシネコ / ちびネコキリン / ちびネコライオン"</item>
+        <item>"ちびネコノトリ / ちびネコUFO / 天空のちびネコ"</item>
+        <item>"死にたてにゃんこ / 化けにゃんこ / 復活にゃんこ"</item>
+        <item>"剣士 / セーラー服剣士 / 明王の剣士"</item>
+        <item>"騎馬兵 / 森の騎馬兵 / 迅雷の黒騎馬兵"</item>
+        <item>"アシュラ / 武者アシュラ / 傾奇者アシュラ"</item>
+        <item>"バトルバルーン / 海賊バトルバルーン / バトルバルーンUFO"</item>
+        <item>"ドラゴンライダー / ボーンドラゴンライダー / フレイムドラゴンライダー"</item>
+        <item>"プリティキャット / ラブリープリティキャット / サイバープリティキャット"</item>
+        <item>"サイクロプス / 鋼鉄のサイクロプス / 時空のサイクロプス"</item>
+        <item>"ゴーレム / うさぎゴーレム / ボルケーノゴーレム"</item>
+        <item>"天空神ゼウス / ギガントゼウス / Gギガントゼウス"</item>
+        <item>"守護神アヌビス / パーフェクトアヌビス / Ｇパーフェクトアヌビス"</item>
+        <item>"美女神アフロディーテ / メガロディーテ / Gメガロディーテ"</item>
+        <item>"ネコウェイ / ネコドローン / ネコタイムマシン"</item>
+        <item>"天誅ハヤブサ / 斬魔ハヤブサ / 滅殺ハヤブサ"</item>
+        <item>"ニャームス / ネコニャームス / ネコニャームス"</item>
+        <item>"ポチ / タンクポチ / タンクポチ"</item>
+        <item>"クロミ / クロミとにゃんこたち / クロミとにゃんこたち"</item>
+        <item>"せつ子 / せつ子Love鯖 / せつ子Love鯖"</item>
+        <item>"ねば～る君 / ねば～る君とにゃんこ / ねば～る君とにゃんこ"</item>
+        <item>"ネコタイフーン / ネコハリケーン / ネコあらし"</item>
+        <item>"ネコずきんミーニャ / ラブリィずきんミーニャ / 覚醒ラブずきんミーニャ"</item>
+        <item>"幼獣ガオ / 皇獣ガオウ / 皇獣ガオウ"</item>
+        <item>"狂乱のユキ / 狂乱のユキ＆ネコ / 狂乱のネコ耳ユキ"</item>
+        <item>"太陽神アマテラス / テラアマテラス / Gテラアマテラス"</item>
+        <item>"繁栄神ガネーシャ / ガネーシャエクサ / Gガネーシャエクサ"</item>
+        <item>"チアにゃんこ / ネコウエイトレス / にゃんこそば"</item>
+        <item>"トロピカルカリファ / トロピカルXカリファ / トロピカルXカリファ"</item>
+        <item>"真夏のホワイトラビット / 真夏のブラックキャット / ブライトサマーキャット"</item>
+        <item>"夏色ねねこ / 海辺のねねこ / 初夏・海辺のねねこ"</item>
+        <item>"なめこ / なめこ＆にゃんこ / なめこ＆にゃんこ"</item>
+        <item>"なめこタンク / なめこタンク＆にゃんこ / なめこタンク＆にゃんこ"</item>
+        <item>"白ネコなめこ / キモ白ネコなめこ / キモ白ネコなめこ"</item>
+        <item>"要塞なめこ / なめこ＆要塞にゃんこ / なめこ＆要塞にゃんこ"</item>
+        <item>"ふてニャン / モミモミふてニャン / モミモミふてニャン"</item>
+        <item>"ネコ阿波踊り / ネコソーラン / ネコ舞踊ゴージャス"</item>
+        <item>"猫飯拳パイパイ / 猫飯拳パイパイZ / 猫拳王パイパイDX"</item>
+        <item>"ネコ特急 / ネコ超特急 / ネコエクスプレス"</item>
+        <item>"286-1 / 286-2 / 286-3"</item>
+        <item>"閃雷機兵レイ / 閃雷機兵プラズマレイ / 閃雷輝兵ウイングレイ"</item>
+        <item>"ネコ球児 / ネコリーガー / ネコゴルファー"</item>
+        <item>"鹿目まどか / まどか＆ネコ / アルティメットまどか"</item>
+        <item>"暁美ほむら / ほむら＆ネコ / 悪魔ほむら"</item>
+        <item>"美樹さやか / さやか＆ネコ / さやか＆ネコ"</item>
+        <item>"巴マミ / マミ＆ネコ / マミ＆ネコ"</item>
+        <item>"佐倉杏子 / 杏子＆ネコ / 杏子＆ネコ"</item>
+        <item>"キュゥべえ / キュゥべえ＆ネコ / キュゥべえ＆ネコ"</item>
+        <item>"ネコまどか / 魔法少女ネコまどか / 魔法少女ネコまどか"</item>
+        <item>"ネコほむら / 魔法少女ネコほむら / 魔法少女ネコほむら"</item>
+        <item>"ネコさやか / 魔法少女ネコさやか / 魔法少女ネコさやか"</item>
+        <item>"ネコマミ / 魔法少女ネコマミ / 魔法少女ネコマミ"</item>
+        <item>"ネコ杏子 / 魔法少女ネコ杏子 / 魔法少女ネコ杏子"</item>
+        <item>"ちびまどか / ちび魔法少女まどか / ちびアルティメットまどか"</item>
+        <item>"ちびほむら / ちび魔法少女ほむら / ちび悪魔ほむら"</item>
+        <item>"ネコキュゥべえ / タンクキュゥべえ / タンクキュゥべえ"</item>
+        <item>"ネコアイスゴースト / ネコアイスファントム / ネコアイスサキュバス"</item>
+        <item>"ネコ屋台 / ネコの宅配便 / ネコ給食当番"</item>
+        <item>"帝国陸軍カタパルズ / 撃滅戦車ギガパルド / 超撃滅戦車ギガパルド / 極撃滅戦車ギガパルド"</item>
+        <item>"古代軍船ガレーズ / 無敵艦隊シーガレオン / 超無敵艦隊シーガレオン / 極無敵艦隊シーガレオン"</item>
+        <item>"飛空襲撃ボンバーズ / 飛行戦艦ボルボンバー / 超飛行戦艦ボルボンバー / 極飛行戦艦ボルボンバー"</item>
+        <item>"ネコジャンパー / ネコボールター / ネコ奥様"</item>
+        <item>"ネコバサミ / ネコチェーンソー / 草刈りネコ"</item>
+        <item>"ネコ博士 / ネコ博士＆ネコ / ネコ博士＆ネコ"</item>
+        <item>"ネコナースキャンドル / ネコナースマリア / ネコナースサンタマリア"</item>
+        <item>"ちびネコフィッシュ / ちびネコクジラ / ちびネコ島"</item>
+        <item>"ちびネコトカゲ / ちびネコドラゴン / ちびネコキングドラゴン"</item>
+        <item>"ちび巨神ネコ / ちびネコダラボッチ / ちびネコジャラミ"</item>
+        <item>"大掃除ねねこ / 初詣ねねこ / 新春・初詣ねねこ"</item>
+        <item>"ピコ太郎 / ネコ太郎 / ネコ太郎"</item>
+        <item>"海王神ポセイドン / ポセイドラグーン / Gポセイドラグーン"</item>
+        <item>"CPAC / PPAP / PPAP"</item>
+        <item>"巫女姫ミタマ / 白無垢のミタマ / 白無垢のミタマ"</item>
+        <item>"殺意のネコ / 真・殺意のネコ / 改心のネコ"</item>
+        <item>"321_1 / 321_2 / 321_3"</item>
+        <item>"ナゾウサギ / 兎宮王道 / 兎宮王道"</item>
+        <item>"さるかに合戦 / 爆音楽奏サルカニヘヴン / 超音楽奏サルカニフェス"</item>
+        <item>"宮木武蔵 / 主演 宮木武蔵 / 覚醒 宮木武蔵"</item>
+        <item>"ネコストーン / ネコクリーナー / ネコカメカー"</item>
+        <item>"ネコボクサー / ネコチャンピオン / ネコリベンジ"</item>
+        <item>"メビウス / 奇跡の調和メビウス / 奇跡の調和メビウス"</item>
+        <item>"ベリアル / 猛進の大逆者ベリアル / 猛進の大逆者ベリアル"</item>
+        <item>"ハッピー100 / 幸せ連鎖子ハッピー100 / 幸せ連鎖子ハッピー100"</item>
+        <item>"ネコエッグ / ネコエッグ２ / ネコエッグ３"</item>
+        <item>"上杉謙信・春 / 上杉謙信・春爛漫 / 上杉謙信・春うらら"</item>
+        <item>"道化師エッグダック / 闇道化サイコダック / 極悪道化マッドダック"</item>
+        <item>"イースターねねこ / イースターバニーねねこ / 開花・イースターバニーねねこ"</item>
+        <item>"黒獣ガオウ / 皇獣ガオウダーク / 皇獣ガオウダーク"</item>
+        <item>"狐娘ヒメユリ / 九尾の狐姫ヒメユリ / 豊穣の狐姫ヒメユリ"</item>
+        <item>"人魚娘ルリィ / 宝玉の人魚姫ルリィ / 竜宮の人魚姫ルリィ"</item>
+        <item>"ミイラ娘レイカ / 玉座のミイラ姫レイカ / 黄金のミイラ姫レイカ"</item>
+        <item>"プリンセスケリ姫号 / プリンセスケリ姫号CC / プレミアムケリ姫号CC"</item>
+        <item>"今川義元 / 武神・今川義元 / 燐火の武神・今川義元"</item>
+        <item>"340_1"</item>
+        <item>"赤髪のゆきにゃん / 赤髪のビューティゆきにゃん / 赤髪のビューティムキにゃん"</item>
+        <item>"失われし世界のユキ / 失われし世界のユキ＆ネコ / 失われし世界のネコ耳ユキ"</item>
+        <item>"ネコまねき / ネコまねき・寿 / ネコまねき・寿"</item>
+        <item>"なめネコ / ネコなめ / ネコなめ"</item>
+        <item>"オルトス / オルトスCC / 彩色のオルトスCC"</item>
+        <item>"ミシェリア / ミシェリアCC / 午睡のミシェリアCC"</item>
+        <item>"とどめき / とどめきCC / とどめきCC"</item>
+        <item>"ぐでたまにゃんこ / ぐでオムにゃんこ / ぐでベネにゃんこ"</item>
+        <item>"ぐでたまプレート / ぐでたまベーコンプレート / ぐでたまベーコンプレート"</item>
+        <item>"ぐでぐでプリン / ぐでぐでアラモード / ぐでぐでアラモード"</item>
+        <item>"ニセたま軍団 / ネコニセたま軍団 / ネコニセたま軍団"</item>
+        <item>"双掌星のシシル＆コマリ / 双掌星のシシル＆コマリΦ / 双輝星のシシル＆コマリΦ"</item>
+        <item>"ネコ仙人 / ネコ老師 / 仮面のネコ仙人"</item>
+        <item>"チョコレート / チョコレート進化 / 354_3"</item>
+        <item>"常夏の果実カイ / 常夏の果実カイμ / 常夏の果実カイμ"</item>
+        <item>"観測兵器ガリレオ / 時空基地アルマゲドン / 超時空基地アルマゲドン"</item>
+        <item>"ノラ / 覚醒ノラ / 覚醒ノラ"</item>
+        <item>"狼娘ディル / 虚飾の狼姫ディル / 道化の狼姫ディル"</item>
+        <item>"ゾンビ娘ヴェルヴェーヌ / 死霊の花嫁ヴェルヴェーヌ / 満腹の花嫁ヴェルヴェーヌ"</item>
+        <item>"火の精霊メララ / 火炎の精霊メラバーン / 火炎の精霊王メラバーニング / 火炎の大精霊メラフェニックス"</item>
+        <item>"水の精霊ミズリィ / 流水の精霊ミズマリン / 流水の精霊王ミズマリリン / 流水の大精霊ミズマリナーデ"</item>
+        <item>"風の精霊エアル / 嵐の精霊エアフワン / 嵐の精霊王エアフワンテ / 嵐の大精霊エアフワンティ"</item>
+        <item>"セイバー / セイバーCC / セイバーオルタCC"</item>
+        <item>"遠坂 凛 / 遠坂 凛CC / 遠坂 凛CC"</item>
+        <item>"イリヤスフィール / イリヤスフィールCC / イリヤスフィールCC"</item>
+        <item>"アーチャー / アーチャーCC / アーチャーCC"</item>
+        <item>"ランサー / ランサーCC / ランサーCC"</item>
+        <item>"ライダー / ライダーCC / ライダーCC"</item>
+        <item>"ギルガメッシュ / ギルガメッシュCC / ギルガメッシュCC"</item>
+        <item>"ネコセイバー / 英霊ネコセイバー / ネコセイバーオルタ"</item>
+        <item>"ネコ桜 / エプロンネコ桜 / 夢見るネコ桜"</item>
+        <item>"ネコ凛 / 魔術師ネコ凛 / 魔術師ネコ凛"</item>
+        <item>"ネコイリヤ / 雪の妖精ネコイリヤ / 雪の妖精ネコイリヤ"</item>
+        <item>"ちび士郎 / ちび士郎CC / ちび士郎CC"</item>
+        <item>"ちび桜 / ちび桜CC / ちび桜CC"</item>
+        <item>"記念ネコ / 記念ネコビルダー / 記念ネコビルダー"</item>
+        <item>"ネコ探査機 / ネコサーチMkⅡ / ネコサテライト"</item>
+        <item>"ネコフェンシング / ネコ剣道 / 自由のネコ"</item>
+        <item>"黒無垢のミタマ / 黒蝶のミタマダーク / 黒蝶のミタマダーク"</item>
+        <item>"ネコバレー / ネコバレエ / ネコカレー"</item>
+        <item>"幼傑ダルターニャ / 英傑ダルターニャ / 英傑ダルターニャ"</item>
+        <item>"ねこ農家 / ねこカブ農家 / ねこカブ農家"</item>
+        <item>"ガラスネコ / ガラスネコビルダー / クリスタルネコビルダー"</item>
+        <item>"謎仮面のウララー / ネコ仮面のウララー / ネコ神面のウララー"</item>
+        <item>"氷上聡里＆ネコ / 氷上聡里＆ネコCC / 氷上聡里＆ネコCC"</item>
+        <item>"矢部明雄 / 矢部明雄CC / 矢部＆ガンダーロボCC"</item>
+        <item>"虹谷彩理 / 虹谷彩理CC / 虹谷彩理CC"</item>
+        <item>"紺野美崎 / 紺野美崎CC / 紺野美崎CC"</item>
+        <item>"片桐恋 / 片桐恋CC / 片桐恋CC"</item>
+        <item>"猫塚かりん / 猫塚かりんCC / 猫塚かりんCC"</item>
+        <item>"早川あおい / 早川あおいCC / 野球マン１号CC"</item>
+        <item>"橘みずき / 橘みずきCC / 野球マン２号CC"</item>
+        <item>"六道聖 / 六道聖CC / 野球マン３号CC"</item>
+        <item>"新島早紀 / 新島早紀CC / サンバ新島早紀CC"</item>
+        <item>"星井スバル / 星井スバルCC / 暗黒スバルCC"</item>
+        <item>"小山雅 / 小山雅CC / 野球マン５号CC"</item>
+        <item>"古龍ガングリオン / 古龍王ガングリオン / 古龍皇帝ガングリオン"</item>
+        <item>"風隼さくら / JK風隼さくら / 天誅・風隼さくら / 天誅Z・風隼さくら"</item>
+        <item>"ハニトンくん / ハニトンくん＆にゃんこ / ハニトンくん＆にゃんこ"</item>
+        <item>"めんトリ / めんトリCC / めんトリCC"</item>
+        <item>"イモウト / イモウトCC / イモウトCC"</item>
+        <item>"雷の精霊ボルト / 天雷の精霊ピカボルト / 天雷の精霊王ギガボルト"</item>
+        <item>"ちびシンジ / プラグスーツのちびシンジ / 黒プラグスーツのちびシンジ"</item>
+        <item>"ネコゲンドウ＆ネコ冬月 / 月のネコゲンドウ＆ネコ冬月 / 月のネコゲンドウ＆ネコ冬月"</item>
+        <item>"ネコキリン初号機 / ネコキリン２号機 / ネコキリン２号機"</item>
+        <item>"ちびカヲル / プラグスーツのちびカヲル / 月の少年ちびカヲル"</item>
+        <item>"ネコレイ / ネコアヤナミレイ（仮称） / ネコアヤナミレイ（仮称）"</item>
+        <item>"ネコアスカ / エプロンネコアスカ / エプロンネコアスカ"</item>
+        <item>"ネコマリ / 極秘入国ネコマリ / 極秘入国ネコマリ"</item>
+        <item>"ちびレイ / プラグスーツのちびレイ / 再会のちびレイ"</item>
+        <item>"ちびアスカ / プラグスーツのちびアスカ / 眼帯のちびアスカ"</item>
+        <item>"ちびマリ / プラグスーツのちびマリ / プラグスーツのちびマリ"</item>
+        <item>"エヴァ零号機 / エヴァ零号機＆ネコ / エヴァ零号機＆ネコ"</item>
+        <item>"エヴァ初号機 / エヴァ初号機＆ネコ / 決意のエヴァ初号機＆ネコ"</item>
+        <item>"エヴァ２号機 / エヴァ２号機＆ネコ / エヴァ改２号機コード７７７"</item>
+        <item>"ネコシンジ / ネコトウジ＆ネコケンスケ / ネコトウジ＆ネコケンスケ"</item>
+        <item>"ゼロムーンオペレーターズ / ファーストムーンネルフ / ファーストムーンネルフ"</item>
+        <item>"温泉天国テルマエ / 地底戦隊グランドン / 超地底戦隊グランドン / 極地底戦隊グランドン"</item>
+        <item>"狂乱のもねこ / 狂乱のスターもねこ / 狂乱のスターもねこ"</item>
+        <item>"ポコタ / ポコタＣＣ / ポコタＣＣ"</item>
+        <item>"オビス / オビスＣＣ / オビスＣＣ"</item>
+        <item>"ココ / ココＣＣ / ココＣＣ"</item>
+        <item>"太秦萌＆ネコ / 太秦萌＆ネコＣＣ / 太秦萌＆ネコＣＣ"</item>
+        <item>"松賀咲＆ネコ / 松賀咲＆ネコＣＣ / 松賀咲＆ネコＣＣ"</item>
+        <item>"小野ミサ＆ネコ / 小野ミサ＆ネコＣＣ / 小野ミサ＆ネコＣＣ"</item>
+        <item>"太秦麗＆ネコ / 太秦麗＆ネコＣＣ / 太秦麗＆ネコＣＣ"</item>
+        <item>"ぶんぶんネコライダー / ぶんぶんロボライダー / ぶんぶんネコライダーL"</item>
+        <item>"ネコクエスト / ネコクエストXI / ネコクエストXI-2 / ネコクエストヘブン"</item>
+        <item>"そうまにゃん / スマートそうまにゃん / スマートそうまにゃん"</item>
+        <item>"オタネコギーク / ギークネコハッカー / ギークネコハッカー"</item>
+        <item>"ぐでネコマシン / ぐでネコマシン・卵 / ぐでネコマシン・卵"</item>
+        <item>"亡者探偵ヴィグラー / 魔界探偵グラヴィー / 魔神探偵グラヴィティー / 聖魔探偵ゼログラヴィティー"</item>
+        <item>"433_1 / 433_2 / 433_3"</item>
+        <item>"434_1 / 434_2 / 434_3"</item>
+        <item>"白にゃんこ剣士 / 黒にゃんこ剣士 / 黒にゃんこ剣士"</item>
+        <item>"ちびネコヴァルキリー / ちびネコヴァルキリー・華 / ちびネコヴァルキリー・華"</item>
+        <item>"ノビルガ / ノビランパサラン / ノビランターバン"</item>
+        <item>"激・神さま / 超・神さま / 超・神さまゴールデン"</item>
+        <item>"灼熱のビーチクウ / 灼熱のビーチクウγ / 灼熱のビーチクウγ"</item>
+        <item>"時空神クロノス / クロノストリガー / Gクロノストリガー"</item>
+        <item>"ベベ / なぎさ＆ネコ / 円環の理の使者なぎさ"</item>
+        <item>"影傑ダークダルターニャ / 黒傑ダークダルターニャ / 黒傑ダークダルターニャ"</item>
+        <item>"子連れにゃんこ / ネコワゴンサービス / ネコバケーション"</item>
+        <item>"戦隊ドリラ / 戦隊パワードリラ / シン・パワードリラ"</item>
+        <item>"戦隊ウチコンガ / 戦隊パワーウチコンガ / シン・パワーウチコンガ"</item>
+        <item>"戦隊チョキンドス / 戦隊パワーチョキンドス / シン・パワーチョキンドス"</item>
+        <item>"戦隊ショベリン / 戦隊パワーショベリン / シン・パワーショベリン"</item>
+        <item>"戦隊チャッソ / 戦隊パワーチャッソ / シン・パワーチャッソ"</item>
+        <item>"宮本武蔵 / 剣神・宮本武蔵 / 無双の剣神・宮本武蔵"</item>
+        <item>"聖会長ジャンヌダルク / 聖会長ジャンヌダルクψ / 神聖会長ジャンヌダルクψ"</item>
+        <item>"天城龍バベル / 魔城龍バベル / 天魔城龍バベル"</item>
+        <item>"うしわか丸 / 巨大神兵ベンケイ / 巨大神兵ベンケイ"</item>
+        <item>"古代ネコ / 現代ネコ / 未来ネコ"</item>
+        <item>"きたろう / ゲゲゲの鬼太郎 / ゲゲゲの鬼太郎"</item>
+        <item>"目玉おやじ / 入浴おやじ / 入浴おやじ"</item>
+        <item>"ワンダー・モモコ / キューティー・モモコ / キューティー・モモコ"</item>
+        <item>"間桐 桜 / 間桐 桜CC / 黒桜CC"</item>
+        <item>"ネコ士郎 / 魔術師見習いネコ士郎 / 魔術師見習いネコ士郎"</item>
+        <item>"アーチャーネコ / 英霊アーチャーネコ / 英霊アーチャーネコ"</item>
+        <item>"ネコライダー / 英霊ネコライダー / 英霊ネコライダー"</item>
+        <item>"ネコ言峰＆ネコギルガメッシュ / ネコギルガメッシュ＆ネコ言峰 / ネコギルガメッシュ＆ネコ言峰"</item>
+        <item>"レジェルガ / レジェランパサラン / レジェランパサラン"</item>
+        <item>"フィリバスターX / フィリバスターY / メタフィリバスター"</item>
+        <item>"終末兵器ムー / 極秘研究機関パンドラ / 極秘研究機関パンドラ"</item>
+        <item>"土偶戦士ドグ丸 / 土偶戦士ドグえもん / 覚醒戦士ドグえもん"</item>
+        <item>"majimeow（仮） / majimeow（仮）進化 / majimeow（仮）進化"</item>
+        <item>"ブラックゼウス / 闇次神子ブラックゼウス / 闇次神子ブラックゼウス"</item>
+        <item>"スーパーゼウス / 全能神スーパーゼウス / スーパーSゼウス"</item>
+        <item>"聖フェニックス / 聖戦衣化聖フェニックス / ヘッドロココ"</item>
+        <item>"スーパーデビル / 偽神スーパーデビル / スーパーDデビル"</item>
+        <item>"サタンマリア / ワンダーマリア / ワンダーマリア"</item>
+        <item>"ヘラクライスト / 完璧ヘラクライスト / ブラックライスト"</item>
+        <item>"ネロ魔身 / 魔肖ネロ / デカネロン"</item>
+        <item>"ヤマト王子 / ヤマト神帝 / ヤマト爆神"</item>
+        <item>"十字架天使 / クロスエンジェル / ストライク天使"</item>
+        <item>"ネコ若神子 / ネコ神帝 / ネコ神帝"</item>
+        <item>"ネコデビル / ネコ邪神 / ネコ邪神"</item>
+        <item>"ネコの助 / ネコ老守 / ネコ老守"</item>
+        <item>"幻の精霊ルミナ / 夢幻の精霊ルミナリア / 夢幻の精霊ルミナリア"</item>
+        <item>"グミネコ / ラッキーネコ / グミネコソーダ"</item>
+        <item>"ねこ娘 / ネコねこ娘 / ネコねこ娘"</item>
+        <item>"超越科学者ヘヴン博士 / 時空科学者アビス博士 / 時空科学者アビス博士"</item>
+        <item>"幸せを願った少年ソウマ / 幸せを願った少年ソウマ＆ネコ / 幸せを願ったネコ耳ソウマ"</item>
+        <item>"カノとソウマ / カノとソウマとネコ / カノとソウマとネコ"</item>
+        <item>"黒ちびネコヴァルキリー / 黒ちびネコヴァルキリー・紅 / 黒ちびネコヴァルキリー・紅"</item>
+        <item>"カレット / カレットCC / カレットCC"</item>
+        <item>"ひな / 剣士ひな / 剣士ひな"</item>
+        <item>"エヴァ８号機 / エヴァ８号機＆ネコ / エヴァ８号機＆ネコ"</item>
+        <item>"空中艦艇ネコヴンダー / 希望の船NNNネコヴンダー / 神殺しの船NNNネコヴンダー"</item>
+        <item>"ちびミサト / ヴンダー艦長のちびミサト / ヴンダー艦長のちびミサト"</item>
+        <item>"ちびリツコ / ヴンダー副長のちびリツコ / ヴンダー副長のちびリツコ"</item>
+        <item>"ちびアヤナミレイ(仮称) / 目覚めのちびアヤナミ / 目覚めのちびアヤナミ"</item>
+        <item>"493_1 / 493_2 / 493_3"</item>
+        <item>"創造神ガイア / ゴッドガイア / ゴッドガイア"</item>
+        <item>"潮風のセーラーカッパー / 潮風のセーラーカッパーκ / 潮風のセーラーカッパーκ"</item>
+        <item>"ネコマタドール / ネコフラメンコ / ネコエキゾチック"</item>
+        <item>"成田甲斐 / 武神・成田甲斐 / 豪炎姫の武神・成田甲斐 / 煉獄無双・成田甲斐"</item>
+        <item>"498_1 / 498_2 / 498_3"</item>
+        <item>"499_1 / 499_2 / 499_3"</item>
+        <item>"500_1 / 500_2 / 500_3"</item>
+        <item>"501_1 / 501_2 / 501_3"</item>
+        <item>"ネコ兄弟S / ネコバカ兄弟S / ネコバカ兄弟S"</item>
+        <item>"英雄令嬢メルシュ / 英雄令嬢メルシュξ / 絢爛令嬢メルシュξ"</item>
+        <item>"ネコ２Ｄ / ネコ３Ｄ / ネコ３Ｄ"</item>
+        <item>"おやじネコ(店主) / おやじネコ(現役) / おやじネコ(現役)"</item>
+        <item>"角龍グラディオス / 角龍王グラディオス / 角龍皇帝グラディオス"</item>
+        <item>"アイウォルツ / アイウォルツCC / 無名のアイウォルツCC"</item>
+        <item>"スーパーにゃん / ジャイにゃん / アイアンにゃん"</item>
+        <item>"ネコリュウ / ネコリュウCC / ネコリュウCC"</item>
+        <item>"ネコ春麗 / ネコ春麗CC / ネコ春麗CC"</item>
+        <item>"豪鬼 / 豪鬼CC / 豪鬼CC"</item>
+        <item>"リュウ / リュウCC / 影ナル者"</item>
+        <item>"春麗 / 春麗CC / 春麗CC"</item>
+        <item>"ガイル / ガイルCC / ガイルCC"</item>
+        <item>"ザンギエフ / ザンギエフCC / ザンギエフCC"</item>
+        <item>"ブランカ / ブランカCC / ブランカCC"</item>
+        <item>"ダルシム / ダルシムCC / ダルシムCC"</item>
+        <item>"ケン / ケンCC / 紅蓮の格闘王ケン"</item>
+        <item>"ゴウキリン / ゴウキライオン / ゴウキライオン"</item>
+        <item>"ラスヴォース / ファイナルラスヴォース / シン・ラスヴォース"</item>
+        <item>"ネコ七福神 / ネコ七福邪神 / ネコ七福邪神"</item>
+        <item>"ネコメデューサ / ネコツインテール / ネコナーガ"</item>
+        <item>"泉のネコ女神 / ネコメダリスト / ネコ魔神"</item>
+        <item>"ネコ武闘家 / ネコ師範 / ネコマスター"</item>
+        <item>"ソラカラちゃん / ソラカラちゃん＆ネコ / ソラカラちゃん＆ネコ"</item>
+        <item>"きんたろう / 猛銃戦隊キンレンジャー / 超銃戦隊キンレンジャー"</item>
+        <item>"冬天使のシシル＆コマリ / 冬天使のシシル＆コマリΦ / 冬天使のシシル＆コマリΦ"</item>
+        <item>"ネコスライム / ネコゼリーフィッシュ / ネコゼリーまんじゅう"</item>
+        <item>"ネコサック / ネコウォッカ / ネコ近衛兵"</item>
+        <item>"厄災の子キャスリィ / 祝祭の聖女キャスリィ / 祝祭の聖女キャスリィ"</item>
+        <item>"エルメ / エルメCC / エルメCC"</item>
+        <item>"ネコックマ / ネコブラックマ / ネコックマンケン"</item>
+        <item>"フェンリルとウルス / ミケとウルス / 覚醒のミケとウルス"</item>
+        <item>"マッドシューター・サキ / ナイトバスター・サキ / バッドブラスター・サキ"</item>
+        <item>"冥界神ハデス / デスハーデス / Gデスハーデス"</item>
+        <item>"初音ミク / 初音ミクCC / 初音ミクCC"</item>
+        <item>"桜ミク / 桜ミクCC / 桜ミクCC"</item>
+        <item>"鏡音リン＆レン / 鏡音リン＆レンCC / 鏡音リン＆レンCC"</item>
+        <item>"ネコミク / ネコミクCC / ネコミクCC"</item>
+        <item>"ラガーにゃん / ニャメフト / ニャッハー"</item>
+        <item>"ネコU.F.O. / ネコ焼そばU.F.O. / ネコ焼そばU.F.O."</item>
+        <item>"ネコヤキソバン / うまい!太い!大きい!ネコ / うまい!太い!大きい!ネコ"</item>
+        <item>"ネコ少年 / ネコ学生 / ネコ学生"</item>
+        <item>"禍根の魔女キャスリィ / 漆黒の魔女ダークキャスリィ / 漆黒の魔女ダークキャスリィ"</item>
+        <item>"京坂七穂 / 京坂七穂・真 / 京坂七穂・真"</item>
+        <item>"ネコファントム / ケムリネコ / ネコバブル"</item>
+        <item>"オイルガ / オイランパサラン / スケランカクラン"</item>
+        <item>"白夜姫のレイ / 白天姫のレイ / 白天姫のレイ"</item>
+        <item>"第４の使徒 / 第４のネコ使徒 / 第４のネコ使徒"</item>
+        <item>"第６の使徒 / 第６のネコ使徒 / 第６のネコ使徒"</item>
+        <item>"第１０の使徒 / 第１０のネコ使徒 / 第１０のネコ使徒"</item>
+        <item>"第９の使徒 / 第９のネコ使徒 / 第９のネコ使徒"</item>
+        <item>"ネコカヲル / 月面のネコカヲル / 月面のネコカヲル"</item>
+        <item>"ネコベーカリー / ネコブーメラン / ネコフライングチキン"</item>
+        <item>"達人ウリル / ネコ仮面のウリル / ネコ神面のウリル"</item>
+        <item>"シャーマンカーン / 全情神シャーマンカーン / 全情神シャーマンカーン"</item>
+        <item>"騎神アリババ / アリババ神帝 / ゴーストアリババ"</item>
+        <item>"天子男ジャック / 神帝男ジャック / 神帝男ジャック"</item>
+        <item>"レアガチャネコ / 福引ガチャネコ / 福引ガチャネコ"</item>
+        <item>"地獄警官エマ / 地獄軍曹エマ / 閻魔総長エマ"</item>
+        <item>"巡音ルカ / 巡音ルカCC / 巡音ルカCC"</item>
+        <item>"MEIKO＆ネコ / MEIKO＆ネコCC / MEIKO＆ネコCC"</item>
+        <item>"ネコルカ / ネコルカCC / ネコルカCC"</item>
+        <item>"アクアシューター・サキ / アクアバスター・サキ / アクアブラスター・サキ"</item>
+        <item>"ネコルガの夏 / ミワクノパサラン / ファビュラスパサラン"</item>
+        <item>"日焼けネコ / 日焼けネコビルダー / 日焼けネコパーマ"</item>
+        <item>"救命にゃんこ / ダンゴにゃん兄弟 / ネコジェラート"</item>
+        <item>"チビクロプスネコタマゴ / チビクロプスネコ / 雷電のチビクロプスネコ"</item>
+        <item>"イディ:N / イディ:N2 / イディ:NX"</item>
+        <item>"石の精霊ゴロー / 岩石の精霊イワゴロー / 岩石の精霊王ダイゴロー"</item>
+        <item>"竜騎士スカルバルス / ナイトメアバルス / ハロウィンナイトバルス"</item>
+        <item>"エドモンド本田 / エドモンド本田CC / エドモンド本田CC"</item>
+        <item>"バイソン / バイソンCC / バイソンCC"</item>
+        <item>"バルログ / バルログCC / バルログCC"</item>
+        <item>"サガット / サガットCC / サガットCC"</item>
+        <item>"ベガ / ベガCC / ベガCC"</item>
+        <item>"ネコモンド本田 / ネコモンド本田CC / ネコモンド本田CC"</item>
+        <item>"ネコバイソン / ネコバイソンCC / ネコバイソンCC"</item>
+        <item>"ネコバルログ / ネコバルログCC / ネコバルログCC"</item>
+        <item>"ネコサガット / ネコサガットCC / ネコサガットCC"</item>
+        <item>"ネコベガ / ネコベガCC / ネコベガCC"</item>
+        <item>"ごろにゃん / ごろにゃーん / ごろにゃーん"</item>
+        <item>"初音ミク マジカルミライ2020大阪 / 初音ミクCC マジカルミライ2020大阪 / 初音ミクCC マジカルミライ2020大阪"</item>
+        <item>"初音ミク マジカルミライ2020東京 / 初音ミクCC マジカルミライ2020東京 / 初音ミクCC マジカルミライ2020東京"</item>
+        <item>"前田サンタ慶次 / 前田クリス慶次 / 前田クリス慶次DX"</item>
+        <item>"幼獣ガル / 帝獣ガルディアン / 帝獣ガルディアン"</item>
+        <item>"ネコ王子 / ネコ国王 / ネコ国王"</item>
+        <item>"恋女神ショコラディーテ / メガショコラディーテ / メガショコラディーテ"</item>
+        <item>"初恋令嬢メルシュ / 初恋令嬢メルシュξ / 初恋令嬢メルシュξ"</item>
+        <item>"バレンタインねねこ / バレンタインチョコねねこ / 本命・バレンタインねねこ"</item>
+        <item>"雪ミク 2021 / 雪ミクCC 2021 / 雪ミクCC 2021"</item>
+        <item>"KAITO＆ネコ / KAITO＆ネコCC / KAITO＆ネコCC"</item>
+        <item>"ネコリン / ネコリンCC / ネコリンCC"</item>
+        <item>"ネコレン / ネコレンCC / ネコレンCC"</item>
+        <item>"空中商会コロンブス / 輸送兵団アトランチス / 超輸送兵団アトランチス"</item>
+        <item>"春龍かむくら / 神春龍かむくら / 神春龍王かむくら"</item>
+        <item>"早乙女乱馬(男) / 早乙女らんま(女) / 早乙女らんま(女)"</item>
+        <item>"天道あかね / 天道あかね(道着) / 天道あかね(道着)"</item>
+        <item>"響良牙(ブタ) / 響良牙 / 響良牙"</item>
+        <item>"シャンプー(猫) / シャンプー / シャンプー"</item>
+        <item>"ムース(アヒル) / ムース / ムース"</item>
+        <item>"八宝斉 / 八宝斉(エロじじい) / 八宝斉(エロじじい)"</item>
+        <item>"久遠寺右京(男装) / 久遠寺右京 / 久遠寺右京"</item>
+        <item>"九能帯刀(道着) / 九能帯刀 / 九能帯刀"</item>
+        <item>"ネコ乱馬(男) / ネコらんま(女) / ネコらんま(女)"</item>
+        <item>"ネコあかね / ネコあかね(道着) / ネコあかね(道着)"</item>
+        <item>"ネコパンダ / ネコ玄馬 / ネコ玄馬"</item>
+        <item>"冒険家カンナ / 大冒険少女カンナ / 伝説の冒険少女カンナ"</item>
+        <item>"ネコウエハース / ネコウエハースBIG / ネコウエハースBIG"</item>
+        <item>"黒獣ガルディアン / 帝獣ダークガルディアン / 帝獣ダークガルディアン"</item>
+        <item>"金塊ネコ / キングネコインゴット / キングネコカーメン"</item>
+        <item>"ネコゴジラ / シン・ネコゴジラ / シン・ネコゴジラ"</item>
+        <item>"ネコ王女 / ネコ女王 / ネコ女王"</item>
+        <item>"古神面ドロン / ネコ神面ドロン / 覚醒ネコ神面ドロン"</item>
+        <item>"渚のかぐやひめ / 南国衛星サンシャイン / 南国衛星スーパーシャイン"</item>
+        <item>"カブトネコ / ゴールデンオオカブトネコ / ゴールデンオオカブトネコ"</item>
+        <item>"クワガタネコ / キングクワガタネコ / キングクワガタネコ"</item>
+        <item>"召喚少年サトル / 悪魔召喚サトル / デビルハンターサトル"</item>
+        <item>"天草四郎 / 魔神・天草四郎 / 怨嗟の魔神・天草四郎"</item>
+        <item>"妖賢女リリン / 妖賢女リリンπ / 大賢女リリンπ"</item>
+        <item>"邪龍ヘヴィジャーク / 邪龍王ヘヴィジャーク / 邪龍皇帝ヘヴィジャーク"</item>
+        <item>"悪魔研究家 / 邪悪な悪魔研究家 / にゃんこ研究家"</item>
+        <item>"ジャガンドーJr / 破壊神ジャガンドーJr / 破壊神ジャガンドーJr"</item>
+        <item>"ネコハーメルン / 虚無僧ネコ / ネコブラスバンド"</item>
+        <item>"熱血硬派くにおくん / ドッジボール部くにおくん / ドッジボール部くにおくん"</item>
+        <item>"オコルガ / オコランパサラン / ゲキオコパサラン"</item>
+        <item>"ネコキリンモドキ / 駿馬ネコキリンモドキ / 駿馬ネコキリンモドキ"</item>
+        <item>"ネコノトリッキー / 天馬ネコノトリッキー / 天馬ネコノトリッキー"</item>
+        <item>"ネコノドラゴーン / 名馬ネコノドラゴーン / 名馬ネコノドラゴーン"</item>
+        <item>"洗脳されしネコ / 洗脳されしネコビルダー / 洗脳されしネコモヒカン"</item>
+        <item>"ネコ書道 / ネコ茶道 / ネコ茶道"</item>
+        <item>"闇の精霊ヤミィ / 暗黒の精霊ヤミノワール / 暗黒の精霊王ヤミノワールド"</item>
+        <item>"超竜戦機デス・トロイ / 電磁戦機ディア・ボロス / 超電磁戦機ディア・ボロス"</item>
+        <item>"舌切りすずめ / 妖怪結社チュンチュン / 大妖怪結社チュンチュン"</item>
+        <item>"白騎士キュクロプス / 黒騎士キュクロプス / 神魔騎士キュクロプス"</item>
+        <item>"100万ドルのネコ / 1億ドルのネコ / 1億ドルのネコ"</item>
+        <item>"洗脳されしタンクネコ / 洗脳されしネコカベ / 洗脳されしゴムネコ"</item>
+        <item>"シャオチョン＆ネコ / シャオチョン＆ネコCC / シャオチョン＆ネコCC"</item>
+        <item>"ナナ＆ネコ / ナナ＆ネコCC / ナナ＆ネコCC"</item>
+        <item>"エミリア＆ネコ / エミリア＆ネコCC / エミリア＆ネコCC"</item>
+        <item>"ジェアー＆ネコ / ジェアー＆ネコCC / ジェアー＆ネコCC"</item>
+        <item>"踊り子イズ / 魅惑の舞姫イズ / 魅惑の舞姫イズ"</item>
+        <item>"堕天神ルシファー / グランドルシファー / Gグランドルシファー"</item>
+        <item>"ネコ超人 / ネコ超人Ⅱ / 真ネコ超人"</item>
+        <item>"白い恋人メカ子 / ビタースイートメカ子 / LOVEミントメカ子"</item>
+        <item>"洗脳されしバトルネコ / 洗脳されし勇者ネコ / 洗脳されし暗黒ネコ"</item>
+        <item>"爆竹ネコ / 爆竹ネコビルダー / 爆竹ネコビルダー"</item>
+        <item>"狩猟娘テルン / 狩猟娘テルンζ / 大狩猟娘テルンζ"</item>
+        <item>"恋番長・鬼にゃんま / 恋愛番長・鬼神にゃんま / 恋愛番長・鬼神にゃんま"</item>
+        <item>"服部半蔵 / 忍神・服部半蔵 / 絶影の忍神・服部半蔵"</item>
+        <item>"幼馴染にゃん子 / 彼女にゃん子 / 彼女にゃん子"</item>
+        <item>"おてんばネコライオン / 鉄仮面ネコライオン / 鉄仮面ネコライオン"</item>
+        <item>"ネコクバンケシ / ネコクバンチョウ / ネコクバンチョウ"</item>
+        <item>"古獣ナーラ / 雷古獣ナーラ / 覚醒古獣ナーラ"</item>
+        <item>"洗脳されしキモネコ / 洗脳されし美脚ネコ / 洗脳されしムキあしネコ"</item>
+        <item>"氷の精霊フリズ / 氷結の精霊ブリザーナ / 氷結の精霊王ブリザレーナ"</item>
+        <item>"古びたタマゴ:N001 / 謎のタマゴ:N001 / ネコはにわ"</item>
+        <item>"悲嘆の踊り子イズ / 哀悼の舞姫ダークイズ / 哀悼の舞姫ダークイズ"</item>
+        <item>"古びたタマゴ:N101 / 赤いタマゴ:N101 / 飛脚ネコ"</item>
+        <item>"古びたタマゴ:N102 / 青いタマゴ:N102 / ネコターさん"</item>
+        <item>"海龍ダライアサン / 海龍王ダライアサン / 海龍皇帝ダライアサン"</item>
+        <item>"祝福神クロノス / ウェディングクロノス / ウェディングクロノス"</item>
+        <item>"洗脳されしウシネコ / 洗脳されしネコキリン / 洗脳されしネコライオン"</item>
+        <item>"古びたタマゴ:N103 / 黒いタマゴ:N103 / ネコガスマスク"</item>
+        <item>"古びたタマゴ:N104 / 緑のタマゴ:N104 / ネコオペ"</item>
+        <item>"古びたタマゴ:N201 / 悪のタマゴ:N201 / ネコソシスト"</item>
+        <item>"ナイトビーチリリン / ナイトビーチリリンπ / ナイトビーチリリンπ"</item>
+        <item>"洗脳されしネコノトリ / 洗脳されしネコUFO / 洗脳されし天空のネコ"</item>
+        <item>"ネコ天狗 / 大妖怪ネコ天狗 / 大神仙ネコ天狗"</item>
+        <item>"古びたタマゴ:N003 / 悪のタマゴ:N003 / ネコサボテン"</item>
+        <item>"古びたタマゴ:N202 / 赤いタマゴ:N202 / アーマードホタルネコ"</item>
+        <item>"早乙女らんま(レオタード) / 早乙女らんま(チアガール) / 早乙女らんま(チアガール)"</item>
+        <item>"早乙女玄馬(パンダ) / 早乙女玄馬 / 早乙女玄馬"</item>
+        <item>"ネコチーター / ネコチーター / ネコチーター"</item>
+        <item>"周遊芸団カルーセルズ / 奇襲怪光エンヴァンズ / 超奇襲怪光エンヴァンズ"</item>
+        <item>"古びたタマゴ:N105 / 青いタマゴ:N105 / ネコスマッシュ"</item>
+        <item>"古びたタマゴ:N106 / 黄色いタマゴ:N106 / ネコキノコ"</item>
+        <item>"三雲修＆ネコ / 三雲修＆ネコCC / 三雲修＆ネコCC"</item>
+        <item>"空閑遊真＆ネコ / 空閑遊真＆ネコCC / 空閑遊真＆ネコCC"</item>
+        <item>"雨取千佳＆ネコ / 雨取千佳＆ネコCC / 雨取千佳＆ネコCC"</item>
+        <item>"さくら / さくらCC / さくらCC"</item>
+        <item>"ルーク / ルークCC / ルークCC"</item>
+        <item>"女神ベガ / 幻影の加護女神ベガ / 虚影の加護女神ベガ"</item>
+        <item>"伯爵・真田幸村 / 吸血鬼・真田幸村 / 吸血鬼公爵・真田幸村"</item>
+        <item>"洗脳されしネコフィッシュ / 洗脳されしネコクジラ / 洗脳されしネコ島"</item>
+        <item>"古びたタマゴ:N004 / 謎のタマゴ:N004 / ネコスーパーカー"</item>
+        <item>"光の女神シリウス / 来光の女神シリウス / 来光の女神シリウス"</item>
+        <item>"トナカイ娘テルン / トナカイ娘テルンζ / トナカイ娘テルンζ"</item>
+        <item>"洗脳されしネコトカゲ / 洗脳されしネコドラゴン / 洗脳されしネコキングドラゴン"</item>
+        <item>"石の上にも10年ネコ / 石の上にも10年ネコ像 / 石の上にも10年ネコ像"</item>
+        <item>"運命の子フォノ / 天命の王フォノウ / 天命の王フォノウ"</item>
+        <item>"古びたタマゴ:N000 / 古のタマゴ:N000 / 猿人ネコルーザ"</item>
+        <item>"いっすん法師 / 鬼襲艇コヅチマル / 鬼襲戦艇コヅチマル"</item>
+        <item>"白執事探偵ヴィグラー / 黒執事探偵グラヴィー / 黒執事探偵グラヴィー"</item>
+        <item>"洗脳されし巨神ネコ / 洗脳されしネコダラボッチ / 洗脳されしネコジャラミ"</item>
+        <item>"殺意のタンクネコ / 真・殺意のタンクネコ / 真・殺意のタンクネコ"</item>
+        <item>"ネコ委員長 / 裏ネコ委員長 / 裏ネコ委員長"</item>
+        <item>"古びたタマゴ:N107 / 紫のタマゴ:N107 / ネコ村長"</item>
+        <item>"サンダージャック / ブラッディージャック / ライトニングジャック"</item>
+        <item>"決闘少年ラビットサトル / 決闘王者ラビットサトル / 決闘王者ラビットサトル"</item>
+        <item>"古びたタマゴ:N005 / 謎のタマゴ:N005 / ネコヒットマン"</item>
+        <item>"にゃんこ仮面ライダー / シン・仮面ライダーにゃんこ / シン・仮面ライダーにゃんこ"</item>
+        <item>"ゴジラにゃんこ / シン・ゴジラにゃんこ / シン・ゴジラにゃんこ"</item>
+        <item>"エヴァンゲリオンにゃんこ / シン・エヴァンゲリオンにゃんこ / シン・エヴァンゲリオンにゃんこ"</item>
+        <item>"ウルトラマンにゃんこ / シン・ウルトラマンにゃんこ / シン・ウルトラマンにゃんこ"</item>
+        <item>"非命の王フォノウ / 断命の王ダークフォノウ / 断命の王ダークフォノウ"</item>
+        <item>"古びたタマゴ:N108 / 青いタマゴ:N108 / ネコウォッシュ"</item>
+        <item>"古びたタマゴ:N109 / 悪のタマゴ:N109 / ネコバレル"</item>
+        <item>"ネコジェット / ネコ宮金次郎 / ネコ宮金次郎"</item>
+        <item>"隻眼の少女アスカ / 碧眼の魔女アスカ / 碧眼の魔女アスカ"</item>
+        <item>"エヴァ第１３号機 / エヴァ第１３号機＆ネコ / エヴァ第１３号機＆ネコ"</item>
+        <item>"バララガの誓い / オヨメノパサラン / オヨメノパサラン"</item>
+        <item>"カオルガ / カオランパサラン / カオランタタラン"</item>
+        <item>"古びたタマゴ:N203 / 紫のタマゴ:N203 / ネコピエロ"</item>
+        <item>"波打ち際の冒険家カンナ / 大海原のダイバーカンナ / 大海原のダイバーカンナ"</item>
+        <item>"建築兵団スフィンクス / 突撃部隊コンボーイズ / 超突撃部隊コンボーイズ"</item>
+        <item>"古びたタマゴ:N111 / 謎のタマゴ:N111 / ネコポリス"</item>
+        <item>"古びたタマゴ:N110 / 黄色いタマゴ:N110 / ネコファーマー"</item>
+        <item>"ネコもろこし / にゃんコーン / にゃんコーン"</item>
+        <item>"鉄の精霊カッチン / 鋼鉄の精霊テツカッチン / 鋼鉄の精霊王ガンテツカッチン"</item>
+        <item>"古びたタマゴ:N006 / 悪のタマゴ:N006 / ネコアックマ"</item>
+        <item>"花園高校番長りき / ドッジボール部りき / ドッジボール部りき"</item>
+        <item>"初音ミク 16th / 初音ミクCC 16th / 初音ミクCC 16th"</item>
+        <item>"光翼神イシス / ネフェルイシス / Gネフェルイシス"</item>
+        <item>"古びたタマゴ:N112 / 謎のタマゴ:N112 / ネコタマ号"</item>
+        <item>"忍者娘トモエ / 食道楽忍者トモエ / 美食極楽忍者トモエ"</item>
+        <item>"ネコメダル王 / ネコメダル大王 / ネコメダル大王"</item>
+        <item>"ソル・デ・ロカ / ソル・デ・ロカCC / ソル・デ・ロカCC"</item>
+        <item>"論の賢者ソラクティス / 論の賢者ネコラティス / 論の賢者ネコラティス"</item>
+        <item>"730_1"</item>
+        <item>"古びたタマゴ:N204 / 赤いタマゴ:N204 / ねこシシマイ"</item>
+        <item>"暁のイザナギ / 暁光のイザナギ / 暁光のイザナギ"</item>
+        <item>"733_1"</item>
+        <item>"鉄籠のペガサ / 鉄籠のペガサν / 鉄籠のペガサν"</item>
+        <item>"735_1"</item>
+        <item>"ネコ校長 / ネコセカンドライフ / ネコセカンドライフ"</item>
+        <item>"ネコアイスホワイトスター / ネコアイストップスター / ネコアイストップスター"</item>
+        <item>"スプリングカリファ / スプリングXカリファ / スプリングXカリファ"</item>
+        <item>"宵のイザナミ / 宵闇のイザナミ / 宵闇のイザナミ"</item>
+        <item>"740_1"</item>
+        <item>"741-1 / 741-2 / 741-2"</item>
+        <item>"742-1 / 742-2 / 742-2"</item>
+        <item>"743-1 / 743-2 / 743-2"</item>
+        <item>"744-1 / 744-2 / 744-2"</item>
+        <item>"745-1 / 745-2 / 745-2"</item>
+        <item>"746-1 / 746-2 / 746-2"</item>
+        <item>"緋村剣心 / 緋村剣心CC / 緋村剣心CC"</item>
+        <item>"相楽左之助 / 相楽左之助CC / 相楽左之助CC"</item>
+        <item>"四乃森蒼紫 / 四乃森蒼紫CC / 四乃森蒼紫CC"</item>
+        <item>"斎藤一 / 斎藤一CC / 斎藤一CC"</item>
+        <item>"ちび薫 / ちび薫CC / ちび薫CC"</item>
+        <item>"ちび弥彦 / ちび弥彦CC / ちび弥彦CC"</item>
+        <item>"ネコ剣心 / ネコ抜刀斎 / ネコ抜刀斎"</item>
+        <item>"ネコ薫 / 剣術小町ネコ薫 / 剣術小町ネコ薫"</item>
+        <item>"明智光秀 / 武神・明智光秀 / 武神・明智光秀"</item>
+        <item>"756_1"</item>
+        <item>"ネコケーキマシン挙式 / ネコケーキマシン挙式・寿 / ネコケーキマシン挙式・寿"</item>
+        <item>"古びたタマゴ:N205 / 紫のタマゴ:N205 / ネコ花嫁"</item>
+        <item>"謎の傭兵トリクシー / 復讐の傭兵トリクシー / 復讐の傭兵トリクシー"</item>
+        <item>"サマーフェスサンディア / サマーフェスサンディアβ / サマーフェスサンディアβ"</item>
+        <item>"砲龍ガンドロス / 砲龍王ガンドロス / 砲龍王ガンドロス"</item>
+        <item>"762_1"</item>
+        <item>"天空神スーパーゼウス / ギガント全能神スーパーゼウス / ギガント全能神スーパーゼウス"</item>
+        <item>"ネコダイナザウルス / メカ・ネコダイナザウルス / メカ・ネコダイナザウルス"</item>
+        <item>"765_1"</item>
+        <item>"古びたタマゴ:N206 / 赤いタマゴ:N206 / ネコホタテ"</item>
+        <item>"イワシ / イワシCC / イワシCC"</item>
+        <item>"イカ / イカCC / イカCC"</item>
+        <item>"たいてんき / たいてんきCC / たいてんきCC"</item>
+        <item>"花咲かじいさん / 暴食怪樹オオザクラ / 暴食怪樹オオザクラ"</item>
+        <item>"771-1"</item>
+        <item>"生命の賢者Dr.ノーヴァ / 生命の賢者ネコノーヴァ / 生命の賢者ネコノーヴァ"</item>
+        <item>"パンプキンソドム / ソドム・オー・ランタン / ソドム・オー・ランタン"</item>
+        <item>"スモウ・ザ・ミイラ / マミー・ザ・ハロウィン / マミー・ザ・ハロウィン"</item>
+        <item>"特命機動アクセル / ダーティー・アクセル / ダーティー・アクセル"</item>
+        <item>"776-1"</item>
+        <item>"見習い武者ネコ / 武将ネコ / 武将ネコ"</item>
+        <item>"冬将軍・成田甲斐 / 冬大将軍・成田甲斐 / 冬大将軍・成田甲斐"</item>
+        <item>"ネコまどか＆ほむら / 魔法結社にゃんこ☆マギカ / 魔法結社にゃんこ☆マギカ"</item>
+        <item>"幼天女ルーナ / 救済の天女ルナーシャ / 救済の天女ルナーシャ"</item>
+        <item>"ネコボウラー / ネコドッジボウラー / ネコドッジボウラー"</item>
+        <item>"マモルガ / マモランパサラン / マモランパサラン"</item>
+        <item>"783-1"</item>
+        <item>"こねこ / 超スターこねこ / 超スターこねこ"</item>
+        <item>"チョコサプネコC / チョコサプネコF / チョコサプネコF"</item>
+        <item>"殺意のキモネコ / 真・殺意のキモネコ / 真・殺意のキモネコ"</item>
+        <item>"マジシャンキャットマン / イリュージョンキャットマン / イリュージョンキャットマン"</item>
+        <item>"冥護の天女ルナーシャ / 寂滅の天女ダークルナーシャ / 寂滅の天女ダークルナーシャ"</item>
+        <item>"789-1 / 789-2 / 789-2"</item>
+        <item>"範馬刃牙 / 範馬刃牙CC / 範馬刃牙CC"</item>
+        <item>"烈海王 / 烈海王CC / 烈海王CC"</item>
+        <item>"花山薫 / 花山薫CC / 花山薫CC"</item>
+        <item>"愚地克巳 / 愚地克巳CC / 愚地克巳CC"</item>
+        <item>"ジャック・ハンマー / ジャック・ハンマーCC / ジャック・ハンマーCC"</item>
+        <item>"ネコオーガ / ネコの貌 / ネコの貌"</item>
+        <item>"ちび刃牙 / ちび刃牙CC / ちび刃牙CC"</item>
+        <item>"ネコ刃牙 / ネコ刃牙CC / ネコ刃牙CC"</item>
+        <item>"ネコ海王 / ネコ海王CC / ネコ海王CC"</item>
+        <item>"ネコ独歩 / ネコ独歩CC / ネコ独歩CC"</item>
+        <item>"曲射砲台ランチャーズ / 迎撃砲隊ガンハウザー / 迎撃砲隊ガンハウザー"</item>
+        <item>"801-1"</item>
+        <item>"理の賢者ニュトーン / 理の賢者ニャトーン / 理の賢者ニャトーン"</item>
+        <item>"802-1"</item>
+        <item>"ソニック / ソニック＆ネコ / ソニック＆ネコ"</item>
+        <item>"テイルス / テイルス＆ネコ / テイルス＆ネコ"</item>
+        <item>"ナックルズ / ナックルズ＆ネコ / ナックルズ＆ネコ"</item>
+        <item>"シャドウ / シャドウ＆ネコ / シャドウ＆ネコ"</item>
+        <item>"ネコソニック / ネコソニックCC / ネコソニックCC"</item>
+        <item>"ネコテイルス / ネコテイルスCC / ネコテイルスCC"</item>
+        <item>"ネコシャドウ / ネコシャドウCC / ネコシャドウCC"</item>
+        <item>"エージェント・スタール / エッジマスター・スタール / エッジマスター・スタール"</item>
+        <item>"韋駄天スカンダ / スカンダゼタ / スカンダゼタ"</item>
+        <item>"812-1"</item>
+        <item>"タスマニアオオガニ / タスマニアオオガニCC / タスマニアオオガニCC"</item>
+        <item>"エヴァ量産機 / エヴァネコ量産機 / エヴァネコ量産機"</item>
+        <item>"月影の少年カヲル / 落月のシ者カヲル / 落月のシ者カヲル"</item>
+        <item>"817-1"</item>
+        <item>"樹の精霊コモリ / 樹木の精霊モリリン / 樹木の精霊モリリン"</item>
+        <item>"819-1"</item>
+        <item>"ネコ大工 / ネコラッパー / ネコラッパー"</item>
+        <item>"シーサイドペガサ / シーサイドペガサν / シーサイドペガサν"</item>
+        <item>"822_1"</item>
+        <item>"ネココンサルタント / ネコビジネスパートナー / ネコビジネスパートナー"</item>
+        <item>"ネコ店長＆ネコ店員 / ネコ店長＆ネコ店員CC / ネコ店長＆ネコ店員CC"</item>
+        <item>"魔導師シドミ / 炎の大魔導師シドミ / 炎の大魔導師シドミ"</item>
+        <item>"826-1"</item>
+        <item>"キャミィ / キャミィCC / キャミィCC"</item>
+        <item>"ジュリ / ジュリCC / ジュリCC"</item>
+        <item>"ネコザンギエフ / ネコザンギエフCC / ネコザンギエフCC"</item>
+        <item>"ネコジェイミー / ネコジェイミーCC / ネコジェイミーCC"</item>
+        <item>"獅子番長ラクレス / 獅子番長ラクレスΣ / 獅子番長ラクレスΣ"</item>
+        <item>"スカーフにゃんこ / レッドにゃんこ / レッドにゃんこ"</item>
+        <item>"ハットにゃんこ / ブルーにゃんこ / ブルーにゃんこ"</item>
+        <item>"ヘルメットにゃんこ / イエローにゃんこ / イエローにゃんこ"</item>
+        <item>"ゴーグルにゃんこ / グリーンにゃんこ / グリーンにゃんこ"</item>
+        <item>"リボンにゃんこ / モモにゃんこ / モモにゃんこ"</item>
+        <item>"ニャンコオー / 超グレートニャンコオーDX / 超グレートニャンコオーDX"</item>
+        <item>"幼騎士ルーノ / 満月の騎士ルーノス / 満月の騎士ルーノス"</item>
+        <item>"839-1"</item>
+        <item>"840-1"</item>
+        <item>"竈門炭治郎 / 竈門炭治郎CC / 竈門炭治郎CC"</item>
+        <item>"竈門禰󠄀豆子 / 竈門禰󠄀豆子CC / 竈門禰󠄀豆子CC"</item>
+        <item>"我妻善逸 / 我妻善逸CC / 我妻善逸CC"</item>
+        <item>"嘴平伊之助 / 嘴平伊之助CC / 嘴平伊之助CC"</item>
+        <item>"冨岡義勇 / 冨岡義勇CC / 冨岡義勇CC"</item>
+        <item>"胡蝶しのぶ / 胡蝶しのぶCC / 胡蝶しのぶCC"</item>
+        <item>"煉󠄁獄杏寿郎 / 煉󠄁獄杏寿郎CC / 煉󠄁獄杏寿郎CC"</item>
+        <item>"ちび鱗滝左近次 / ちび鱗滝左近次CC / ちび鱗滝左近次CC"</item>
+        <item>"ネコ炭治郎 / ネコ炭治郎CC / ネコ炭治郎CC"</item>
+        <item>"ネコ禰󠄀豆子 / ネコ禰󠄀豆子CC / ネコ禰󠄀豆子CC"</item>
+        <item>"風魔小太郎 / 蛇神・風魔小太郎 / 蛇神・風魔小太郎"</item>
+        <item>"ネコ新聞 / ネコセール / ネコセール"</item>
+        <item>"殺意のウシネコノトリ / 真・殺意のウシネコノトリ / 真・殺意のウシネコノトリ"</item>
+        <item>"オカルトネコ / ギャルネコ / ギャルネコ"</item>
+        <item>"淘の賢者ダーヴィン / 淘の賢者ニャーヴィン / 淘の賢者ニャーヴィン"</item>
+        <item>"856_1"</item>
+        <item>"にゃんこ村のネコ / にゃんこ村のネコCC / にゃんこ村のネコCC"</item>
+        <item>"バリスタにゃんこ / シルバーにゃんこ / シルバーにゃんこ"</item>
+        <item>"司令官にゃんこ / ゴールドにゃんこ / ゴールドにゃんこ"</item>
+        <item>"孤月の騎士ルーノス / 晦月の騎士ダークルーノス / 晦月の騎士ダークルーノス"</item>
+        <item>"861_1"</item>
+        <item>"嵐竜機ヴォルネード / 嵐竜機王ヴォルネード / 嵐竜機王ヴォルネード"</item>
+        <item>"婚礼・服部半蔵 / 新郎・服部半蔵 / 新郎・服部半蔵"</item>
+        <item>"透明にゃんこ / ネコ花婿 / ネコ花婿"</item>
+        <item>"衛宮 士郎 / 衛宮 士郎CC / 衛宮 士郎CC"</item>
+        <item>"真アサシン / 真アサシンCC / 真アサシンCC"</item>
+        <item>"パックマン / パックマンネコ / パックマンネコ"</item>
+        <item>"ネコブリンキー / ネコブリンキーCC / ネコブリンキーCC"</item>
+        <item>"ネコインキー / ネコインキーCC / ネコインキーCC"</item>
+        <item>"鉄腕！東雲寺あかね / それいけ！東雲寺あかね / それいけ！東雲寺あかね"</item>
+        <item>"古びたタマゴ:N207 / 黒いタマゴ:N207 / 成金ネコ"</item>
+        <item>""</item>
+        <item>""</item>
+        <item>""</item>
+        <item>""</item>
+        <item>""</item>
+    </string-array>
+    <string-array name="cat_names_kr">
+        <item>"고양이 / 고양이 빌더 / 고양이 모히칸"</item>
+        <item>"탱크 고양이 / 고양이 벽 / 고무 고양이"</item>
+        <item>"배틀 고양이 / 용사 고양이 / 암흑 고양이"</item>
+        <item>"징글 고양이 / 각선미 고양이 / 불끈다리 고양이"</item>
+        <item>"황소 고양이 / 기린 고양이 / 고양이 라이온"</item>
+        <item>"고양이 새 / 고양이UFO / 천공의 고양이"</item>
+        <item>"고양이 피쉬 / 고양이 고래 / 고양이 섬"</item>
+        <item>"고양이 도마뱀 / 고양이 드래곤 / 고양이 킹드래곤"</item>
+        <item>"거신 고양이 / 고양이 다라보치 / 고양이 쟈라미"</item>
+        <item>"고양이 여배우 / 고양이 성모 / 고양이 마초"</item>
+        <item>"쿵후 냥코 / 취권 냥코 / 고양이 댄서"</item>
+        <item>"Mr. / Super Mr. / Hyper Mr."</item>
+        <item>"고양이 밧줄 / 고양이 밧줄NEO / 고양이 밧줄 궁극"</item>
+        <item>"여왕 고양이 / 처형인 / 다크 라이더"</item>
+        <item>"고양이 한박스 / 고양이 갱단 / 중기 C・A・T"</item>
+        <item>"고양이 팬티 / 고양이 잎사귀 / 고양이 캔디"</item>
+        <item>"귀여미 / 스타 귀여미 / 슈퍼 스타 귀여미"</item>
+        <item>"고양이 세발자전거 / 고양이 와일드 / 고양이 외발자전거"</item>
+        <item>"고양이 닌자 / 개구리 고양이 닌자 / 날다람 고양이 닌자"</item>
+        <item>"고양이 좀비 / 데빌 고양이 / 고양이 해골"</item>
+        <item>"고양이 무사 / 고양이 나이트 / 고양이 파티쉐"</item>
+        <item>"스모 고양이 / 마담·더·스모 / 고양이 주먹밥"</item>
+        <item>"고양이 피버 / 고양이 카니발 / 고양이 아미고"</item>
+        <item>"고양이 스커트 / 고양이 타이츠 / 고양이 훈도시"</item>
+        <item>"고양이 발키리 / 고양이 발키리·진 / 고양이 발키리・성"</item>
+        <item>"고양이 무트 / 광란의 고양이 무트 / 각성의 고양이 무트"</item>
+        <item>"발차기 공주 / 올 컬러 발차기 공주 / 웨딩 발차기 공주"</item>
+        <item>"고양이 공주 / 고양이 공주 뷰티 / "</item>
+        <item>"고양이 캡슐 / 고양이 듬뿍 / "</item>
+        <item>"마스크 오브 고양이 / 고양이 레슬러 / 고양이 레슬러"</item>
+        <item>"고양이 보살 / 고양이 천수관음 / 고양이 여래"</item>
+        <item>"고양이 일진 / 분노의 고양이 일진 / 격노의 고양이 일진"</item>
+        <item>"고양이 댄스 / 고양이 알몸 댄스 / 고양이 캉캉"</item>
+        <item>"고타츠양이 / 고양이TV / 고양이 문어단지"</item>
+        <item>"고양이 루가 / 케사란파사란 / 울트라 케사란"</item>
+        <item>"오덕 고양이 / 고양이 해커 / 고양이 슈퍼 해커"</item>
+        <item>"고양이 스위머 / 고양이 버터플라이 / 고양이 반인어"</item>
+        <item>"고양이 홉핑 / 고양이 마사이 / 고양이 강시"</item>
+        <item>"고양이 차륜 / 고양이 태양 / 고양이 쿨"</item>
+        <item>"고양이 사과 / 왕대갈이군 / iCat"</item>
+        <item>"고양이 욕조 / 섹시 고양이 욕조 / 고양이 욕조 골드"</item>
+        <item>"고양이 에스테 / 고양이 젠느 / 고양이 퍼펙트"</item>
+        <item>"고양이 아이스 / 고양이 아이스퀸 / 고양이 아이스 크리스탈"</item>
+        <item>"고양이 머신 / 고양이 머신・파 / 고양이 머신・멸"</item>
+        <item>"도깨비 야옹마 / 도깨비신 야옹마 / 헬파이어 도깨비 야옹마"</item>
+        <item>"게이샤 고양이 / 고양이였사옵니다 / "</item>
+        <item>"고양이 쥬라 / 고양이 쥬라싯터 / 고양이 쥬라 사우루스"</item>
+        <item>"고양이 파이터 / 메간톤 파이터 / 맥시멈 파이터"</item>
+        <item>"고양이 해적 / 냐옹 쿡선장 / 냥・스페로"</item>
+        <item>"고양이 도둑 / 괴도 야콘 / 고양이 에몽"</item>
+        <item>"고양이 승려 / 고양이 스님 / 고양이 법사"</item>
+        <item>"고양이 점쟁이 / 고양이 어부 / 고양이 의사"</item>
+        <item>"고양이 샤먼 / 고양이 라만사 / 고양이 라만사 댄스"</item>
+        <item>"에반젤리스트 / 필리버스터 / 필리버스터"</item>
+        <item>" /  / "</item>
+        <item>"고양이 마녀 / 고양이 위치 / 고양이 소서리스"</item>
+        <item>"고양이 아처 / 고양이 큐피트 / 고양이 궁수자리"</item>
+        <item>"고양이 슈발리에 / 고양이 베르세르크 / 고양이 파라딘"</item>
+        <item>"고양이 마검사 / 쌍검 고양이 마검사 / 쌍염무 고양이 마검사"</item>
+        <item>"고양이 베이비 / 고양이 베이비즈 / 고양이 베이비카트 / 고양이 베이비월드"</item>
+        <item>"고양이브・론즈 / 예술의 고양이스테츄 / 퀴즈왕 고양이"</item>
+        <item>"고양이 스시 / 고양이 리젠트 / 고양이 연어알"</item>
+        <item>"고양이퐁 / 고양이뽀용 / 고양이뽀용"</item>
+        <item>"고양이 운동회 / 고양이 납치 / 고양이 봉"</item>
+        <item>"검사 / 검사 죠니 / 검사 죠니"</item>
+        <item>"황소 공주 / 기린 공주 / 기린 공주"</item>
+        <item>"BCK48 / 다크 BCK48 / BCK46"</item>
+        <item>"꼬마 가우 / 꼬꼬마 가우 / 크리스탈 꼬꼬마 가우"</item>
+        <item>"사신 / 사신999 / 저지먼트"</item>
+        <item>"잠자는 발차기 공주 / 잠자는 발차기 공주Ⅱ / 꿀잠자는 발차기 공주"</item>
+        <item>"고양리맨 / 고양이 원혼 / 고양이 분노"</item>
+        <item>"그리폰 / 분노의 그리폰 / 비약의 무신・그리폰"</item>
+        <item>"백호 / 분노의 백호 / 진노의 백호"</item>
+        <item>"하데스 / 분노의 하데스 / 천마의 하데스 / 몽환천마 하데스"</item>
+        <item>"순록피쉬 / 고양이회 모듬 / 피쉬・더・노엘"</item>
+        <item>"바람의 신・윈디 / 바람의 신・윈디α / 질풍의 신・윈디α / 얼티밋・윈디α"</item>
+        <item>"번개의 신・산디아 / 번개의 신・산디아β / 천둥의 신・산디아β / 얼티밋・산디아β"</item>
+        <item>"드로이드 / 야옹로이드 / 스프링 드로이드"</item>
+        <item>"고양이와 우주 / 냐앙소령 / 우주전사 고양이"</item>
+        <item>"냥코 성인 / 냥코 환자 / 냥코 죄수"</item>
+        <item>"내가 도깨비라오 / 고양이 신사 / 고양이 신사 동맹"</item>
+        <item>"냥코 부부 / 야징가 로보 / 냥라진"</item>
+        <item>"고양이 닌자~청~ / 고양이 닌자~주황~ / 고양이 닌자~주황~"</item>
+        <item>"지룡 소돔 / 지룡왕 소돔 / 지룡황제 소돔"</item>
+        <item>"성룡 메기도라 / 성룡왕 메기도라 / 성룡황제 메기도라"</item>
+        <item>"용기사 바르스 / 용기사왕 바르스 / 용기사황제 바르스"</item>
+        <item>"신룡 카무쿠라 / 신룡왕 카무쿠라 / 신룡황제 카무쿠라"</item>
+        <item>"용병기 라이덴 / 용병기왕 라이덴 / 용병기황제 라이덴"</item>
+        <item>"고양이 줄넘기 / 고양고양 줄넘기 / 고양이 국수"</item>
+        <item>"니무에 / 귀화형 니무에 / 귀화형 니무에"</item>
+        <item>" /  / "</item>
+        <item>"광란의 고양이 / 광란의 고양이 빌더 / 대광란의 고양이 모히칸"</item>
+        <item>"광란의 탱크 고양이 / 광란의 고양이 벽 / 대광란의 고무 고양이"</item>
+        <item>"광란의 배틀 고양이 / 광란의 용사 고양이 / 대광란의 암흑 고양이"</item>
+        <item>"광란의 징글 고양이 / 광란의 각선미 고양이 / 대광란의 불끈다리 고양이"</item>
+        <item>"광란의 황소 고양이 / 광란의 기린 고양이 / 대광란의 고양이 라이온"</item>
+        <item>"광란의 고양이 새 / 광란의 고양이 UFO / 대광란의 천공의 고양이"</item>
+        <item>"광란의 고양이 피쉬 / 광란의 고양이 고래 / 대광란의 고양이 섬"</item>
+        <item>"광란의 고양이 도마뱀 / 광란의 고양이 드래곤 / 대광란의 고양이 킹드래곤"</item>
+        <item>"광란의 거신 고양이 / 광란의 고양이 다라보치 / 대광란의 고양이 쟈라미"</item>
+        <item>"고양이 소녀 / 모솔 고양이 / 장미냥"</item>
+        <item>"약산성 엘 / 약산성 엘CC / 약산성 엘CC"</item>
+        <item>"레드 마론 / 래드 마론CC / 래드 마론CC"</item>
+        <item>"가왕 냥코 / 메가 냥코 / 메가 냥코 EX"</item>
+        <item>"물 만난 물고기 / 물 만난 고양이 / 바람 만난 고양이"</item>
+        <item>"쿠우 / 쿠우γ / 골드 쿠우γ"</item>
+        <item>"카이 / 카이μ / 슈퍼 카이μ"</item>
+        <item>"갓파 마인 / 갓파κ / 샤이니 갓파κ"</item>
+        <item>"냥코 3형제 / 비밀요새 마기로스 / 비밀요새 마기로스"</item>
+        <item>"마담・더・신부 / 마담・더・킹 / 마담・더・사반나"</item>
+        <item>"세레스 / 세레스CC / 세레스CC"</item>
+        <item>"노노 / 노노CC / 하얀 고양이 노노CC"</item>
+        <item>"올가 / 올가CC / 올가CC"</item>
+        <item>"노룬 / 노룬CC / 노룬CC"</item>
+        <item>"요이치 / 요이치CC / 요이치CC"</item>
+        <item>"세럼 / 세럼CC / 세럼CC"</item>
+        <item>"후우 / 후우CC / 후우CC"</item>
+        <item>"아우라 / 아우라CC / 아우라CC"</item>
+        <item>"레이 / 레이CC / 레이CC"</item>
+        <item>"와이번 / 냥이번 / 냥이번&amp;알렉"</item>
+        <item>"유술사 / 유술사CC / 냥코화 유술사CC"</item>
+        <item>"메르크 / 메르크CC / 냥코와 메르크CC"</item>
+        <item>"여왕님의 휴일 / 평범한 오피스 레이디 / 콜센터 레이디"</item>
+        <item>"콩콩 냥코 / 럽럽 냥코 / 발키리 냥코"</item>
+        <item>"오딘 / 분노의 오딘 / 사안의 오딘"</item>
+        <item>"아수라 / 분노의 아수라 / 분노의 투우 아수라"</item>
+        <item>"꼭두각시 냥코 / 고양이 인형사 / 고양이 채피"</item>
+        <item>"고양이 플라워 / 냥코 선풍기 / 고양이 봄버"</item>
+        <item>"처녀귀신 냥코 / 냥코안경 / 연날리기 냥코"</item>
+        <item>"골드 고양이 / 골드 고양이 빌더 / 순금 고양이 빌더"</item>
+        <item>"울프와 우루룬 / 나비와 우루룬 / 각성의 나비와 우루룬"</item>
+        <item>"귀요미 / 스타 귀요미 / 스타 귀요미"</item>
+        <item>"쿵후 냥코G / 취권 냥코G / 강권 냥코G"</item>
+        <item>" /  / "</item>
+        <item>"냥꼬북 / 용궁수 거북레온 / 용궁초수 킹거북레온"</item>
+        <item>"크레인 냥코 / 은하전사 코스모 / 궁극전사 코즈믹 코스모 / 궁극용사 울트라 코스모"</item>
+        <item>"복숭아 동자 / 폭주형제 피치스타즈 / 폭주형제 피치저스티스"</item>
+        <item>"석공 냥돌이 / 이동요새 카무이 / 이동요새 골드카무이 / 울트라 석공 냥돌이"</item>
+        <item>"대나무 공주 / 파괴위성 데스문 / 파괴위성 카오스문 / 울트라 대나무 공주"</item>
+        <item>"태권도 냥코 / 태권도 냥코 HG / 태권도 냥코 SP"</item>
+        <item>"말랑말랑 고양이 / 불끈말랑 고양이 / 불끈말랑 고양이"</item>
+        <item>"신 / 시크릿 신 / 시크릿 신"</item>
+        <item>" /  / "</item>
+        <item>"고양이 간호사 / 고양이 나이팅게일 / 조이풀 고양이 간호사"</item>
+        <item>"냥코 성 mini / 냥코 성 Jr / 냥코 성 Max"</item>
+        <item>"건맨 고양이 / 웨스턴 고양이 / 로데오 고양이"</item>
+        <item>"죽마 고양이 / 토템 고양이 / 고양이 잡기단"</item>
+        <item>"양철 고양이 / 양철 비행기 고양이 / 로봇 고양이"</item>
+        <item>"고양이 로커 / 고양이 아티스트 / 고양이 라면의 길"</item>
+        <item>"인어 고양이 / 솔져 고양이 / 카메라맨 고양이"</item>
+        <item>"창가의 소녀 고양이 / 창가의 공주 고양이 / 창가의 무희 고양이"</item>
+        <item>"고양이 바벨 / 고양이RG / 고양이 딜리버리"</item>
+        <item>"고양이 스케이트 / 고양이 요요 / 고양이 콤비"</item>
+        <item>"고양이 토스터 / 고양이 영사기 / 고양이 클래식"</item>
+        <item>"고양이 훌라 / 고양이 트리플 훌라 / 고양이 스프링 훌라"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"사라만다 / 분노의 사라만다 / 격노의 사라만다 / 격노군신 사라만다"</item>
+        <item>"명계의 칼리파 / 명계의X칼리파 / 명계의XX칼리파"</item>
+        <item>"피닉스 / 영생불사 피닉스 / 다크피닉스"</item>
+        <item>"광란의 발차기 공주 / 광란의 발차기 공주CC / 대광란의 발차기 공주"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"아시루가 / 아시란파사란 / 아타타타아시란"</item>
+        <item>"쿠비루가 / 쿠비란파사란 / E・쿠비란파사란"</item>
+        <item>"테코루가 / 테사란파사란 / 밀짚모자 테사란"</item>
+        <item>"바라라가 / 바라란파사란 / 피카란바라란"</item>
+        <item>"꼬맹이 야옹마 / 꼬양이 야옹마 / 각성의 꼬양이 야옹마"</item>
+        <item>"어린이 개복치 / 젊은이 개복치 / 사회의 일원"</item>
+        <item>"개복치 왕 / 살아있는 전설 / 태평양의 주인"</item>
+        <item>"냥복치 / 고양이 톨피드 / 고양이 톨피드"</item>
+        <item>"마시멜로 냥코 / 징글마시멜로 냥코 / 징글마시멜로 냥코"</item>
+        <item>"패룡 디오라무스 / 패룡왕 디오라무스 / 패룡황제 디오라무스 / 패룡대제 디오라무스"</item>
+        <item>" /  / "</item>
+        <item>"타쿠야와 유키 / 타쿠야와 유키와 고양이 / 타쿠야와 뷰티 유키"</item>
+        <item>"수수께끼의 소녀 유키 / 수수께끼의 소녀 유키&amp;고양이 / 수수께끼의 고양이귀 소녀 유키"</item>
+        <item>"고양이 유키 / 뷰티 고양이 유키 / 뷰티 고양이 유키"</item>
+        <item>"쿠쿠크루12 / 쿠쿠크루12+1 / 쿠쿠크루12+1"</item>
+        <item>"냥코 카트R / 냥코 카트G / 냥코 카트P"</item>
+        <item>"미스터 닌자 / 탄탄 / 탄탄"</item>
+        <item>"하루슈토 / 하루슈토CC / 혁명의 하루슈토CC"</item>
+        <item>"코넬리아 / 코넬리아CC / 코넬리아CC"</item>
+        <item>"유벤스 / 유벤스CC / 휴일의 기사님 유벤스CC"</item>
+        <item>"미스티카 / 미스티카CC / 영안의 미스티카CC"</item>
+        <item>"알로이스 / 알로이스CC / 알로이스CC"</item>
+        <item>"시톨이유 / 시톨이유CC / 시톨이유CC"</item>
+        <item>"티티 / 티티CC / 고양이 티티CC"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"아키라 / 쉐도우・아키라 / 인펠・아키라"</item>
+        <item>"메카소녀 진 / 닥터 메카소녀 진 / 스페이스 메카소녀 진"</item>
+        <item>"캣맨대디 / 캣맨다크 / 캣맨라이징"</item>
+        <item>"사이킥 냥코 / 네오 사이킥 냥코 / 데빌 사이킥 냥코"</item>
+        <item>"고양이 음양사 / 마법소녀 고양이 / 대마왕 고양이"</item>
+        <item>"고양이 서퍼 / 표류 고양이 / 고양이 표류기"</item>
+        <item>"메탈 고양이 / 메탈 고양이 빌더 / 메탈 고양이 빌더"</item>
+        <item>"군악대장 / 플랜카드 냥코 / 떡방아 냥코"</item>
+        <item>"소롱포 고양이 / 대롱포 고양이 / 대롱포 고양이"</item>
+        <item>"너굴냥즈 / 화염돌격대 너굴냥즈 / 화염저격대 너굴냥즈"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"꼬맹이 고양이 / 꼬맹이 고양이 빌더 / 꼬맹이 고양이 모히칸"</item>
+        <item>"꼬맹이 탱크 고양이 / 꼬맹이 고양이 벽 / 꼬맹이 고무 고양이"</item>
+        <item>"꼬맹이 배틀 고양이 / 꼬맹이 용사 고양이 / 꼬맹이 암흑 고양이"</item>
+        <item>"화이트 래빗 / 블랙 캣 / 그레이 폭스 / 스펙트르 캣"</item>
+        <item>"냥코 햄버거 / 냥코 킹버거 / 냥코 버거 세트"</item>
+        <item>"햐쿠타로 / 햐쿠타로CC / 햐쿠타로CC"</item>
+        <item>"마르코 / 마르코CC / 마르코CC"</item>
+        <item>"타마 / 타마CC / 타마CC"</item>
+        <item>"에리 / 에리CC / 에리CC"</item>
+        <item>"피오 / 피오CC / 피오CC"</item>
+        <item>"SV-001 / SV-001CC / SV-001CC"</item>
+        <item>"알렌 오닐 / 알렌 오닐CC / 알렌 오닐CC"</item>
+        <item>"마즈 피플 / 마즈 피플CC / 마즈 피플CC"</item>
+        <item>"휴즈 허미트 / 휴즈 허미트CC / 골든 허미트CC"</item>
+        <item>"주피터 킹 / 주피터 킹CC / 골든 주피터CC"</item>
+        <item>"모덴 원수 / 모덴 원수CC / 골든 모덴CC"</item>
+        <item>"하이 도 / 하이 도CC / 하이 도 MK III CC"</item>
+        <item>"주술사 데스삐에로 / 암흑 상인 바빌 / 과학자 클레이G"</item>
+        <item>"냥프킨 / 랜턴 냥프킨 / 사신 냥프킨"</item>
+        <item>"할로윈 귀요미 / 할로윈 마녀 귀요미 / 코스프레 할로윈 귀요미"</item>
+        <item>"윈디 스위트 / 윈디 스위트α / "</item>
+        <item>"데빌 산디아 / 데빌 산디아β / 데빌 산디아β"</item>
+        <item>"오뎅 / 오뎅CC / 오뎅CC"</item>
+        <item>"빛의 신도 발키리 / 빛의 신도 발키리CC / 빛의 신도 발키리CC"</item>
+        <item>"신도 브륀힐트 / 신도 브륀힐트CC / 신도 브륀힐트CC"</item>
+        <item>"신도 스루즈 / 신도 스루즈CC / 신도 스루즈CC"</item>
+        <item>"풍요의 여신 프레이야 / 풍요의 여신 프레이야CC / 풍요의 여신 프레이야CC"</item>
+        <item>"군신 오딘 / 군신 오딘CC / 군신 오딘CC"</item>
+        <item>"고양이 박사 냥코 / 고양이 대박사 / 고양이 명예교수"</item>
+        <item>"고양이 도련님 / 고양이 도령의 파파 / 고양이 도령의 파파의 파파"</item>
+        <item>"견습생 스냥이퍼 / 고양고르고 / 고양고르고31"</item>
+        <item>"가시루가 / 가시란파사란 / 가시란시시가미"</item>
+        <item>"스노우맨의 스노우 카이 / 스노우맨의 스노우 카이μ / 눈의 요정 스노우 카이μ"</item>
+        <item>"산타의 메리 쿠우 / 산타의 메리 쿠우γ / 산타의 메리 쿠우γ"</item>
+        <item>"성야의 시스터 갓파 / 성야의 시스터 갓파κ / 성야의 시스터 갓파κ"</item>
+        <item>"고양이의 선물 / 고양이 선물 / 고양이 선물"</item>
+        <item>"꼬맹이 징글 고양이 / 꼬맹이 각선미 고양이 / 꼬맹이 불끈다리 고양이"</item>
+        <item>"꼬맹이 황소 고양이 / 꼬맹이 고양이 기린 / 꼬맹이 고양이 라이온"</item>
+        <item>"꼬맹이 고양이 새 / 꼬맹이 고양이 UFO / 꼬맹이 천공의 고양이"</item>
+        <item>"저세상 냥코 / 유령 냥코 / 부활한 냥코"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"천공신 제우스 / 기간트 제우스 / G기간트 제우스"</item>
+        <item>"수호신 아누비스 / 퍼펙트 아누비스 / G퍼펙트 아누비스"</item>
+        <item>"미의 여신 아프로디테 / 메가로디테 / G메가로디테"</item>
+        <item>"냥웨이 / 고양이 드론 / 타임머신 고양이"</item>
+        <item>"천주 송골매 / 마신 송골매 / 섬멸 송골매"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"고양이 타이푼 / 고양이 허리케인 / 고양이 폭풍"</item>
+        <item>"고양이 냥미 / 러블리 냥미 / 각성의 러블리 냥미"</item>
+        <item>"요수 가오 / 황수 가오우 / 황수 가오우"</item>
+        <item>"광란의 유키 / 광란의 유키&amp;고양이 / 광란의 고양이귀 유키"</item>
+        <item>"태양신 아마테라스 / 테라 아마테라스 / G테라 아마테라스"</item>
+        <item>"번영신 가네샤 / 가네샤 엑사 / G가네샤 엑사"</item>
+        <item>"치어리더 냥코 / 웨이트리스 냥코 / 러브소바 냥코"</item>
+        <item>"트로피칼 칼리파 / 트로피칼X칼리파 / 트로피칼X칼리파"</item>
+        <item>"한여름의 화이트 래빗 / 한여름의 블랙 캣 / 브라이트 서머 캣"</item>
+        <item>"여름빛 귀요미 / 해변의 귀요미 / 초여름 해변의 귀요미"</item>
+        <item>"나메코 / 나메코＆냥코 / 나메코＆냥코"</item>
+        <item>"나메코 탱크 / 나메코 탱크＆냥코 / 나메코 탱크＆냥코"</item>
+        <item>"흰고양이 나메코 / 징글 흰고양이 나메코 / 징글 흰고양이 나메코"</item>
+        <item>"요새 나메코 / 나메코＆요새냥코 / 나메코＆요새냥코"</item>
+        <item>" /  / "</item>
+        <item>"냥코 오도리 / 냥코 소란 / 냥코 고저스 삼바"</item>
+        <item>"묘반권 파이파이 / 묘반권 파이파이Z / 묘권왕 파이파이DX"</item>
+        <item>"냥코 우등 / 냥코 특급 / 냥코 익스프레스"</item>
+        <item>" /  / "</item>
+        <item>"광전기병 레이 / 광전기병 플라즈마 레이 / 광전휘병 윙 레이"</item>
+        <item>"고양이 야구 / 고양이 리거 / 고양이 골퍼"</item>
+        <item>"카나메 마도카 / 마도카&amp;고양이 / 얼티밋 마도카"</item>
+        <item>"아케미 호무라 / 호무라&amp;고양이 / 악마 호무라"</item>
+        <item>"미키 사야카 / 사야카&amp;고양이 / 사야카&amp;고양이"</item>
+        <item>"토모에 마미 / 마미&amp;고양이 / 마미&amp;고양이"</item>
+        <item>"사쿠라 쿄코 / 쿄코&amp;고양이 / 쿄코&amp;고양이"</item>
+        <item>"큐베 / 큐베&amp;고양이 / 큐베&amp;고양이"</item>
+        <item>"고양이 마도카 / 마법소녀 고양이 마도카 / 마법소녀 고양이 마도카"</item>
+        <item>"고양이 호무라 / 마법소녀 고양이 호무라 / 마법소녀 고양이 호무라"</item>
+        <item>"고양이 사야카 / 마법소녀 고양이 사야카 / 마법소녀 고양이 사야카"</item>
+        <item>"고양이 마미 / 마법소녀 고양이 마미 / 마법소녀 고양이 마미"</item>
+        <item>"고양이 쿄코 / 마법소녀 고양이 쿄코 / 마법소녀 고양이 쿄코"</item>
+        <item>"꼬마 마도카 / 꼬마 마법소녀 마도카 / 꼬마 얼티밋 마도카"</item>
+        <item>"꼬마 호무라 / 꼬마 마법소녀 호무라 / 꼬마 악마 호무라"</item>
+        <item>"고양이 큐베 / 탱크 큐베 / 탱크 큐베"</item>
+        <item>"고양이 아이스 고스트 / 고양이 아이스 팬텀 / 고양이 서큐버스"</item>
+        <item>"타코야끼냥 / 냥택배 / 고양이 급식당번 / 철저한 손씻기와 에탄올 100%로 손소독 후"</item>
+        <item>"강철육군 카타바르스 / 격멸전차 기가파르도 / 초격멸전차 기가파르도 / 극격멸전차 기가파르도"</item>
+        <item>"고대군함 가레스 / 무적함대 시갈레온 / 초무적함대 시갈레온 / 극무적함대 시갈레온"</item>
+        <item>"비행습격 바머스 / 비행전함 보르본 / 초비행전함 보르본바 / 극비행전함 보르본바"</item>
+        <item>"고양이 점퍼 / 고양이 장대 / 고양이 빨래봉"</item>
+        <item>"고양이 가위 / 고양이 톱 / 고양이 풀베기"</item>
+        <item>" /  / "</item>
+        <item>"고양이 간호사 캔들 / 고양이 간호사 마리아 / 고양이 간호사 산타마리아"</item>
+        <item>"꼬맹이 고양이 피쉬 / 꼬맹이 고양이 고래 / 꼬맹이 고양이 섬"</item>
+        <item>"꼬맹이 고양이 도마뱀 / 꼬맹이 고양이 드래곤 / 꼬맹이 고양이 킹드래곤"</item>
+        <item>"꼬맹이 거신 고양이 / 꼬맹이 고양이 다라보치 / 꼬맹이 고양이 쟈라미"</item>
+        <item>"대청소 귀요미 / 신정의 귀요미 / 신춘 신정의 귀요미"</item>
+        <item>"피코 타로 / 고양이 타로 / 고양이 타로"</item>
+        <item>"해왕신 포세이돈 / 포세이도라군 / G포세이도라군"</item>
+        <item>"CPAC / PPAP / PPAP"</item>
+        <item>"무녀공주 미타마 / 순백의 미타마 / 순백의 미타마"</item>
+        <item>"살의의 고양이 / 독기의 고양이 / 개심의 고양이"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"떠돌이 악사 / 폭주 락밴드 몽키헤븐 / 질주 락밴드 몽키헤븐"</item>
+        <item>"무사시 / 주연 무사시 / 각성의 주연 무사시"</item>
+        <item>"고양이 스톤 / 고양이 클리너 / 고양이 거북 카"</item>
+        <item>"고양이 복서 / 고양이 챔피온 / 고양이 리벤지"</item>
+        <item>"뫼비우스 / 기적의 조화 뫼비우스 / 기적의 조화 뫼비우스"</item>
+        <item>"벨리알 / 맹진하는 대반역자 벨리알 / 맹진하는 대반역자 벨리알"</item>
+        <item>"해피100 / 행복 연쇄소녀 해피100 / 행복 연쇄소녀 해피100"</item>
+        <item>"고양이 에그 / 고양이 에그2 / 고양이 에그3"</item>
+        <item>"봄의 사라만다 / 만개의 사라만다 / 봄나들이 사라만다"</item>
+        <item>"클라운 에그덕 / 다크 사이코덕 / 극악 클라운 매드 덕"</item>
+        <item>"이스타 귀요미 / 이스타바니 귀요미 / 개화・이스타바니 귀요미"</item>
+        <item>"흑수 가오우 / 황수 가오우 다크 / 황수 가오우 다크"</item>
+        <item>"여우아가씨 하늘나리 / 구미호공주 하늘나리 / 풍요의 여우공주 하늘나리"</item>
+        <item>"인어아가씨 루리 / 인어공주 루리 / 용궁의 인어공주 루리"</item>
+        <item>"미라아가씨 레이카 / 미라공주 레이카 / 황금의 미라공주 레이카"</item>
+        <item>"프린세스 발차기 공주호 / 프린세스 발차기 공주호CC / 프리미엄 발차기 공주호CC"</item>
+        <item>"누아다 / 분노의 누아다 / 화염의 누아다"</item>
+        <item>" /  / "</item>
+        <item>"빨간 머리 고양이 유키 / 빨간 머리 뷰티 고양이 유키 / 빨간 머리 불끈 고양이 유키"</item>
+        <item>"잃어버린 세계의 유키 / 잃어버린 세계의 유키&amp;고양이 / 잃어버린 세계의 고양이귀 유키"</item>
+        <item>"은혜 갚는 고양이 / 축복 고양이 / 축복 고양이"</item>
+        <item>"민달팽이 고양이 / 고양이 민달팽이 / 고양이 민달팽이"</item>
+        <item>"오르토스 / 오르토스CC / 채색의 오르토스CC"</item>
+        <item>"미세리아 / 미세리아CC / 낮잠의 미세리아CC"</item>
+        <item>"토도메키 / 토도메키CC / 토도메키CC"</item>
+        <item>"구데타마 냥코 / 구데오므 냥코 / 구데베네 냥코"</item>
+        <item>"구데타마 플레이트 / 구데타마 베이컨 / 구데타마 베이컨"</item>
+        <item>"구데구데 푸딩 / 구데구데 아라모드 / 구데구데 아라모드"</item>
+        <item>"니세타마 군단 / 니세타마 냥코군단 / 니세타마 냥코군단"</item>
+        <item>"시시루와 코마리 / 시시루와 코마리Φ / 쌍둥이별 시시루와 코마리Φ"</item>
+        <item>"고양이 신선 / 고양이 노사 / 가면의 고양이 신선"</item>
+        <item>" /  / "</item>
+        <item>"여름의 카이 / 여름의 카이μ / 여름의 카이μ"</item>
+        <item>"관측병기 갈릴레오 / 시공기지 아마겟돈 / 초시공기지 아마겟돈"</item>
+        <item>" /  / "</item>
+        <item>"늑대아가씨 딜 / 늑대공주 딜 / 도화의 늑대공주 딜"</item>
+        <item>"좀비아가씨 버베나 / 사령의 신부 버베나 / 행복한 신부 버베나"</item>
+        <item>"불의 정령 메라라 / 불꽃의 정령 메라란 / 불꽃의 정령왕 메라버닝 / 불꽃의 대정령 메라피닉스"</item>
+        <item>"물의 정령 마리 / 유수의 정령 마리린 / 유수의 정령왕 마리리린 / 유수의 대정령 마리나데"</item>
+        <item>"바람의 정령 에어리 / 폭풍의 정령 에어린 / 폭풍의 정령왕 에어리린 / 폭풍의 대정령 에어리얼"</item>
+        <item>"세이버 / 세이버 CC / 세이버 오르타CC"</item>
+        <item>"토오사카 린 / 토오사카 린CC / 토오사카 린CC"</item>
+        <item>"이리야스필 / 이리야스필CC / 이리야스필CC"</item>
+        <item>"아처 / 아처CC / 아처CC"</item>
+        <item>"랜서 / 랜서CC / 랜서CC"</item>
+        <item>"라이더 / 라이더CC / 라이더CC"</item>
+        <item>"길가메쉬 / 길가메쉬CC / 길가메쉬CC"</item>
+        <item>"고양이 세이버 / 영령 고양이 세이버 / 고양이 세이버 오르타"</item>
+        <item>"고양이 사쿠라 / 앞치마 고양이 사쿠라 / 꿈꾸는 고양이 사쿠라"</item>
+        <item>"고양이 린 / 마술사 고양이 린 / 마술사 고양이 린"</item>
+        <item>"고양이 이리야 / 눈의 요정 고양이 이리야 / 눈의 요정 고양이 이리야"</item>
+        <item>"꼬마 시로 / 꼬마 시로CC / 꼬마 시로CC"</item>
+        <item>"꼬마 사쿠라 / 꼬마 사쿠라CC / 꼬마 사쿠라CC"</item>
+        <item>"기념주화 고양이 / 기념주화 고양이 빌더 / 기념주화 고양이 빌더"</item>
+        <item>"고양이 탐사기 / 고양이 서치MkⅡ / 고양이 위성"</item>
+        <item>"고양이 펜싱 / 고양이 검도 / 자유의 고양이"</item>
+        <item>"칠흑의 미타마 / 흑첩의 미타마 / 흑첩의 미타마"</item>
+        <item>"고양이 배구 / 고양이 발레리나 / 고양이 카레"</item>
+        <item>"쾌걸 달타냥 / 영걸 달타냥 / 영걸 달타냥"</item>
+        <item>"고양이 농가 / 고양이 순무농가 / 고양이 순무농가"</item>
+        <item>"유리 고양이 / 유리 고양이 빌더 / 크리스탈 고양이 빌더"</item>
+        <item>"수수께끼의 가면 우라라 / 고양이 가면 우라라 / 고양이 가면신 우라라"</item>
+        <item>"히카미 사토리&amp;냥코 / 히카미 사토리&amp;냥코CC / 히카미 사토리&amp;냥코CC"</item>
+        <item>"야베 아키오 / 야베 아키오CC / 야베&amp;건다로보CC"</item>
+        <item>"니지타니 사이리 / 니지타니 사이리CC / 니지타니 사이리CC"</item>
+        <item>"콘노 미사키 / 콘노 미사키CC / 콘노 미사키CC"</item>
+        <item>"카타기리 렌 / 카타기리 렌CC / 카타기리 렌CC"</item>
+        <item>"네코즈카 카린 / 네코즈카 카린CC / 네코즈카 카린CC"</item>
+        <item>"하야카와 아오이 / 하야카와 아오이CC / 야구맨 1호CC"</item>
+        <item>"타치바나 미즈키 / 타치바나 미즈키CC / 야구맨 2호CC"</item>
+        <item>"로쿠도 히지리 / 로쿠도 히지리CC / 야구맨 3호CC"</item>
+        <item>"니지마 사키 / 니지마 사키CC / 삼바 니지마 사키CC"</item>
+        <item>"호시이 스바루 / 호시이 스바루CC / 암흑 스바루CC"</item>
+        <item>"오야마 미야비 / 오야마 미야비CC / 야구맨 5호CC"</item>
+        <item>"고룡 강글리온 / 고룡왕 강글리온 / 고룡황제 강글리온"</item>
+        <item>"사쿠라 / JK사쿠라 / 천주 사쿠라 / 천주Z 사쿠라"</item>
+        <item>" /  / "</item>
+        <item>"Mentori / Mentori CC / Mentori CC"</item>
+        <item>"Imoto / Imoto CC / Imoto CC"</item>
+        <item>"번개의 정령 볼트 / 벼락의 정령 피카볼트 / 벼락의 정령왕 기가볼트"</item>
+        <item>"꼬맹이 신지 / 플러그 슈트 꼬맹이 신지 / 다크 플러그 슈트 꼬맹이 신지"</item>
+        <item>"고양이 겐도&amp;후유츠키 / 달의 고양이 겐도&amp;후유츠키 / 달의 고양이 겐도&amp;후유츠키"</item>
+        <item>"기린 고양이 초호기 / 기린 고양이 2호기 / 기린 고양이 2호기"</item>
+        <item>"꼬맹이 카오루 / 플러그 슈트 꼬맹이 카오루 / 달의 소년 꼬맹이 카오루"</item>
+        <item>"고양이 레이 / 고양이 아야나미 레이 (가칭) / 고양이 아야나미 레이 (가칭)"</item>
+        <item>"고양이 아스카 / 에이프런 고양이 아스카 / 에이프런 고양이 아스카"</item>
+        <item>"고양이 마리 / 극비입국 고양이 마리 / 극비입국 고양이 마리"</item>
+        <item>"꼬맹이 레이 / 플러그 슈트 꼬맹이 레이 / 재회의 꼬맹이 레이"</item>
+        <item>"꼬맹이 아스카 / 플러그 슈트 꼬맹이 아스카 / 안대 꼬맹이 아스카"</item>
+        <item>"꼬맹이 마리 / 플러그 슈트 꼬맹이 마리 / 플러그 슈트 꼬맹이 마리"</item>
+        <item>"에바 영호기 / 에바 영호기&amp;고양이 / 에바 영호기&amp;고양이"</item>
+        <item>"에바 초호기 / 에바 초호기&amp;고양이 / 결의의 에바 초호기&amp;고양이"</item>
+        <item>"에바 2호기 / 에바 2호기&amp;고양이 / 에바 개 2호기 코드777"</item>
+        <item>"고양이 신지 / 고양이 토우지&amp;켄스케 / 고양이 토우지&amp;켄스케"</item>
+        <item>"제로문 오퍼레이터즈 / 퍼스트문 NERV / 퍼스트문 NERV"</item>
+        <item>"온천천국 테르마이 / 지하전대 그란돈 / 초지하전대 그란돈 / 극지하전대 그란돈"</item>
+        <item>"광란의 귀여미 / 광란의 스타 귀여미 / 광란의 스타 귀여미"</item>
+        <item>"POKOTA / POKOTA CC / POKOTA CC"</item>
+        <item>"OVIS / OVIS CC / OVIS CC"</item>
+        <item>"COCO / COCO CC / COCO CC"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"고양이 라이더 맴매 / 로봇 라이더 맴매 / 고양이 라이더 맴매-L"</item>
+        <item>"고양이 퀘스트 / 고양이 퀘스트XI / 고양이 퀘스트XI-2 / 고양이 퀘스트 헤븐"</item>
+        <item>"고양이 소우마 / 스마트 고양이 소우마 / 스마트 고양이 소우마"</item>
+        <item>"오덕 고양이 긱 / 고양이 해커 긱 / 고양이 해커 긱"</item>
+        <item>"구데 냥코 머신 / 구데 냥코 머신・알 / 구데 냥코 머신・알"</item>
+        <item>"망자탐정 비그라 / 마계탐정 그라비 / 마신탐정 그라티비 / 성마탐정 제로그라티비"</item>
+        <item>"적극적인 곰 / 블랙 적극적인 곰 / 블랙 적극적인 곰"</item>
+        <item>"냥코쿠마 / 살의의 냥코쿠마 / 살의의 냥코쿠마"</item>
+        <item>" /  / "</item>
+        <item>"꼬마 고양이 발키리 / 소녀 고양이 발키리 / 소녀 고양이 발키리"</item>
+        <item>"노비루가 / 노비란파사란 / 노비란 터번"</item>
+        <item>"격・신 / 초・신 / 초・신 골든"</item>
+        <item>"불타는 해변의 쿠우 / 불타는 해변의 쿠우γ / 불타는 해변의 쿠우γ"</item>
+        <item>"시간의 신 크로노스 / 크로노스 트리거 / G크로노스 트리거"</item>
+        <item>"베베 / 나기사&amp;고양이 / 원환의 이치의 사자 나기사"</item>
+        <item>"호걸 달타냥 / 흑걸 달타냥 / 흑걸 달타냥"</item>
+        <item>"유모차 고양이 / 음료 카트 고양이 / 바캉스 고양이"</item>
+        <item>"전대 드릴러 / 전대 파워 드릴러 / 신 파워 드릴러"</item>
+        <item>"전대 드라이버 / 전대 파워 드라이버 / 신 파워 드라이버"</item>
+        <item>"전대 커터 고양이 / 전대 파워 커터 고양이 / 신 파워 커터 고양이"</item>
+        <item>"전대 포클레인 고양이 / 전대 파워 포클레인 고양이 / 신 파워 포클레인 고양이"</item>
+        <item>"전대 직쏘고양이 / 전대 파워 직쏘고양이 / 신  파워 직쏘고양이"</item>
+        <item>"무사시 / 검신 무사시 / 무쌍의 검신 무사시"</item>
+        <item>"잔다르크 / 잔다르크ψ / 신성회장 잔다르크ψ"</item>
+        <item>"천성용 바벨 / 마성용 바벨 / 천마성용 바벨"</item>
+        <item>"리코더 고양이 / 해머 고양이 / 해머 고양이"</item>
+        <item>"고대 고양이 / 현대 고양이 / 미래 고양이"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"원더 모모코 / 큐티 모모코 / 스타라이트 모모코"</item>
+        <item>"마토 사쿠라 / 마토 사쿠라CC / 흑화 사쿠라CC"</item>
+        <item>"고양이 시로 / 마술사 견습생 고양이 시로 / 마술사 견습생 고양이 시로"</item>
+        <item>"아처 고양이 / 영령 아처 고양이 / 영령 아처 고양이"</item>
+        <item>"고양이 라이더 / 영령 고양이 라이더 / 영령 고양이 라이더"</item>
+        <item>"고양이 고토미네 &amp; 고양이 길가메쉬 / 고양이 길가메쉬 &amp; 고양이 고토미네 / 고양이 길가메쉬 &amp; 고양이 고토미네"</item>
+        <item>"레제루가 / 레제란 파사란 / 레제란 파사란"</item>
+        <item>"필리버스터X / 필리버스터Y / 메타 필리버스터"</item>
+        <item>"종말 병기 무우 / 극비 연구기관 판도라 / 극비 연구기관 판도라"</item>
+        <item>"토우전사 도그마루 / 토우전사 도그에몽 / 각성전사 도그에몽"</item>
+        <item>" /  / "</item>
+        <item>"블랙 제우스 / 암차신자 블랙 제우스 / 암차신자 블랙 제우스"</item>
+        <item>"슈퍼 제우스 / 전능신 슈퍼 제우스 / 슈퍼S 제우스"</item>
+        <item>"세인트 피닉스 / 성전의화 세인트 피닉스 / 헤드 로코코"</item>
+        <item>"슈퍼 데빌 / 위신 슈퍼 데빌 / 슈퍼D 데빌"</item>
+        <item>"사탄마리아 / 원더마리아 / 원더마리아"</item>
+        <item>"헤라클라이스트 / 퍼펙트 헤라클라이스트 / "</item>
+        <item>"네로 마신 / 마초 네로 / 마초 네로"</item>
+        <item>"야마토 왕자 / 야마토 신제 / 야마토 폭신"</item>
+        <item>"십자가천사 / 크로스엔젤 / 스트라이크 천사"</item>
+        <item>"고양이 약신자 / 고양이 신제 / 고양이 신제"</item>
+        <item>"고양이 데빌 / 고양이 사신 / 고양이 사신"</item>
+        <item>"고양이노스케 / 고양이노수 / 고양이노수"</item>
+        <item>"환상의 정령 루미나 / 몽환의 정령 루미나리아 / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"천재 과학자 헤븐 박사 / 시공 과학자 아비스 박사 / 시공 과학자 아비스 박사"</item>
+        <item>"행복을 바란 소년 소우마 / 행복을 바란 소년 소우마&amp;고양이 / 행복을 바란 고양이귀 소우마"</item>
+        <item>"카노와 소우마 / 카노와 소우마와 고양이 / 카노와 소우마와 고양이"</item>
+        <item>"다크 꼬마 고양이 발키리 / 다크 소녀 고양이 발키리 / "</item>
+        <item>"카렛트 / 카렛트CC / 카렛트CC"</item>
+        <item>"히나 / 검사 히나 / 검사 히나"</item>
+        <item>"에바 8호기 / 에바 8호기 &amp; 고양이 / 에바 8호기 &amp; 고양이"</item>
+        <item>"공중 전함 고양이 분더 / 희망의 선함  NNN 고양이 분더 / 살신의 선함 NNN 고양이 분더"</item>
+        <item>"꼬맹이 미사토 / 분더 함장 꼬맹이 미사토 / 분더 함장 꼬맹이 미사토"</item>
+        <item>"꼬맹이 리츠코 / 분더 부함장 꼬맹이 리츠코 / 분더 부함장 꼬맹이 리츠코"</item>
+        <item>"꼬맹이 아야나미 레이 (가명) / 잠에서 깨어난 꼬맹이 아야나미 / 잠에서 깨어난 꼬맹이 아야나미"</item>
+        <item>" /  / "</item>
+        <item>"창조신 가이야 / 창세주 가이야 / 창세주 가이야"</item>
+        <item>"바닷바람의 세일러 갓파 / 바닷바람의 세일러 갓파κ / 바닷바람의 세일러 갓파κ"</item>
+        <item>"고양이 마타도르 / 고양이 플라멩코 / 고양이 벨리댄스"</item>
+        <item>"미네르바 / 분노의 미네르바 / 호염의 미네르바 / 연옥무쌍 미네르바"</item>
+        <item>"주걱턱 고양이 / 주걱턱 고양이 빌더 / 주걱턱 고양이 빌더"</item>
+        <item>"주걱턱 라이온 / 주걱턱 라이온CC / 주걱턱 라이온CC"</item>
+        <item>"주걱턱 호랑이 / 주걱턱 호랑이CC / 주걱턱 호랑이CC"</item>
+        <item>"주걱턱 팬더 / 주걱턱 팬더CC / 주걱턱 팬더CC"</item>
+        <item>"고양이 형제S / 고양이 바보 형제S / 고양이 바보 형제S"</item>
+        <item>"멜슈 / 멜슈ξ / 럭셔리 멜슈ξ"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"각룡 그라디오스 / 각룡왕 그라디오스 / 각룡황제 그라디오스"</item>
+        <item>"아이월츠 / 아이월츠CC / 무명의 아이월츠CC"</item>
+        <item>"슈퍼 고양이 / 메가 고양이 / 아이언 고양이"</item>
+        <item>"고양이 류 / 고양이 류CC / 고양이 류CC"</item>
+        <item>"고양이 춘리 / 고양이 춘리CC / 고양이 춘리CC"</item>
+        <item>"고우키 / 고우키CC / 고우키CC"</item>
+        <item>"류 / 류CC / 카게나루모노"</item>
+        <item>"춘리 / 춘리CC / 춘리CC"</item>
+        <item>"가일 / 가일CC / 가일CC"</item>
+        <item>"장기에프 / 장기에프CC / 장기에프CC"</item>
+        <item>"블랑카 / 블랑카CC / 블랑카CC"</item>
+        <item>"달심 / 달심CC / 달심CC"</item>
+        <item>"켄 / 켄CC / 홍련의 격투왕 켄"</item>
+        <item>"고우키 기린 / 고우키 라이온 / 고우키 라이온"</item>
+        <item>"라스트 보스 / 파이널 라스트 보스 / 신 라스트 보스"</item>
+        <item>"고양이 칠복신 / 고양이 칠복사신 / 고양이 칠복사신"</item>
+        <item>"고양이 메두사 / 고양이 양갈래 / 고양이 나가"</item>
+        <item>"고양이 금도끼은도끼 / 고양이 메달리스트 / 고양이 마신"</item>
+        <item>"고양이 무도가 / 고양이 사범 / 고양이 마스터"</item>
+        <item>" /  / "</item>
+        <item>"긴타로 / 맹총전대 긴레인저 / 초총전대 긴레인저"</item>
+        <item>"겨울 천사 시시루와 코마리 / 겨울 천사 시시루와 코마리Φ / 겨울 천사 시시루와 코마리Φ"</item>
+        <item>"고양이 슬라임 / 고양이 젤리피쉬 / 고양이 젤리만쥬"</item>
+        <item>"고양이 코사크 / 고양이 보드카 / 고양이 근위병"</item>
+        <item>"재앙의 캐슬리 / 축제의 성녀 캐슬리 / 축제의 성녀 캐슬리"</item>
+        <item>"에르메 / 에르메CC / 에르메CC"</item>
+        <item>"네코쿠마 / 네코 블랙쿠마 / 네코 프랑켄슈타인 베어"</item>
+        <item>"펜리르와 우르스 / 미케와 우르스 / 각성한 미케와 우르스"</item>
+        <item>"매드슈터 사키 / 나이트버스터 사키 / 배드 블래스터 사키"</item>
+        <item>"명계신 하데스 / 데스 하데스 / G데스 하데스"</item>
+        <item>"하츠네 미쿠 / 하츠네 미쿠CC / 하츠네 미쿠CC"</item>
+        <item>"사쿠라 미쿠 / 사쿠라 미쿠CC / 사쿠라 미쿠CC"</item>
+        <item>"카가미네 린&amp;렌 / 카가미네 린&amp;렌CC / 카가미네 린&amp;렌CC"</item>
+        <item>"고양이 미쿠 / 고양이 미쿠CC / 고양이 미쿠CC"</item>
+        <item>"럭비 고양이 / 미식축구 고양이 / 세기말 고양이"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"화근의 마녀 캐슬리 / 칠흑의 마녀 다크 캐슬리 / 칠흑의 마녀 다크 캐슬리"</item>
+        <item>"나나호 / 신검의 나나호 / 신검의 나나호"</item>
+        <item>"팬텀 고양이 / 연기 고양이 / 고양이 버블"</item>
+        <item>"오이루가 / 오이란파사란 / 스케란카쿠란"</item>
+        <item>"백야 공주 레이 / 백천 공주 레이 / 백천 공주 레이"</item>
+        <item>"제4사도 / 제4사도 고양이 / 제4사도 고양이"</item>
+        <item>"제6사도 / 제6사도 고양이 / 제6사도 고양이"</item>
+        <item>"제10사도 / 제10사도 고양이 / 제10사도 고양이"</item>
+        <item>"제9사도 / 제9사도 고양이 / 제9사도 고양이"</item>
+        <item>"고양이 카오루 / 월면의 고양이 카오루 / 월면의 고양이 카오루"</item>
+        <item>"고양이 베이커리 / 고양이 부메랑 / 고양이 플라잉 치킨"</item>
+        <item>"달인 우리르 / 고양이 가면 우리르 / 고양이 가면신 우리르"</item>
+        <item>"샤먼 칸 / 전정신 샤먼 칸 / 전정신 샤먼 칸"</item>
+        <item>"기신 알리바바 / 알리바바 신제 / 고스트 알리바바"</item>
+        <item>"천자남 잭 / 신제남 잭 / 신제남 잭"</item>
+        <item>"레어 뽑기 고양이 / 럭키 뽑기 고양이 / 럭키 뽑기 고양이"</item>
+        <item>"지옥 경찰 엠마 / 지옥 중사 엠마 / 염라 대장 엠마"</item>
+        <item>"메구리네 루카 / 메구리네 루카CC / 메구리네 루카CC"</item>
+        <item>"MEIKO＆고양이 / MEIKO＆고양이CC / MEIKO＆고양이CC"</item>
+        <item>"고양이 루카 / 고양이 루카CC / 고양이 루카CC"</item>
+        <item>"아쿠아슈터 사키 / 아쿠아버스터 사키 / 아쿠아 블래스터 사키"</item>
+        <item>"고양이 루가의 여름 / 매혹의 파사란 / 엘레강스 파사란"</item>
+        <item>"선탠 고양이 / 선탠 고양이 빌더 / 선탠 고양이 파마"</item>
+        <item>"라이프가드 고양이 / 당고 고양이 형제 / 고양이 젤라또"</item>
+        <item>" /  / "</item>
+        <item>"이디:N / 이디:N2 / 이디:NX"</item>
+        <item>"돌의 정령 롤링스톤 / 암석의 정령 락앤롤 / 암석의 정령왕 스톤헨지"</item>
+        <item>"용기사 스컬 바르스 / 나이트메어 바르스 / 할로윈 나이트 바르스"</item>
+        <item>"E. Honda / E. Honda CC / E. Honda CC"</item>
+        <item>"바이슨 / 바이슨CC / 바이슨CC"</item>
+        <item>"발로그 / 발로그CC / 발로그CC"</item>
+        <item>"사가트 / 사가트CC / 사가트CC"</item>
+        <item>"베가 / 베가CC / 베가CC"</item>
+        <item>"C. Honda / C. Honda CC / C. Honda CC"</item>
+        <item>"고양이 바이슨 / 고양이 바이슨CC / 고양이 바이슨CC"</item>
+        <item>"고양이 발로그 / 고양이 발로그CC / 고양이 발로그CC"</item>
+        <item>"고양이 사가트 / 고양이 사가트CC / 고양이 사가트CC"</item>
+        <item>"고양이 베가 / 고양이 베가CC / 고양이 베가CC"</item>
+        <item>"스톤 고양이 / 볼더 고양이 / 볼더 고양이"</item>
+        <item>"하츠네 미쿠 MAGICAL MIRAI 2020 오사카 / 하츠네 미쿠CC MAGICAL MIRAI 2020 오사카 / 하츠네 미쿠CC MAGICAL MIRAI 2020 오사카"</item>
+        <item>"하츠네 미쿠 MAGICAL MIRAI 2020 도쿄 / 하츠네 미쿠CC MAGICAL MIRAI 2020 도쿄 / 하츠네 미쿠CC MAGICAL MIRAI 2020 도쿄"</item>
+        <item>"산타 백호 / 크리스마스 백호 / 크리스마스 백호 DX"</item>
+        <item>"요수 가루 / 제수 가르디언 / 제수 가르디언"</item>
+        <item>"고양이 왕자 / 고양이 국왕 / 고양이 국왕"</item>
+        <item>"사랑의 여신 쇼콜라디테 / 메가쇼콜라디테 / 메가쇼콜라디테"</item>
+        <item>"첫사랑 멜슈 / 첫사랑 멜슈ξ / 첫사랑 멜슈ξ"</item>
+        <item>"발렌타인 귀요미 / 발렌타인 초코 귀요미 / 진심・발렌타인 귀요미"</item>
+        <item>"유키 미쿠 2021 / 유키 미쿠CC 2021 / 유키 미쿠CC 2021"</item>
+        <item>"KAITO＆고양이 / KAITO＆고양이CC / KAITO＆고양이CC"</item>
+        <item>"고양이 린 / 고양이 린CC / 고양이 린CC"</item>
+        <item>"고양이 렌 / 고양이 렌CC / 고양이 렌CC"</item>
+        <item>"공중상사 콜럼버스 / 수송병단 아틀란티스 / 초수송병단 아틀란티스"</item>
+        <item>"춘룡 카무쿠라 / 신춘룡 카무쿠라 / 신춘룡왕 카무쿠라"</item>
+        <item>"사오토메 란마(남) / 사오토메 란마(여) / 사오토메 란마(여)"</item>
+        <item>"텐도 아카네 / 텐도 아카네(도복) / 텐도 아카네(도복)"</item>
+        <item>"히비키 료가(돼지) / 히비키 료가 / 히비키 료가"</item>
+        <item>"샴푸(고양이) / 샴푸 / 샴푸"</item>
+        <item>"무스(오리) / 무스 / 무스"</item>
+        <item>"핫포사이 / 핫포사이(변태 할아범) / 핫포사이(변태 할아범)"</item>
+        <item>"쿠온지 우쿄(남장) / 쿠온지 우쿄 / 쿠온지 우쿄"</item>
+        <item>"쿠노 타테와키(도복) / 쿠노 타테와키 / 쿠노 타테와키"</item>
+        <item>"고양이 란마(남) / 고양이 란마(여) / 고양이 란마(여)"</item>
+        <item>"고양이 아카네 / 고양이 아카네(도복) / 고양이 아카네(도복)"</item>
+        <item>"고양이 판다 / 고양이 겐마 / 고양이 겐마"</item>
+        <item>"모험가 칸나 / 대모험 소녀 칸나 / 전설의 모험 소녀 칸나"</item>
+        <item>" /  / "</item>
+        <item>"흑수 가르디언 / 제수 다크 가르디언 / 제수 다크 가르디언"</item>
+        <item>"골드바 고양이 / 골드 킹 고양이 / 가면 킹 고양이"</item>
+        <item>"고양이 고질라 / 신 고양이 고질라 / 신 고양이 고질라"</item>
+        <item>"고양이 왕녀 / 고양이 여왕 / 고양이 여왕"</item>
+        <item>"고대 가면신 드론 / 고양이 가면신 드론 / 각성한 고양이 가면신 드론"</item>
+        <item>"바닷가의 대나무 공주 / 남국위성 선 샤인 / 남국위성 슈퍼 샤인"</item>
+        <item>"장수풍뎅이 고양이 / 골드 장수풍뎅이 고양이 / 골드 장수풍뎅이 고양이"</item>
+        <item>"사슴벌레 고양이 / 킹 사슴벌레 고양이 / 킹 사슴벌레 고양이"</item>
+        <item>"소환소년 사토루 / 악마 소환소년 사토루 / 데빌 헌터 사토루"</item>
+        <item>"아레스 / 마신 아레스 / 원망의 마신 아레스"</item>
+        <item>"리린 / 리린π / 와이즈 리린π"</item>
+        <item>"사룡 헤비저크 / 사룡왕 헤비저크 / 사룡황제 헤비저크"</item>
+        <item>"악마연구가 / 사악한 악마연구가 / 냥코 연구가"</item>
+        <item>"자간드 Jr / 파괴신 자간드 Jr / 파괴신 자간드 Jr"</item>
+        <item>"고양이 하멜론 / 무소유 승려 고양이 / 고양이 브라스 밴드"</item>
+        <item>"열혈경파 쿠니오군 / 피구부 쿠니오군 / 피구부 쿠니오군"</item>
+        <item>"오코루가 / 오코란파사란 / 극대노 파사란"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"세뇌된 고양이 / 세뇌된 고양이 빌더 / 세뇌된 고양이 모히칸"</item>
+        <item>"고양이 서예 / 고양이 다도 / 고양이 다도"</item>
+        <item>"어둠의 정령 야미 / 암흑의 정령 야미누아르 / 암흑의 정령왕 야미슈발츠"</item>
+        <item>"초용전기 데스 트로이 / 전자전기 디아 볼로스 / 초전자전기 디아 볼로스"</item>
+        <item>"혀 잘린 참새 / 요괴 결사 짹짹 / 대요괴 결사 짹짹"</item>
+        <item>"백기사 키클롭스 / 흑기사 키클롭스 / 신마기사 키클롭스"</item>
+        <item>"100만불 고양이 / 1억불 고양이 / 1억불의 고양이"</item>
+        <item>"세뇌된 탱크 고양이 / 세뇌된 고양이 벽 / 세뇌된 고무 고양이"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"무희 이즈 / 매혹의 무희 이즈 / 매혹의 무희 이즈"</item>
+        <item>"타락 천신 루시퍼 / 그랜드 루시퍼 / G그랜드 루시퍼"</item>
+        <item>"고양이 초인 / 고양이 초인Ⅱ / 레전드 고양이 초인"</item>
+        <item>"하얀 연인 메카소녀 진 / 비터 스위트 메카소녀 진 / 민초단 메카소녀 진"</item>
+        <item>"세뇌된 배틀 고양이 / 세뇌된 용사 고양이 / 세뇌된 암흑 고양이"</item>
+        <item>"폭죽 고양이 / 폭죽 고양이 빌더 / 폭죽 고양이 빌더"</item>
+        <item>"테룬 / 테룬ζ / 헌트리스 테룬ζ"</item>
+        <item>"사랑대장 도깨비 야옹마 / 연애대장 도깨비신 야옹마 / 연애대장 도깨비 야옹마"</item>
+        <item>"흑표 / 분노의 흑표 / 절영의 흑표"</item>
+        <item>"소꿉친구 냥코 / 여자친구 냥코 / 여자친구 냥코"</item>
+        <item>"말괄량이 고양이 라이온 / 철가면 고양이 라이온 / 철가면 고양이 라이온"</item>
+        <item>"고양이 칠판지우개 / 고양이 칠판대장 / 고양이 칠판대장"</item>
+        <item>"고대수 나라 / 벼락의 고대수 나라 / 각성 고대수 나라"</item>
+        <item>"세뇌된 징글 고양이 / 세뇌된 각선미 고양이 / 세뇌된 불끈다리 고양이"</item>
+        <item>"얼음의 정령 블리즈 / 빙결의 정령 블리자나 / 빙결의 정령왕 블리자레나"</item>
+        <item>"오래된 알: N001 / 신비한 알: N001 / 고양이 토용"</item>
+        <item>"비탄의 무희 이즈 / 애도의 무희 다크 이즈 / 애도의 무희 다크 이즈"</item>
+        <item>"오래된 알: N101 / 붉은 알: N101 / 배달 고양이"</item>
+        <item>"오래된 알: N102 / 푸른 알: N102 / 고양이 타장"</item>
+        <item>"해룡 다라이어던 / 해룡왕 다라이어던 / 해룡황제 다라이어던"</item>
+        <item>"축복의 신 크로노스 / 웨딩 크로노스 / 웨딩 크로노스"</item>
+        <item>"세뇌된 황소 고양이 / 세뇌된 기린 고양이 / 세뇌된 고양이 라이온"</item>
+        <item>"오래된 알: N103 / 검은 알: N103 / 고양이 방독면"</item>
+        <item>"오래된 알: N104 / 녹색 알: N104 / 수술 고양이"</item>
+        <item>"오래된 알: N201 / 악의 알: N201 / 냥소시스트"</item>
+        <item>"여름밤 해변의 리린 / 여름밤 해변의 리린π / 여름밤 해변의 리린π"</item>
+        <item>"세뇌된 고양이 새 / 세뇌된 고양이UFO / 세뇌된 천공의 고양이"</item>
+        <item>"고양이 텐구 / 대요괴 고양이 텐구 / 대신선 고양이 텐구"</item>
+        <item>"오래된 알: N003 / 악의 알: N003 / 고양이 선인장"</item>
+        <item>"오래된 알: N202 / 붉은 알: N202 / 아머드 반딧불이 고양이"</item>
+        <item>"사오토메 란마(레오타드) / 사오토메 란마(치어리더) / 사오토메 란마(치어리더)"</item>
+        <item>"사오토메 겐마(판다) / 사오토메 겐마 / 사오토메 겐마"</item>
+        <item>"ネコチーター / ネコチーター / ネコチーター"</item>
+        <item>"유랑극단 캐러셀즈 / 기습괴광 유에포즈 / 초기습괴광 유에포즈"</item>
+        <item>"오래된 알: N105 / 푸른 알: N105 / 고양이 스매시"</item>
+        <item>"오래된 알: N106 / 노란 알: N106 / 고양이 버섯"</item>
+        <item>"미쿠모 오사무&amp;고양이 / 미쿠모 오사무&amp;고양이CC / 미쿠모 오사무&amp;고양이CC"</item>
+        <item>"쿠가 유마&amp;고양이 / 쿠가 유마&amp;고양이CC / 쿠가 유마&amp;고양이CC"</item>
+        <item>"아마토리 치카&amp;고양이 / 아마토리 치카&amp;고양이CC / 아마토리 치카&amp;고양이CC"</item>
+        <item>"카스가노 사쿠라 / 카스가노 사쿠라 CC / 카스가노 사쿠라 CC"</item>
+        <item>"루크 / 루크CC / 루크CC"</item>
+        <item>"여신 베가 / 환영의 가호여신 베가 / 허영의 가호여신 베가"</item>
+        <item>"백작 그리폰 / 흡혈귀 그리폰 / 흡혈귀 공작 그리폰"</item>
+        <item>"세뇌된 고양이 피쉬 / 세뇌된 고양이 고래 / 세뇌된 고양이 섬"</item>
+        <item>"오래된 알: N004 / 신비한 알: N004 / 고양이 슈퍼카"</item>
+        <item>"빛의 여신 시리우스 / 광명의 여신 시리우스 / 광명의 여신 시리우스"</item>
+        <item>"사슴뿔 테룬 / 사슴뿔 테룬ζ / 사슴뿔 테룬ζ"</item>
+        <item>"세뇌된 고양이 도마뱀 / 세뇌된 고양이 드래곤 / 세뇌된 고양이 킹드래곤"</item>
+        <item>"10년이면 고양이 / 10년이면 고양이 동상 / 10년이면 고양이 동상"</item>
+        <item>"운명의 아이 포노 / 천명의 왕 포노아 / 천명의 왕 포노아"</item>
+        <item>"오래된 알: N000 / 고대의 알: N000 / 에이프 고양이 루자"</item>
+        <item>"엄지 동자 / 귀습잠수함 방망-E / 귀습전투함 방망-E"</item>
+        <item>"백집사 탐정 비그라 / 흑집사 탐정 그라비 / 흑집사 탐정 그라비"</item>
+        <item>"세뇌된 거신 고양이 / 세뇌된 고양이 다라보치 / 세뇌된 고양이 쟈라미"</item>
+        <item>"살의의 탱크 고양이 / 독기의 탱크 고양이 / 독기의 탱크 고양이"</item>
+        <item>"고양이 반장 / 불량 고양이 반장 / 불량 고양이 반장"</item>
+        <item>"오래된 알: N107 / 보라색 알: N107 / 고양이 촌장"</item>
+        <item>"썬더 잭 / 블러디 잭 / 라이트닝 잭"</item>
+        <item>"결투소년 래빗 사토루 / 결투왕 래빗 사토루 / 결투왕 래빗 사토루"</item>
+        <item>"오래된 알: N005 / 신비한 알: N005 / 고양이 히트맨"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"비명의 왕 포노아 / 단명의 왕 다크 포노아 / 단명의 왕 다크 포노아"</item>
+        <item>"오래된 알: N108 / 푸른 알: N108 / 고양이 비누"</item>
+        <item>"오래된 알: N109 / 악의 알: N109 / 고양이 나무통"</item>
+        <item>"고양이 제트 / 고양이 주경야독 / 고양이 주경야독"</item>
+        <item>"외눈의 소녀 아스카 / 푸른 눈의 마녀 아스카 / 푸른 눈의 마녀 아스카"</item>
+        <item>"에바 13호기 / 에바 13호기&amp;고양이 / 에바 13호기&amp;고양이"</item>
+        <item>"바라라가의 서약 / 새신부파사란 / 새신부파사란"</item>
+        <item>"카오루가 / 카오란파사란 / 카오란타타란"</item>
+        <item>"오래된 알: N203 / 보라색 알: N203 / 고양이 삐에로"</item>
+        <item>"비치 다이빙 모험가 칸나 / 테크니컬 다이버 칸나 / 테크니컬 다이버 칸나"</item>
+        <item>"건설병단 스핑크스 / 돌격부대 콘보이즈 / 초돌격부대 콘보이즈"</item>
+        <item>"오래된 알: N111 / 신비한 알: N111 / 고양이 폴리스"</item>
+        <item>"오래된 알: N110 / 노란 알: N110 / 고양이 농부"</item>
+        <item>"고양이 옥수수 / 냥코콘 / 냥코콘"</item>
+        <item>"철의 정령 메탈릭 / 강철의 정령 헤비메탈 / 강철의 정령왕 파워메탈"</item>
+        <item>"오래된 알: N006 / 악의 알: N006 / 고양이 악마 각하"</item>
+        <item>"화원고교 번장 리키 / 피구부 리키 / 피구부 리키"</item>
+        <item>"하츠네 미쿠 16th / 하츠네 미쿠CC 16th / 하츠네 미쿠CC 16th"</item>
+        <item>"광익신 이시스 / 네페르 이시스 / G네페르 이시스"</item>
+        <item>"오래된 알: N112 / 신비한 알: N112 / 고양이 에그호"</item>
+        <item>"닌자아가씨 토모에 / 식도락 닌자 토모에 / 미식극락 닌자 토모에"</item>
+        <item>"고양이 메달왕 / 고양이 메달대왕 / 고양이 메달대왕"</item>
+        <item>"솔 데 로카 / 솔 데 로카CC / 솔 데 로카CC"</item>
+        <item>"논리의 현자 소라크테스 / 논리의 현자 냥코라테스 / 논리의 현자 냥코라테스"</item>
+        <item>"730_1"</item>
+        <item>"오래된 알: N204 / 붉은 알: N204 / 고양이 사자놀이"</item>
+        <item>"새벽의 이자나기 / 여명의 이자나기 / 여명의 이자나기"</item>
+        <item>"733_1"</item>
+        <item>"페가사 / 페가사ν / 페가사ν"</item>
+        <item>"735_1"</item>
+        <item>"고양이 교장 / 고양이 세컨드 라이프 / 고양이 세컨드 라이프"</item>
+        <item>"고양이 아이스 화이트스타 / 고양이 아이스 톱스타 / 고양이 아이스 톱스타"</item>
+        <item>"스프링 칼리파 / 스프링X칼리파 / 스프링X칼리파"</item>
+        <item>"해질녘의 이자나미 / 황혼의 이자나미 / 황혼의 이자나미"</item>
+        <item>"740_1"</item>
+        <item>" /  / "</item>
+        <item>"염향기호 다지 / 염향기호 다지&amp;고양이 / 염향기호 다지&amp;고양이"</item>
+        <item>"모리아나 고양이 / 일곡경심 모리아나 고양이 / 일곡경심 모리아나 고양이"</item>
+        <item>"미친머리 / 냥코 미친머리 / 냥코 미친머리"</item>
+        <item>"공작 펠릭스 고양이 / 용병단장 펠릭스 고양이 / 용병단장 펠릭스 고양이"</item>
+        <item>"도티 고양이 / 버스데이 도티 고양이 / 버스데이 도티 고양이"</item>
+        <item>"히무라 켄신 / 히무라 켄신CC / 히무라 켄신CC"</item>
+        <item>"사가라 사노스케 / 사가라 사노스케CC / 사가라 사노스케CC"</item>
+        <item>"시노모리 아오시 / 시노모리 아오시CC / 시노모리 아오시CC"</item>
+        <item>"사이토 하지메 / 사이토 하지메CC / 사이토 하지메CC"</item>
+        <item>"꼬맹이 카미야 카오루 / 꼬맹이 카오루CC / 꼬맹이 카오루CC"</item>
+        <item>"꼬맹이 야히코 / 꼬맹이 야히코CC / 꼬맹이 야히코CC"</item>
+        <item>"고양이 켄신 / 고양이 발도재 / 고양이 발도재"</item>
+        <item>"고양이 카미야 카오루 / 미녀 검술가 고양이 카오루 / 미녀 검술가 고양이 카오루"</item>
+        <item>"알리칸토 / 분노의 알리칸토 / 분노의 알리칸토"</item>
+        <item>"756_1"</item>
+        <item>"고양이 웨딩 케이크 머신 / 고양이 웨딩 케이크 머신・축 / 고양이 웨딩 케이크 머신・축"</item>
+        <item>"오래된 알: N205 / 보라색 알: N205 / 고양이 신부"</item>
+        <item>"정체불명 용병 트릭시 / 복수의 용병 트릭시 / 복수의 용병 트릭시"</item>
+        <item>"섬머 페스티벌 산디아 / 섬머 페스티벌 산디아β / 섬머 페스티벌 산디아β"</item>
+        <item>"포룡 건듀로스 / 포룡왕 건듀로스 / 포룡왕 건듀로스"</item>
+        <item>"762_1"</item>
+        <item>" /  / "</item>
+        <item>"고양이 다이너사우루스 / 메카 고양이 다이너사우루스 / 메카 고양이 다이너사우루스"</item>
+        <item>"765_1"</item>
+        <item>"오래된 알: N206 / 붉은 알: N206 / 고양이 가리비"</item>
+        <item>"정어리 / 정어리CC / 정어리CC"</item>
+        <item>"오징어 / 오징어CC / 오징어CC"</item>
+        <item>"타이텐키 / 타이텐키CC / 타이텐키CC"</item>
+        <item>"냥꽃 할배 / 폭식괴수 빅트리 / 폭식괴수 빅트리"</item>
+        <item>"771-1"</item>
+        <item>"생명의 현자 Dr.노바 / 생명의 현자 고양이 노바 / 생명의 현자 고양이 노바"</item>
+        <item>"펌킨 소돔 / 소돔 오 랜턴 / 소돔 오 랜턴"</item>
+        <item>"스모 더 미라 / 마미 더 할로윈 / 마미 더 할로윈"</item>
+        <item>"특수기동대 엑셀 / 더티 엑셀 / 더티 엑셀"</item>
+        <item>"776-1"</item>
+        <item>"졸병 고양이 / 장수 고양이 / 장수 고양이"</item>
+        <item>"동장군 미네르바 / 한파장군 미네르바 / 한파장군 미네르바"</item>
+        <item>"고양이 마도카&amp;호무라 / 마법결사 냥코☆마기카 / 마법결사 냥코☆마기카"</item>
+        <item>"꼬마선녀 루나 / 구제의 선녀 루나샤 / 구제의 선녀 루나샤"</item>
+        <item>"고양이 볼링선수 / 고양이 피구선수 / 고양이 피구선수"</item>
+        <item>"마모루가 / 마모란파사란 / 마모란파사란"</item>
+        <item>"783-1"</item>
+        <item>"꼬꼬미 / 울트라 스타 꼬꼬미 / 울트라 스타 꼬꼬미"</item>
+        <item>" /  / "</item>
+        <item>"살의의 징글 고양이 / 독기의 징글 고양이 / 독기의 징글 고양이"</item>
+        <item>"매지션 캣맨 / 일루전 캣맨 / 일루전 캣맨"</item>
+        <item>"비호의 선녀 루나샤 / 적멸의 선녀 다크 루나샤 / 적멸의 선녀 다크 루나샤"</item>
+        <item>"상자 고양이 / 깜짝상자 고양이 / 789-2"</item>
+        <item>"한마 바키 / 한마 바키CC / 한마 바키CC"</item>
+        <item>"레츠 카이오 / 레츠 카이오CC / 레츠 카이오CC"</item>
+        <item>"하나야마 카오루 / 하나야마 카오루CC / 하나야마 카오루CC"</item>
+        <item>"오로치 카츠미 / 오로치 카츠미CC / 오로치 카츠미CC"</item>
+        <item>"잭 한마 / 잭 한마CC / 잭 한마CC"</item>
+        <item>"고양이 오거 / 고양이의 얼굴 / 고양이의 얼굴"</item>
+        <item>"꼬맹이 바키 / 꼬맹이 바키CC / 꼬맹이 바키CC"</item>
+        <item>"고양이 바키 / 고양이 바키CC / 고양이 바키CC"</item>
+        <item>"고양이 카이오 / 고양이 카이오CC / 고양이 카이오CC"</item>
+        <item>"고양이 돗포 / 고양이 돗포CC / 고양이 돗포CC"</item>
+        <item>"곡사포대 런처즈 / 영격포대 건하우저 / 영격포대 건하우저"</item>
+        <item>"801-1"</item>
+        <item>"이치의 현자 뉴톤 / 이치의 현자 냐톤 / 이치의 현자 냐톤"</item>
+        <item>"802-1"</item>
+        <item>"소닉 / 소닉&amp;고양이 / 소닉&amp;고양이"</item>
+        <item>"테일즈 / 테일즈&amp;고양이 / 테일즈&amp;고양이"</item>
+        <item>"너클즈 / 너클즈&amp;고양이 / 너클즈&amp;고양이"</item>
+        <item>"섀도우 / 섀도우&amp;고양이 / 섀도우&amp;고양이"</item>
+        <item>"고양이 소닉 / 고양이 소닉CC / 고양이 소닉CC"</item>
+        <item>"고양이 테일즈 / 고양이 테일즈CC / 고양이 테일즈CC"</item>
+        <item>"고양이 섀도우 / 고양이 섀도우CC / 고양이 섀도우CC"</item>
+        <item>"에이전트 스탈 / 블레이드 마스터 스탈 / 블레이드 마스터 스탈"</item>
+        <item>"위타천 스칸다 / 스칸다 제타 / 스칸다 제타"</item>
+        <item>"812-1"</item>
+        <item>"태즈메이니아 대게 / 태즈메이니아 대게CC / 태즈메이니아 대게CC"</item>
+        <item>"에바 양산기 / 에바 고양이 양산기 / 에바 고양이 양산기"</item>
+        <item>"월영의 소년 카오루 / 낙월의 사자 카오루 / 낙월의 사자 카오루"</item>
+        <item>"817-1"</item>
+        <item>"나무의 정령 모리 / 수목의 정령 모리린 / 수목의 정령 모리린"</item>
+        <item>"819-1"</item>
+        <item>"고양이 목수 / 고양이 래퍼 / 고양이 래퍼"</item>
+        <item>"시사이드 페가사 / 시사이드 페가사ν / 시사이드 페가사ν"</item>
+        <item>"822_1"</item>
+        <item>"고양이 컨설턴트 / 고양이 비즈니스 파트너 / 고양이 비즈니스 파트너"</item>
+        <item>" /  / "</item>
+        <item>"마도사 시드미 / 불꽃의 대마도사 시드미 / 불꽃의 대마도사 시드미"</item>
+        <item>"826-1"</item>
+        <item>"캐미 / 캐미CC / 캐미CC"</item>
+        <item>"주리 / 주리CC / 주리CC"</item>
+        <item>"고양이 장기에프 / 고양이 장기에프CC / 고양이 장기에프CC"</item>
+        <item>"고양이 제이미 / 고양이 제이미CC / 고양이 제이미CC"</item>
+        <item>"라클레스 / 라클레스Σ / 라클레스Σ"</item>
+        <item>"스카프 냥코 / 레드 냥코 / 레드 냥코"</item>
+        <item>"페도라 냥코 / 블루 냥코 / 블루 냥코"</item>
+        <item>"헬멧 냥코 / 옐로 냥코 / 옐로 냥코"</item>
+        <item>"고글 냥코 / 그린 냥코 / 그린 냥코"</item>
+        <item>"리본 냥코 / 핑크 냥코 / 핑크 냥코"</item>
+        <item>"냥코 킹 / 그레이트 냥코 킹 DX / 그레이트 냥코 킹 DX"</item>
+        <item>"꼬마기사 루노 / 만월의 기사 루노스 / 만월의 기사 루노스"</item>
+        <item>"839-1"</item>
+        <item>"840-1"</item>
+        <item>"카마도 탄지로 / 카마도 탄지로CC / 카마도 탄지로CC"</item>
+        <item>"카마도 네즈코 / 카마도 네즈코CC / 카마도 네즈코CC"</item>
+        <item>"아가츠마 젠이츠 / 아가츠마 젠이츠CC / 아가츠마 젠이츠CC"</item>
+        <item>"하시비라 이노스케 / 하시비라 이노스케CC / 하시비라 이노스케CC"</item>
+        <item>"토미오카 기유 / 토미오카 기유CC / 토미오카 기유CC"</item>
+        <item>"코쵸우 시노부 / 코쵸우 시노부CC / 코쵸우 시노부CC"</item>
+        <item>"렌고쿠 쿄쥬로 / 렌고쿠 쿄쥬로CC / 렌고쿠 쿄쥬로CC"</item>
+        <item>"꼬맹이 우로코다키 사콘지 / 꼬맹이 우로코다키 사콘지CC / 꼬맹이 우로코다키 사콘지CC"</item>
+        <item>"고양이 탄지로 / 고양이 탄지로CC / 고양이 탄지로CC"</item>
+        <item>"고양이 네즈코 / 고양이 네즈코CC / 고양이 네즈코CC"</item>
+        <item>"타니와 / 분노의 타니와 / 분노의 타니와"</item>
+        <item>"고양이 신문 / 고양이 세일 / 고양이 세일"</item>
+        <item>"살의의 황소 고양이 새 / 독기의 황소 고양이 새 / 독기의 황소 고양이 새"</item>
+        <item>"오컬트 고양이 / 갸루 고양이 / 갸루 고양이"</item>
+        <item>"도태의 현자 다뷘 / 도태의 현자 냐윈 / 도태의 현자 냐윈"</item>
+        <item>"856_1"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"고월의 기사 루노스 / 회월의 기사 다크 루노스 / 회월의 기사 다크 루노스"</item>
+        <item>"861_1"</item>
+        <item>"폭룡기 볼네이도 / 폭룡기왕 볼네이도 / 폭룡기왕 볼네이도"</item>
+        <item>"혼례 흑표 / 새신랑 흑표 / 새신랑 흑표"</item>
+        <item>"투명 냥코 / 고양이 신랑 / 고양이 신랑"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>"변신소녀 단 / 날아라 변신소녀 단 / 날아라 변신소녀 단"</item>
+        <item>"오래된 알: N207 / 검은 알: N207 / 벼락부자 고양이"</item>
+        <item>"오래된 알: N208 / 녹색 알: N208 / 어썰트 가재 고양이"</item>
+        <item>"정글 헌터 토모에 / 정글 마스터 토모에 / 정글 마스터 토모에"</item>
+        <item>""</item>
+        <item>""</item>
+        <item>""</item>
+    </string-array>
+    <!-- END GENERATED CAT NAMES -->
 </resources>

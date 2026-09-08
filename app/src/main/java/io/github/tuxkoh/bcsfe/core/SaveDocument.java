@@ -730,6 +730,7 @@ public final class SaveDocument {
     public void fixGamatotoCrash() { ensureItemProfile(); putInt(gamatotoSkinOffset(),2); refreshHash(); }
     public void unlockEquipMenu() { ensureItemProfile(); int offset=menuUnlocksOffset()+8; putInt(offset,Math.max(1,intAt(offset))); refreshHash(); }
     public int catCount() { return catLayout().count; }
+    public int catRarity(int index) { checkCat(index); return GameDataRules.catRarity(index); }
     public int catBaseLevel(int index) { checkCat(index); return ushortAt(catLayout().upgradeStart+index*4+2)+1; }
     public int catPlusLevel(int index) { checkCat(index); return ushortAt(catLayout().upgradeStart+index*4); }
     public boolean catUnlocked(int index) { checkCat(index); return intAt(catLayout().unlockedStart+index*4)!=0; }

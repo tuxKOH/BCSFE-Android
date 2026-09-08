@@ -56,8 +56,8 @@ android {
         applicationId = "io.github.tuxkoh.bcsfe"
         minSdk = 26
         targetSdk = 34
-        versionCode = 33
-        versionName = "1.1.3"
+        versionCode = 34
+        versionName = "1.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("boolean", "ADS_ENABLED", adsEnabled.toString())
@@ -80,6 +80,7 @@ dependencies {
     implementation("com.google.android.material:material:1.10.0")
     implementation("androidx.activity:activity:1.8.2")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("io.noties.markwon:core:4.6.2")
     testImplementation("junit:junit:4.13.2")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     testImplementation("org.json:json:20240303")

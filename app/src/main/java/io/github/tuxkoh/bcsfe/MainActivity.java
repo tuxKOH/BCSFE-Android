@@ -135,7 +135,23 @@ public final class MainActivity extends AppCompatActivity {
         String notes=release.body==null?"":release.body.trim();
         if(notes.isEmpty())notes=getString(R.string.update_notes_unavailable);
         if(notes.length()>6000)notes=notes.substring(0,6000)+"\n…";
-        new AlertDialog.Builder(this).setTitle(R.string.update_available).setMessage(getString(R.string.update_available_message,BuildConfig.VERSION_NAME,release.version,notes)).setNegativeButton(R.string.close,null).setPositiveButton(R.string.view_release,(dialog,which)->{try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(release.pageUrl)));}catch(Exception error){Toast.makeText(this,R.string.open_release_failed,Toast.LENGTH_LONG).show();}}).show();
+        io.noties.markwon.Markwon markdown = io.noties.markwon.Markwon.builder(this)
+                .usePlugin(new io.noties.markwon.AbstractMarkwonPlugin() {
+                    @Override public void configureConfiguration(io.noties.markwon.MarkwonConfiguration.Builder builder) {
+                        builder.linkResolver((view,link)->{
+                            Uri uri=Uri.parse(link);
+                            if(!"https".equalsIgnoreCase(uri.getScheme())&&!"http".equalsIgnoreCase(uri.getScheme()))return;
+                            try{startActivity(new Intent(Intent.ACTION_VIEW,uri));}
+                            catch(ActivityNotFoundException error){Toast.makeText(MainActivity.this,R.string.open_release_failed,Toast.LENGTH_LONG).show();}
+                        });
+                    }
+                }).build();
+        android.text.SpannableStringBuilder message = new android.text.SpannableStringBuilder(
+                getString(R.string.update_available_message,BuildConfig.VERSION_NAME,release.version,""));
+        message.append(markdown.toMarkdown(notes));
+        AlertDialog update = new AlertDialog.Builder(this).setTitle(R.string.update_available).setMessage(message).setNegativeButton(R.string.close,null).setPositiveButton(R.string.view_release,(dialog,which)->{try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(release.pageUrl)));}catch(Exception error){Toast.makeText(this,R.string.open_release_failed,Toast.LENGTH_LONG).show();}}).show();
+        TextView updateMessage=update.findViewById(android.R.id.message);
+        if(updateMessage!=null)updateMessage.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
     }
 
     @Override protected void onNewIntent(Intent intent){super.onNewIntent(intent);setIntent(intent);handleSharedIntent(intent);}
@@ -899,7 +915,7 @@ public final class MainActivity extends AppCompatActivity {
         String[] actions = forms ? getResources().getStringArray(R.array.form_actions) : getResources().getStringArray(R.array.cat_actions);
         new AlertDialog.Builder(this).setTitle(forms ? R.string.forms_title : R.string.cats_title).setItems(actions,(d,index)->{
             try {
-                if (!forms) { if(index==0) document.unlockAllCats(); else if(index==1)document.removeAllCats();else {confirmCatReset(-1);return;} }
+                if (!forms) { if(index==0) {confirmUnlockAllCats();return;} else if(index==1)document.removeAllCats();else {confirmCatReset(-1);return;} }
                 else if(index==0)document.unlockTrueForms();else if(index==1)document.forceTrueForms();else if(index==2)document.removeTrueForms();else if(index==3)document.unlockFourthForms();else if(index==4)document.forceFourthForms();else document.removeFourthForms();
                 workingCopy=document.toBytes(); persistSession(); Toast.makeText(this,R.string.edit_applied,Toast.LENGTH_SHORT).show();
             } catch (UnsupportedOperationException e) { unsupportedVersion(); }
@@ -908,10 +924,14 @@ public final class MainActivity extends AppCompatActivity {
     private void editCats() {
         if(!document.hasCatProfile()){unsupportedVersion();return;}
         String[] actions=getResources().getStringArray(R.array.cat_editor_actions);
-        new AlertDialog.Builder(this).setTitle(R.string.cats_title).setItems(actions,(d,index)->{
+        android.text.SpannableString danger = new android.text.SpannableString(actions[2]);
+        danger.setSpan(new android.text.style.ForegroundColorSpan(android.graphics.Color.rgb(186, 26, 26)),0,danger.length(),0);
+        CharSequence[] styled = java.util.Arrays.copyOf(actions,actions.length,CharSequence[].class);
+        styled[2] = danger;
+        new AlertDialog.Builder(this).setTitle(R.string.cats_title).setItems(styled,(d,index)->{
             if(index==0) editCatById();
             else if(index==1)documentAction(document::unlockAllObtainableCats);
-            else if(index==2)documentAction(document::unlockAllCats);
+            else if(index==2)confirmUnlockAllCats();
             else if(index==3)documentAction(document::removeAllCats);
             else if(index==4)editNumberText(getString(R.string.all_cat_base_level),1,document::setAllCatBaseLevels,false);
             else if(index==5)editNumberText(getString(R.string.all_cat_plus_level),0,document::setAllCatPlusLevels,false);
@@ -919,17 +939,183 @@ public final class MainActivity extends AppCompatActivity {
         }).setNegativeButton(R.string.close,null).show();
     }
     private void editCatById() {
-        requestIndex(R.string.cat_id_label,document.catCount(),index->{
+        String[] names = getResources().getStringArray(switch(document.region()) {
+            case EN -> R.array.cat_names_en;
+            case JP -> R.array.cat_names_jp;
+            case KR -> R.array.cat_names_kr;
+            case TW -> R.array.cat_names_tw;
+        });
+        LinearLayout body = new LinearLayout(this);
+        body.setOrientation(LinearLayout.VERTICAL);
+        body.setPadding(dp(24),dp(8),dp(24),0);
+        int[] stage = {0};
+        boolean[] hideAbnormal = {false};
+        boolean[] rarities = {true,true,true,true,true,true};
+        EditText search = new EditText(this);
+        search.setSingleLine(true);
+        search.setHint(R.string.cat_search_hint);
+        body.addView(search,new LinearLayout.LayoutParams(-1,dp(52)));
+        ListView list = new ListView(this);
+        body.addView(list,new LinearLayout.LayoutParams(-1,0,1));
+        TextView empty = new TextView(this);
+        empty.setText(R.string.cat_search_empty);
+        body.addView(empty);
+        list.setEmptyView(empty);
+        ArrayList<Integer> ids = new ArrayList<>();
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,new ArrayList<>());
+        list.setAdapter(adapter);
+        int count = document.catCount();
+        String[] searchable = new String[count];
+        String[][] forms = new String[count][];
+        for(int id=0;id<count;id++) forms[id]=(id<names.length?names[id]:"").split(" / ",-1);
+        for(int id=0;id<count;id++) searchable[id]=normalizeSearch(id<names.length?names[id]:"");
+        Runnable filter = () -> {
+            String query = normalizeSearch(search.getText().toString());
+            boolean numericQuery = query.matches("[0-9]+");
+            String normalizedId = numericQuery ? query.replaceFirst("^0+(?!$)","") : "";
+            adapter.setNotifyOnChange(false);
+            ids.clear(); adapter.clear();
+            for(int id=0;id<count;id++) {
+                boolean abnormal = searchable[id].replace(" / ","").trim().isEmpty();
+                if(hideAbnormal[0] && abnormal) continue;
+                if(stage[0]>=forms[id].length || forms[id][stage[0]].isEmpty()) {
+                    if(!abnormal || stage[0]!=0) continue;
+                }
+                int rarity = document.catRarity(id);
+                boolean allRarities = true;
+                for(boolean enabled:rarities) allRarities &= enabled;
+                if(!allRarities && (rarity<0 || rarity>=rarities.length || !rarities[rarity])) continue;
+                String name = abnormal?getString(R.string.cat_abnormal):forms[id][stage[0]];
+                if(!query.isEmpty() && !(numericQuery ? Integer.toString(id).equals(normalizedId) : searchable[id].contains(query))) continue;
+                ids.add(id);
+                CharSequence display = getString(R.string.cat_named_row,name,id);
+                if(abnormal) {
+                    android.text.SpannableString red = new android.text.SpannableString(display);
+                    red.setSpan(new android.text.style.ForegroundColorSpan(android.graphics.Color.rgb(186,26,26)),0,red.length(),0);
+                    display = red;
+                }
+                adapter.add(display);
+            }
+            adapter.notifyDataSetChanged();
+        };
+        search.addTextChangedListener(new TextWatcher() {
+            public void beforeTextChanged(CharSequence s,int start,int count,int after) {}
+            public void onTextChanged(CharSequence s,int start,int before,int count) {filter.run();}
+            public void afterTextChanged(Editable s) {}
+        });
+        LinearLayout header = new LinearLayout(this);
+        header.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        header.setPadding(dp(24),dp(16),dp(16),0);
+        TextView title = new TextView(this);
+        title.setText(R.string.cat_picker_title);
+        title.setTextSize(20);
+        header.addView(title,new LinearLayout.LayoutParams(0,-2,1));
+        MaterialButton filters = new MaterialButton(this);
+        filters.setIconResource(android.R.drawable.ic_menu_sort_by_size);
+        filters.setIconTint(android.content.res.ColorStateList.valueOf(getColor(R.color.primary)));
+        filters.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getColor(R.color.surface_tint)));
+        filters.setIconGravity(MaterialButton.ICON_GRAVITY_TEXT_START);
+        filters.setIconPadding(0);
+        filters.setIconSize(dp(24));
+        filters.setPadding(dp(12),0,dp(12),0);
+        filters.setInsetTop(0);
+        filters.setInsetBottom(0);
+        filters.setCornerRadius(dp(16));
+        filters.setContentDescription(getString(R.string.cat_filters));
+        androidx.core.view.ViewCompat.setTooltipText(filters,getString(R.string.cat_filters));
+        header.addView(filters,new LinearLayout.LayoutParams(dp(48),dp(48)));
+        filters.setOnClickListener(v->{
+            LinearLayout options = new LinearLayout(this);
+            options.setOrientation(LinearLayout.VERTICAL);
+            options.setPadding(dp(24),dp(8),dp(24),0);
+            com.google.android.material.button.MaterialButtonToggleGroup stages = new com.google.android.material.button.MaterialButtonToggleGroup(this);
+            stages.setSingleSelection(true);
+            stages.setSelectionRequired(true);
+            int[] stageIds = new int[4];
+            for(int i=0;i<4;i++) {
+                MaterialButton segment = new MaterialButton(this);
+                stageIds[i]=View.generateViewId();
+                segment.setId(stageIds[i]);
+                segment.setText(getString(R.string.cat_filter_stage_short,i+1));
+                segment.setContentDescription(getString(R.string.cat_filter_stage,i+1));
+                segment.setTextSize(14);
+                segment.setSingleLine(true);
+                segment.setMinWidth(0);
+                segment.setMinimumWidth(0);
+                segment.setPadding(0,0,0,0);
+                segment.setInsetTop(0);
+                segment.setInsetBottom(0);
+                segment.setCornerRadius(dp(16));
+                segment.setStrokeWidth(dp(1));
+                segment.setStrokeColor(android.content.res.ColorStateList.valueOf(getColor(R.color.divider)));
+                segment.setBackgroundTintList(androidx.appcompat.content.res.AppCompatResources.getColorStateList(this,R.color.cat_segment_background));
+                segment.setTextColor(androidx.appcompat.content.res.AppCompatResources.getColorStateList(this,R.color.cat_segment_text));
+                stages.addView(segment,new LinearLayout.LayoutParams(0,dp(48),1));
+            }
+            options.addView(stages,new LinearLayout.LayoutParams(-1,dp(48)));
+            stages.check(stageIds[stage[0]]);
+            stages.addOnButtonCheckedListener((group,checkedId,checked)->{
+                if(!checked)return;
+                for(int i=0;i<stageIds.length;i++)if(stageIds[i]==checkedId){stage[0]=i;filter.run();break;}
+            });
+            com.google.android.material.materialswitch.MaterialSwitch abnormal = new com.google.android.material.materialswitch.MaterialSwitch(this);
+            abnormal.setTrackTintList(androidx.appcompat.content.res.AppCompatResources.getColorStateList(this,R.color.cat_segment_background));
+            abnormal.setThumbTintList(androidx.appcompat.content.res.AppCompatResources.getColorStateList(this,R.color.cat_segment_text));
+            abnormal.setTrackDecorationTintList(android.content.res.ColorStateList.valueOf(getColor(R.color.divider)));
+            abnormal.setTextColor(getColor(R.color.ink));
+            abnormal.setText(R.string.cat_filter_abnormal);
+            abnormal.setChecked(hideAbnormal[0]);
+            LinearLayout.LayoutParams switchParams = new LinearLayout.LayoutParams(-1,dp(64));
+            switchParams.topMargin=dp(12);
+            options.addView(abnormal,switchParams);
+            abnormal.setOnCheckedChangeListener((button,checked)->{hideAbnormal[0]=checked;filter.run();});
+            TextView rarityTitle = new TextView(this);
+            rarityTitle.setText(R.string.cat_filter_rarity);
+            rarityTitle.setTextColor(getColor(R.color.muted));
+            rarityTitle.setPadding(0,dp(12),0,dp(8));
+            options.addView(rarityTitle);
+            String[] labels = getResources().getStringArray(R.array.cat_filter_rarities);
+            for(int i=0;i<rarities.length;i++) {
+                final int index=i;
+                com.google.android.material.checkbox.MaterialCheckBox rarity = new com.google.android.material.checkbox.MaterialCheckBox(this);
+                rarity.setUseMaterialThemeColors(true);
+                rarity.setTextColor(getColor(R.color.ink));
+                rarity.setText(labels[i]);
+                rarity.setChecked(rarities[i]);
+                options.addView(rarity,new LinearLayout.LayoutParams(-1,dp(48)));
+                rarity.setOnCheckedChangeListener((button,checked)->{rarities[index]=checked;filter.run();});
+            }
+            android.widget.ScrollView scroll = new android.widget.ScrollView(this);
+            scroll.addView(options);
+            new AlertDialog.Builder(this).setTitle(R.string.cat_filters).setView(scroll).setPositiveButton(R.string.close,null).show();
+        });
+        AlertDialog picker = new AlertDialog.Builder(this).setCustomTitle(header).setView(body).setNegativeButton(R.string.close,null).create();
+        list.setOnItemClickListener((parent,view,position,id)->{
+            int selected=ids.get(position);
+            String selectedName = stage[0]<forms[selected].length ? forms[selected][stage[0]] : "";
+            String editorTitle = getString(R.string.cat_named_title,selectedName.isEmpty()?getString(R.string.cat_abnormal):selectedName,selected);
+            picker.dismiss();
+            runFieldAction(()->editIndividualCat(selected,editorTitle));
+        });
+        filter.run();
+        picker.show();
+        picker.getWindow().setLayout(-1,(int)(getResources().getDisplayMetrics().heightPixels*0.8f));
+        picker.getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+    }
+    private void confirmUnlockAllCats() {
+        new AlertDialog.Builder(this).setTitle(R.string.cats_title).setMessage(R.string.unlock_all_cats_warning)
+                .setNegativeButton(R.string.close,null).setPositiveButton(R.string.execute_anyway,(d,w)->runFieldAction(()->documentAction(document::unlockAllCats))).show();
+    }
+    private void editIndividualCat(int index,String title) {
             int[] values={document.catBaseLevel(index),document.catPlusLevel(index)};
             String[] labels=getResources().getStringArray(R.array.cat_detail_labels);
             String[] rows={labels[0]+": "+(document.catUnlocked(index)?getString(R.string.yes):getString(R.string.no)),labels[1]+": "+values[0],labels[2]+": "+values[1],getString(R.string.cat_current_form_label,document.catCurrentForm(index)),labels[3]};
-            new AlertDialog.Builder(this).setTitle(getString(R.string.cat_number,index)).setItems(rows,(d,item)->{
+            new AlertDialog.Builder(this).setTitle(title).setItems(rows,(d,item)->{
                 if(item==0){document.setCatUnlocked(index,!document.catUnlocked(index));persistApplied();}
                 else if(item==1)editNumberText(labels[1],values[0],v->document.setCatBaseLevel(index,v),false);
                 else if(item==2)editNumberText(labels[2],values[1],v->document.setCatPlusLevel(index,v),false);
                 else if(item==3)chooseCatCurrentForm(index); else confirmCatReset(index);
             }).setNegativeButton(R.string.close,null).show();
-        });
     }
     private void chooseCatCurrentForm(int cat) {
         String[] forms=getResources().getStringArray(R.array.cat_form_stages);
