@@ -2248,19 +2248,14 @@ public final class SaveDocument {
         catfruitCount = recoverCountAnchor(catfruitCount, 29, 32768, 0, 3);
         fourthCount = recoverCountAnchor(fourthCount, count, 32768, 0, 4);
         eyesUsedCount = recoverCountAnchor(eyesUsedCount, count, 32768, 0, 5);
-        eyesCount = recoverCatseyesCountAnchor(eyesCount);
-        // Upstream reads catseyes and then immediately reads catamins as two
-        // consecutive int lists.  Catamins is not guaranteed to contain
-        // exactly three records (the list follows the region's item table),
-        // so derive its count word from the recovered catseye list instead of
-        // searching for a coincidental integer equal to 3.
-        aminsCount = eyesCount + 4 + 6 * 4;
-        // Upstream serializes: catfruit int-list, fourth-form int-list,
-        // catseyes-used int-list.  Received saves can move this whole suffix
-        // far beyond the template estimate; derive the two adjacent lists
-        // from the already validated catfruit anchor before falling back to
-        // a blind structural search.
+        // The upstream reader consumes these lists in one uninterrupted
+        // sequence: catfruit, fourth forms, catseyes-used, catseyes, then
+        // catamins.  Prefer that exact chain over independent "nearest count"
+        // searches.  A real save can contain many unrelated sixes and runs of
+        // values in the valid item range; choosing one of those candidates
+        // silently displays the wrong Catseye inventory.
         int sequentialFourth = catfruitCount + 4 + 29 * 4;
+        boolean sequentialEyesValid = false;
         if (safeIntAt(sequentialFourth) == count
                 && validCatList(sequentialFourth + 4, count, 4)) {
             fourthCount = sequentialFourth;
@@ -2268,7 +2263,28 @@ public final class SaveDocument {
             if (safeIntAt(sequentialEyesUsed) == count
                     && validCatList(sequentialEyesUsed + 4, count, 5)) {
                 eyesUsedCount = sequentialEyesUsed;
+                int sequentialEyes = sequentialEyesUsed + 4 + count * 4;
+                if (safeIntAt(sequentialEyes) == 6
+                        && validCatList(sequentialEyes + 4, 6, 6)) {
+                    int sequentialAmins = sequentialEyes + 4 + 6 * 4;
+                    if (validCataminList(sequentialAmins)) {
+                        eyesCount = sequentialEyes;
+                        aminsCount = sequentialAmins;
+                        sequentialEyesValid = true;
+                    }
+                }
             }
+        }
+        if (!sequentialEyesValid) {
+            // Keep the structural fallback for older/irregular profiles, but
+            // only use it when the canonical serialized chain is unavailable.
+            eyesCount = recoverCatseyesCountAnchor(eyesCount);
+            // Upstream reads catseyes and then immediately reads catamins as
+            // two consecutive int lists.  Catamins is not guaranteed to
+            // contain exactly three records, so derive its count from the
+            // recovered catseye list instead of searching for a coincidental
+            // integer equal to 3.
+            aminsCount = eyesCount + 4 + 6 * 4;
         }
         boolean formsValid = intAt(formsCount) == count
                 && validCatList(formsCount + 4, count, 1);

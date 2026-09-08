@@ -137,6 +137,16 @@ public class SaveDocumentTest {
         assertTrue(reopened.checksumValid());
     }
 
+    @Test public void catseyeEditUsesTheSerializedListAndRemainsParsable() throws Exception {
+        byte[] source = java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
+        SaveDocument document = SaveDocument.open(source);
+        int[] expected = {101, 202, 303, 404, 505, 606};
+        for (int i = 0; i < expected.length; i++) document.setCatseye(i, expected[i]);
+        SaveDocument reopened = SaveDocument.open(document.toBytes());
+        assertArrayEquals(expected, reopened.catseyes());
+        assertTrue(reopened.checksumValid());
+    }
+
     @Test public void legacySyntheticVariableCatProfilesKeepBattleItemsEditable() throws Exception {
         String[] names={"synthetic-800.save","synthetic-860.save","synthetic-862.save",
                 "synthetic-jp-800.save","synthetic-jp-860.save","synthetic-jp-862.save"};
