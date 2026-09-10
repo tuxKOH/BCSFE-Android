@@ -3713,4 +3713,20 @@
         <item>""</item>
     </string-array>
     <!-- END GENERATED CAT NAMES -->
+    <string name="transfer_help_get">\? How do I get transfer codes?</string>
+    <string name="transfer_help_use">\? How do I use transfer codes?</string>
+    <string name="transfer_intro">Tap “Receive save with transfer codes” to start editing The Battle Cats!</string>
+    <string-array name="transfer_help_get_steps">
+        <item>Open Options on the game title screen, then choose Account / Data Transfer.</item>
+        <item>Choose the device change / data transfer procedure.</item>
+        <item>Choose to transfer game data out of this device.</item>
+        <item>Read the game notice and upload the save to generate transfer codes. Keep the game online until it finishes.</item>
+        <item>Keep both the transfer code and confirmation code private. Return to BCSFE, enter both codes, select the matching game region, then receive the save.</item>
+    </string-array>
+    <string-array name="transfer_help_use_steps">
+        <item>Keep the new codes shown by BCSFE. Open Options on the game title screen, then choose Account / Data Transfer.</item>
+        <item>Choose the device change / data transfer procedure.</item>
+        <item>Choose to receive existing game data on this device.</item>
+        <item>Enter the new transfer code and confirmation code from BCSFE, then start the transfer. Use the matching game region and wait for the game to finish.</item>
+    </string-array>
 </resources>

@@ -3713,4 +3713,20 @@
         <item>""</item>
     </string-array>
     <!-- END GENERATED CAT NAMES -->
+    <string name="transfer_help_get">\? 如何获得转移码？</string>
+    <string name="transfer_help_use">\? 如何使用转移码？</string>
+    <string name="transfer_intro">点击“使用转移码接收存档”来开始修改猫战！</string>
+    <string-array name="transfer_help_get_steps">
+        <item>在游戏标题画面打开“选项”，进入“账号／机种变更”。</item>
+        <item>选择“机种变更手续”，进入游戏资料转移菜单。</item>
+        <item>选择将此装置的游戏资料转出，进入转移码转出界面。</item>
+        <item>阅读游戏提示并上传存档，生成转移码。保持网络连接，等待上传完成。</item>
+        <item>妥善保存转移号码和认证号码，不要公开。回到 BCSFE，填写转移码和确认码，选择对应游戏地区，接收存档。</item>
+    </string-array>
+    <string-array name="transfer_help_use_steps">
+        <item>保存 BCSFE 上传完成后显示的新号码。在游戏标题画面打开“选项”，进入“账号／机种变更”。</item>
+        <item>选择“机种变更手续”，进入游戏资料转移菜单。</item>
+        <item>选择“在此装置接收旧游戏资料”，进入使用转移码界面。</item>
+        <item>输入 BCSFE 生成的新转移号码和认证号码，点击“开始转移”。请使用对应地区的游戏，并等待接收完成。</item>
+    </string-array>
 </resources>

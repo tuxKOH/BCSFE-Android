@@ -162,6 +162,7 @@ public final class MainActivity extends AppCompatActivity {
         View view = inflate(R.layout.screen_home);
         view.findViewById(R.id.openButton).setOnClickListener(v -> openDocument.launch(new String[]{"*/*"}));
         view.findViewById(R.id.receiveButton).setOnClickListener(v -> receiveTransfer());
+        view.findViewById(R.id.receiveButton).post(()->TransferHelp.showIntro(this,view.findViewById(R.id.receiveButton)));
         view.findViewById(R.id.createSaveButton).setOnClickListener(v -> chooseNewSaveRegion());
         rootLoadButton = view.findViewById(R.id.rootLoadButton);
         updateRootButton(rootLoadButton);
@@ -598,6 +599,10 @@ public final class MainActivity extends AppCompatActivity {
         String language=getResources().getConfiguration().getLocales().get(0).getLanguage();
         region.setSelection(language.equals("zh")?2:language.equals("ja")?1:language.equals("ko")?3:0);
         form.addView(transfer); form.addView(pin); form.addView(regionLabel); form.addView(region);
+        MaterialButton help = new MaterialButton(this,null,com.google.android.material.R.attr.borderlessButtonStyle);
+        help.setText(R.string.transfer_help_get);
+        help.setOnClickListener(v->TransferHelp.show(this,false));
+        form.addView(help);
         new AlertDialog.Builder(this).setTitle(R.string.receive_transfer).setView(form).setNegativeButton(R.string.close, null)
                 .setPositiveButton(R.string.receive_transfer, (dialog, which) -> {
                     Toast.makeText(this, R.string.receiving, Toast.LENGTH_SHORT).show();
@@ -745,8 +750,11 @@ public final class MainActivity extends AppCompatActivity {
     private void runAfterMinimumDelay(long startedAt,long minimumDelayMillis,Runnable action){long elapsed=android.os.SystemClock.elapsedRealtime()-startedAt;content.postDelayed(action,Math.max(0,minimumDelayMillis-elapsed));}
     private void showTransferCodes(TransferClient.UploadResult result) {
         String text=getString(R.string.transfer_result,result.transferCode,result.pin);
-        new AlertDialog.Builder(this).setTitle(R.string.upload_success).setMessage(text).setNegativeButton(R.string.close,null)
-                .setPositiveButton(R.string.copy_codes,(d,w)->{((android.content.ClipboardManager)getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(android.content.ClipData.newPlainText(getString(R.string.upload_success),text));}).show();
+        AlertDialog codes = new AlertDialog.Builder(this).setTitle(R.string.upload_success).setMessage(text).setNegativeButton(R.string.close,null)
+                .setNeutralButton(R.string.transfer_help_use,null)
+                .setPositiveButton(R.string.copy_codes,(d,w)->{((android.content.ClipboardManager)getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(android.content.ClipData.newPlainText(getString(R.string.upload_success),text));}).create();
+        codes.show();
+        codes.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v->TransferHelp.show(this,true));
     }
     private void editSaveManagement() { String[] actions=getResources().getStringArray(R.array.save_management_actions);new AlertDialog.Builder(this).setTitle(R.string.save_management_title).setItems(actions,(d,i)->{if(i==0)launchCreateDocument("EDITED_"+(openedName==null?"SAVE_DATA":openedName));else if(i==1)confirmUpload();else confirmExit();}).setNegativeButton(R.string.close,null).show(); }
     private void editRegion() { SaveDocument.Region[] regions=SaveDocument.Region.values();String[] names=getResources().getStringArray(R.array.transfer_regions);String[] labels=new String[regions.length];for(int i=0;i<labels.length;i++)labels[i]=(i<names.length?names[i]:regions[i].code().toUpperCase(Locale.ROOT))+(regions[i]==document.region()?getString(R.string.current_suffix):"");new AlertDialog.Builder(this).setTitle(R.string.convert_region_title).setItems(labels,(d,i)->new AlertDialog.Builder(this).setTitle(R.string.convert_region_title).setMessage(R.string.convert_region_warning).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(x,w)->convertRegion(regions[i])).show()).show(); }
