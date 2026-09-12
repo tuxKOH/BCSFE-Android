@@ -749,15 +749,16 @@ public class SaveDocumentTest {
         assertEquals(20,GameDataRules.catMaxBase(0));assertEquals(90,GameDataRules.catMaxPlus(0));
         assertEquals(50,GameDataRules.catMaxBase(9));assertEquals(0,GameDataRules.catMaxPlus(9));
         assertEquals(60,GameDataRules.catMaxBase(872));assertEquals(70,GameDataRules.catMaxPlus(872));
-        document.setCatBaseLevel(0,20);document.setCatPlusLevel(0,90);
-        assertThrows(IllegalArgumentException.class,()->document.setCatBaseLevel(0,21));
-        assertThrows(IllegalArgumentException.class,()->document.setCatPlusLevel(9,1));
-        document.setAllCatBaseLevels(60);document.setAllCatPlusLevels(90);
-        assertEquals(20,document.catBaseLevel(0));assertEquals(90,document.catPlusLevel(0));
-        assertEquals(50,document.catBaseLevel(9));assertEquals(0,document.catPlusLevel(9));
-        assertEquals(60,document.catBaseLevel(872));assertEquals(70,document.catPlusLevel(872));
-        assertThrows(IllegalArgumentException.class,()->document.setAllCatBaseLevels(61));
-        assertThrows(IllegalArgumentException.class,()->document.setAllCatPlusLevels(91));
+        document.setCatBaseLevel(0,60);document.setCatPlusLevel(0,70);
+        document.setCatBaseLevel(9,61);document.setCatPlusLevel(9,71);
+        assertEquals(60,document.catBaseLevel(0));assertEquals(70,document.catPlusLevel(0));
+        assertEquals(61,document.catBaseLevel(9));assertEquals(71,document.catPlusLevel(9));
+        document.setAllCatBaseLevels(61);document.setAllCatPlusLevels(71);
+        assertEquals(61,document.catBaseLevel(0));assertEquals(71,document.catPlusLevel(0));
+        assertEquals(61,document.catBaseLevel(9));assertEquals(71,document.catPlusLevel(9));
+        assertEquals(61,document.catBaseLevel(872));assertEquals(71,document.catPlusLevel(872));
+        assertThrows(IllegalArgumentException.class,()->document.setAllCatBaseLevels(65537));
+        assertThrows(IllegalArgumentException.class,()->document.setAllCatPlusLevels(65536));
         assertTrue(document.checksumValid());
     }
 

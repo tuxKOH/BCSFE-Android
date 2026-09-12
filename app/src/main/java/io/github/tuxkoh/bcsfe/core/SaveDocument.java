@@ -740,11 +740,15 @@ public final class SaveDocument {
     public boolean catGuideCollected(int index) { checkCat(index); return byteAt(catLayout().guideStart+index)!=0; }
     public void setCatBaseLevel(int index,int value) {
         checkCat(index);
-        if(value<1||value>GameDataRules.catMaxBase(index))throw new IllegalArgumentException("Invalid cat base level");
-        applyCatBaseUpgrade(index,value,true);
+        checkDisplayedLevel(value);
+        if(value<=GameDataRules.catMaxBase(index))applyCatBaseUpgrade(index,value,true);
+        else {
+            unlockCatForUpgrade(index);
+            putShort(catLayout().upgradeStart+index*4+2,value-1);
+        }
         refreshHash();
     }
-    public void setCatPlusLevel(int index,int value) { checkCat(index);if(value<0||value>GameDataRules.catMaxPlus(index))throw new IllegalArgumentException("Invalid cat plus level");unlockCatForPlusUpgrade(index);putShort(catLayout().upgradeStart+index*4,value);refreshHash(); }
+    public void setCatPlusLevel(int index,int value) { checkCatLevel(index,value);unlockCatForPlusUpgrade(index);putShort(catLayout().upgradeStart+index*4,value);refreshHash(); }
     public void setCatUnlocked(int index,boolean value) { checkCat(index);if(value)unlockCatRaw(index);else putInt(catLayout().unlockedStart+index*4,0);refreshHash(); }
     public void setCatCurrentForm(int index,int value) {
         checkCat(index);
@@ -829,10 +833,14 @@ public final class SaveDocument {
     }
     public void setAllCatBaseLevels(int value) {
         ensureCatProfile();
-        if (value < 1 || value > 60) throw new IllegalArgumentException("Invalid cat base level");
+        checkDisplayedLevel(value);
         for (int i = 0; i < catCount(); i++) {
             if (!catUnlocked(i)) continue;
-            applyCatBaseUpgrade(i,Math.min(value,GameDataRules.catMaxBase(i)),false);
+            if(value<=GameDataRules.catMaxBase(i))applyCatBaseUpgrade(i,value,false);
+            else {
+                unlockCatForUpgrade(i);
+                putShort(catLayout().upgradeStart+i*4+2,value-1);
+            }
             // The upstream multi-cat editor constructs Upgrade(0, target)
             // and passes it to Cat.set_upgrade(..., only_plus=True).  The
             // zero plus component is therefore written for every selected
@@ -908,7 +916,7 @@ public final class SaveDocument {
             bytes[co] = (byte)catseyes; bytes[co + 1] = (byte)(catseyes >>> 8);
             bytes[co + 2] = (byte)(catseyes >>> 16); bytes[co + 3] = (byte)(catseyes >>> 24);
     }
-    public void setAllCatPlusLevels(int value) { ensureCatProfile();if(value<0||value>90)throw new IllegalArgumentException("Invalid cat plus level");CatLayout l=catLayout();for(int i=0;i<l.count;i++){if(!catUnlocked(i))continue;unlockCatForPlusUpgrade(i);putShort(l.upgradeStart+i*4,value);}refreshHash(); }
+    public void setAllCatPlusLevels(int value) { ensureCatProfile();checkLevel(value);CatLayout l=catLayout();for(int i=0;i<l.count;i++){if(!catUnlocked(i))continue;unlockCatForPlusUpgrade(i);putShort(l.upgradeStart+i*4,value);}refreshHash(); }
     public void maxAllCatTalents() {
         ensureItemProfile();
         int table=talentTableOffset(),records=intAt(table),offset=table+4;

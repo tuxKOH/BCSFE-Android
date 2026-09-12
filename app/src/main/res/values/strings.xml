@@ -54,7 +54,7 @@
     <string name="catfood_label">Cat Food</string>
     <string name="xp_label">XP</string>
     <string name="tutorial_label">Tutorial state</string>
-    <string name="invalid_number">Enter a valid number.</string><string name="value_out_of_range">Value is outside the allowed range.</string><string name="unsafe_value_warning">This value is outside the safe range (%1$d~%2$d) and may result in an account ban. Do you want to continue?</string><string name="execute_anyway">Continue</string>
+    <string name="invalid_number">Enter a valid number.</string><string name="value_out_of_range">Value is outside the allowed range.</string><string name="unsafe_value_warning">This value is outside the safe range (%1$d~%2$d) and may result in an account ban. Do you want to continue?</string><string name="unsafe_cat_level_warning">This value is outside the normal range (%1$d~%2$d). The excess level may disappear or return to the highest allowed level after entering the game. Do you want to continue?</string><string name="execute_anyway">Continue</string>
     <string name="tickets_title">Tickets</string>
     <string name="advanced_items_title">Advanced items</string>
     <string name="unsupported_save_version">This editor is not yet verified for the loaded save version.</string>

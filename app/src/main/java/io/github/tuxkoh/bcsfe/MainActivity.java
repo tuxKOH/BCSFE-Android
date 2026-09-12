@@ -21,7 +21,6 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.AdapterView;
 import android.webkit.WebChromeClient;
-import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -61,6 +60,8 @@ public final class MainActivity extends AppCompatActivity {
     /** Retained for local differential tests; disabled in distributed builds. */
     private static final boolean LOCAL_API_ENABLED = false;
     private static final String AD_LOG_TAG="BCSFE-Ad";
+    private static final String AD_BANNER_KEY="07ba53153a8f351bc72f09591c4df8d1";
+    private static final String AD_BANNER_SCRIPT_URL="https://www.highrevenueformat.com/07ba53153a8f351bc72f09591c4df8d1/invoke.js";
     private FrameLayout content;
     private TextView title;
     private byte[] workingCopy;
@@ -91,13 +92,6 @@ public final class MainActivity extends AppCompatActivity {
     private final Object apiDocumentLock = new Object();
     private LocalApiServer localApiServer;
     private byte[] apiInitialCopy;
-    private final class AdDiagnostics {
-        @JavascriptInterface public void clickListenerAdded(){android.util.Log.d(AD_LOG_TAG,"JS registered click listener");}
-        @JavascriptInterface public void touchListenerAdded(){android.util.Log.d(AD_LOG_TAG,"JS registered touch listener");}
-        @JavascriptInterface public void domClick(){android.util.Log.d(AD_LOG_TAG,"DOM click captured");}
-        @JavascriptInterface public void windowOpen(){android.util.Log.d(AD_LOG_TAG,"JS called window.open");}
-    }
-
     private enum Screen { HOME, EDITOR, ABOUT }
     private static final int[][] FEATURE_RANGES={{0,4},{4,12},{12,16},{16,23},{23,26},{26,28},{28,29},{29,31},{31,35}};
 
@@ -663,15 +657,16 @@ public final class MainActivity extends AppCompatActivity {
         adUploadInProgress=false;
         adScriptReady=false;
         adWindowCreated=false;
-        FrameLayout adContainer=new FrameLayout(this);adContainer.setMinimumHeight(dp(480));
-        WebView adView=createAdWebView(adContainer);adContainer.addView(adView,new FrameLayout.LayoutParams(-1,dp(480)));
+        int adHeight=Math.min(dp(680),(int)(getResources().getDisplayMetrics().heightPixels*.78f));
+        FrameLayout adContainer=new FrameLayout(this);adContainer.setMinimumHeight(adHeight);
+        WebView adView=createAdWebView(adContainer);adContainer.addView(adView,new FrameLayout.LayoutParams(-1,adHeight));
         AlertDialog dialog=new AlertDialog.Builder(this).setView(adContainer).setNegativeButton(R.string.close,null).create();dialog.setCanceledOnTouchOutside(false);final boolean[] uploadStarted={false};final float[] uploadBounds={0.45f,0.60f,1f,1f};
         adView.setOnTouchListener((view,event)->{float x=event.getX()/Math.max(1f,view.getWidth()),y=event.getY()/Math.max(1f,view.getHeight());if(inBounds(x,y,uploadBounds)&&event.getAction()==android.view.MotionEvent.ACTION_UP&&!uploadStarted[0]){if(!adScriptReady){android.util.Log.d(AD_LOG_TAG,"action ignored script-not-ready");return true;}android.util.Log.d(AD_LOG_TAG,"action touch released to WebView");adUploadInProgress=true;uploadStarted[0]=true;view.post(()->{android.util.Log.d(AD_LOG_TAG,"starting background action");boolean started=upload;if(upload)started=uploadAndShowTransferCodes(dialog::dismiss,8000);else started=writeCurrentSaveToGame(dialog::dismiss,8000);if(!started){uploadStarted[0]=false;adUploadInProgress=false;android.util.Log.d(AD_LOG_TAG,"action did not start");}});view.postDelayed(()->((WebView)view).evaluateJavascript("if(document.getElementById('ad-trigger'))document.documentElement.style.visibility='hidden'",null),150);}return false;});
         dialog.setOnDismissListener(d->{android.util.Log.d(AD_LOG_TAG,"dialog dismissed childCount="+adContainer.getChildCount());adUploadInProgress=false;adScriptReady=false;adWindowCreated=false;for(int i=0;i<adContainer.getChildCount();i++){View child=adContainer.getChildAt(i);if(child instanceof WebView){((WebView)child).stopLoading();((WebView)child).destroy();}}adContainer.removeAllViews();});
         dialog.show();
-        String scriptUrl=android.text.TextUtils.htmlEncode(BuildConfig.ADSTERRA_SCRIPT_URL),titleText=android.text.TextUtils.htmlEncode(getString(upload?R.string.upload_transfer:R.string.root_write_save)),messageText=android.text.TextUtils.htmlEncode(upload?getString(R.string.upload_warning_with_ad):getString(R.string.root_write_confirm,regionDisplay(document.region()))+"\n\n"+getString(R.string.root_ad_warning)),uploadText=android.text.TextUtils.htmlEncode(getString(upload?R.string.upload_confirm:R.string.root_ad_action)),closeText=android.text.TextUtils.htmlEncode(getString(R.string.close));
-        String diagnostics="<script>(function(){var a=EventTarget.prototype.addEventListener,o=window.open;EventTarget.prototype.addEventListener=function(t,l,x){if(t==='click')AdDiag.clickListenerAdded();else if(t==='touchstart'||t==='mousedown')AdDiag.touchListenerAdded();return a.call(this,t,l,x)};document.addEventListener('click',function(){AdDiag.domClick()},true);window.open=function(){AdDiag.windowOpen();return o.apply(window,arguments)}})()</script>";
-        String html="<!doctype html><html><head><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>html,body{width:100%;height:100%;margin:0;background:#fff;color:#202124;font-family:sans-serif}body{box-sizing:border-box;padding:28px;display:flex;flex-direction:column}h1{font-size:22px;margin:0 0 22px}p{font-size:16px;line-height:1.5;white-space:pre-line;margin:0;flex:1}.actions{display:flex;justify-content:flex-end;align-items:center;margin-top:24px}#ad-trigger{box-sizing:border-box;min-height:48px;padding:14px 20px;border-radius:6px;font-size:15px;font-weight:600;background:#1f5eff;color:#fff;cursor:pointer}#ad-trigger.disabled{opacity:.45}</style>"+diagnostics+"</head><body><h1>"+titleText+"</h1><p>"+messageText+"</p><div class=\"actions\"><div id=\"ad-trigger\" class=\"disabled\" role=\"button\" aria-disabled=\"true\">"+uploadText+"</div></div><script src=\""+scriptUrl+"\"></script></body></html>";
+        String scriptUrl=android.text.TextUtils.htmlEncode(BuildConfig.ADSTERRA_SCRIPT_URL),titleText=android.text.TextUtils.htmlEncode(getString(upload?R.string.upload_transfer:R.string.root_write_save)),messageText=android.text.TextUtils.htmlEncode(upload?getString(R.string.upload_warning_with_ad):getString(R.string.root_write_confirm,regionDisplay(document.region()))+"\n\n"+getString(R.string.root_ad_warning)),uploadText=android.text.TextUtils.htmlEncode(getString(upload?R.string.upload_confirm:R.string.root_ad_action));
+        String banner="<div class=\"banner\"><script>atOptions={key:'"+AD_BANNER_KEY+"',format:'iframe',height:60,width:468,params:{}};</script><script src=\""+AD_BANNER_SCRIPT_URL+"\"></script></div>";
+        String html="<!doctype html><html><head><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\"><style>html,body{width:100%;min-height:100%;margin:0;background:#fff;color:#202124;font-family:system-ui,sans-serif}body{box-sizing:border-box;padding:24px;overflow-y:auto}h1{font-size:22px;margin:0 0 18px}p{font-size:16px;line-height:1.5;white-space:pre-line;margin:0}.banner{width:468px;max-width:100%;height:60px;margin:22px auto;overflow:hidden}.actions{display:flex;justify-content:flex-end;align-items:center;margin-top:24px;padding-bottom:8px}#ad-trigger{box-sizing:border-box;min-height:48px;padding:14px 20px;border-radius:6px;font-size:15px;font-weight:600;background:#1f5eff;color:#fff;cursor:pointer}#ad-trigger.disabled{opacity:.45}</style></head><body><h1>"+titleText+"</h1><p>"+messageText+"</p>"+banner+"<div class=\"actions\"><div id=\"ad-trigger\" class=\"disabled\" role=\"button\" aria-disabled=\"true\">"+uploadText+"</div></div><script src=\""+scriptUrl+"\"></script></body></html>";
         adView.loadDataWithBaseURL("https://appassets.androidplatform.net/",html,"text/html","UTF-8",null);
         adView.postDelayed(()->readUploadBounds(adView,uploadBounds),500);
     }
@@ -690,9 +685,15 @@ public final class MainActivity extends AppCompatActivity {
             @Override public void onReceivedError(WebView view,WebResourceRequest request,WebResourceError error){android.util.Log.w(AD_LOG_TAG,"resource error main="+request.isForMainFrame()+" code="+error.getErrorCode()+" scheme="+safeScheme(request.getUrl().toString()));}
             @Override public void onReceivedHttpError(WebView view,WebResourceRequest request,WebResourceResponse response){android.util.Log.w(AD_LOG_TAG,"resource HTTP main="+request.isForMainFrame()+" status="+response.getStatusCode()+" scheme="+safeScheme(request.getUrl().toString()));}
         });
-        webView.addJavascriptInterface(new AdDiagnostics(),"AdDiag");
-        webView.getSettings().setJavaScriptEnabled(true);webView.getSettings().setDomStorageEnabled(true);webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);webView.getSettings().setSupportMultipleWindows(true);webView.getSettings().setAllowFileAccess(false);webView.getSettings().setAllowContentAccess(false);
-        webView.setWebChromeClient(new WebChromeClient(){@Override public boolean onCreateWindow(WebView view,boolean isDialog,boolean isUserGesture,android.os.Message resultMsg){android.util.Log.d(AD_LOG_TAG,"window requested userGesture="+isUserGesture);if(!isUserGesture||adWindowCreated){android.util.Log.d(AD_LOG_TAG,"window rejected");return false;}adWindowCreated=true;WebView popup=createAdWebView(container);popup.setAlpha(0f);container.addView(popup,new FrameLayout.LayoutParams(-1,dp(480)));WebView.WebViewTransport transport=(WebView.WebViewTransport)resultMsg.obj;transport.setWebView(popup);resultMsg.sendToTarget();return true;}});
+        android.webkit.CookieManager cookies=android.webkit.CookieManager.getInstance();
+        cookies.setAcceptCookie(true);cookies.setAcceptThirdPartyCookies(webView,true);
+        android.webkit.WebSettings settings=webView.getSettings();
+        settings.setJavaScriptEnabled(true);settings.setDomStorageEnabled(true);settings.setDatabaseEnabled(true);
+        settings.setCacheMode(android.webkit.WebSettings.LOAD_DEFAULT);settings.setLoadWithOverviewMode(false);settings.setUseWideViewPort(true);
+        settings.setJavaScriptCanOpenWindowsAutomatically(true);settings.setSupportMultipleWindows(true);
+        settings.setAllowFileAccess(false);settings.setAllowContentAccess(false);settings.setMediaPlaybackRequiresUserGesture(true);
+        if(android.os.Build.VERSION.SDK_INT>=android.os.Build.VERSION_CODES.O)settings.setSafeBrowsingEnabled(true);
+        webView.setWebChromeClient(new WebChromeClient(){@Override public boolean onCreateWindow(WebView view,boolean isDialog,boolean isUserGesture,android.os.Message resultMsg){android.util.Log.d(AD_LOG_TAG,"window requested userGesture="+isUserGesture);if(!isUserGesture||adWindowCreated){android.util.Log.d(AD_LOG_TAG,"window rejected");return false;}adWindowCreated=true;WebView popup=createAdWebView(container);popup.setAlpha(0f);container.addView(popup,new FrameLayout.LayoutParams(-1,container.getHeight()>0?container.getHeight():dp(480)));WebView.WebViewTransport transport=(WebView.WebViewTransport)resultMsg.obj;transport.setWebView(popup);resultMsg.sendToTarget();return true;}});
         return webView;
     }
     private void promoteAdPageIfReady(FrameLayout container,WebView candidate,String url){
@@ -941,8 +942,8 @@ public final class MainActivity extends AppCompatActivity {
             else if(index==1)documentAction(document::unlockAllObtainableCats);
             else if(index==2)confirmUnlockAllCats();
             else if(index==3)documentAction(document::removeAllCats);
-            else if(index==4)editNumberText(getString(R.string.all_cat_base_level),1,document::setAllCatBaseLevels,false);
-            else if(index==5)editNumberText(getString(R.string.all_cat_plus_level),0,document::setAllCatPlusLevels,false);
+            else if(index==4)editCatLevelText(getString(R.string.all_cat_base_level),1,document::setAllCatBaseLevels,1,60);
+            else if(index==5)editCatLevelText(getString(R.string.all_cat_plus_level),0,document::setAllCatPlusLevels,0,70);
             else confirmCatReset(-1);
         }).setNegativeButton(R.string.close,null).show();
     }
@@ -1120,8 +1121,8 @@ public final class MainActivity extends AppCompatActivity {
             String[] rows={labels[0]+": "+(document.catUnlocked(index)?getString(R.string.yes):getString(R.string.no)),labels[1]+": "+values[0],labels[2]+": "+values[1],getString(R.string.cat_current_form_label,document.catCurrentForm(index)),labels[3]};
             new AlertDialog.Builder(this).setTitle(title).setItems(rows,(d,item)->{
                 if(item==0){document.setCatUnlocked(index,!document.catUnlocked(index));persistApplied();}
-                else if(item==1)editNumberText(labels[1],values[0],v->document.setCatBaseLevel(index,v),false);
-                else if(item==2)editNumberText(labels[2],values[1],v->document.setCatPlusLevel(index,v),false);
+                else if(item==1)editCatLevelText(labels[1],values[0],v->document.setCatBaseLevel(index,v),1,60);
+                else if(item==2)editCatLevelText(labels[2],values[1],v->document.setCatPlusLevel(index,v),0,70);
                 else if(item==3)chooseCatCurrentForm(index); else confirmCatReset(index);
             }).setNegativeButton(R.string.close,null).show();
     }
@@ -1418,6 +1419,12 @@ public final class MainActivity extends AppCompatActivity {
         editNumberText(label, current, change, true);
     }
     private void editNumberText(String label, int current, NumberChange change, boolean safetyCheck) {
+        editNumberText(label,current,change,safetyCheck,unsafeMinimum(label),unsafeMaximum(label),false);
+    }
+    private void editCatLevelText(String label,int current,NumberChange change,int minimum,int maximum) {
+        editNumberText(label,current,change,true,minimum,maximum,true);
+    }
+    private void editNumberText(String label,int current,NumberChange change,boolean safetyCheck,int minimum,int maximum,boolean catLevel) {
         EditText field = new EditText(this); field.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_SIGNED); field.setText(String.valueOf(current));
         AlertDialog dialog = new AlertDialog.Builder(this).setTitle(label).setView(dialogInput(field)).setNegativeButton(R.string.close, null).setPositiveButton(android.R.string.ok, (window, which) -> {
             final int value;
@@ -1426,9 +1433,9 @@ public final class MainActivity extends AppCompatActivity {
             // Platinum Tickets are limited to 0..9), not a parser failure.
             // Do not create a diagnostic report containing save-byte context
             // for this expected validation path.
-            if (safetyCheck && unsafeEditorValue(label, value)) {
-                new AlertDialog.Builder(this).setMessage(getString(R.string.unsafe_value_warning,
-                                unsafeMinimum(label), unsafeMaximum(label)))
+            if (safetyCheck && (catLevel ? value>maximum : unsafeEditorValue(label,value))) {
+                int warning = catLevel ? R.string.unsafe_cat_level_warning : R.string.unsafe_value_warning;
+                new AlertDialog.Builder(this).setMessage(getString(warning,minimum,maximum))
                         .setNegativeButton(R.string.close, null)
                         .setPositiveButton(R.string.execute_anyway, (d, w) -> applyEditorValue(label, value, change))
                         .show();
@@ -1458,7 +1465,10 @@ public final class MainActivity extends AppCompatActivity {
         if (s.contains("plus level") || s.contains("加值等级")) return value > 10;
         return false;
     }
-    private int unsafeMinimum(String label) { return 0; }
+    private int unsafeMinimum(String label) {
+        String s=label.toLowerCase(java.util.Locale.ROOT);
+        return s.contains("base level")||s.contains("基础等级")?1:0;
+    }
     private int unsafeMaximum(String label) {
         String s = label.toLowerCase(java.util.Locale.ROOT);
         if (s.contains("platinum") || s.contains("白金")) return 9;

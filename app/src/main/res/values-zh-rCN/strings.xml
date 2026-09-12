@@ -54,7 +54,7 @@
     <string name="catfood_label">猫罐头</string>
     <string name="xp_label">经验值</string>
     <string name="tutorial_label">教学进度</string>
-    <string name="invalid_number">请输入有效数字。</string><string name="value_out_of_range">数值超出允许范围。</string><string name="unsafe_value_warning">此操作超出安全范围（%1$d~%2$d），可能导致封号，是否依然执行？</string><string name="execute_anyway">仍然执行</string>
+    <string name="invalid_number">请输入有效数字。</string><string name="value_out_of_range">数值超出允许范围。</string><string name="unsafe_value_warning">此操作超出安全范围（%1$d~%2$d），可能导致封号，是否依然执行？</string><string name="unsafe_cat_level_warning">此操作超出正常范围（%1$d~%2$d）。超出的等级进入游戏后可能消失，或回到游戏允许的最高等级。是否依然执行？</string><string name="execute_anyway">仍然执行</string>
     <string name="tickets_title">扭蛋券</string>
     <string name="advanced_items_title">进阶道具</string>
     <string name="unsupported_save_version">此编辑器尚未针对当前存档版本完成验证。</string>
