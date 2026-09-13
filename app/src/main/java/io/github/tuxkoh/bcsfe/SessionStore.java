@@ -99,6 +99,7 @@ final class SessionStore {
         if(id.equals(currentId())){List<Session> remaining=list();if(remaining.isEmpty())Files.deleteIfExists(currentFile.toPath());else setCurrent(remaining.get(0).id);}
     }
     synchronized void clear()throws IOException{String id=currentId();if(id!=null)delete(id);}
+    synchronized File debugFolder(String id)throws IOException{requireId(id);File folder=sessionFolder(id);if(!folder.isDirectory())throw new IOException("Unknown session");return folder;}
 
     private void migrateLegacy()throws IOException{
         File oldSave=new File(directory,"working-save.bin");if(!oldSave.isFile())return;

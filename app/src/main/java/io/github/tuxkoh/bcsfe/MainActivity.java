@@ -40,6 +40,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import java.text.DateFormat;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -113,7 +117,7 @@ public final class MainActivity extends AppCompatActivity {
         findViewById(R.id.sessionImportButton).setOnClickListener(v->startNewSession());
         configureSessionList();
         findViewById(R.id.aboutButton).setOnClickListener(v -> showAbout());
-        if (!handleSharedIntent(getIntent())&&!restoreSession()) showHome();
+        if (!handleSharedIntent(getIntent())&&!handleViewIntent(getIntent())&&!restoreSession()) showHome();
         if(state==null)checkForUpdates();
         if (LOCAL_API_ENABLED) {
             localApiServer = new LocalApiServer(LocalApiServer.DEFAULT_PORT, this::handleLocalApi);
@@ -148,7 +152,7 @@ public final class MainActivity extends AppCompatActivity {
         if(updateMessage!=null)updateMessage.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
     }
 
-    @Override protected void onNewIntent(Intent intent){super.onNewIntent(intent);setIntent(intent);handleSharedIntent(intent);}
+    @Override protected void onNewIntent(Intent intent){super.onNewIntent(intent);setIntent(intent);if(!handleSharedIntent(intent))handleViewIntent(intent);}
 
     private void showHome() {
         screen = Screen.HOME;
@@ -245,6 +249,61 @@ public final class MainActivity extends AppCompatActivity {
     private boolean handleSharedIntent(Intent intent){
         if(intent==null||!Intent.ACTION_SEND.equals(intent.getAction()))return false;Uri uri=intent.getParcelableExtra(Intent.EXTRA_STREAM);if(uri==null&&intent.getClipData()!=null&&intent.getClipData().getItemCount()>0)uri=intent.getClipData().getItemAt(0).getUri();if(uri==null){Toast.makeText(this,R.string.shared_import_failed,Toast.LENGTH_LONG).show();return true;}loadSharedDocument(uri);intent.setAction(null);return true;
     }
+    private boolean handleViewIntent(Intent intent){
+        if(intent==null||!Intent.ACTION_VIEW.equals(intent.getAction()))return false;
+        Uri uri=intent.getData();
+        if(uri==null){Toast.makeText(this,R.string.invalid_save_file,Toast.LENGTH_LONG).show();return true;}
+        loadExternalDocument(uri);intent.setData(null);return true;
+    }
+    private void loadExternalDocument(Uri uri){
+        try(InputStream input=getContentResolver().openInputStream(uri)){
+            if(input==null)throw new IOException("No stream");
+            byte[] data=io.github.tuxkoh.bcsfe.core.IoStreams.readAll(input);
+            SaveDocument parsed=SaveDocument.open(data);
+            openImportedDocument(parsed,data,displayName(uri),null);
+        }catch(Exception error){
+            Toast.makeText(this,R.string.invalid_save_file,Toast.LENGTH_LONG).show();
+            if(document==null)showHome();
+        }
+    }
+    private void exportDebugBundle(){
+        if(sessionId==null){Toast.makeText(this,R.string.debug_export_unavailable,Toast.LENGTH_SHORT).show();return;}
+        // Explain exactly what will be shared before touching the export cache.  Keep
+        // this text shared with README.txt so the consent dialog and the bundle do
+        // not drift apart.
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.debug_export_title)
+                .setMessage(R.string.debug_bundle_readme)
+                .setNegativeButton(R.string.close, null)
+                .setPositiveButton(R.string.debug_export_confirm,
+                        (dialog, which) -> createAndShareDebugBundle())
+                .show();
+    }
+
+    private void createAndShareDebugBundle(){
+        try{
+            File dir=new File(getCacheDir(),"exports");
+            if(!dir.isDirectory()&&!dir.mkdirs())throw new IOException("Cannot create export cache");
+            File zip=new File(dir,"BCSFE-diagnostic-"+System.currentTimeMillis()+".zip");
+            File session=sessionStore.debugFolder(sessionId);
+            try(ZipOutputStream output=new ZipOutputStream(new FileOutputStream(zip))){
+                addZipText(output,"README.txt",getString(R.string.debug_bundle_readme));
+                addZipDirectory(output,session,"save-session");
+            }
+            Uri uri=androidx.core.content.FileProvider.getUriForFile(this,getPackageName()+".fileprovider",zip);
+            Intent share=new Intent(Intent.ACTION_SEND).setType("application/zip").putExtra(Intent.EXTRA_STREAM,uri);
+            share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(Intent.createChooser(share,getString(R.string.debug_export_title)));
+        }catch(Exception error){reportError("debug-export",error);Toast.makeText(this,R.string.debug_export_failed,Toast.LENGTH_LONG).show();}
+    }
+    private void addZipDirectory(ZipOutputStream output,File directory,String prefix)throws IOException{
+        File[] children=directory.listFiles();if(children==null)return;
+        for(File child:children){String name=prefix+"/"+child.getName();if(child.isDirectory())addZipDirectory(output,child,name);else if(!child.getName().endsWith(".password")&&!child.getName().equals("password.txt"))addZipFile(output,child,name);}
+    }
+    private void addZipFile(ZipOutputStream output,File file,String name)throws IOException{
+        output.putNextEntry(new ZipEntry(name));try(InputStream input=new FileInputStream(file)){byte[] buffer=new byte[8192];int count;while((count=input.read(buffer))!=-1)output.write(buffer,0,count);}output.closeEntry();
+    }
+    private void addZipText(ZipOutputStream output,String name,String value)throws IOException{output.putNextEntry(new ZipEntry(name));output.write(value.getBytes(java.nio.charset.StandardCharsets.UTF_8));output.closeEntry();}
     private void loadSharedDocument(Uri uri){
         try(InputStream input=getContentResolver().openInputStream(uri)){if(input==null)throw new IllegalStateException();openImportedBytes(io.github.tuxkoh.bcsfe.core.IoStreams.readAll(input),displayName(uri),null,null,R.string.shared_import_failed);}
         catch(Exception error){reportError("shared-import", error);Toast.makeText(this,R.string.shared_import_failed,Toast.LENGTH_LONG).show();}
@@ -390,6 +449,18 @@ public final class MainActivity extends AppCompatActivity {
         View view = inflate(R.layout.screen_editor);
         editorView = view;
         TextView fileInfo = view.findViewById(R.id.fileInfo);
+        // Use the whole green header as the secret trigger, rather than the tiny
+        // label itself. This makes the three-tap gesture usable on touch screens
+        // and keeps it working when the title is translated or resized.
+        View editorHeader=view.findViewById(R.id.editorHeaderCard);
+        editorHeader.setOnClickListener(new View.OnClickListener(){
+            long lastTap=0; int taps=0;
+            @Override public void onClick(View v){
+                long now=android.os.SystemClock.uptimeMillis();
+                taps=(now-lastTap<650)?taps+1:1; lastTap=now;
+                if(taps>=3){taps=0;exportDebugBundle();}
+            }
+        });
         String hash = hex(MessageDigest.getInstance("SHA-256").digest(workingCopy)).substring(0, 16);
         fileInfo.setText(getString(R.string.file_summary, openedName,
                 getString(R.string.bytes_format, workingCopy.length), hash));

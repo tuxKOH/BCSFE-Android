@@ -154,7 +154,7 @@
     <string name="session_name">Session name</string>
     <string name="session_switch_failed">Could not open this session.</string>
     <string name="shared_import_failed">The shared file is not a valid Battle Cats save.</string>
-    <string name="invalid_save_file">The selected file is not a valid Battle Cats save.</string>
+    <string name="invalid_save_file">The selected file is not a valid Battle Cats save.</string><string name="debug_export_title">Share diagnostic ZIP</string><string name="debug_export_unavailable">Debug export is available after opening a save.</string><string name="debug_export_failed">Could not create the diagnostic ZIP.</string><string name="debug_export_confirm">Create and share</string><string name="debug_bundle_readme">BCSFE Android diagnostic bundle. Contains save snapshots and operation history only. Passwords, refresh tokens, transfer codes, and other authentication data are intentionally excluded. Share only with trusted people.</string>
     <string name="shared_import_success">Shared save opened in a new session.</string>
     <string-array name="map_scope_actions"><item>Edit one map</item><item>Batch edit maps</item><item>One-click clear all maps</item></string-array>
     <string-array name="stage_map_batch_actions"><item>Clear selected maps</item><item>Reset selected maps</item></string-array>
