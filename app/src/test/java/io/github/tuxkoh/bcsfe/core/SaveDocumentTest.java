@@ -1237,12 +1237,136 @@ public class SaveDocumentTest {
 
     @Test public void jp156RulesComeFromBcDataSnapshot() {
         assertTrue(GameDataRules.catObtainable(SaveDocument.Region.JP,150600,823));
+        assertTrue(GameDataRules.catObtainable(SaveDocument.Region.JP,150600,873));
+        assertTrue(GameDataRules.catObtainable(SaveDocument.Region.JP,150600,874));
+        assertFalse(GameDataRules.catObtainable(SaveDocument.Region.JP,150600,875));
         assertEquals(4, GameDataRules.totalForms(SaveDocument.Region.JP,150600,196));
+        assertEquals(2, GameDataRules.totalForms(SaveDocument.Region.JP,150600,873));
+        assertEquals(2, GameDataRules.totalForms(SaveDocument.Region.JP,150600,874));
         assertEquals(1, GameDataRules.totalForms(SaveDocument.Region.JP,150600,875));
         assertEquals(299, GameDataRules.dropPairCount(SaveDocument.Region.JP,150600));
+        assertEquals(875, GameDataRules.dropCat(SaveDocument.Region.JP,150600,298));
+        assertEquals(303, GameDataRules.dropSlot(SaveDocument.Region.JP,150600,298));
+        assertEquals(25, GameDataRules.catMaxPlus(SaveDocument.Region.JP,150600,831));
         assertEquals(346, GameDataRules.rankGiftCount(150600));
         assertEquals(28000, GameDataRules.rankGiftThreshold(150600,343));
         assertEquals(28200, GameDataRules.rankGiftThreshold(150600,345));
+    }
+
+    @Test public void tw156RulesComeFromExtractedGameData() {
+        int obtainable=0;
+        for(int id=0;id<876;id++)if(GameDataRules.catObtainable(SaveDocument.Region.TW,150600,id))obtainable++;
+        assertEquals(769,obtainable);
+        assertTrue(GameDataRules.catObtainable(SaveDocument.Region.TW,150600,864));
+        assertTrue(GameDataRules.catObtainable(SaveDocument.Region.TW,150600,865));
+        assertTrue(GameDataRules.catObtainable(SaveDocument.Region.TW,150600,873));
+        assertFalse(GameDataRules.catObtainable(SaveDocument.Region.TW,150600,874));
+        assertEquals(4,GameDataRules.totalForms(SaveDocument.Region.TW,150600,196));
+        assertEquals(3,GameDataRules.totalForms(SaveDocument.Region.TW,150600,733));
+        assertEquals(2,GameDataRules.totalForms(SaveDocument.Region.TW,150600,873));
+        assertEquals(-1,GameDataRules.totalForms(SaveDocument.Region.TW,150600,874));
+        assertEquals(-1,GameDataRules.totalForms(SaveDocument.Region.TW,150600,875));
+        assertEquals(277,GameDataRules.dropPairCount(SaveDocument.Region.TW,150600));
+        assertEquals(875,GameDataRules.dropCat(SaveDocument.Region.TW,150600,276));
+        assertEquals(303,GameDataRules.dropSlot(SaveDocument.Region.TW,150600,276));
+        assertEquals(4,GameDataRules.catRarity(SaveDocument.Region.TW,150600,875));
+        assertEquals(60,GameDataRules.catMaxBase(SaveDocument.Region.TW,150600,875));
+        assertEquals(70,GameDataRules.catMaxPlus(SaveDocument.Region.TW,150600,873));
+        assertEquals(0,GameDataRules.catMaxPlus(SaveDocument.Region.TW,150600,875));
+        assertEquals(10,GameDataRules.catRankLimitBase(150600,873,id->true));
+        assertEquals(10,GameDataRules.catRankLimitBase(150600,874,id->true));
+        assertEquals(10,GameDataRules.catRankLimitBase(150600,875,id->true));
+        assertEquals(61,GameDataRules.catRankLimitPlus(150600,873,id->true));
+        assertEquals(51,GameDataRules.catRankLimitPlus(150600,874,id->true));
+        assertEquals(61,GameDataRules.catRankLimitPlus(150600,875,id->true));
+    }
+
+    @Test public void contextual155LevelRulesPreserveLegacyTables() {
+        for(int id=0;id<873;id++){
+            assertEquals(id+" base",GameDataRules.catMaxBase(id),GameDataRules.catMaxBase(SaveDocument.Region.TW,150500,id));
+            assertEquals(id+" plus",GameDataRules.catMaxPlus(id),GameDataRules.catMaxPlus(SaveDocument.Region.TW,150500,id));
+        }
+    }
+
+    @Test public void tw156ExtendedCatsFollowUpstreamDropAndMissingPictureBookRules() throws Exception {
+        java.nio.file.Path path=java.nio.file.Path.of("/tmp/bcsfe-tw-156-876.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(path));
+        SaveDocument document=SaveDocument.open(java.nio.file.Files.readAllBytes(path));
+        assertEquals(876,document.catCount());
+        java.lang.reflect.Method dropsMethod=SaveDocument.class.getDeclaredMethod("unitDropsOffset");dropsMethod.setAccessible(true);
+        int drops=(Integer)dropsMethod.invoke(document);assertEquals(0,littleInt(document.toBytes(),drops+303*4));
+        document.setCatUnlocked(875,true);assertEquals(1,littleInt(document.toBytes(),drops+303*4));
+        for(int cat:new int[]{874,875}){document.setCatUnlocked(cat,true);document.setCatCurrentForm(cat,3);document.setCatUnlockedForms(cat,3);document.setCatFourthForm(cat,2);}
+        document.unlockTrueForms();document.unlockFourthForms();
+        for(int cat:new int[]{874,875}){assertEquals(3,document.catCurrentForm(cat));assertEquals(3,document.catUnlockedForms(cat));assertEquals(2,document.catFourthForm(cat));}
+        assertTrue(document.checksumValid());
+    }
+
+    @Test public void tw156IsOfficiallySupportedAndTicketsRemainEditable() throws Exception {
+        byte[] source=java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
+        SaveDocument baseline=SaveDocument.open(source);
+        int normal=baseline.normalTickets(),rare=baseline.rareTickets(),platinum=baseline.platinumTickets();
+        putInt(source,Offsets.offsets_23,150600);refreshHash(source,SaveDocument.Region.TW);
+        SaveDocument document=SaveDocument.open(source);
+        assertTrue(document.isOfficiallySupportedVersion());assertFalse(document.needsUnsupportedImportWarning());
+        assertEquals(normal,document.normalTickets());assertEquals(rare,document.rareTickets());assertEquals(platinum,document.platinumTickets());
+        document.setNormalTickets(123);document.setRareTickets(45);document.setPlatinumTickets(9);
+        SaveDocument reopened=SaveDocument.open(document.toBytes());
+        assertEquals(123,reopened.normalTickets());assertEquals(45,reopened.rareTickets());assertEquals(9,reopened.platinumTickets());assertTrue(reopened.checksumValid());
+    }
+
+    @Test public void twCanConvertTo156WhileUnreleasedRegionsRemainUnsupported() throws Exception {
+        byte[] tw=java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
+        SaveDocument converted=SaveDocument.open(tw);converted.convertGameVersion(150600);
+        assertEquals(150600,converted.gameVersion());assertTrue(converted.isOfficiallySupportedVersion());assertTrue(converted.checksumValid());
+        for(SaveDocument.Region region:new SaveDocument.Region[]{SaveDocument.Region.EN,SaveDocument.Region.KR}){
+            byte[] unsupported=java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/"+region.code()+".save"));
+            putInt(unsupported,Offsets.offsets_23,150600);refreshHash(unsupported,region);
+            SaveDocument inspection=SaveDocument.open(unsupported);
+            assertFalse(inspection.isOfficiallySupportedVersion());assertFalse(inspection.hasItemProfile());
+            assertThrows(UnsupportedOperationException.class,()->inspection.setNormalTickets(1));assertArrayEquals(unsupported,inspection.toBytes());
+        }
+    }
+
+    @Test public void ticketFieldsDoNotDependOnMutableCharaFlags() throws Exception {
+        byte[] source=java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
+        SaveDocument baseline=SaveDocument.open(source);int normal=baseline.normalTickets(),rare=baseline.rareTickets(),platinum=baseline.platinumTickets(),markers=0;
+        for(int offset=4;offset<source.length-35;offset++)if(littleInt(source,offset)==1818501){putInt(source,offset,1234567);markers++;}
+        assertTrue(markers>0);refreshHash(source,SaveDocument.Region.TW);
+        SaveDocument document=SaveDocument.open(source);
+        assertEquals(normal,document.normalTickets());assertEquals(rare,document.rareTickets());assertEquals(platinum,document.platinumTickets());
+        document.setNormalTickets(12);document.setRareTickets(34);document.setPlatinumTickets(9);
+        SaveDocument reopened=SaveDocument.open(document.toBytes());
+        assertEquals(12,reopened.normalTickets());assertEquals(34,reopened.rareTickets());assertEquals(9,reopened.platinumTickets());assertTrue(reopened.checksumValid());
+    }
+
+    @Test public void platinumTicketUsesStructureAfterGamatotoTableMoves() throws Exception {
+        SaveDocument shifted=SaveDocument.open(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save")));
+        shifted.setPlatinumTickets(7);
+        shifted.setGamatotoHelperRarityAmounts(new int[]{0,0,0,0,0});
+        assertEquals(7,shifted.platinumTickets());SaveDocument document=SaveDocument.open(shifted.toBytes());assertEquals(7,document.platinumTickets());
+        document.setPlatinumTickets(9);SaveDocument reopened=SaveDocument.open(document.toBytes());
+        assertEquals(9,reopened.platinumTickets());assertTrue(reopened.checksumValid());
+    }
+
+    @Test public void acceptanceSaveTicketsUseStructuralOffsets() throws Exception {
+        java.nio.file.Path path=java.nio.file.Path.of("/tmp/bcsfe-acceptance-1560-tw.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(path));
+        byte[] source=java.nio.file.Files.readAllBytes(path);int marker=-1;
+        for(int offset=4;offset<source.length-35;offset++)if(littleInt(source,offset)==1818501){marker=offset;break;}
+        assertTrue(marker>=0);putInt(source,marker,1234567);refreshHash(source,SaveDocument.Region.TW);
+        SaveDocument document=SaveDocument.open(source);
+        assertEquals(1,document.normalTickets());assertEquals(0,document.rareTickets());assertEquals(0,document.platinumTickets());assertEquals(0,document.legendTickets());
+        document.setNormalTickets(12);document.setRareTickets(34);document.setPlatinumTickets(9);
+        SaveDocument reopened=SaveDocument.open(document.toBytes());
+        assertEquals(12,reopened.normalTickets());assertEquals(34,reopened.rareTickets());assertEquals(9,reopened.platinumTickets());assertTrue(reopened.checksumValid());
+    }
+
+    @Test public void acceptancePlatinumTicketEditMatchesUpstreamBytes() throws Exception {
+        java.nio.file.Path source=java.nio.file.Path.of("/tmp/bcsfe-acceptance-1560-tw.save"),expected=java.nio.file.Path.of("/tmp/bcsfe-upstream-platinum9-edited.save");
+        Assume.assumeTrue(java.nio.file.Files.isRegularFile(source)&&java.nio.file.Files.isRegularFile(expected));
+        SaveDocument document=SaveDocument.open(java.nio.file.Files.readAllBytes(source));document.setPlatinumTickets(9);
+        assertArrayEquals(java.nio.file.Files.readAllBytes(expected),document.toBytes());
     }
 
     @Test public void each155RegionUnlocksItsOwnObtainableCatSubset() throws Exception {
@@ -1460,7 +1584,7 @@ public class SaveDocumentTest {
         byte[] bytes = new byte[size];
         putInt(bytes, 0, size == 507008 ? 150500 : 120200); putInt(bytes, start + 2, 100); putInt(bytes, start + 71, 200);
         if(size==507008){putInt(bytes,8398,861);int cannon=405173;putInt(bytes,cannon,8);cannon+=4;for(int i=0;i<8;i++){putInt(bytes,cannon,i);putInt(bytes,cannon+4,i==7?10:5);cannon+=8+(i==7?10:5)*4;}bytes[cannon]=1;bytes[463000]=1;bytes[463002]=7;putInt(bytes,463004,20260715);bytes[499600]=7;bytes[499601]=91;}
-        String salt=region==SaveDocument.Region.EN?"battlecatsen":region==SaveDocument.Region.TW?"battlecatstw":"battlecats";
+        String salt=region.packageSuffix();
         MessageDigest md = MessageDigest.getInstance("MD5"); md.update(salt.getBytes(StandardCharsets.UTF_8)); md.update(bytes, 0, bytes.length - 32);
         String hash = hex(md.digest()); System.arraycopy(hash.getBytes(StandardCharsets.US_ASCII), 0, bytes, bytes.length - 32, 32); return bytes;
     }
@@ -1468,6 +1592,6 @@ public class SaveDocumentTest {
     private static int littleUshort(byte[] bytes,int offset) { return (bytes[offset]&255)|((bytes[offset+1]&255)<<8); }
     private static int littleInt(byte[] bytes,int offset) { return (bytes[offset]&255)|((bytes[offset+1]&255)<<8)|((bytes[offset+2]&255)<<16)|(bytes[offset+3]<<24); }
     private static double littleDouble(byte[] bytes,int offset) { long value=0;for(int i=7;i>=0;i--)value=(value<<8)|(bytes[offset+i]&255L);return Double.longBitsToDouble(value); }
-    private static void refreshHash(byte[] bytes, SaveDocument.Region region) throws Exception { String salt=region==SaveDocument.Region.EN?"battlecatsen":region==SaveDocument.Region.TW?"battlecatstw":"battlecats";MessageDigest md=MessageDigest.getInstance("MD5");md.update(salt.getBytes(StandardCharsets.UTF_8));md.update(bytes,0,bytes.length-32);String hash=hex(md.digest());System.arraycopy(hash.getBytes(StandardCharsets.US_ASCII),0,bytes,bytes.length-32,32); }
+    private static void refreshHash(byte[] bytes, SaveDocument.Region region) throws Exception { String salt=region.packageSuffix();MessageDigest md=MessageDigest.getInstance("MD5");md.update(salt.getBytes(StandardCharsets.UTF_8));md.update(bytes,0,bytes.length-32);String hash=hex(md.digest());System.arraycopy(hash.getBytes(StandardCharsets.US_ASCII),0,bytes,bytes.length-32,32); }
     private static String hex(byte[] bytes) { StringBuilder out = new StringBuilder(); for (byte b : bytes) out.append(String.format("%02x", b)); return out.toString(); }
 }

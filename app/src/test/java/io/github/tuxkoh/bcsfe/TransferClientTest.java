@@ -40,9 +40,16 @@ public final class TransferClientTest {
             server.enqueue(new MockResponse().setResponseCode(200).setHeader("Content-Type","application/octet-stream").setHeader("Nyanko-Password-Refresh-Token","refresh-from-server").setHeader("Nyanko-Password","password-from-server").setBody(new okio.Buffer().write(save)));
             TransferClient.ReceivedSave result=TransferClient.receive("ABC 123","1234","tw");
             RecordedRequest request=take(server);String body=request.getBody().readUtf8();
-            assertEquals("/v2/transfers/ABC+123/reception",request.getPath());assertTrue(body.contains("\"countryCode\":\"tw\""));assertTrue(body.contains("\"version\":150500"));assertTrue(body.contains("\"pin\":\"1234\""));
+            assertEquals("/v2/transfers/ABC+123/reception",request.getPath());assertTrue(body.contains("\"countryCode\":\"tw\""));assertTrue(body.contains("\"version\":150600"));assertTrue(body.contains("\"pin\":\"1234\""));
             assertArrayEquals(save,result.data);assertEquals("refresh-from-server",result.passwordRefreshToken);assertEquals("password-from-server",result.password);
         }
+    }
+
+    @Test public void receiveClientVersionsFollowOfficialRegionalReleases() {
+        assertEquals(150600,TransferClient.latestTransferVersion("jp"));
+        assertEquals(150600,TransferClient.latestTransferVersion("tw"));
+        assertEquals(150500,TransferClient.latestTransferVersion("en"));
+        assertEquals(150500,TransferClient.latestTransferVersion("kr"));
     }
 
     @Test public void failedAuthenticationDoesNotPartiallyMutateDocumentCredentials() throws Exception {
