@@ -731,20 +731,35 @@ public final class MainActivity extends AppCompatActivity {
         int adHeight=Math.min(dp(680),(int)(getResources().getDisplayMetrics().heightPixels*.78f));
         FrameLayout adContainer=new FrameLayout(this);adContainer.setMinimumHeight(adHeight);
         WebView adView=createAdWebView(adContainer);adContainer.addView(adView,new FrameLayout.LayoutParams(-1,adHeight));
-        AlertDialog dialog=new AlertDialog.Builder(this).setView(adContainer).setNegativeButton(R.string.close,null).create();dialog.setCanceledOnTouchOutside(false);final boolean[] uploadStarted={false};final float[] uploadBounds={0.45f,0.60f,1f,1f};
-        adView.setOnTouchListener((view,event)->{float x=event.getX()/Math.max(1f,view.getWidth()),y=event.getY()/Math.max(1f,view.getHeight());if(inBounds(x,y,uploadBounds)&&event.getAction()==android.view.MotionEvent.ACTION_UP&&!uploadStarted[0]){if(!adScriptReady){android.util.Log.d(AD_LOG_TAG,"action ignored script-not-ready");return true;}android.util.Log.d(AD_LOG_TAG,"action touch released to WebView");adUploadInProgress=true;uploadStarted[0]=true;view.post(()->{android.util.Log.d(AD_LOG_TAG,"starting background action");boolean started=upload;if(upload)started=uploadAndShowTransferCodes(dialog::dismiss,8000);else started=writeCurrentSaveToGame(dialog::dismiss,8000);if(!started){uploadStarted[0]=false;adUploadInProgress=false;android.util.Log.d(AD_LOG_TAG,"action did not start");}});view.postDelayed(()->((WebView)view).evaluateJavascript("if(document.getElementById('ad-trigger'))document.documentElement.style.visibility='hidden'",null),150);}return false;});
+        AlertDialog dialog=new AlertDialog.Builder(this).setView(adContainer).setNegativeButton(R.string.close,null).create();
+        dialog.setCanceledOnTouchOutside(false);
+        final boolean[] uploadStarted={false};
+        final float[] touchDown={0f,0f};
+        adView.setOnTouchListener((view,event)->{
+            if(event.getActionMasked()==android.view.MotionEvent.ACTION_DOWN){
+                touchDown[0]=event.getX();touchDown[1]=event.getY();
+            }
+            if(event.getActionMasked()!=android.view.MotionEvent.ACTION_UP||uploadStarted[0]||!adScriptReady)return false;
+            int slop=android.view.ViewConfiguration.get(this).getScaledTouchSlop();
+            if(Math.abs(event.getX()-touchDown[0])>slop||Math.abs(event.getY()-touchDown[1])>slop)return false;
+            float x=event.getX()/Math.max(1f,view.getWidth()),y=event.getY()/Math.max(1f,view.getHeight());
+            // Query the live DOM after scrolling or asynchronous banner layout changes.
+            String hitTest="(function(){var e=document.getElementById('ad-trigger');if(!e)return false;var b=e.getBoundingClientRect();var x="+x+"*innerWidth,y="+y+"*innerHeight;return x>=b.left&&x<=b.right&&y>=b.top&&y<=b.bottom;})()";
+            adView.evaluateJavascript(hitTest,value->{
+                if(!dialog.isShowing()||uploadStarted[0]||!"true".equals(value))return;
+                uploadStarted[0]=true;adUploadInProgress=true;
+                boolean started=upload?uploadAndShowTransferCodes(dialog::dismiss,8000):writeCurrentSaveToGame(dialog::dismiss,8000);
+                if(!started){uploadStarted[0]=false;adUploadInProgress=false;}
+            });
+            return false;
+        });
         dialog.setOnDismissListener(d->{android.util.Log.d(AD_LOG_TAG,"dialog dismissed childCount="+adContainer.getChildCount());adUploadInProgress=false;adScriptReady=false;adWindowCreated=false;for(int i=0;i<adContainer.getChildCount();i++){View child=adContainer.getChildAt(i);if(child instanceof WebView){((WebView)child).stopLoading();((WebView)child).destroy();}}adContainer.removeAllViews();});
         dialog.show();
         String scriptUrl=android.text.TextUtils.htmlEncode(BuildConfig.ADSTERRA_SCRIPT_URL),titleText=android.text.TextUtils.htmlEncode(getString(upload?R.string.upload_transfer:R.string.root_write_save)),messageText=android.text.TextUtils.htmlEncode(upload?getString(R.string.upload_warning_with_ad):getString(R.string.root_write_confirm,regionDisplay(document.region()))+"\n\n"+getString(R.string.root_ad_warning)),uploadText=android.text.TextUtils.htmlEncode(getString(upload?R.string.upload_confirm:R.string.root_ad_action));
-        String banner="<div class=\"banner\"><script>atOptions={key:'"+AD_BANNER_KEY+"',format:'iframe',height:60,width:468,params:{}};</script><script src=\""+AD_BANNER_SCRIPT_URL+"\"></script></div>";
+        String bannerDocument="<!doctype html><html><head><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>html,body{margin:0;height:60px;overflow:hidden}</style></head><body><script>atOptions={key:'"+AD_BANNER_KEY+"',format:'iframe',height:60,width:468,params:{}};</script><script src=\""+AD_BANNER_SCRIPT_URL+"\"></script></body></html>";
+        String banner="<div class=\"banner\"><iframe title=\"Advertisement\" sandbox=\"allow-scripts allow-popups\" style=\"border:0;width:100%;height:60px\" srcdoc=\""+android.text.TextUtils.htmlEncode(bannerDocument)+"\"></iframe></div>";
         String html="<!doctype html><html><head><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\"><style>html,body{width:100%;min-height:100%;margin:0;background:#fff;color:#202124;font-family:system-ui,sans-serif}body{box-sizing:border-box;padding:24px;overflow-y:auto}h1{font-size:22px;margin:0 0 18px}p{font-size:16px;line-height:1.5;white-space:pre-line;margin:0}.banner{width:468px;max-width:100%;height:60px;margin:22px auto;overflow:hidden}.actions{display:flex;justify-content:flex-end;align-items:center;margin-top:24px;padding-bottom:8px}#ad-trigger{box-sizing:border-box;min-height:48px;padding:14px 20px;border-radius:6px;font-size:15px;font-weight:600;background:#1f5eff;color:#fff;cursor:pointer}#ad-trigger.disabled{opacity:.45}</style></head><body><h1>"+titleText+"</h1><p>"+messageText+"</p>"+banner+"<div class=\"actions\"><div id=\"ad-trigger\" class=\"disabled\" role=\"button\" aria-disabled=\"true\">"+uploadText+"</div></div><script src=\""+scriptUrl+"\"></script></body></html>";
         adView.loadDataWithBaseURL("https://appassets.androidplatform.net/",html,"text/html","UTF-8",null);
-        adView.postDelayed(()->readUploadBounds(adView,uploadBounds),500);
-    }
-    private static boolean inBounds(float x,float y,float[] bounds){return x>=bounds[0]&&y>=bounds[1]&&x<=bounds[2]&&y<=bounds[3];}
-    private void readUploadBounds(WebView view,float[] uploadBounds){
-        String js="(function(){var e=document.getElementById('ad-trigger'),b=e.getBoundingClientRect();return [b.left/innerWidth,b.top/innerHeight,b.right/innerWidth,b.bottom/innerHeight]})()";
-        view.evaluateJavascript(js,value->{try{org.json.JSONArray a=new org.json.JSONArray(value);for(int i=0;i<4;i++)uploadBounds[i]=(float)a.getDouble(i);}catch(Exception ignored){}});
     }
     private WebView createAdWebView(FrameLayout container) {
         WebView webView=new WebView(this);webView.setWebViewClient(new WebViewClient(){
@@ -764,13 +779,13 @@ public final class MainActivity extends AppCompatActivity {
         settings.setJavaScriptCanOpenWindowsAutomatically(true);settings.setSupportMultipleWindows(true);
         settings.setAllowFileAccess(false);settings.setAllowContentAccess(false);settings.setMediaPlaybackRequiresUserGesture(true);
         if(android.os.Build.VERSION.SDK_INT>=android.os.Build.VERSION_CODES.O)settings.setSafeBrowsingEnabled(true);
-        webView.setWebChromeClient(new WebChromeClient(){@Override public boolean onCreateWindow(WebView view,boolean isDialog,boolean isUserGesture,android.os.Message resultMsg){android.util.Log.d(AD_LOG_TAG,"window requested userGesture="+isUserGesture);if(!isUserGesture||adWindowCreated){android.util.Log.d(AD_LOG_TAG,"window rejected");return false;}adWindowCreated=true;WebView popup=createAdWebView(container);popup.setAlpha(0f);container.addView(popup,new FrameLayout.LayoutParams(-1,container.getHeight()>0?container.getHeight():dp(480)));WebView.WebViewTransport transport=(WebView.WebViewTransport)resultMsg.obj;transport.setWebView(popup);resultMsg.sendToTarget();return true;}});
+        webView.setWebChromeClient(new WebChromeClient(){@Override public boolean onCreateWindow(WebView view,boolean isDialog,boolean isUserGesture,android.os.Message resultMsg){android.util.Log.d(AD_LOG_TAG,"window requested userGesture="+isUserGesture);if(!isUserGesture||adWindowCreated){android.util.Log.d(AD_LOG_TAG,"window rejected");return false;}adWindowCreated=true;WebView popup=createAdWebView(container);popup.setVisibility(View.INVISIBLE);container.addView(popup,new FrameLayout.LayoutParams(-1,container.getHeight()>0?container.getHeight():dp(480)));WebView.WebViewTransport transport=(WebView.WebViewTransport)resultMsg.obj;transport.setWebView(popup);resultMsg.sendToTarget();return true;}});
         return webView;
     }
     private void promoteAdPageIfReady(FrameLayout container,WebView candidate,String url){
         if(!adUploadInProgress||url==null)return;
         String scheme=Uri.parse(url).getScheme();if(!"http".equalsIgnoreCase(scheme)&&!"https".equalsIgnoreCase(scheme))return;
-        candidate.evaluateJavascript("document.getElementById('ad-trigger')!==null",value->{android.util.Log.d(AD_LOG_TAG,"page classified warning="+value);if(!adUploadInProgress||!"false".equals(value))return;for(int i=0;i<container.getChildCount();i++){View child=container.getChildAt(i);if(child instanceof WebView)child.setAlpha(child==candidate?1f:0f);}candidate.bringToFront();android.util.Log.d(AD_LOG_TAG,"ad page promoted");});
+        candidate.evaluateJavascript("document.getElementById('ad-trigger')!==null",value->{android.util.Log.d(AD_LOG_TAG,"page classified warning="+value);if(!adUploadInProgress||!"false".equals(value))return;for(int i=0;i<container.getChildCount();i++){View child=container.getChildAt(i);if(child instanceof WebView)child.setVisibility(child==candidate?View.VISIBLE:View.INVISIBLE);}candidate.bringToFront();android.util.Log.d(AD_LOG_TAG,"ad page promoted");});
     }
     private static String safeScheme(String url){if(url==null)return "none";String scheme=Uri.parse(url).getScheme();return scheme==null?"none":scheme;}
     private boolean handleAdNavigation(WebView view,String url) {

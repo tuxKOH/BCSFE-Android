@@ -1309,6 +1309,8 @@ public class SaveDocumentTest {
         putInt(source,Offsets.offsets_23,150600);refreshHash(source,SaveDocument.Region.TW);
         SaveDocument document=SaveDocument.open(source);
         assertTrue(document.isOfficiallySupportedVersion());assertFalse(document.needsUnsupportedImportWarning());
+        assertFalse(document.canAttemptUnsafeUpload());
+        assertFalse(SaveDocument.openForUpload(source,SaveDocument.Region.TW).canAttemptUnsafeUpload());
         assertEquals(normal,document.normalTickets());assertEquals(rare,document.rareTickets());assertEquals(platinum,document.platinumTickets());
         document.setNormalTickets(123);document.setRareTickets(45);document.setPlatinumTickets(9);
         SaveDocument reopened=SaveDocument.open(document.toBytes());
