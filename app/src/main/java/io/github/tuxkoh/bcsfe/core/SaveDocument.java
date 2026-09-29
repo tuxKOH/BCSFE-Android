@@ -1560,7 +1560,9 @@ public final class SaveDocument {
     private int passwordRefreshTokenOffset() {
         int end=bytes.length-Offsets.offsets_130-67;
         for(int offset=Math.max(0,end-100000);offset<=end;offset++){
-            if(rawIntAt(offset)==40&&(bytes[offset+44]&255)<=1&&(bytes[offset+45]&255)<=1&&(bytes[offset+46]&255)<=1&&rawIntAt(offset+63)==100000)return offset;
+            // The token is a length-prefixed string. Only ub13 at +44 is a
+            // boolean; uby4 and uby5 at +45/+46 are unrestricted byte values.
+            if(rawIntAt(offset)==40&&(bytes[offset+44]&255)<=1&&rawIntAt(offset+63)==100000)return offset;
         }
         throw new IllegalStateException("Password refresh token field is unavailable");
     }

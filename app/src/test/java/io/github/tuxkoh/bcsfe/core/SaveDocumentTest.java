@@ -1102,6 +1102,26 @@ public class SaveDocumentTest {
         String inquiry="123456789",refresh="0123456789012345678901234567890123456789";d.setInquiryCode(inquiry);d.setPasswordRefreshToken("__________EXPECT_THIS_TO_FAIL___________");d.setPasswordRefreshToken(refresh);d.setAccountCreatedAt(1700000000L);assertEquals(inquiry,d.inquiryCode());assertEquals(refresh,d.passwordRefreshToken());assertEquals(1700000000L,d.accountCreatedAt());assertTrue(d.checksumValid());SaveDocument reopened=SaveDocument.open(d.toBytes());assertEquals(inquiry,reopened.inquiryCode());assertEquals(refresh,reopened.passwordRefreshToken());assertEquals(1700000000L,reopened.accountCreatedAt());
     }
 
+    @Test public void passwordRefreshTokenLocatorAllowsTrailingByteFieldsAboveOne() throws Exception {
+        byte[] source=java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
+        putInt(source,Offsets.offsets_23,150600);refreshHash(source,SaveDocument.Region.TW);
+        SaveDocument document=SaveDocument.open(source);
+        assertEquals(150600,document.gameVersion());
+        java.lang.reflect.Method offsetMethod=SaveDocument.class.getDeclaredMethod("passwordRefreshTokenOffset");offsetMethod.setAccessible(true);
+        java.lang.reflect.Field bytesField=SaveDocument.class.getDeclaredField("bytes");bytesField.setAccessible(true);
+        int tokenOffset=(int)offsetMethod.invoke(document);byte[] documentBytes=(byte[])bytesField.get(document);
+        // Upstream serializes these as uby4/uby5, not bools.
+        documentBytes[tokenOffset+45]=2;documentBytes[tokenOffset+46]=(byte)255;
+        String refresh="0123456789012345678901234567890123456789";
+        document.setPasswordRefreshToken(refresh);
+        assertEquals(refresh,document.passwordRefreshToken());
+        assertEquals(2,document.toBytes()[tokenOffset+45]&255);assertEquals(255,document.toBytes()[tokenOffset+46]&255);
+        assertTrue(document.checksumValid());
+        SaveDocument reopened=SaveDocument.open(document.toBytes());
+        assertEquals(refresh,reopened.passwordRefreshToken());
+        assertEquals(2,reopened.toBytes()[tokenOffset+45]&255);assertEquals(255,reopened.toBytes()[tokenOffset+46]&255);
+    }
+
     @Test public void receivedVariableLengthSaveExposesNetworkCredentials() throws Exception {
         java.nio.file.Path path=java.nio.file.Path.of("/tmp/bcsfe-network-response.bin");Assume.assumeTrue(java.nio.file.Files.isRegularFile(path));
         SaveDocument document=SaveDocument.open(java.nio.file.Files.readAllBytes(path));
