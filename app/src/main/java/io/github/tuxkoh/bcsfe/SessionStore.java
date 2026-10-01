@@ -54,6 +54,13 @@ final class SessionStore {
     synchronized Session create(byte[] data,String name,String password)throws IOException{
         String id=UUID.randomUUID().toString();save(id,data,name,password);setCurrent(id);return load(id);
     }
+    /** Cache a completed background snapshot without overwriting intervening edits. */
+    synchronized Session savePreparedCopy(String id,byte[] expectedSource,byte[] data,String name,String password)throws IOException{
+        Session latest=load(id);
+        String target=latest!=null&&Arrays.equals(latest.save,expectedSource)?id:UUID.randomUUID().toString();
+        save(target,data,latest!=null?latest.name:name,password);
+        return load(target);
+    }
     synchronized void save(byte[] data,String name)throws IOException{save(data,name,null);}
     synchronized void save(byte[] data,String name,String password)throws IOException{
         migrateLegacy();String id=currentId();if(id==null){create(data,name,password);return;}save(id,data,name,password);

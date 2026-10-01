@@ -86,6 +86,13 @@ public final class MainActivity extends AppCompatActivity {
     private boolean adScriptReady;
     private boolean adWindowCreated;
     private final ExecutorService networkExecutor=Executors.newSingleThreadExecutor();
+    private final ExecutorService seedExecutor=Executors.newSingleThreadExecutor();
+    private boolean seedRequestInFlight;
+    private AlertDialog seedProgressDialog;
+    /** Seed license is kept only in memory for the active wizard. */
+    private String activeSeedLicenseKey;
+    private boolean rootWriteInProgress;
+    private boolean rootReadInProgress;
     private boolean newSaveInProgress;
     private volatile boolean rootAvailable;
     private boolean rootCheckRunning;
@@ -349,6 +356,7 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     private void chooseLocalSave() {
+        if(rootReadInProgress)return;
         if (!rootAvailable) { Toast.makeText(this, R.string.root_not_detected, Toast.LENGTH_SHORT).show(); return; }
         Toast.makeText(this, R.string.root_checking, Toast.LENGTH_SHORT).show();
         Executors.newSingleThreadExecutor().execute(() -> {
@@ -407,16 +415,31 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     private void loadLocalSave(String packageName, String displayName, SaveDocument.Region region) {
-        Executors.newSingleThreadExecutor().execute(() -> {
+        if(rootReadInProgress)return;
+        rootReadInProgress=true;
+        Toast.makeText(this,R.string.root_reading_replacement,Toast.LENGTH_LONG).show();
+        networkExecutor.execute(() -> {
             try {
                 byte[] data = RootAccess.readSave(packageName);
+                TransferClient.ReplacementSave imported=TransferClient.createReplacementCopy(data,region);
                 runOnUiThread(() -> {
-                    try { openImportedBytes(data, "SAVE_DATA (" + displayName + ")", null, region, R.string.root_load_failed); Toast.makeText(this, R.string.root_load_success, Toast.LENGTH_SHORT).show(); }
-                    catch (Exception error) { reportError("root-save-parse", error, data); Toast.makeText(this, R.string.root_load_failed, Toast.LENGTH_LONG).show(); }
+                    rootReadInProgress=false;
+                    if(!activityActive())return;
+                    try { openImportedDocument(imported.document,data,"SAVE_DATA ("+displayName+")",imported.password); Toast.makeText(this,R.string.root_read_replacement_success,Toast.LENGTH_SHORT).show(); }
+                    catch (Exception error) { reportError("root-save-open", error, null); Toast.makeText(this,R.string.root_load_failed,Toast.LENGTH_LONG).show(); }
+                });
+            } catch (UnsupportedOperationException | IllegalArgumentException error) {
+                runOnUiThread(() -> {
+                    rootReadInProgress=false;
+                    if(activityActive())new AlertDialog.Builder(this).setTitle(R.string.root_load_save)
+                            .setMessage(R.string.root_replacement_unsupported).setPositiveButton(R.string.close,null).show();
                 });
             } catch (Exception error) {
-                reportError("root-save-read", error);
-                runOnUiThread(() -> Toast.makeText(this, R.string.root_load_failed, Toast.LENGTH_LONG).show());
+                logNetworkFailure("root-replacement-account",error,null);
+                runOnUiThread(() -> {
+                    rootReadInProgress=false;
+                    if(activityActive())Toast.makeText(this,R.string.root_read_replacement_failed,Toast.LENGTH_LONG).show();
+                });
             }
         });
     }
@@ -682,10 +705,16 @@ public final class MainActivity extends AppCompatActivity {
                                             // Unsupported/forced-import saves are intentionally read-only.
                                             // Their layout may have shifted, so applying the server token
                                             // would turn a successful inspection import into an error.
-                                            if (replacement.hasItemProfile()
+                                            if (replacement.canSetPasswordRefreshToken()
                                                     && received.passwordRefreshToken != null
                                                     && !received.passwordRefreshToken.isEmpty()) {
-                                                replacement.setPasswordRefreshToken(received.passwordRefreshToken);
+                                                try {
+                                                    replacement.setPasswordRefreshToken(received.passwordRefreshToken);
+                                                } catch (RuntimeException unavailable) {
+                                                    // The refresh token is optional for opening the save.  A
+                                                    // malformed/unsupported token field must not reject the
+                                                    // received document or change its original bytes.
+                                                }
                                             }
                                         });
                             } catch (Exception error) { logNetworkFailure("receive-open",error,received.data);Toast.makeText(this, R.string.receive_failed, Toast.LENGTH_LONG).show(); } });
@@ -696,7 +725,10 @@ public final class MainActivity extends AppCompatActivity {
     private boolean activityActive(){return !isFinishing()&&!isDestroyed();}
     @Override protected void onDestroy(){
         if (localApiServer != null) localApiServer.stop();
+        if (seedProgressDialog != null) seedProgressDialog.dismiss();
+        activeSeedLicenseKey = null;
         networkExecutor.shutdownNow();
+        seedExecutor.shutdownNow();
         super.onDestroy();
     }
     private void confirmUpload() {
@@ -716,10 +748,15 @@ public final class MainActivity extends AppCompatActivity {
     }
     private void confirmRootWrite() {
         if (document == null) return;
+        if(rootWriteInProgress)return;
+        if(!document.isOfficiallySupportedVersion()||!document.hasItemProfile()){
+            new AlertDialog.Builder(this).setTitle(R.string.root_write_save).setMessage(R.string.root_replacement_unsupported)
+                    .setPositiveButton(R.string.close,null).show();return;
+        }
         if (BuildConfig.ADS_ENABLED) { showAdActionConfirmation(false); return; }
         String target=rootWritePackage==null?regionDisplay(document.region()):rootWritePackage;
         new AlertDialog.Builder(this).setTitle(R.string.root_write_save)
-                .setMessage(getString(R.string.root_write_confirm, target))
+                .setMessage(getString(R.string.root_replacement_write_confirm, target))
                 .setNegativeButton(R.string.close, null).setPositiveButton(R.string.root_ad_action, (d,w)->writeCurrentSaveToGame()).show();
     }
 
@@ -755,7 +792,7 @@ public final class MainActivity extends AppCompatActivity {
         });
         dialog.setOnDismissListener(d->{android.util.Log.d(AD_LOG_TAG,"dialog dismissed childCount="+adContainer.getChildCount());adUploadInProgress=false;adScriptReady=false;adWindowCreated=false;for(int i=0;i<adContainer.getChildCount();i++){View child=adContainer.getChildAt(i);if(child instanceof WebView){((WebView)child).stopLoading();((WebView)child).destroy();}}adContainer.removeAllViews();});
         dialog.show();
-        String scriptUrl=android.text.TextUtils.htmlEncode(BuildConfig.ADSTERRA_SCRIPT_URL),titleText=android.text.TextUtils.htmlEncode(getString(upload?R.string.upload_transfer:R.string.root_write_save)),messageText=android.text.TextUtils.htmlEncode(upload?getString(R.string.upload_warning_with_ad):getString(R.string.root_write_confirm,regionDisplay(document.region()))+"\n\n"+getString(R.string.root_ad_warning)),uploadText=android.text.TextUtils.htmlEncode(getString(upload?R.string.upload_confirm:R.string.root_ad_action));
+        String scriptUrl=android.text.TextUtils.htmlEncode(BuildConfig.ADSTERRA_SCRIPT_URL),titleText=android.text.TextUtils.htmlEncode(getString(upload?R.string.upload_transfer:R.string.root_write_save)),messageText=android.text.TextUtils.htmlEncode(upload?getString(R.string.upload_warning_with_ad):getString(R.string.root_replacement_write_confirm,rootWritePackage==null?regionDisplay(document.region()):rootWritePackage)+"\n\n"+getString(R.string.root_ad_warning)),uploadText=android.text.TextUtils.htmlEncode(getString(upload?R.string.upload_confirm:R.string.root_ad_action));
         String bannerDocument="<!doctype html><html><head><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>html,body{margin:0;height:60px;overflow:hidden}</style></head><body><script>atOptions={key:'"+AD_BANNER_KEY+"',format:'iframe',height:60,width:468,params:{}};</script><script src=\""+AD_BANNER_SCRIPT_URL+"\"></script></body></html>";
         String banner="<div class=\"banner\"><iframe title=\"Advertisement\" sandbox=\"allow-scripts allow-popups\" style=\"border:0;width:100%;height:60px\" srcdoc=\""+android.text.TextUtils.htmlEncode(bannerDocument)+"\"></iframe></div>";
         String html="<!doctype html><html><head><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\"><style>html,body{width:100%;min-height:100%;margin:0;background:#fff;color:#202124;font-family:system-ui,sans-serif}body{box-sizing:border-box;padding:24px;overflow-y:auto}h1{font-size:22px;margin:0 0 18px}p{font-size:16px;line-height:1.5;white-space:pre-line;margin:0}.banner{width:468px;max-width:100%;height:60px;margin:22px auto;overflow:hidden}.actions{display:flex;justify-content:flex-end;align-items:center;margin-top:24px;padding-bottom:8px}#ad-trigger{box-sizing:border-box;min-height:48px;padding:14px 20px;border-radius:6px;font-size:15px;font-weight:600;background:#1f5eff;color:#fff;cursor:pointer}#ad-trigger.disabled{opacity:.45}</style></head><body><h1>"+titleText+"</h1><p>"+messageText+"</p>"+banner+"<div class=\"actions\"><div id=\"ad-trigger\" class=\"disabled\" role=\"button\" aria-disabled=\"true\">"+uploadText+"</div></div><script src=\""+scriptUrl+"\"></script></body></html>";
@@ -818,18 +855,70 @@ public final class MainActivity extends AppCompatActivity {
 
     private boolean writeCurrentSaveToGame(Runnable completed, long minimumDisplayMillis) {
         if (!rootAvailable || document == null) { Toast.makeText(this, R.string.root_not_detected, Toast.LENGTH_SHORT).show(); return false; }
+        if(rootWriteInProgress)return false;
         if (!persistSession(true)) return false;
+        rootWriteInProgress=true;
         long startedAt = android.os.SystemClock.elapsedRealtime();
         String targetPackage = rootWritePackage;
-        byte[] source = document.toBytes();
-        Toast.makeText(this, R.string.root_writing, Toast.LENGTH_SHORT).show();
-        Executors.newSingleThreadExecutor().execute(() -> {
+        SaveDocument sourceDocument=document;
+        String sourceSession=sessionId;
+        String sourceName=openedName;
+        SaveDocument.Region sourceRegion=sourceDocument.region();
+        byte[] source = sourceDocument.toBytes();
+        Toast.makeText(this, R.string.root_loading_replacement, Toast.LENGTH_LONG).show();
+        networkExecutor.execute(() -> {
             try {
-                if(targetPackage==null) RootAccess.writeSave(document.region(), source); else RootAccess.writeSave(targetPackage, source);
-                runAfterMinimumDelay(startedAt, minimumDisplayMillis, () -> { if (completed != null) completed.run(); Toast.makeText(this, R.string.root_write_success, Toast.LENGTH_LONG).show(); });
+                TransferClient.ReplacementSave replacement=RootSaveLoader.load(source,sourceRegion,(region,data)->{
+                    if(targetPackage==null)RootAccess.writeSave(region,data);else RootAccess.writeSave(targetPackage,data);
+                });
+                // Cache on the worker even if the activity is subsequently destroyed.
+                // A changed/deleted source session gets a separate snapshot instead.
+                SessionStore.Session cached=null;
+                try {
+                    cached=sessionStore.savePreparedCopy(sourceSession,source,replacement.document.toBytes(),sourceName,replacement.password);
+                } catch(Exception cacheError) {
+                    android.util.Log.e("BCSFE-Network","root-replacement-session failed: "+TransferClient.safeError(cacheError));
+                }
+                SessionStore.Session saved=cached;
+                runAfterMinimumDelay(startedAt, minimumDisplayMillis, () -> {
+                    rootWriteInProgress=false;
+                    if(completed!=null)completed.run();
+                    if(!activityActive())return;
+                    try {
+                        if(saved==null){Toast.makeText(this,R.string.root_replacement_session_failed,Toast.LENGTH_LONG).show();return;}
+                        if(document==sourceDocument&&java.util.Objects.equals(sessionId,sourceSession)
+                                &&Arrays.equals(document.toBytes(),source)){
+                            sessionStore.setCurrent(saved.id);
+                            sessionId=saved.id;document=replacement.document;workingCopy=saved.save;accountPassword=replacement.password;
+                        }
+                        refreshSessionList();
+                        Toast.makeText(this,R.string.root_replacement_success,Toast.LENGTH_LONG).show();
+                    } catch(Exception error) {
+                        reportError("root-replacement-session",error,null);
+                        Toast.makeText(this,R.string.root_replacement_session_failed,Toast.LENGTH_LONG).show();
+                    }
+                });
+            } catch (UnsupportedOperationException | IllegalArgumentException error) {
+                runAfterMinimumDelay(startedAt,minimumDisplayMillis,()->{
+                    rootWriteInProgress=false;
+                    if(completed!=null)completed.run();
+                    if(activityActive())new AlertDialog.Builder(this).setTitle(R.string.root_write_save)
+                            .setMessage(R.string.root_replacement_unsupported).setPositiveButton(R.string.close,null).show();
+                });
+            } catch (RootSaveLoader.AccountCreationFailure error) {
+                logNetworkFailure("root-replacement-account",error,null);
+                runAfterMinimumDelay(startedAt,minimumDisplayMillis,()->{
+                    rootWriteInProgress=false;
+                    if(completed!=null)completed.run();
+                    if(activityActive())Toast.makeText(this,R.string.root_replacement_failed,Toast.LENGTH_LONG).show();
+                });
             } catch (Exception error) {
-                reportError("root-save-write", error, source);
-                runAfterMinimumDelay(startedAt, minimumDisplayMillis, () -> { if (completed != null) completed.run(); Toast.makeText(this, R.string.root_write_failed, Toast.LENGTH_LONG).show(); });
+                reportError("root-save-write", error, null);
+                runAfterMinimumDelay(startedAt, minimumDisplayMillis, () -> {
+                    rootWriteInProgress=false;
+                    if (completed != null) completed.run();
+                    if(activityActive())Toast.makeText(this, R.string.root_write_failed, Toast.LENGTH_LONG).show();
+                });
             }
         });
         return true;
@@ -863,7 +952,7 @@ public final class MainActivity extends AppCompatActivity {
             }
         });
     }
-    private void editVersion() { boolean supports156=document.region()==SaveDocument.Region.JP||document.region()==SaveDocument.Region.TW;int[] versions=supports156?new int[]{150600,150500,150400,150300,150200,150100,150000,140700,140500,140300,140000}:new int[]{150500,150400,150300,150200,150100,150000,140700,140500,140300,140000};String[] labels=new String[versions.length];for(int i=0;i<labels.length;i++)labels[i]=formatVersion(versions[i])+(versions[i]==document.gameVersion()?getString(R.string.current_suffix):"");new AlertDialog.Builder(this).setTitle(R.string.game_version_title).setItems(labels,(d,i)->{if(versions[i]==document.gameVersion())return;new AlertDialog.Builder(this).setTitle(R.string.game_version_title).setMessage(R.string.game_version_warning).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(x,w)->convertVersion(versions[i])).show();}).setNegativeButton(R.string.close,null).show(); }
+    private void editVersion() { int[] versions={150600,150500,150400,150300,150200,150100,150000,140700,140500,140300,140000};String[] labels=new String[versions.length];for(int i=0;i<labels.length;i++)labels[i]=formatVersion(versions[i])+(versions[i]==document.gameVersion()?getString(R.string.current_suffix):"");new AlertDialog.Builder(this).setTitle(R.string.game_version_title).setItems(labels,(d,i)->{if(versions[i]==document.gameVersion())return;new AlertDialog.Builder(this).setTitle(R.string.game_version_title).setMessage(R.string.game_version_warning).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(x,w)->convertVersion(versions[i])).show();}).setNegativeButton(R.string.close,null).show(); }
     private void convertVersion(int target) { try{SaveDocument replacement=SaveDocument.open(document.toBytes());replacement.convertGameVersion(target);sessionStore.save(replacement.toBytes(),openedName,accountPassword);document=replacement;workingCopy=replacement.toBytes();showEditor();Toast.makeText(this,R.string.game_version_success,Toast.LENGTH_LONG).show();}catch(UnsupportedOperationException error){new AlertDialog.Builder(this).setTitle(R.string.game_version_title).setMessage(getString(R.string.game_version_message,document.gameVersion())).setPositiveButton(R.string.close,null).show();}catch(Exception error){reportError("version-convert",error);Toast.makeText(this,R.string.game_version_failed,Toast.LENGTH_LONG).show();} }
     private static String formatVersion(int value) { return (value/10000)+"."+((value/100)%100)+"."+(value%100); }
     private void editAccountInfo() { String[] actions=getResources().getStringArray(R.array.account_info_actions);new AlertDialog.Builder(this).setTitle(R.string.account_info_title).setItems(actions,(d,i)->{boolean inquiry=i<2;String value=inquiry?document.inquiryCode():document.passwordRefreshToken();if(i%2==1)editString(actions[i],value,inquiry?document::setInquiryCode:document::setPasswordRefreshToken);else new AlertDialog.Builder(this).setTitle(actions[i]).setMessage(value).setNegativeButton(R.string.close,null).setPositiveButton(R.string.copy_codes,(x,w)->((android.content.ClipboardManager)getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(android.content.ClipData.newPlainText(actions[i],value))).show();}).setNegativeButton(R.string.close,null).show(); }
@@ -940,7 +1029,235 @@ public final class MainActivity extends AppCompatActivity {
     private void tradeRareTickets() { EditText field=numberField(R.string.rare_trade_amount,"1");new AlertDialog.Builder(this).setTitle(R.string.rare_trade_title).setView(dialogInput(field)).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(d,w)->{try{document.tradeRareTickets(Integer.parseInt(field.getText().toString()));persistApplied();}catch(IllegalStateException e){Toast.makeText(this,R.string.storage_full,Toast.LENGTH_LONG).show();}catch(Exception e){Toast.makeText(this,R.string.invalid_number,Toast.LENGTH_SHORT).show();}}).show(); }
     private void editSeeds() {
         if(!document.hasItemProfile()){unsupportedVersion();return;}
-        String[] labels=getResources().getStringArray(R.array.seed_labels);long[] values={document.rareSeed(),document.normalSeed(),document.eventSeed()};LongChange[] changes={document::setRareSeed,document::setNormalSeed,document::setEventSeed};String[] rows=new String[labels.length];for(int i=0;i<labels.length;i++)rows[i]=labels[i]+": "+values[i];new AlertDialog.Builder(this).setTitle(R.string.seeds_title).setItems(rows,(d,i)->editLongText(labels[i],values[i],changes[i])).setNegativeButton(R.string.close,null).show();
+        String[] labels=getResources().getStringArray(R.array.seed_labels);
+        long[] values={document.rareSeed(),document.normalSeed(),document.eventSeed()};
+        LongChange[] changes={document::setRareSeed,document::setNormalSeed,document::setEventSeed};
+        String[] rows=new String[labels.length+1];
+        for(int i=0;i<labels.length;i++)rows[i]=labels[i]+": "+values[i];
+        rows[labels.length]=getString(R.string.seed_get_action);
+        new AlertDialog.Builder(this).setTitle(R.string.seeds_title).setItems(rows,(d,i)->{
+            if(i<labels.length) editLongText(labels[i],values[i],changes[i]); else getSeedWizard();
+        }).setNegativeButton(R.string.close,null).show();
+    }
+
+    private void getSeedWizard() {
+        if (document == null || !document.hasItemProfile()) { unsupportedVersion(); return; }
+        if (seedRequestInFlight) { Toast.makeText(this, R.string.seed_api_busy, Toast.LENGTH_SHORT).show(); return; }
+        EditText key = new EditText(this);
+        key.setSingleLine(true);
+        key.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+        key.setHint(R.string.seed_license_hint);
+        AlertDialog licenseDialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.seed_license_title)
+                .setView(dialogInput(key))
+                .setNegativeButton(R.string.close, null)
+                .setPositiveButton(android.R.string.ok, null)
+                .create();
+        licenseDialog.setOnShowListener(ignored -> licenseDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String value = key.getText().toString().trim();
+            if (value.isEmpty()) {
+                key.setError(getString(R.string.seed_license_required));
+                return;
+            }
+            activeSeedLicenseKey = value;
+            licenseDialog.dismiss();
+            loadSeedPools();
+        }));
+        licenseDialog.setOnCancelListener(dialog -> activeSeedLicenseKey = null);
+        licenseDialog.show();
+    }
+
+    private void loadSeedPools() {
+        if (activeSeedLicenseKey == null || activeSeedLicenseKey.isEmpty()) return;
+        SaveDocument source = document;
+        String region = document.region().code();
+        seedRequestInFlight = true;
+        Toast.makeText(this, R.string.seed_loading_pools, Toast.LENGTH_SHORT).show();
+        seedExecutor.execute(() -> {
+            try {
+                List<SeedApiClient.Pool> pools = SeedApiClient.fetchPools(BuildConfig.SEED_API_URL, region);
+                runOnUiThread(() -> {
+                    seedRequestInFlight = false;
+                    if (activityActive() && document == source) showSeedPoolPicker(region, pools);
+                    else activeSeedLicenseKey = null;
+                });
+            } catch (Exception error) {
+                runOnUiThread(() -> {
+                    seedRequestInFlight = false;
+                    activeSeedLicenseKey = null;
+                    if (activityActive()) Toast.makeText(this, seedErrorMessage(error), Toast.LENGTH_LONG).show();
+                });
+            }
+        });
+    }
+
+    private void showSeedPoolPicker(String region, List<SeedApiClient.Pool> pools) {
+        String[] rows = new String[pools.size()];
+        for (int i = 0; i < rows.length; i++) {
+            SeedApiClient.Pool pool = pools.get(i);
+            rows[i] = pool.name + "\n" + pool.id;
+        }
+        new AlertDialog.Builder(this).setTitle(R.string.seed_pool_title)
+                .setItems(rows, (dialog, which) -> showSeedRollTargets(region, pools.get(which)))
+                .setNegativeButton(R.string.close, null).show();
+    }
+
+    private void showSeedRollTargets(String region, SeedApiClient.Pool pool) {
+        ArrayList<Integer> desired = new ArrayList<>();
+        for (int i = 0; i < 10; i++) desired.add(-1);
+        showSeedRollTargets(region, pool, desired);
+    }
+
+    private void showSeedRollTargets(String region, SeedApiClient.Pool pool, ArrayList<Integer> desired) {
+        String[] rows = new String[desired.size()];
+        for (int i = 0; i < desired.size(); i++) {
+            rows[i] = getString(R.string.seed_roll_row, i + 1, seedCatLabel(desired.get(i), pool));
+        }
+        new AlertDialog.Builder(this).setTitle(R.string.seed_roll_targets_title)
+                .setItems(rows, (dialog, which) -> showSeedCatPicker(region, pool, desired, which))
+                .setNegativeButton(R.string.close, null)
+                .setPositiveButton(R.string.seed_find_action, (dialog, which) -> findAndApplySeed(region, pool, desired))
+                .show();
+    }
+
+    private void showSeedCatPicker(String region, SeedApiClient.Pool pool,
+                                   ArrayList<Integer> desired, int roll) {
+        LinearLayout body = new LinearLayout(this);
+        body.setOrientation(LinearLayout.VERTICAL);
+        body.setPadding(dp(24), dp(8), dp(24), 0);
+        EditText search = new EditText(this);
+        search.setSingleLine(true);
+        search.setHint(R.string.cat_search_hint);
+        body.addView(search, new LinearLayout.LayoutParams(-1, dp(52)));
+        ListView list = new ListView(this);
+        body.addView(list, new LinearLayout.LayoutParams(-1, 0, 1));
+        String[] names = getResources().getStringArray(switch(document.region()) {
+            case EN -> R.array.cat_names_en;
+            case JP -> R.array.cat_names_jp;
+            case KR -> R.array.cat_names_kr;
+            case TW -> R.array.cat_names_tw;
+        });
+        ArrayList<Integer> ids = new ArrayList<>();
+        ArrayList<String> labels = new ArrayList<>();
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<>());
+        list.setAdapter(adapter);
+        Runnable filter = () -> {
+            String query = normalizeSearch(search.getText().toString());
+            ids.clear(); labels.clear(); adapter.clear();
+            if (getString(R.string.seed_random).contains(query) || query.isEmpty()) {
+                ids.add(-1); labels.add(getString(R.string.seed_random)); adapter.add(getString(R.string.seed_random));
+            }
+            for (int id : pool.catIds) {
+                String name = id >= 0 && id < names.length ? names[id].split(" / ", -1)[0] : "";
+                if (name.isEmpty()) name = getString(R.string.cat_number, id);
+                String label = getString(R.string.cat_named_row, name, id);
+                if (!query.isEmpty() && !normalizeSearch(label).contains(query)) continue;
+                ids.add(id); labels.add(label); adapter.add(label);
+            }
+            adapter.notifyDataSetChanged();
+        };
+        search.addTextChangedListener(new TextWatcher() {
+            public void beforeTextChanged(CharSequence s,int start,int count,int after) {}
+            public void onTextChanged(CharSequence s,int start,int before,int count) { filter.run(); }
+            public void afterTextChanged(Editable s) {}
+        });
+        AlertDialog picker = new AlertDialog.Builder(this).setTitle(getString(R.string.seed_pick_title, roll + 1))
+                .setView(body).setNegativeButton(R.string.close, null).create();
+        list.setOnItemClickListener((parent, view, position, itemId) -> {
+            desired.set(roll, ids.get(position));
+            picker.dismiss();
+            showSeedRollTargets(region, pool, desired);
+        });
+        filter.run();
+        picker.show();
+        if (picker.getWindow() != null) picker.getWindow().setLayout(-1,
+                (int)(getResources().getDisplayMetrics().heightPixels * .8f));
+    }
+
+    private String seedCatLabel(int id, SeedApiClient.Pool pool) {
+        if (id < 0) return getString(R.string.seed_random);
+        String[] names = getResources().getStringArray(switch(document.region()) {
+            case EN -> R.array.cat_names_en;
+            case JP -> R.array.cat_names_jp;
+            case KR -> R.array.cat_names_kr;
+            case TW -> R.array.cat_names_tw;
+        });
+        String name = id < names.length ? names[id].split(" / ", -1)[0] : "";
+        return getString(R.string.cat_named_row, name.isEmpty() ? getString(R.string.cat_number, id) : name, id);
+    }
+
+    private void findAndApplySeed(String region, SeedApiClient.Pool pool, List<Integer> desired) {
+        if (seedRequestInFlight) { Toast.makeText(this, R.string.seed_api_busy, Toast.LENGTH_SHORT).show(); return; }
+        ArrayList<Integer> targets = new ArrayList<>(desired);
+        SeedTargetAssessment assessment = SeedTargetAssessment.assess(pool.data, targets);
+        if (assessment.kind == SeedTargetAssessment.Kind.IMPOSSIBLE) {
+            new AlertDialog.Builder(this).setTitle(R.string.seed_impossible_title).setMessage(R.string.seed_impossible_message)
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> showSeedRollTargets(region, pool, targets)).show();
+            return;
+        }
+        if (assessment.kind == SeedTargetAssessment.Kind.DIFFICULT) {
+            new AlertDialog.Builder(this).setTitle(R.string.seed_difficult_title).setMessage(R.string.seed_difficult_message)
+                    .setNegativeButton(R.string.seed_adjust_targets, (dialog, which) -> showSeedRollTargets(region, pool, targets))
+                    .setPositiveButton(R.string.seed_try_anyway, (dialog, which) -> startSeedCalculation(region, pool, targets)).show();
+            return;
+        }
+        startSeedCalculation(region, pool, targets);
+    }
+
+    private void startSeedCalculation(String region, SeedApiClient.Pool pool, ArrayList<Integer> targets) {
+        if (seedRequestInFlight || document == null || !activityActive()) return;
+        SaveDocument source = document;
+        seedRequestInFlight = true;
+        AlertDialog progress = new AlertDialog.Builder(this).setMessage(R.string.seed_calculating)
+                .setCancelable(false).create();
+        seedProgressDialog = progress;
+        progress.show();
+        String licenseKey = activeSeedLicenseKey;
+        seedExecutor.execute(() -> {
+            try {
+                long seed = SeedApiClient.findSeed(BuildConfig.SEED_API_URL, region, pool.id, licenseKey, targets);
+                runOnUiThread(() -> {
+                    seedRequestInFlight = false;
+                    activeSeedLicenseKey = null;
+                    if (!activityActive()) return;
+                    progress.dismiss();
+                    seedProgressDialog = null;
+                    if (document != source) return;
+                    try {
+                        document.setRareSeed(seed);
+                        persistApplied();
+                        Toast.makeText(this, getString(R.string.seed_found, seed), Toast.LENGTH_LONG).show();
+                    } catch (Exception error) {
+                        new AlertDialog.Builder(this).setMessage(seedErrorMessage(error))
+                                .setPositiveButton(android.R.string.ok, null).show();
+                    }
+                });
+            } catch (Exception error) {
+                runOnUiThread(() -> {
+                    seedRequestInFlight = false;
+                    activeSeedLicenseKey = null;
+                    if (!activityActive()) return;
+                    progress.dismiss();
+                    seedProgressDialog = null;
+                    if (document != source) return;
+                    new AlertDialog.Builder(this).setMessage(seedErrorMessage(error))
+                            .setPositiveButton(android.R.string.ok, (dialog, which) -> showSeedRollTargets(region, pool, targets)).show();
+                });
+            }
+        });
+    }
+
+    private String seedErrorMessage(Exception error) {
+        if (error instanceof SeedApiClient.Failure failure) {
+            if ("LIMIT_REACHED".equals(failure.status)) return getString(R.string.seed_limit_reached);
+            if ("NOT_FOUND".equals(failure.status)) return getString(R.string.seed_no_match);
+            if ("BUSY".equals(failure.status)) return getString(R.string.seed_api_busy);
+            if ("INVALID_KEY".equals(failure.status) || "KEY_REVOKED".equals(failure.status)) return getString(R.string.seed_license_invalid);
+            if ("KEY_USED".equals(failure.status)) return getString(R.string.seed_license_used);
+            if ("KEY_BUSY".equals(failure.status)) return getString(R.string.seed_license_busy);
+        }
+        if (error instanceof java.io.InterruptedIOException) return getString(R.string.seed_network_timeout);
+        return getString(R.string.seed_api_failed, error.getMessage() == null ? "" : error.getMessage());
     }
     private void editAdvancedItems() {
         if (!document.hasItemProfile()) { unsupportedVersion(); return; }
@@ -1030,6 +1347,7 @@ public final class MainActivity extends AppCompatActivity {
             else if(index==3)documentAction(document::removeAllCats);
             else if(index==4)editCatLevelText(getString(R.string.all_cat_base_level),1,document::setAllCatBaseLevels,1,60);
             else if(index==5)editCatLevelText(getString(R.string.all_cat_plus_level),0,document::setAllCatPlusLevels,0,70);
+            else if(index==6)confirmRemoveAllAbnormalCats();
             else confirmCatReset(-1);
         }).setNegativeButton(R.string.close,null).show();
     }
@@ -1045,6 +1363,7 @@ public final class MainActivity extends AppCompatActivity {
         body.setPadding(dp(24),dp(8),dp(24),0);
         int[] stage = {0};
         boolean[] hideAbnormal = {false};
+        boolean[] ownedOnly = {false};
         boolean[] rarities = {true,true,true,true,true,true};
         EditText search = new EditText(this);
         search.setSingleLine(true);
@@ -1071,11 +1390,10 @@ public final class MainActivity extends AppCompatActivity {
             adapter.setNotifyOnChange(false);
             ids.clear(); adapter.clear();
             for(int id=0;id<count;id++) {
-                boolean abnormal = searchable[id].replace(" / ","").trim().isEmpty();
+                boolean abnormal = isAbnormalCatName(forms[id]);
                 if(hideAbnormal[0] && abnormal) continue;
-                if(stage[0]>=forms[id].length || forms[id][stage[0]].isEmpty()) {
-                    if(!abnormal || stage[0]!=0) continue;
-                }
+                if(ownedOnly[0] && !document.catUnlocked(id)) continue;
+                if(!abnormal && (stage[0]>=forms[id].length || forms[id][stage[0]].isEmpty())) continue;
                 int rarity = document.catRarity(id);
                 boolean allRarities = true;
                 for(boolean enabled:rarities) allRarities &= enabled;
@@ -1164,6 +1482,16 @@ public final class MainActivity extends AppCompatActivity {
             switchParams.topMargin=dp(12);
             options.addView(abnormal,switchParams);
             abnormal.setOnCheckedChangeListener((button,checked)->{hideAbnormal[0]=checked;filter.run();});
+            com.google.android.material.materialswitch.MaterialSwitch owned = new com.google.android.material.materialswitch.MaterialSwitch(this);
+            owned.setTrackTintList(androidx.appcompat.content.res.AppCompatResources.getColorStateList(this,R.color.cat_segment_background));
+            owned.setThumbTintList(androidx.appcompat.content.res.AppCompatResources.getColorStateList(this,R.color.cat_segment_text));
+            owned.setTrackDecorationTintList(android.content.res.ColorStateList.valueOf(getColor(R.color.divider)));
+            owned.setTextColor(getColor(R.color.ink));
+            owned.setText(R.string.cat_filter_owned);
+            owned.setChecked(ownedOnly[0]);
+            LinearLayout.LayoutParams ownedParams = new LinearLayout.LayoutParams(-1,dp(64));
+            options.addView(owned,ownedParams);
+            owned.setOnCheckedChangeListener((button,checked)->{ownedOnly[0]=checked;filter.run();});
             TextView rarityTitle = new TextView(this);
             rarityTitle.setText(R.string.cat_filter_rarity);
             rarityTitle.setTextColor(getColor(R.color.muted));
@@ -1197,6 +1525,39 @@ public final class MainActivity extends AppCompatActivity {
         picker.getWindow().setLayout(-1,(int)(getResources().getDisplayMetrics().heightPixels*0.8f));
         picker.getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
     }
+    private boolean isAbnormalCatName(String[] forms) {
+        if (forms == null || forms.length == 0) return true;
+        for (String form : forms) {
+            if (form == null) continue;
+            // Generated name tables quote whitespace-only placeholders as
+            // `" /  / "`; Android normally strips those quotes, but keeping
+            // this normalization here makes abnormal detection independent of
+            // the resource parser and regional catalog formatting.
+            String normalized=form.replace("\"", "").replace("'", "").replaceAll("\\s+", "").replace("/", "");
+            if (!normalized.isEmpty()) return false;
+        }
+        return true;
+    }
+    private void confirmRemoveAllAbnormalCats() {
+        String[] names = getResources().getStringArray(switch(document.region()) {
+            case EN -> R.array.cat_names_en;
+            case JP -> R.array.cat_names_jp;
+            case KR -> R.array.cat_names_kr;
+            case TW -> R.array.cat_names_tw;
+        });
+        boolean[] selected = new boolean[document.catCount()];
+        int count=0;
+        for(int id=0;id<selected.length;id++) {
+            String raw=id<names.length?names[id]:"";
+            selected[id]=isAbnormalCatName(raw.split(" / ",-1));
+            if(selected[id] && document.catUnlocked(id)) count++;
+        }
+        final int selectedCount=count;
+        new AlertDialog.Builder(this).setTitle(R.string.remove_abnormal_cats_title)
+                .setMessage(getString(R.string.remove_abnormal_cats_confirm,selectedCount))
+                .setNegativeButton(R.string.close,null)
+                .setPositiveButton(R.string.cat_reset_action,(d,w)->documentAction(()->document.removeCats(selected))).show();
+    }
     private void confirmUnlockAllCats() {
         new AlertDialog.Builder(this).setTitle(R.string.cats_title).setMessage(R.string.unlock_all_cats_warning)
                 .setNegativeButton(R.string.close,null).setPositiveButton(R.string.execute_anyway,(d,w)->runFieldAction(()->documentAction(document::unlockAllCats))).show();
@@ -1208,7 +1569,7 @@ public final class MainActivity extends AppCompatActivity {
             new AlertDialog.Builder(this).setTitle(title).setItems(rows,(d,item)->{
                 if(item==0){document.setCatUnlocked(index,!document.catUnlocked(index));persistApplied();}
                 else if(item==1)editCatLevelText(labels[1],values[0],v->document.setCatBaseLevel(index,v),1,60);
-                else if(item==2)editCatLevelText(labels[2],values[1],v->document.setCatPlusLevel(index,v),0,70);
+                else if(item==2)editCatLevelText(labels[2],values[1],v->document.setCatPlusLevel(index,v),0,catPlusLevelMaximum(index));
                 else if(item==3)chooseCatCurrentForm(index); else confirmCatReset(index);
             }).setNegativeButton(R.string.close,null).show();
     }
@@ -1216,6 +1577,7 @@ public final class MainActivity extends AppCompatActivity {
         String[] forms=getResources().getStringArray(R.array.cat_form_stages);
         new AlertDialog.Builder(this).setTitle(R.string.cat_current_form_title).setSingleChoiceItems(forms,document.catCurrentForm(cat),(dialog,which)->{try{document.setCatCurrentForm(cat,which);persistApplied();dialog.dismiss();}catch(RuntimeException error){showFieldError(error);}}).setNegativeButton(R.string.close,null).show();
     }
+    private int catPlusLevelMaximum(int index) { return document.catMaxPlusLevel(index); }
     private void confirmCatReset(int cat) { int message=cat<0?R.string.cat_reset_all_confirm:R.string.cat_reset_confirm;new AlertDialog.Builder(this).setTitle(R.string.cat_reset_title).setMessage(message).setNegativeButton(R.string.close,null).setPositiveButton(R.string.cat_reset_action,(d,w)->{if(cat<0)document.resetAllCats();else document.resetCat(cat);persistApplied();}).show(); }
     private void editCatExtras() {
         String[] actions=getResources().getStringArray(R.array.cat_extra_actions);

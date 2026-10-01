@@ -133,7 +133,6 @@ def cases_for(save: Any) -> list[Case]:
             )
             for target in (140000, 140300, 150300, 150400, 150500, 150600)
             if target != save.game_version.game_version
-            and not (target == 150600 and str(save.cc) != "jp")
         ],
         Case("mute-bgm", {"op": "setMuteBgm", "value": True}, _setattr("mute_bgm", True)),
         Case("mute-se", {"op": "setMuteSe", "value": True}, _setattr("mute_se", True)),

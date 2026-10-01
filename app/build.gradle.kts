@@ -14,6 +14,7 @@ val localProperties = Properties().apply {
     if (file.isFile) file.inputStream().use { load(it) }
 }
 val adsterraScriptUrl = localProperties.getProperty("adsterra.scriptUrl", "").trim()
+val seedApiUrl = localProperties.getProperty("seedApi.url", "https://bcsfe.cutefireflyuwu.sbs/api/seed").trim()
 require(!adsEnabled || adsterraScriptUrl.startsWith("https://")) { "Ads=True requires an https:// adsterra.scriptUrl in local.properties" }
 fun quotedBuildConfig(value: String) = "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
@@ -56,12 +57,13 @@ android {
         applicationId = "io.github.tuxkoh.bcsfe"
         minSdk = 26
         targetSdk = 34
-        versionCode = 40
-        versionName = "1.3.2"
+        versionCode = 41
+        versionName = "1.3.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("boolean", "ADS_ENABLED", adsEnabled.toString())
         buildConfigField("String", "ADSTERRA_SCRIPT_URL", quotedBuildConfig(adsterraScriptUrl))
+        buildConfigField("String", "SEED_API_URL", quotedBuildConfig(seedApiUrl))
     }
 
     buildFeatures { buildConfig = true }

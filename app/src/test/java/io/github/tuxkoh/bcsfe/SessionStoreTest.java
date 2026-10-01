@@ -79,4 +79,28 @@ public class SessionStoreTest {
         SessionStore.Session session=store.create(new byte[]{4},"before",null);store.rename(session.id,"after");
         assertEquals(1,store.history(session.id).entries.size());
     }
+
+    @Test public void preparedCopyUpdatesCapturedSessionWithoutSwitchingActiveSession() throws Exception {
+        SessionStore store=new SessionStore(Files.createTempDirectory("bcsfe-root-prepared").toFile());
+        SessionStore.Session source=store.create(new byte[]{1},"source","old");
+        SessionStore.Session other=store.create(new byte[]{2},"other","other-password");
+        SessionStore.Session prepared=store.savePreparedCopy(source.id,new byte[]{1},new byte[]{3},"source","new");
+        assertEquals(source.id,prepared.id);assertEquals("new",prepared.password);
+        assertEquals(other.id,store.currentId());assertArrayEquals(new byte[]{2},store.load().save);
+    }
+
+    @Test public void preparedCopyPreservesInterveningEditsAndDoesNotResurrectDeletedSession() throws Exception {
+        java.io.File directory=Files.createTempDirectory("bcsfe-root-race").toFile();
+        SessionStore store=new SessionStore(directory);
+        SessionStore.Session source=store.create(new byte[]{1},"source","old");
+        store.save(source.id,new byte[]{2},"renamed","edited-password");
+        SessionStore.Session prepared=store.savePreparedCopy(source.id,new byte[]{1},new byte[]{3},"source","new");
+        assertNotEquals(source.id,prepared.id);assertEquals("renamed",prepared.name);
+        assertArrayEquals(new byte[]{2},store.load(source.id).save);
+        assertEquals("edited-password",store.load(source.id).password);assertEquals(source.id,store.currentId());
+        store.delete(source.id);
+        SessionStore.Session recreated=store.savePreparedCopy(source.id,new byte[]{1},new byte[]{4},"source","newer");
+        assertNotEquals(source.id,recreated.id);assertNull(store.load(source.id));
+        assertEquals(prepared.id,store.currentId());assertEquals("newer",new SessionStore(directory).load(recreated.id).password);
+    }
 }

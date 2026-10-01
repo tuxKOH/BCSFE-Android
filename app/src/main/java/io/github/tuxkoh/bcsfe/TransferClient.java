@@ -70,6 +70,11 @@ final class TransferClient {
         final String password;
         AccountResult(String password){this.password=password;}
     }
+    static final class ReplacementSave {
+        final io.github.tuxkoh.bcsfe.core.SaveDocument document;
+        final String password;
+        ReplacementSave(io.github.tuxkoh.bcsfe.core.SaveDocument document,String password){this.document=document;this.password=password;}
+    }
     private static final class Authentication {
         final String token;
         final String password;
@@ -151,6 +156,25 @@ final class TransferClient {
         return new Authentication(requestToken(document,iq,password),password);
     }
     private static String requestToken(io.github.tuxkoh.bcsfe.core.SaveDocument document,String iq,String password)throws Exception{JSONObject client=clientInfo(document.region().code(),document.gameVersion());client.put("password",password).put("accountCode",iq);JSONObject token=postAccountJson(endpoints.auth+"/v1/tokens",client,iq,null);String auth=token.optJSONObject("payload")==null?"":token.getJSONObject("payload").optString("token","");if(auth.isEmpty())throw new IllegalStateException("Token request failed");return auth;}
+    /** Creates a writable copy without authenticating or modifying the source account. */
+    static ReplacementSave createReplacementCopy(byte[] source,io.github.tuxkoh.bcsfe.core.SaveDocument.Region region) throws Exception {
+        io.github.tuxkoh.bcsfe.core.SaveDocument replacement=region==null
+                ?io.github.tuxkoh.bcsfe.core.SaveDocument.open(source)
+                :io.github.tuxkoh.bcsfe.core.SaveDocument.open(source,region);
+        if(!replacement.isOfficiallySupportedVersion()||!replacement.hasItemProfile())
+            throw new UnsupportedOperationException("Replacement load requires a supported save layout");
+        // Probe every required identity field before creating anything on the server.
+        // Unknown layouts must never be silently loaded with the old account.
+        try {
+            replacement.inquiryCode();
+            replacement.passwordRefreshToken();
+            replacement.showBanMessage();
+        } catch (RuntimeException unavailable) {
+            throw new UnsupportedOperationException("Replacement load identity fields are unavailable",unavailable);
+        }
+        AccountResult account=createNewAccount(replacement);
+        return new ReplacementSave(replacement,account.password);
+    }
     static AccountResult createNewAccount(io.github.tuxkoh.bcsfe.core.SaveDocument document) throws Exception {
         JSONObject created=getPublicJson(endpoints.backups+"/?action=createAccount&referenceId=");String inquiry=created.optString("accountId","");if(inquiry.isEmpty())throw new IllegalStateException("Account creation failed");
         document.setInquiryCode(inquiry);document.setPasswordRefreshToken("__________EXPECT_THIS_TO_FAIL___________");
@@ -162,8 +186,8 @@ final class TransferClient {
         return new AccountResult(password);
     }
     private static void synchronizeManagedItems(io.github.tuxkoh.bcsfe.core.SaveDocument document,String auth) throws Exception {JSONObject body=new JSONObject().put("catfoodAmount",document.catFood()).put("isPaid",true).put("legendTicketAmount",document.legendTickets()).put("nonce",randomHex(32)).put("platinumTicketAmount",document.platinumTickets()).put("rareTicketAmount",document.rareTickets());String[] signed=accountHeaders(document.inquiryCode(),body.toString());String[] headers=new String[signed.length+1];System.arraycopy(signed,0,headers,0,signed.length);headers[headers.length-1]="Authorization: Bearer "+auth;JSONObject response=postJson(endpoints.managed+"/v1/managed-items",body,headers);if(response.optInt("statusCode",0)!=1)throw new IllegalStateException("Managed item upload failed");}
-    private static JSONObject clientInfo(String region) throws Exception { return clientInfo(region,150500); }
-    static int latestTransferVersion(String region) { return region.equals("jp") || region.equals("tw") ? 150600 : 150500; }
+    private static JSONObject clientInfo(String region) throws Exception { return clientInfo(region,latestTransferVersion(region)); }
+    static int latestTransferVersion(String region) { return 150600; }
     private static JSONObject clientInfo(String region,int version) throws Exception { return new JSONObject().put("clientInfo",new JSONObject().put("client",new JSONObject().put("countryCode",region.equals("jp")?"ja":region).put("version",version)).put("device",new JSONObject().put("model","SM-G955F")).put("os",new JSONObject().put("type","android").put("version","9"))).put("nonce",randomHex(32)); }
     private static JSONObject postJson(String url,JSONObject body,String[] extra) throws Exception { HttpURLConnection c=(HttpURLConnection)new URL(url).openConnection();c.setRequestMethod("POST");c.setDoOutput(true);c.setConnectTimeout(15000);c.setReadTimeout(30000);c.setRequestProperty("Content-Type","application/json");c.setRequestProperty("Accept-Encoding","gzip");c.setRequestProperty("Connection","keep-alive");c.setRequestProperty("User-Agent",USER_AGENT);if(extra!=null)for(String h:extra){int p=h.indexOf(':');if(p>0)c.setRequestProperty(h.substring(0,p),h.substring(p+1).trim());}try(OutputStream o=c.getOutputStream()){o.write(body.toString().getBytes(StandardCharsets.UTF_8));}int status=c.getResponseCode();if(status/100!=2)throw new NetworkFailure(stage(url),status,c.getContentType());try(InputStream i=responseInput(c)){JSONObject response=new JSONObject(new String(io.github.tuxkoh.bcsfe.core.IoStreams.readAll(i),StandardCharsets.UTF_8));if(response.optInt("statusCode",0)!=1)throw new NetworkFailure(stage(url),status,"statusCode="+response.optInt("statusCode",0));return response;}finally{c.disconnect();}}
     private static JSONObject postTransferJson(String url,String body,String[] extra) throws Exception {

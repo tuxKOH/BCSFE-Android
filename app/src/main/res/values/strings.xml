@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="root_loading_replacement">Creating a replacement account, then loading the save into the installed game…</string>
+    <string name="root_replacement_success">Replacement account created and the save loaded into the installed game. Updated credentials were saved in the editor.</string>
+    <string name="root_replacement_failed">Could not create the replacement account. No game files were written and the working save was not changed.</string>
+    <string name="root_replacement_unsupported">This save is unsupported or damaged, so a replacement account cannot be created safely. No game files were written and the working save was not changed.</string>
+    <string name="root_replacement_session_failed">The save was loaded into the game with a replacement account, but its credentials could not be cached in the editor. Read the game save again before editing.</string>
+    <string name="root_replacement_write_confirm">A replacement account will be created first. After it succeeds, SAVE_DATA and SAVE_DATA.OLD will be removed, JSON cache files cleared, and the prepared save loaded into %1$s. The working save will receive the new credentials. Continue?</string>
+    <string name="root_reading_replacement">Reading a copy of the game save and creating a replacement account before opening it… The installed game save will not be changed.</string>
+    <string name="root_read_replacement_success">Replacement account created and the save copy opened as a new session. The installed game save was not changed.</string>
+    <string name="root_read_replacement_failed">Could not read the game save or create its replacement account. No save was opened; game files and the current session were not changed.</string>
     <string-array name="transfer_regions"><item>EN</item><item>JP</item><item>TW</item><item>KR</item></string-array>
     <string name="app_name">BCSFE Android</string>
     <string name="about">About</string>
@@ -9,7 +18,7 @@
     <string name="update_notes_unavailable">No release notes were provided.</string>
     <string name="view_release">View release</string>
     <string name="open_release_failed">Could not open the release page.</string>
-    <string name="supported_versions_notice">Full editing targets JP and TW 15.6 saves, plus JP, EN, TW, and KR 15.5 saves. Older saves can be imported for inspection and export, but are not officially supported. Version conversion supports 14.0 and 14.3–15.6. Earlier save formats are not supported for full editing.</string>
+    <string name="supported_versions_notice">Full editing targets EN, JP, TW, and KR 15.6 saves, plus 15.5 saves in all four regions. Older saves can be imported for inspection and export, but are not officially supported. Version conversion supports 14.0 and 14.3–15.6. Earlier save formats are not supported for full editing.</string>
     <string name="unsupported_import_warning_title">Version not officially supported</string>
     <string name="unsupported_import_warning">This version is not officially supported. The abnormal-cat list may be incomplete, and some values may appear garbled. If you see garbled values, do not edit them; this may trigger an in-game data error and could lead to a ban.</string>
     <string name="language">Language</string><string name="change_language">Change language</string><string name="choose_language">Choose language</string>
@@ -60,6 +69,17 @@
     <string name="unsupported_save_version">This editor is not yet verified for the loaded save version.</string>
     <string name="playtime_label">Playtime frames</string><string name="playtime_title">Edit playtime</string><string name="playtime_hours_label">Hours</string><string name="playtime_minutes_label">Minutes</string><string name="playtime_seconds_label">Seconds</string><string name="gamatoto_xp_label">Gamatoto XP</string><string name="challenge_score_label">Challenge score</string><string name="seeds_title">Gacha seeds</string>
     <string-array name="seed_labels"><item>Rare seed</item><item>Normal seed</item><item>Event seed</item></string-array>
+    <string name="seed_get_action">Get seed</string><string name="seed_license_title">Enter Seed API license key</string><string name="seed_license_hint">One-time license key</string><string name="seed_license_required">Enter a license key</string><string name="seed_license_invalid">The license key is invalid or revoked.</string><string name="seed_license_used">This license key has already been used.</string><string name="seed_license_busy">This license key is being used; try again shortly.</string><string name="seed_loading_pools">Loading current gacha pools…</string><string name="seed_pool_title">Choose current gacha pool</string><string name="seed_roll_targets_title">Choose the ten pulls</string><string name="seed_roll_row">Pull %1$d: %2$s</string><string name="seed_pick_title">Choose cat for pull %1$d</string><string name="seed_random">Random</string><string name="seed_find_action">Calculate and write rare seed</string><string name="seed_calculating">Calculating seed (up to 3 seconds, plus network delivery)…</string><string name="seed_found">Rare seed written: %1$d</string><string name="seed_api_failed">Seed API failed: %1$s</string>
+    <string name="seed_difficult_title">These targets may be hard to match</string>
+    <string name="seed_difficult_message">Low-probability combinations or five or more copies of one cat may have no matching seed. Try setting some pulls to Random. Continue with a maximum 3-second calculation?</string>
+    <string name="seed_adjust_targets">Adjust targets</string>
+    <string name="seed_try_anyway">Try anyway</string>
+    <string name="seed_impossible_title">These targets cannot be matched</string>
+    <string name="seed_impossible_message">A target is unavailable in this pool, or consecutive copies of a rare-only cat conflict with the duplicate-reroll rule. Change some pulls to Random or another cat.</string>
+    <string name="seed_limit_reached">The 3-second or candidate limit was reached. This does not prove there is no seed. Set some pulls to Random and try again. Your seed was not changed.</string>
+    <string name="seed_no_match">The complete requested seed range was searched without a match. Set some pulls to Random or choose different cats. Your seed was not changed.</string>
+    <string name="seed_api_busy">A seed calculation is already running. Please retry shortly.</string>
+    <string name="seed_network_timeout">The Seed API connection timed out. Your seed was not changed; please retry.</string>
     <string name="fix_applied">Fix applied.</string>
     <string-array name="ticket_labels"><item>Normal Tickets</item><item>Rare Tickets</item><item>Platinum Tickets</item><item>Legend Tickets</item><item>Rare Ticket Trade</item></string-array><string name="rare_trade_title">Rare Ticket Trade</string><string name="rare_trade_amount">Rare Tickets to prepare</string>
     <string-array name="advanced_item_labels"><item>Platinum Shards</item><item>NP</item><item>Leadership</item><item>Reset Golden Cat CPU count</item></string-array>
@@ -75,7 +95,8 @@
     <string-array name="form_actions"><item>Unlock available True Forms</item><item>Force all True Forms</item><item>Remove True Forms</item><item>Unlock available Fourth Forms</item><item>Force all Fourth Forms</item><item>Remove Fourth Forms</item></string-array>
     <string name="back">Back</string>
     <string name="yes">Yes</string><string name="no">No</string><string name="cat_id_label">Cat ID</string><string name="cat_number">Cat %1$d</string><string name="index_range">Valid range: 0–%1$d</string>
-    <string-array name="cat_editor_actions"><item>Edit a cat by ID and name</item><item>Get all obtainable cats</item><item>Unlock all cats</item><item>Remove all cats (keep progression)</item><item>Set all base levels</item><item>Set all plus levels</item><item>Remove and fully reset all cats</item></string-array><string name="all_cat_base_level">Base level for all cats</string><string name="all_cat_plus_level">Plus level for all cats</string>
+    <string-array name="cat_editor_actions"><item>Edit a cat by ID and name</item><item>Get all obtainable cats</item><item>Unlock all cats</item><item>Remove all cats (keep progression)</item><item>Set all base levels</item><item>Set all plus levels</item><item>Remove all abnormal cats (keep progression)</item><item>Remove and fully reset all cats</item></string-array><string name="all_cat_base_level">Base level for all cats</string><string name="all_cat_plus_level">Plus level for all cats</string>
+    <string name="remove_abnormal_cats_title">Remove abnormal cats?</string><string name="remove_abnormal_cats_confirm">This will remove %1$d currently owned abnormal cats while keeping their progression, forms, guide entries and talents.</string>
     <string name="cat_picker_title">Edit a cat by ID and name</string>
     <string name="cat_search_hint">id / name</string>
     <string name="cat_search_empty">No matching cats</string>
@@ -197,8 +218,25 @@
     <string name="cat_filter_stage">Form %1$d</string>
     <string name="cat_filter_stage_short">%1$d</string>
     <string name="cat_filter_abnormal">Hide abnormal cats</string>
+    <string name="cat_filter_owned">Show only owned cats</string>
     <string name="cat_filter_rarity">Rarity</string>
     <string-array name="cat_filter_rarities"><item>Normal</item><item>EX</item><item>Rare</item><item>Super Rare</item><item>Uber Rare</item><item>Legend Rare</item></string-array>
+    <string name="transfer_help_get">\? How do I get transfer codes?</string>
+    <string name="transfer_help_use">\? How do I use transfer codes?</string>
+    <string name="transfer_intro">Tap “Receive save with transfer codes” to start editing The Battle Cats!</string>
+    <string-array name="transfer_help_get_steps">
+        <item>Open Options on the game title screen, then choose Account / Data Transfer.</item>
+        <item>Choose the device change / data transfer procedure.</item>
+        <item>Choose to transfer game data out of this device.</item>
+        <item>Read the game notice and upload the save to generate transfer codes. Keep the game online until it finishes.</item>
+        <item>Keep both the transfer code and confirmation code private. Return to BCSFE, enter both codes, select the matching game region, then receive the save.</item>
+    </string-array>
+    <string-array name="transfer_help_use_steps">
+        <item>Keep the new codes shown by BCSFE. Open Options on the game title screen, then choose Account / Data Transfer.</item>
+        <item>Choose the device change / data transfer procedure.</item>
+        <item>Choose to receive existing game data on this device.</item>
+        <item>Enter the new transfer code and confirmation code from BCSFE, then start the transfer. Use the matching game region and wait for the game to finish.</item>
+    </string-array>
     <!-- BEGIN GENERATED CAT NAMES -->
     <string-array name="cat_names_en">
         <item>"Cat / Macho Cat / Mohawk Cat"</item>
@@ -217,9 +255,9 @@
         <item>"Dom Cat / Executioner / Dark Lazer"</item>
         <item>"Cats in a Box / Cat Gang / Heavy Assault C.A.T."</item>
         <item>"Panties Cat / Leaf Cat / Lollycat"</item>
-        <item>"Moneko / Miss MONEKO / Superstar MONEKO"</item>
+        <item>"Moneko / Miss Moneko / Superstar Moneko"</item>
         <item>"Tricycle Cat / Biker Cat / Unicycle Cat"</item>
-        <item>"Ninja Cat / Ninja Frog Cat / Flying Ninja Cat"</item>
+        <item>"Ninja Cat / Frog Ninja Cat / Flying Ninja Cat"</item>
         <item>"Zombie Cat / Devil Cat / Skelecat"</item>
         <item>"Samurai Cat / Knight Cat / Pastry Cat"</item>
         <item>"Sumo Cat / Madame Sumo / Riceball Cat"</item>
@@ -397,7 +435,7 @@
         <item>" /  / "</item>
         <item>"Akira / Shadow Akira / Inferno Akira"</item>
         <item>"Mekako Saionji / Dr. Mekako / Mission Control Mekako"</item>
-        <item>"Catman / Dark Catman / Ultimate Catman"</item>
+        <item>"Catman / Dark Catman / Ultimate Catman / Catman Forever"</item>
         <item>"Psychocat / Neo Psychocat / Corrupted Psychocat"</item>
         <item>"Onmyoji Cat / Magica Cat / Thaumaturge Cat"</item>
         <item>"Surfer Cat / Castaway Cat / Seafarer Cat"</item>
@@ -430,7 +468,7 @@
         <item>"Warlock and Pierre / Dark Merchant Babil / Mad Doctor Klay"</item>
         <item>"Pumpcat / Cat O\'Lantern / Harbinger Cat"</item>
         <item>"Gloomy Neneko / Witchy Neneko / Costumed Witchy Neneko"</item>
-        <item>"Hallowindy / Hallowindy, type α / "</item>
+        <item>"Hallowindy / Hallowindy, type α / Hallowindy, type α"</item>
         <item>"Spooky Thundia / Spooky Thundia, type β / Spooky Thundia, type β"</item>
         <item>" /  / "</item>
         <item>" /  / "</item>
@@ -705,7 +743,7 @@
         <item>"Cat Bros / Baka Cat Bros / Baka Cat Bros"</item>
         <item>"Myrcia / Myrcia, type ξ / Divine Myrcia ξ"</item>
         <item>" /  / "</item>
-        <item>" /  / "</item>
+        <item>"Burgle Boss Cat (Retired) / Burgle Boss Cat (Prime) / Burgle Boss Cat (Prime)"</item>
         <item>"Relentless Gladios / Gladios the Annihilator / God-Emperor Gladios"</item>
         <item>"Eyewaltz / Eyewaltz CC / Nameless Eyewaltz CC"</item>
         <item>"Mightycat / Supercat / Ironcat"</item>
@@ -789,7 +827,7 @@
         <item>"Baby Garu / Mighty Aegis Garu / Mighty Aegis Garu"</item>
         <item>"Emperor Cat / Tyrant Cat / Tyrant Cat"</item>
         <item>"Sweet Aphrodite / Chocoladite / Chocoladite"</item>
-        <item>"First-Love Myrcia / First-Love Myrcia ξ / First-Love Myrcia ξ"</item>
+        <item>"First-Love Myrcia / First-Love Myrcia, type ξ / First-Love Myrcia, type ξ"</item>
         <item>"Valentine\'s Neneko / Sweetheart Neneko / True Love Neneko"</item>
         <item>"Snow Miku 2021 / Snow Miku CC 2021 / Snow Miku CC 2021"</item>
         <item>"KAITO &amp; Cat / KAITO &amp; Cat CC / KAITO &amp; Cat CC"</item>
@@ -867,7 +905,7 @@
         <item>"Ancient Egg: N103 / Dark Egg: N103 / Gas Mask Cat"</item>
         <item>"Ancient Egg: N104 / Green Egg: N104 / Surgeon Cat"</item>
         <item>"Ancient Egg: N201 / Dark Egg: N201 / Exorcist Cat"</item>
-        <item>"Night Beach Lilin / Night Beach Lilinπ / Night Beach Lilinπ"</item>
+        <item>"Night Beach Lilin / Night Beach Lilin, type π / Night Beach Lilin, type π"</item>
         <item>"Brainwashed Bird Cat / Brainwashed UFO Cat / Brainwashed Flying Cat"</item>
         <item>"Cat Tengu / Grand Yokai Tengu / Immortal Master Tengu"</item>
         <item>"Ancient Egg: N003 / Evil Egg: N003 / Cat Cactus"</item>
@@ -888,7 +926,7 @@
         <item>"Brainwashed Fish Cat / Brainwashed Whale Cat / Brainwashed Island Cat"</item>
         <item>"Ancient Egg: N004 / Mystic Egg: N004 / Supercar Cat"</item>
         <item>"Goddess of Light Sirius / Goddess of Sunrise Sirius / Goddess of Sunrise Sirius"</item>
-        <item>"Reindeer Terun / Reindeer Terunζ / Reindeer Terunζ"</item>
+        <item>"Reindeer Terun / Reindeer Terun, type ζ / Reindeer Terun, type ζ"</item>
         <item>"Brainwashed Lizard Cat / Brainwashed Dragon Cat / Brainwashed King Dragon Cat"</item>
         <item>"Meditation Cat / Paragon Cat / Paragon Cat"</item>
         <item>"Child of Destiny Phono / King of Destiny Phonoa / King of Destiny Phonoa"</item>
@@ -915,7 +953,7 @@
         <item>"Betrothed Balaluga / Betrothed Pasalan / Betrothed Pasalan"</item>
         <item>"Kaoluga / Kaolan Pasalan / Kaolan Tatalan"</item>
         <item>"Ancient Egg: N203 / Violet Egg: N203 / Clown Cat"</item>
-        <item>"Coastal Explorer Kanna / Deep-Diver Kanna / Great Deep-Diver Kanna"</item>
+        <item>"Coastal Explorer Kanna / Deep-Diver Kanna / Deep-Diver Kanna"</item>
         <item>"Mighty Sphinx Korps / Attack Battalion Convoys / Hyper Battalion Convoys"</item>
         <item>"Ancient Egg: N111 / Mystic Egg: N111 / Cop Cat"</item>
         <item>"Ancient Egg: N110 / Amber Egg: N110 / Farmboy Cat"</item>
@@ -934,7 +972,7 @@
         <item>"Ancient Egg: N204 / Cinnabar Egg: N204 / Lion Dancer Cat"</item>
         <item>"Daybreaker Izanagi / Dawnbringer Izanagi / Dawnbringer Izanagi"</item>
         <item>"733_1"</item>
-        <item>"Pegasa / Pegasa, type ν / Pegasa, type ν"</item>
+        <item>"Pegasa / Pegasa, type ν / Divine Pegasa ν"</item>
         <item>"735_1"</item>
         <item>"Principal Cat / Midlife Crisis Cat / Midlife Crisis Cat"</item>
         <item>"Frozen Rose Cat / Arctic Bloom Cat / Arctic Bloom Cat"</item>
@@ -960,7 +998,7 @@
         <item>"Cake Machine / Wedding Cake Machine / Wedding Cake Machine"</item>
         <item>"Ancient Egg: N205 / Violet Egg: N205 / Bride Cat"</item>
         <item>"Trixi the Merc / Trixi the Revenant / Trixi the Revenant"</item>
-        <item>"Music Fest Thundia / Music Fest Thundia β / Music Fest Thundia β"</item>
+        <item>"Music Fest Thundia / Music Fest Thundia, type β / Music Fest Thundia, type β"</item>
         <item>"Gunduros / Ballistic Dragon Gunduros / Ballistic Dragon Gunduros"</item>
         <item>"762_1"</item>
         <item>" /  / "</item>
@@ -1021,7 +1059,7 @@
         <item>"Komori / Moririn / Moririn"</item>
         <item>"819-1"</item>
         <item>"Carpenter Cat / Rapper Cat / Rapper Cat"</item>
-        <item>"Seaside Pegasa / Seaside Pegasa v / Seaside Pegasa v"</item>
+        <item>"Seaside Pegasa / Seaside Pegasa, type v / Seaside Pegasa, type v"</item>
         <item>"822_1"</item>
         <item>"Consultant Cat / Business Partner Cat / Business Partner Cat"</item>
         <item>" /  / "</item>
@@ -1065,8 +1103,8 @@
         <item>"Vornado / Tempest King Vornado / Tempest King Vornado"</item>
         <item>"Hanzo the Betrothed / Hanzo the Groom / Hanzo the Groom"</item>
         <item>"The Invisible Cat / Groom Cat / Groom Cat"</item>
-        <item>" /  / "</item>
-        <item>" /  / "</item>
+        <item>"Shirou Emiya / Shirou Emiya CC / Shirou Emiya CC"</item>
+        <item>"True Assassin / True Assassin CC / True Assassin CC"</item>
         <item>" /  / "</item>
         <item>" /  / "</item>
         <item>" /  / "</item>
@@ -1074,9 +1112,9 @@
         <item>"Ancient Egg: N207 / Onyx Egg: N207 / Tycoon Cat"</item>
         <item>"Ancient Egg: N208 / Green Egg: N208 / Combat Crawfish Cat"</item>
         <item>"Jungle Gourmet Tomoe / Canopy Queen Tomoe / Canopy Queen Tomoe"</item>
+        <item>"Metal Maiden Koneko / Sonic Siren Koneko / Sonic Siren Koneko"</item>
         <item>""</item>
-        <item>""</item>
-        <item>""</item>
+        <item>"735_1"</item>
     </string-array>
     <string-array name="cat_names_tw">
         <item>"貓咪 / 健美貓 / 摩西根貓"</item>
@@ -1275,7 +1313,7 @@
         <item>" /  / "</item>
         <item>"阿激拉 / 幻影・阿激拉 / 獄炎・阿激拉"</item>
         <item>"西園寺機器子 / 怪博士Dr.機器子 / 航太博士Dr.機器子"</item>
-        <item>"貓俠大帝 / 黑暗貓俠 / 雷霆貓俠"</item>
+        <item>"貓俠大帝 / 黑暗貓俠 / 雷霆貓俠 / 永恆貓俠"</item>
         <item>"超能力貓 / 新世紀超能力貓 / 超能力貓魔俠"</item>
         <item>"貓咪陰陽師 / 魔法少女貓 / 貓咪大魔王"</item>
         <item>"衝浪貓 / 漂流貓 / 貓咪漂流記"</item>
@@ -1308,7 +1346,7 @@
         <item>"咒術師死亡小丑 / 暗黑商人巴比倫 / 奇術科學者狂G"</item>
         <item>"南瓜貓 / 燈籠貓 / 死神貓"</item>
         <item>"萬聖萌萌貓 / 萬聖魔女萌萌貓 / 萬聖變裝萌萌貓"</item>
-        <item>"甜心溫蒂 / 甜心溫蒂α / "</item>
+        <item>"甜心溫蒂 / 甜心溫蒂α / 甜心溫蒂α"</item>
         <item>"惡魔珊迪亞 / 惡魔珊迪亞β / 惡魔珊迪亞β"</item>
         <item>" /  / "</item>
         <item>" /  / "</item>
@@ -1583,7 +1621,7 @@
         <item>"貓咪兄弟S / 貓咪笨呆兄弟S / 貓咪笨呆兄弟S"</item>
         <item>"英雄令媛蜜斯 / 英雄令媛蜜斯ξ / 絢爛令媛蜜斯ξ"</item>
         <item>" /  / "</item>
-        <item>"貓大叔【店主】 / 貓大叔【現役】 / 貓大叔【現役】"</item>
+        <item>"貓大叔（店主） / 貓大叔（現役） / 貓大叔（現役）"</item>
         <item>"角龍格拉迪歐斯 / 角龍王格拉迪歐斯 / 角龍皇帝格拉迪歐斯"</item>
         <item>"艾沃茲 / 艾沃茲CC / 無名的艾沃茲CC"</item>
         <item>"超人貓 / 硬漢超人貓 / 鋼鐵超人貓"</item>
@@ -1812,7 +1850,7 @@
         <item>"遠古的蛋：N204 / 紅色的蛋：N204 / 舞獅貓"</item>
         <item>"曉之伊邪那岐 / 曉光之伊邪那岐 / 曉光之伊邪那岐"</item>
         <item>"733_1"</item>
-        <item>"鐵籠的姵卡薩 / 鐵籠的姵卡薩ν / 鐵籠的姵卡薩ν"</item>
+        <item>"鐵籠的姵卡薩 / 鐵籠的姵卡薩ν / 白籠的姵卡薩ν"</item>
         <item>"735_1"</item>
         <item>"校長貓 / 第二人生貓 / 第二人生貓"</item>
         <item>"冰雪白星貓 / 冰雪巨星貓 / 冰雪巨星貓"</item>
@@ -1943,8 +1981,8 @@
         <item>"嵐龍機沃爾內德 / 嵐龍機王沃爾內德 / 嵐龍機王沃爾內德"</item>
         <item>"婚禮・服部半藏 / 新郎・服部半藏 / 新郎・服部半藏"</item>
         <item>"透明貓 / 新郎貓 / 新郎貓"</item>
-        <item>" /  / "</item>
-        <item>" /  / "</item>
+        <item>"衛宮士郎 / 衛宮士郎CC / 衛宮士郎CC"</item>
+        <item>"真Assassin / 真AssassinCC / 真AssassinCC"</item>
         <item>" /  / "</item>
         <item>" /  / "</item>
         <item>" /  / "</item>
@@ -1952,9 +1990,9 @@
         <item>"遠古的蛋：N207 / 黑色的蛋：N207 / 暴發戶貓"</item>
         <item>"遠古的蛋：N208 / 綠色的蛋：N208 / 突擊小龍蝦貓"</item>
         <item>"叢林獵人多萌耶 / 叢林大師多萌耶 / 叢林大師多萌耶"</item>
+        <item>"搖滾俏喵 / 搖滾明星俏喵 / 搖滾明星俏喵"</item>
         <item>""</item>
-        <item>""</item>
-        <item>""</item>
+        <item>"735_1"</item>
     </string-array>
     <string-array name="cat_names_jp">
         <item>"ネコ / ネコビルダー / ネコモヒカン"</item>
@@ -2153,7 +2191,7 @@
         <item>"中村奏絵 / クイーンかにー / クイーンかにー"</item>
         <item>"アキラ / シャドウ・アキラ / インフェルノ・アキラ"</item>
         <item>"西園寺メカ子 / ドクトルDr.メカ子 / アストロDr.メカ子"</item>
-        <item>"キャットマンダディ / キャットマンダーク / キャットマンライジング"</item>
+        <item>"キャットマンダディ / キャットマンダーク / キャットマンライジング / キャットマンフォーエバー"</item>
         <item>"サイキックネコ / ネオサイキックネコ / デビルサイキックネコ"</item>
         <item>"ねこ陰陽師 / 魔法少女ねこ / ねこ大魔王"</item>
         <item>"ネコサーファー / ネコ漂流 / ネコ漂流記"</item>
@@ -2412,7 +2450,7 @@
         <item>"古代ネコ / 現代ネコ / 未来ネコ"</item>
         <item>"きたろう / ゲゲゲの鬼太郎 / ゲゲゲの鬼太郎"</item>
         <item>"目玉おやじ / 入浴おやじ / 入浴おやじ"</item>
-        <item>"ワンダー・モモコ / キューティー・モモコ / キューティー・モモコ"</item>
+        <item>"ワンダー・モモコ / キューティー・モモコ / スターライト・モモコ"</item>
         <item>"間桐 桜 / 間桐 桜CC / 黒桜CC"</item>
         <item>"ネコ士郎 / 魔術師見習いネコ士郎 / 魔術師見習いネコ士郎"</item>
         <item>"アーチャーネコ / 英霊アーチャーネコ / 英霊アーチャーネコ"</item>
@@ -2690,7 +2728,7 @@
         <item>"古びたタマゴ:N204 / 赤いタマゴ:N204 / ねこシシマイ"</item>
         <item>"暁のイザナギ / 暁光のイザナギ / 暁光のイザナギ"</item>
         <item>"733_1"</item>
-        <item>"鉄籠のペガサ / 鉄籠のペガサν / 鉄籠のペガサν"</item>
+        <item>"鉄籠のペガサ / 鉄籠のペガサν / 白籠のペガサν"</item>
         <item>"735_1"</item>
         <item>"ネコ校長 / ネコセカンドライフ / ネコセカンドライフ"</item>
         <item>"ネコアイスホワイトスター / ネコアイストップスター / ネコアイストップスター"</item>
@@ -2828,11 +2866,11 @@
         <item>"ネコインキー / ネコインキーCC / ネコインキーCC"</item>
         <item>"鉄腕！東雲寺あかね / それいけ！東雲寺あかね / それいけ！東雲寺あかね"</item>
         <item>"古びたタマゴ:N207 / 黒いタマゴ:N207 / 成金ネコ"</item>
-        <item>""</item>
-        <item>""</item>
-        <item>""</item>
-        <item>""</item>
-        <item>""</item>
+        <item>"古びたタマゴ:N208 / 緑のタマゴ:N208 / アサルトザリガニネコ"</item>
+        <item>"ジャングルハンタートモエ / ジャングルマスタートモエ / ジャングルマスタートモエ"</item>
+        <item>"ロックこねこ / ロックスターこねこ / ロックスターこねこ"</item>
+        <item>"りゅういち / りゅういち＆りゅうじ / りゅういち＆りゅうじ"</item>
+        <item>"735_1"</item>
     </string-array>
     <string-array name="cat_names_kr">
         <item>"고양이 / 고양이 빌더 / 고양이 모히칸"</item>
@@ -3031,7 +3069,7 @@
         <item>" /  / "</item>
         <item>"아키라 / 쉐도우・아키라 / 인펠・아키라"</item>
         <item>"메카소녀 진 / 닥터 메카소녀 진 / 스페이스 메카소녀 진"</item>
-        <item>"캣맨대디 / 캣맨다크 / 캣맨라이징"</item>
+        <item>"캣맨대디 / 캣맨다크 / 캣맨라이징 / 캣맨포에버"</item>
         <item>"사이킥 냥코 / 네오 사이킥 냥코 / 데빌 사이킥 냥코"</item>
         <item>"고양이 음양사 / 마법소녀 고양이 / 대마왕 고양이"</item>
         <item>"고양이 서퍼 / 표류 고양이 / 고양이 표류기"</item>
@@ -3064,7 +3102,7 @@
         <item>"주술사 데스삐에로 / 암흑 상인 바빌 / 과학자 클레이G"</item>
         <item>"냥프킨 / 랜턴 냥프킨 / 사신 냥프킨"</item>
         <item>"할로윈 귀요미 / 할로윈 마녀 귀요미 / 코스프레 할로윈 귀요미"</item>
-        <item>"윈디 스위트 / 윈디 스위트α / "</item>
+        <item>"윈디 스위트 / 윈디 스위트α / 윈디 스위트α"</item>
         <item>"데빌 산디아 / 데빌 산디아β / 데빌 산디아β"</item>
         <item>"오뎅 / 오뎅CC / 오뎅CC"</item>
         <item>"빛의 신도 발키리 / 빛의 신도 발키리CC / 빛의 신도 발키리CC"</item>
@@ -3197,14 +3235,14 @@
         <item>"불의 정령 메라라 / 불꽃의 정령 메라란 / 불꽃의 정령왕 메라버닝 / 불꽃의 대정령 메라피닉스"</item>
         <item>"물의 정령 마리 / 유수의 정령 마리린 / 유수의 정령왕 마리리린 / 유수의 대정령 마리나데"</item>
         <item>"바람의 정령 에어리 / 폭풍의 정령 에어린 / 폭풍의 정령왕 에어리린 / 폭풍의 대정령 에어리얼"</item>
-        <item>"세이버 / 세이버 CC / 세이버 오르타CC"</item>
+        <item>"세이버 / 세이버 CC / 세이버 얼터CC"</item>
         <item>"토오사카 린 / 토오사카 린CC / 토오사카 린CC"</item>
         <item>"이리야스필 / 이리야스필CC / 이리야스필CC"</item>
         <item>"아처 / 아처CC / 아처CC"</item>
         <item>"랜서 / 랜서CC / 랜서CC"</item>
         <item>"라이더 / 라이더CC / 라이더CC"</item>
-        <item>"길가메쉬 / 길가메쉬CC / 길가메쉬CC"</item>
-        <item>"고양이 세이버 / 영령 고양이 세이버 / 고양이 세이버 오르타"</item>
+        <item>"길가메시 / 길가메시CC / 길가메시CC"</item>
+        <item>"고양이 세이버 / 영령 고양이 세이버 / 고양이 세이버 얼터"</item>
         <item>"고양이 사쿠라 / 앞치마 고양이 사쿠라 / 꿈꾸는 고양이 사쿠라"</item>
         <item>"고양이 린 / 마술사 고양이 린 / 마술사 고양이 린"</item>
         <item>"고양이 이리야 / 눈의 요정 고양이 이리야 / 눈의 요정 고양이 이리야"</item>
@@ -3295,7 +3333,7 @@
         <item>"고양이 시로 / 마술사 견습생 고양이 시로 / 마술사 견습생 고양이 시로"</item>
         <item>"아처 고양이 / 영령 아처 고양이 / 영령 아처 고양이"</item>
         <item>"고양이 라이더 / 영령 고양이 라이더 / 영령 고양이 라이더"</item>
-        <item>"고양이 고토미네 &amp; 고양이 길가메쉬 / 고양이 길가메쉬 &amp; 고양이 고토미네 / 고양이 길가메쉬 &amp; 고양이 고토미네"</item>
+        <item>"고양이 코토미네 &amp; 고양이 길가메시 / 고양이 길가메시 &amp; 고양이 코토미네 / 고양이 길가메시 &amp; 고양이 코토미네"</item>
         <item>"레제루가 / 레제란 파사란 / 레제란 파사란"</item>
         <item>"필리버스터X / 필리버스터Y / 메타 필리버스터"</item>
         <item>"종말 병기 무우 / 극비 연구기관 판도라 / 극비 연구기관 판도라"</item>
@@ -3339,7 +3377,7 @@
         <item>"고양이 형제S / 고양이 바보 형제S / 고양이 바보 형제S"</item>
         <item>"멜슈 / 멜슈ξ / 럭셔리 멜슈ξ"</item>
         <item>" /  / "</item>
-        <item>" /  / "</item>
+        <item>"두목 고양이(점주) / 두목 고양이(현역) / 두목 고양이(현역)"</item>
         <item>"각룡 그라디오스 / 각룡왕 그라디오스 / 각룡황제 그라디오스"</item>
         <item>"아이월츠 / 아이월츠CC / 무명의 아이월츠CC"</item>
         <item>"슈퍼 고양이 / 메가 고양이 / 아이언 고양이"</item>
@@ -3568,7 +3606,7 @@
         <item>"오래된 알: N204 / 붉은 알: N204 / 고양이 사자놀이"</item>
         <item>"새벽의 이자나기 / 여명의 이자나기 / 여명의 이자나기"</item>
         <item>"733_1"</item>
-        <item>"페가사 / 페가사ν / 페가사ν"</item>
+        <item>"페가사 / 페가사ν / 요람의 페가사ν"</item>
         <item>"735_1"</item>
         <item>"고양이 교장 / 고양이 세컨드 라이프 / 고양이 세컨드 라이프"</item>
         <item>"고양이 아이스 화이트스타 / 고양이 아이스 톱스타 / 고양이 아이스 톱스타"</item>
@@ -3699,8 +3737,8 @@
         <item>"폭룡기 볼네이도 / 폭룡기왕 볼네이도 / 폭룡기왕 볼네이도"</item>
         <item>"혼례 흑표 / 새신랑 흑표 / 새신랑 흑표"</item>
         <item>"투명 냥코 / 고양이 신랑 / 고양이 신랑"</item>
-        <item>" /  / "</item>
-        <item>" /  / "</item>
+        <item>"에미야 시로 / 에미야 시로CC / 에미야 시로CC"</item>
+        <item>"진 어새신 / 진 어새신CC / 진 어새신CC"</item>
         <item>" /  / "</item>
         <item>" /  / "</item>
         <item>" /  / "</item>
@@ -3708,25 +3746,9 @@
         <item>"오래된 알: N207 / 검은 알: N207 / 벼락부자 고양이"</item>
         <item>"오래된 알: N208 / 녹색 알: N208 / 어썰트 가재 고양이"</item>
         <item>"정글 헌터 토모에 / 정글 마스터 토모에 / 정글 마스터 토모에"</item>
+        <item>"록 꼬꼬미 / 록 스타 꼬꼬미 / 록 스타 꼬꼬미"</item>
         <item>""</item>
-        <item>""</item>
-        <item>""</item>
+        <item>"735_1"</item>
     </string-array>
     <!-- END GENERATED CAT NAMES -->
-    <string name="transfer_help_get">\? How do I get transfer codes?</string>
-    <string name="transfer_help_use">\? How do I use transfer codes?</string>
-    <string name="transfer_intro">Tap “Receive save with transfer codes” to start editing The Battle Cats!</string>
-    <string-array name="transfer_help_get_steps">
-        <item>Open Options on the game title screen, then choose Account / Data Transfer.</item>
-        <item>Choose the device change / data transfer procedure.</item>
-        <item>Choose to transfer game data out of this device.</item>
-        <item>Read the game notice and upload the save to generate transfer codes. Keep the game online until it finishes.</item>
-        <item>Keep both the transfer code and confirmation code private. Return to BCSFE, enter both codes, select the matching game region, then receive the save.</item>
-    </string-array>
-    <string-array name="transfer_help_use_steps">
-        <item>Keep the new codes shown by BCSFE. Open Options on the game title screen, then choose Account / Data Transfer.</item>
-        <item>Choose the device change / data transfer procedure.</item>
-        <item>Choose to receive existing game data on this device.</item>
-        <item>Enter the new transfer code and confirmation code from BCSFE, then start the transfer. Use the matching game region and wait for the game to finish.</item>
-    </string-array>
 </resources>

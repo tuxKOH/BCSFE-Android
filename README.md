@@ -18,9 +18,12 @@ items. Import/export, transfer-code reception, save upload with new transfer
 codes, replacement-account creation, and independent managed-item upload are
 implemented.
 
+The in-app seed finder reads current pools through the HTTPS Seed API and asks
+for a one-time license key only when calculating a matching rare seed.
+
 The format core validates and rewrites the region-specific MD5 checksum and
-preserves unknown data. Current deep editors target JP/TW 15.6 saves and 15.5
-saves in JP, EN, TW, and KR. Region conversion is byte-tested for 15.5. Version conversion supports
+preserves unknown data. Current deep editors target 15.6 and 15.5 saves in JP,
+EN, TW, and KR. Region conversion is byte-tested for 15.5. Version conversion supports
 14.0 and 14.3 through 15.6, including the version-dependent Dojo, Enigma, and
 tail record layouts.
 

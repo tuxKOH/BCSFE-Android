@@ -48,8 +48,8 @@ public final class TransferClientTest {
     @Test public void receiveClientVersionsFollowOfficialRegionalReleases() {
         assertEquals(150600,TransferClient.latestTransferVersion("jp"));
         assertEquals(150600,TransferClient.latestTransferVersion("tw"));
-        assertEquals(150500,TransferClient.latestTransferVersion("en"));
-        assertEquals(150500,TransferClient.latestTransferVersion("kr"));
+        assertEquals(150600,TransferClient.latestTransferVersion("en"));
+        assertEquals(150600,TransferClient.latestTransferVersion("kr"));
     }
 
     @Test public void failedAuthenticationDoesNotPartiallyMutateDocumentCredentials() throws Exception {
@@ -126,6 +126,118 @@ public final class TransferClientTest {
             assertEquals("/?action=createAccount&referenceId=",take(server).getPath());
         }
     }
+
+    @Test public void rootLoadCreatesReplacementBeforeWritingAndPreservesAllOtherBytes() throws Exception {
+        SaveDocument original=SaveDocument.open(Files.readAllBytes(Path.of("src/main/assets/new_saves/tw.save")));
+        original.setInquiryCode("123456789");
+        original.setPasswordRefreshToken("1111111111111111111111111111111111111111");
+        original.setShowBanMessage(true);
+        original.setCatFood(321);
+        original.setRareTickets(28);
+        byte[] source=original.toBytes(),before=source.clone();
+        try(MockWebServer server=server()){
+            enqueueReplacementAccount(server);
+            java.util.concurrent.atomic.AtomicInteger writes=new java.util.concurrent.atomic.AtomicInteger();
+            TransferClient.ReplacementSave result=RootSaveLoader.load(source,SaveDocument.Region.TW,(region,save)->{
+                assertEquals(5,server.getRequestCount());
+                assertEquals(SaveDocument.Region.TW,region);
+                SaveDocument written=SaveDocument.open(save);
+                assertEquals("987654321",written.inquiryCode());
+                assertEquals("9876543210987654321098765432109876543210",written.passwordRefreshToken());
+                assertTrue(written.checksumValid());
+                writes.incrementAndGet();
+            });
+            assertEquals(1,writes.get());
+            assertEquals("replacement-password",result.password);
+            assertEquals("987654321",result.document.inquiryCode());
+            assertEquals("9876543210987654321098765432109876543210",result.document.passwordRefreshToken());
+            assertEquals(1700000002L,result.document.accountCreatedAt());
+            assertFalse(result.document.showBanMessage());
+            assertTrue(result.document.checksumValid());
+            assertArrayEquals(before,source);
+            assertArrayEquals(before,original.toBytes());
+            SaveDocument expected=SaveDocument.open(before);
+            expected.setInquiryCode("987654321");
+            expected.setPasswordRefreshToken("9876543210987654321098765432109876543210");
+            expected.setAccountCreatedAt(1700000002L);
+            expected.setShowBanMessage(false);
+            assertArrayEquals(expected.toBytes(),result.document.toBytes());
+            assertEquals(5,server.getRequestCount());
+            for(int i=0;i<5;i++){
+                String body=take(server).getBody().readUtf8();
+                assertFalse(body.contains("123456789"));
+                assertFalse(body.contains("1111111111111111111111111111111111111111"));
+            }
+        }
+    }
+
+    @Test public void rootLoadAccountFailureAtEveryRequiredNetworkStageNeverWritesGame() throws Exception {
+        byte[] source=Files.readAllBytes(Path.of("src/main/assets/new_saves/tw.save")),before=source.clone();
+        // Managed-item synchronization is already optional in createNewAccount.
+        for(int failedStage:new int[]{0,1,2,4}){
+            try(MockWebServer server=server()){
+                MockResponse[] responses=replacementResponses();
+                for(int i=0;i<failedStage;i++)server.enqueue(responses[i]);
+                server.enqueue(json(503,"{\"statusCode\":0}"));
+                assertThrows(RootSaveLoader.AccountCreationFailure.class,()->RootSaveLoader.load(source,null,(region,data)->fail("Game writer must not be called on account failure")));
+                assertArrayEquals(before,source);
+                assertEquals(failedStage+1,server.getRequestCount());
+            }
+        }
+    }
+
+    @Test public void rootLoadRejectsInvalidSaveOrWrongRegionBeforeCreatingAccount() throws Exception {
+        byte[] source=Files.readAllBytes(Path.of("src/main/assets/new_saves/tw.save")),before=source.clone();
+        try(MockWebServer server=server()){
+            assertThrows(IllegalArgumentException.class,()->RootSaveLoader.load(source,SaveDocument.Region.JP,(region,data)->fail("No writes on wrong region")));
+            source[0]^=1;
+            byte[] damaged=source.clone();
+            assertThrows(IllegalArgumentException.class,()->RootSaveLoader.load(source,null,(region,data)->fail("No writes on parse failure")));
+            assertArrayEquals(damaged,source);
+            assertEquals(0,server.getRequestCount());
+        }
+        before[0]^=1;
+        assertArrayEquals(before,source);
+    }
+
+    @Test public void rootLoadRejectsUnknownVersionBeforeCreatingAccount() throws Exception {
+        byte[] source=Files.readAllBytes(Path.of("src/main/assets/new_saves/tw.save"));
+        SaveDocument template=SaveDocument.open(source);
+        java.lang.reflect.Field field=SaveDocument.class.getDeclaredField("gameVersionOffset");
+        field.setAccessible(true);
+        java.nio.ByteBuffer.wrap(source).order(java.nio.ByteOrder.LITTLE_ENDIAN).putInt(field.getInt(template),150601);
+        java.security.MessageDigest md5=java.security.MessageDigest.getInstance("MD5");
+        md5.update("battlecatstw".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        md5.update(source,0,source.length-32);
+        byte[] hash=java.util.HexFormat.of().formatHex(md5.digest()).getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+        System.arraycopy(hash,0,source,source.length-32,32);
+        assertTrue(SaveDocument.open(source).checksumValid());
+        byte[] before=source.clone();
+        try(MockWebServer server=server()){
+            assertThrows(UnsupportedOperationException.class,()->RootSaveLoader.load(source,null,(region,data)->fail("No writes on unknown layout")));
+            assertArrayEquals(before,source);
+            assertEquals(0,server.getRequestCount());
+        }
+    }
+
+    @Test public void rootLoadWriteFailureDoesNotReturnSuccessOrMutateWorkingSave() throws Exception {
+        byte[] source=Files.readAllBytes(Path.of("src/main/assets/new_saves/tw.save")),before=source.clone();
+        try(MockWebServer server=server()){
+            enqueueReplacementAccount(server);
+            java.io.IOException failure=new java.io.IOException("Test writer failure");
+            assertSame(failure,assertThrows(java.io.IOException.class,()->RootSaveLoader.load(source,null,(region,data)->{throw failure;})));
+            assertArrayEquals(before,source);
+        }
+    }
+
+    private static MockResponse[] replacementResponses(){return new MockResponse[]{
+            json(200,"{\"accountId\":\"987654321\"}"),
+            json(200,"{\"statusCode\":1,\"timestamp\":1700000002,\"payload\":{\"accountCode\":\"987654321\",\"passwordRefreshToken\":\"9876543210987654321098765432109876543210\",\"password\":\"replacement-password\"}}"),
+            json(200,"{\"statusCode\":1,\"payload\":{\"token\":\"replacement-token\"}}"),
+            json(200,"{\"statusCode\":1,\"payload\":{}}"),
+            json(200,"{\"statusCode\":1,\"payload\":{\"key\":\"replacement-save-key\"}}")};}
+
+    private static void enqueueReplacementAccount(MockWebServer server){for(MockResponse response:replacementResponses())server.enqueue(response);}
 
     private static byte[] fixture() throws Exception {Path path=Path.of("/tmp/bcsfe-transfer-tw.save");Assume.assumeTrue(Files.isRegularFile(path));return Files.readAllBytes(path);}
     private static MockWebServer server()throws Exception{MockWebServer server=new MockWebServer();server.start();String base=server.url("/").toString();TransferClient.setEndpointsForTests(new TransferClient.Endpoints(base,base,base,base));return server;}

@@ -13,9 +13,11 @@ final class GameDataRules {
     private static final byte[] OBTAINABLE_CATS_TW = java.util.Base64.getDecoder().decode("////z//fn7/////5n////9+H/8cD/zv//A/+/3/g//8/+P/9///f//3/9//v/////7///z/8//+f//9//v9////v/4///3////////7/4////////f//H/7//633//fpe7/u//rvWv0//3/o4AE=");
     private static final byte[] OBTAINABLE_CATS_TW_156 = java.util.Base64.getDecoder().decode("////z//fn7/////5n////9+H/8cD/zv//A/+/3/g//8/+P/9///f//3/9//v/////7///z/8//+f//9//v9////v/4///3////////7/4////////f//H/7//633//fpe7/u//rvWv0//3/o4wM=");
     private static final byte[] OBTAINABLE_CATS_EN = java.util.Base64.getDecoder().decode("////3//fn7//3//5n////9+X/8cD/7v//A/+/3/g/wE++P/d///f//z/94ft/////7///z+8+/+f//1//u9//v/v/4///3////////7/4x/+/////f//H/7//633//fpe7/u//rvWv0//3/o4AE=");
+    private static final byte[] OBTAINABLE_CATS_EN_156 = java.util.Base64.getDecoder().decode("////3//fn7//3//5n////9+X/8cD/7v//A/+/3/g/wE++P/d///f//z/94ft/////7///z+8+/+f//1//u9////v/4///3////////7/4x/+/////f//H/7//633//fpe7/u//rvWv0//3/o4wM=");
     private static final byte[] OBTAINABLE_CATS_JP = java.util.Base64.getDecoder().decode("////////3//////////////3//f//7/////////////////f//////7/9//9/////////////P////3//+/h/////////////////////////////f///////60H/Pfte7/v//rv2v0//3/vfwA=");
     private static final byte[] OBTAINABLE_CATS_JP_156 = java.util.Base64.getDecoder().decode("////////3//////////////3//f//7/////////////////f//////7/9//9/////////////P////3//+/h/////////////////////////////f///////60H/Pfte7/v//rv2v0//3/v/wc=");
     private static final byte[] OBTAINABLE_CATS_KR = java.util.Base64.getDecoder().decode("////////v//////7v////9+//8cD//v//A/+/////wE++P/d///f//z/9//t/////7///z/8+/+f//1//u9//v/v/4///3////////7/4x/+/////f//H/7//63n//fpe7/+//rvWv0//3/o4AE=");
+    private static final byte[] OBTAINABLE_CATS_KR_156 = java.util.Base64.getDecoder().decode("////////v//////7v////9+//8cD//v//A/+/////wE++P/d///f//z/9//t/////7///z/8+/+f//1//u9////v/4///3////////7/4x/+/////f//H/7//63n//fpe7/+//rvWv0//3/o4wM=");
     private static final String FORMS = "333333333333333333333333333222333333333333333233333332233334332322333333343442333323333332233333333332233333232322222223333333333332333434432223333333333332224333222222333333322423322323233223223333332323222223334322222222333333322222222333332223333333333333333322222332333323322222333233332222222223323344433233333232233233332223333233333133223323222333232334443222222332222233232233232222333333342223322322233223322422222222342224222233233233333333323223322222323223332223322222223222223222322342222232233322232222232323332323322333322223222223322222233232232223333233322222222222223222232222332222222222232232233223333323232223233332322222333323232223333233323333233332213332222233332232233232233232222233222233233323322333222132121222212222222222222221232221221322221222212222221222222222222222221212222222221222121221222122222222222211222222222222222122221222222222332";
     private static final byte[] DROPS = hex("2d00000036000100350002003c0003003c0003003e0004003f00050045000600460007004a0008004d0009004f000a0050000b0051000c0052000d004e000e0058000f005b0010005c0011005d0012005e0013005f001400600015006100160062001700630018006400190065001a0066001b0067001c0068001d006c001e006d001f0079002000780021007b0022007f0023007a0024007e0025008000260082002700840028008b002a008c002b008d002c008e002d009b002f009c0030009d0031009a003200a2003300a3003400a4003500a5003600a6003700a7003800b0003a00ac003b00b2003c00b3003d00b5003e00b6003f00b8004000b7004100bf004200c9004300ca004400c0004500c1004600cc004700d5004800d6004900e3004a00e7004b00f8004c00f4004d0000014e00f9004f00fa005000fb005100fc005200fd005300fe005400ff005500040156000b0157000c015800150159001a015a0019015b0016015c0017015d0018015e001c015f001d0160001f0161002b0162002d0163002f0164002c01650035016600110167003b0168003d0169003f016a0040016b0041016c0044016d0043016e0048016f00490170001c0071001a0072005301730056017400540176005b017700600178006101790064017a0071017b0075017c0076017d007b017e0077017f007d0180007e0181007f0182008101830085018400830185008201860084018700800188008f018a0090018b0092018c0093018d0094018e0095018f00a2019000a3019100a4019200a5019300aa01980057019900b0019a00b5019b00b1019c00b2019d00ba019e00c401a000c901a300ce01a400af00a500d001a600d101a700d901a900da01aa00e301ac00ec01ad00f101ae00f201af00f301b000f401b100f501b200f801b400fb01b500fc01b600fd01b7000602b8000902b9000f02bb001002bd001302be001402bf001a02c0001b02c1002102c5002902c6002a02c7002e02c8003802ca004502cb005c02cc005e02cd006202cf006302d0006502d1006d02d2006e02d3006f02d4007602d5007b02d6007d02d7007e02d8007f02d9008002da008d02db009002dc009202dd009302de009702df009802e0009d02e100a302e200a402e300a502e400a602e500a702e600ad02e700b302e800b702e900b902ea00bc02eb00c202f000c302f100c402f200ce02f300cc02f400cd02f500d002f600d402f700d802f800d902f900dc02fa00de02fb00df02fc00e302fd00e402fe00e702ff00e8020001e9020101f0020201f1020301f3020401f9020501fc02060102030701030308010703090108030a010c030b010e030c0111030e0114030f011b03100120031101210312012203130127031401280315012c03160130031701320318013303190135031a0137031b0139031c0140031d0141031e0142031f014303200144032101460322014703230150032401510325015303260154032701560328015703290158032a0159032b015a032c015c032d01");
     /* JP 15.5 has a different drop_chara.csv, not just a handful of extra
@@ -47,6 +49,39 @@ final class GameDataRules {
             "460322014703230150032401510325015303260154032701560328015703290158032a0159032b015a032c015c032d0162032e01";
     private static final int[][] DROPS_JP = buildJpDrops();
     private static final int[][] DROPS_JP_156 = appendDrop(DROPS_JP, 875, 303);
+    /* Exact regional drop_chara.csv sequences from BCData 15.6.0. */
+    private static final int[][] DROPS_EN_156 = buildDrops(java.util.Base64.getDecoder().decode(
+            "LQAAADYAAQA1AAIAPAADADwAAwA+AAQAPwAFAEUABgBGAAcASgAIAE0ACQBPAAoAUAALAFEADABSAA0ATgAOAFgADwBbABAAXAAR" +
+            "AF0AEgBeABMAXwAUAGAAFQBhABYAYgAXAGMAGABkABkAZQAaAGYAGwBnABwAaAAdAGwAHgBtAB8AeQAgAHgAIQB7ACIAfwAjAHoA" +
+            "JAB+ACUAgAAmAIIAJwCEACgAiwAqAIwAKwCNACwAjgAtAJsALwCcADAAnQAxAJoAMgCiADMAowA0AKQANQClADYApgA3AKcAOACw" +
+            "ADoArAA7ALIAPACzAD0AtQA+ALYAPwC4AEAAtwBBAL8AQgDJAEMAygBEAMAARQDBAEYAzABHANUASADWAEkA4wBKAOcASwD4AEwA" +
+            "9ABNAAABTgD5AE8A+gBQAPsAUQD8AFIA/QBTAP4AVAD/AFUABAFWAAsBVwAMAVgAFQFZABoBWgAZAVsAFgFcABcBXQAYAV4AHAFf" +
+            "AB0BYAAfAWEAKwFiAC0BYwAvAWQALAFlADUBZgARAWcAOwFoAD0BaQA/AWoAQAFrAEEBbABEAW0AQwFuAEgBbwBJAXAAHABxABoA" +
+            "cgBTAXMAVgF0AFQBdgBbAXcAYAF4AGEBeQBkAXoAcQF7AHUBfAB2AX0AewF+AHcBfwB9AYAAfgGBAH8BggCBAYMAhQGEAIMBhQCC" +
+            "AYYAhAGHAIABiACPAYoAkAGLAJIBjACTAY0AlAGOAJUBjwCiAZAAowGRAKQBkgClAZMAqgGYAFcBmQCwAZoAtQGbALEBnAC6AZ4A" +
+            "xAGgAMkBowDOAaQArwClANABpgDZAakA2gGqAOMBrADxAa4A8gGvAPMBsAD0AbEA9QGyAPgBtAD7AbUA/AG2AP0BtwAGArgACQK5" +
+            "AA8CuwAQAr0AEwK+ABQCvwAaAsAAGwLBACECxQApAsYAKgLHAC4CyAA4AsoARQLLAFwCzABeAs0AYgLPAGMC0ABlAtEAbQLSAG4C" +
+            "0wBvAtQAdgLVAHsC1gCNAtsAkALcAJIC3QCTAt4AlwLfAJgC4ACdAuEAowLiAKQC4wClAuQApgLlAKcC5gCtAucAswLoALcC6QC5" +
+            "AuoAvALrAMIC8ADDAvEAxALyAM4C8wDMAvQAzQL1ANAC9gDUAvcA2AL4ANkC+QDcAvoA3gL7AN8C/ADjAv0A5AL+AOcC/wDoAgAB" +
+            "6QIBAfACAgHxAgMB8wIEAfkCBQH8AgYBAgMHAQMDCAEHAwkBCAMKAQwDCwEOAwwBEQMOARQDDwEbAxABIAMRASEDEgEiAxMBJwMU" +
+            "ASgDFQEsAxYBMAMXATIDGAEzAxkBNQMaATcDGwE5AxwBQAMdAUEDHgFCAx8BQwMgAUQDIQFGAyIBRwMjAVADJAFRAyUBUwMmAVQD" +
+            "JwFWAygBVwMpAVgDKgFZAysBWgMsAVwDLQFrAy8B"));
+    private static final int[][] DROPS_KR_156 = buildDrops(java.util.Base64.getDecoder().decode(
+            "LQAAADYAAQA1AAIAPAADADwAAwA+AAQAPwAFAEUABgBGAAcASgAIAE0ACQBPAAoAUAALAFEADABSAA0ATgAOAFgADwBbABAAXAAR" +
+            "AF0AEgBeABMAXwAUAGAAFQBhABYAYgAXAGMAGABkABkAZQAaAGYAGwBnABwAaAAdAGwAHgBtAB8AeQAgAHgAIQB7ACIAfwAjAHoA" +
+            "JAB+ACUAgAAmAIIAJwCEACgAiwAqAIwAKwCNACwAjgAtAJsALwCcADAAnQAxAJoAMgCiADMAowA0AKQANQClADYApgA3AKcAOACw" +
+            "ADoArAA7ALIAPACzAD0AtQA+ALYAPwC4AEAAtwBBAL8AQgDJAEMAygBEAMAARQDBAEYAzABHANUASADWAEkA4wBKAOcASwD4AEwA" +
+            "9ABNAAABTgD5AE8A+gBQAPsAUQD8AFIA/QBTAP4AVAD/AFUABAFWAAsBVwAMAVgAFQFZABoBWgAZAVsAFgFcABcBXQAYAV4AHAFf" +
+            "AB0BYAAfAWEAKwFiAC0BYwAvAWQALAFlADUBZgARAWcAOwFoAD0BaQA/AWoAQAFrAEEBbABEAW0AQwFuAEgBbwBJAXAAHABxABoA" +
+            "cgBTAXMAVgF0AFQBdgBbAXcAYAF4AGEBeQBkAXoAcQF7AHUBfAB2AX0AewF+AHcBfwB9AYAAfgGBAH8BggCBAYMAhQGEAIMBhQCC" +
+            "AYYAhAGHAIABiACPAYoAkAGLAJIBjACTAY0AlAGOAJUBjwCiAZAAowGRAKQBkgClAZMAqgGYAFcBmQCwAZoAtQGbALEBnAC6AZ4A" +
+            "xAGgAMkBowDOAaQArwClANABpgDZAakA2gGqAOMBrADxAa4A8gGvAPMBsAD0AbEA9QGyAPgBtAD7AbUA/AG2AP0BtwAGArgACQK5" +
+            "AA8CuwAQAr0AEwK+ABQCvwAaAsAAGwLBACECxQApAsYAKgLHAC4CyAA4AsoARQLLAFwCzABeAs0AYgLPAGMC0ABlAtEAbQLSAG4C" +
+            "0wBvAtQAdgLVAHsC1gCNAtsAkALcAJIC3QCTAt4AlwLfAJgC4ACdAuEAowLiAKQC4wClAuQApgLlAKcC5gCtAucAswLoALcC6QC5" +
+            "AuoAvALrAMIC8ADDAvEAxALyAM4C8wDMAvQAzQL1ANAC9gDUAvcA2AL4ANkC+QDcAvoA3gL7AN8C/ADjAv0A5wL/AOgCAAHpAgEB" +
+            "8AICAfECAwHzAgQB+QIFAfwCBgECAwcBAwMIAQcDCQEIAwoBDAMLAQ4DDAERAw4BFAMPARsDEAEgAxEBIQMSASIDEwEnAxQBKAMV" +
+            "ASwDFgEwAxcBMgMYATMDGQE1AxoBNwMbATkDHAFAAx0BQQMeAUIDHwFDAyABRAMhAUYDIgFHAyMBUAMkAVEDJQFTAyYBVAMnAVYD" +
+            "KAFXAykBWAMqAVkDKwFaAywBXAMtAWsDLwE="));
 
     static final int[] GAMATOTO_XP = {600,2400,10900,16900,23000,44100,65300,86500,107700,168200,228700,289200,349700,444000,538400,632800,727200,821600,1003100,1184600,1366100,1547600,1729100,1917600,2106200,2294700,2483300,2671800,2860400,3102400,3344400,3586400,3828400,4070400,4312400,4590700,4869000,5147300,5425600,5703900,5982200,6260500,6575100,6889700,7204300,7518900,7833500,8148100,8462700,8822700,9182600,9509300,9836000,10162800,10489500,10816200,11142900,11528500,11914200,12299900,12685600,13071300,13457000,13842700,14228400,14614000,15088320,15562640,16036960,16511280,16985600,17569380,18153160,18736940,19320720,19904500,20539750,21175000,21810250,22445500,23080750,23716000,24630760,25545520,26460280,27375040,28289800,29277967,30266133,31254300,32242467,33230633,34218800,35376367,36533933,37691500,38849067,40006633,41164200,43000000,44835800,46671600,48507400,50343200,52179000,54014800,55850600,57784600,59718600,61652600,63586600,65520600,67454600,69388600,71322600,73353475,75384350,77415225,79446100,81476975,83507850,85538725,87569600,89658700,91747800,93836900,95926000,98015100,100104200,102193300,-1};
     static final int[] SHRINE_XP = {100000,250000,450000,700000,1000000,1350000,1750000,2250000,3000000,3800000,4625000,5475000,6350000,7250000,8200000,9200000,10350000,11600000,13000000,14500000,16100000,17800000,19600000,21500000,24000000,27000000,31000000,36000000,43000000,52000000,61000000,70000000,79000000,88000000,97000000,106000000,115000000,124000000,133000000,142000000,151000000,160000000,169000000,178000000,187000000,196000000,205000000,214000000,223000000,240060000,257180000,274360000,291600000,308900000,326260000,343680000,361160000,378700000,396300000,413960000,431680000,449460000,467300000,485200000,503160000,521180000,539260000,557400000,575600000,575599999};
@@ -70,15 +105,17 @@ final class GameDataRules {
     private static final String FORMS_EN = replaceForms(FORMS, new int[]{77}, new int[]{3});
     private static final String FORMS_KR = FORMS_EN;
     private static final String FORMS_TW_156 = replaceForms(FORMS, new int[]{196,733}, new int[]{4,3}) + "2";
+    private static final String FORMS_EN_156 = replaceForms(FORMS_EN, new int[]{196,733}, new int[]{4,3}) + "2";
+    private static final String FORMS_KR_156 = FORMS_EN_156;
     private static final String FORMS_JP = replaceForms(FORMS, new int[]{77,455,471,472,479,567}, new int[]{3,2,3,3,3,3}).substring(0, 871);
     private static final String FORMS_JP_156_DATA = replaceForms(FORMS_JP, new int[]{196,455,733}, new int[]{4,3,3}) + "32221";
 
     static int totalForms(int catId) { return totalForms(SaveDocument.Region.TW, 150500, catId); }
     static int totalForms(SaveDocument.Region region, int gameVersion, int catId) {
         String forms = switch (region) {
-            case EN -> FORMS_EN;
+            case EN -> gameVersion == 150600 ? FORMS_EN_156 : FORMS_EN;
             case JP -> gameVersion == 150600 ? FORMS_JP_156_DATA : FORMS_JP;
-            case KR -> FORMS_KR;
+            case KR -> gameVersion == 150600 ? FORMS_KR_156 : FORMS_KR;
             case TW -> gameVersion == 150600 ? FORMS_TW_156 : FORMS;
         };
         if ((gameVersion != 150500 && gameVersion != 150600) || catId < 0) return 1;
@@ -94,15 +131,42 @@ final class GameDataRules {
     static int dropCat(int index) { return dropCat(SaveDocument.Region.TW,index); }
     static int dropSlot(int index) { return dropSlot(SaveDocument.Region.TW,index); }
     static int dropPairCount(SaveDocument.Region region) { return dropPairCount(region, 150500); }
-    static int dropPairCount(SaveDocument.Region region, int gameVersion) { if(region==SaveDocument.Region.JP)return gameVersion==150600?DROPS_JP_156.length:DROPS_JP.length;return DROPS.length/4+(region==SaveDocument.Region.TW&&gameVersion==150600?1:0); }
+    static int dropPairCount(SaveDocument.Region region, int gameVersion) {
+        if (gameVersion == 150600) return switch (region) {
+            case EN -> DROPS_EN_156.length;
+            case JP -> DROPS_JP_156.length;
+            case TW -> DROPS.length / 4 + 1;
+            case KR -> DROPS_KR_156.length;
+        };
+        return region == SaveDocument.Region.JP ? DROPS_JP.length : DROPS.length / 4;
+    }
     static int dropCat(SaveDocument.Region region,int index) { return dropCat(region, 150500, index); }
-    static int dropCat(SaveDocument.Region region,int gameVersion,int index) { if(region==SaveDocument.Region.JP)return (gameVersion==150600?DROPS_JP_156:DROPS_JP)[index][0];if(region==SaveDocument.Region.TW&&gameVersion==150600&&index==DROPS.length/4)return 875;return ushort(DROPS,index*4); }
+    static int dropCat(SaveDocument.Region region,int gameVersion,int index) {
+        if (gameVersion == 150600) return switch (region) {
+            case EN -> DROPS_EN_156[index][0];
+            case JP -> DROPS_JP_156[index][0];
+            case TW -> index == DROPS.length / 4 ? 875 : ushort(DROPS,index*4);
+            case KR -> DROPS_KR_156[index][0];
+        };
+        return region == SaveDocument.Region.JP ? DROPS_JP[index][0] : ushort(DROPS,index*4);
+    }
     static int dropSlot(SaveDocument.Region region,int index) { return dropSlot(region, 150500, index); }
-    static int dropSlot(SaveDocument.Region region,int gameVersion,int index) { if(region==SaveDocument.Region.JP)return (gameVersion==150600?DROPS_JP_156:DROPS_JP)[index][1];if(region==SaveDocument.Region.TW&&gameVersion==150600&&index==DROPS.length/4)return 303;return ushort(DROPS,index*4+2); }
+    static int dropSlot(SaveDocument.Region region,int gameVersion,int index) {
+        if (gameVersion == 150600) return switch (region) {
+            case EN -> DROPS_EN_156[index][1];
+            case JP -> DROPS_JP_156[index][1];
+            case TW -> index == DROPS.length / 4 ? 303 : ushort(DROPS,index*4+2);
+            case KR -> DROPS_KR_156[index][1];
+        };
+        return region == SaveDocument.Region.JP ? DROPS_JP[index][1] : ushort(DROPS,index*4+2);
+    }
 
     private static int[][] buildJpDrops() {
         byte[] raw = hex(DROPS_JP_HEX);
-        if (raw.length % 4 != 0) throw new ExceptionInInitializerError("Invalid JP drop table");
+        return buildDrops(raw);
+    }
+    private static int[][] buildDrops(byte[] raw) {
+        if (raw.length % 4 != 0) throw new ExceptionInInitializerError("Invalid regional drop table");
         int[][] result = new int[raw.length / 4][2];
         for (int i = 0; i < result.length; i++) {
             result[i][0] = ushort(raw, i * 4);
@@ -127,10 +191,10 @@ final class GameDataRules {
     static boolean catObtainable(SaveDocument.Region region, int gameVersion, int id) {
         if (gameVersion != 150500 && gameVersion != 150600) return false;
         byte[] table = switch (region) {
-            case EN -> OBTAINABLE_CATS_EN;
+            case EN -> gameVersion == 150600 ? OBTAINABLE_CATS_EN_156 : OBTAINABLE_CATS_EN;
             case JP -> gameVersion == 150600 ? OBTAINABLE_CATS_JP_156 : OBTAINABLE_CATS_JP;
             case TW -> gameVersion == 150600 ? OBTAINABLE_CATS_TW_156 : OBTAINABLE_CATS_TW;
-            case KR -> OBTAINABLE_CATS_KR;
+            case KR -> gameVersion == 150600 ? OBTAINABLE_CATS_KR_156 : OBTAINABLE_CATS_KR;
         };
         return catObtainable(table,id);
     }

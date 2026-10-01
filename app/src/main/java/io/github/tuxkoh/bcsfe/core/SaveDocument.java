@@ -146,8 +146,8 @@ public final class SaveDocument {
 
     /**
      * Opens a save for the explicitly warned upload path.  This mode is never
-     * used by the editor UI: it only enables the existing 15.5 field probes so
-     * a newer save can be uploaded with a prominent data-integrity warning.
+     * used by the editor UI: it only enables the existing field probes so a
+     * newer, explicitly warned save can be uploaded with a data-integrity warning.
      */
     public static SaveDocument openForUpload(byte[] source, Region hint) {
         if (source == null || source.length < 48) throw new IllegalArgumentException("Save is too small");
@@ -164,8 +164,8 @@ public final class SaveDocument {
 
     public byte[] toBytes() { return bytes.clone(); }
     public Region region() { return region; }
-    /** Full editor validation covers 15.5 in every region and 15.6 in JP/TW. */
-    public boolean isOfficiallySupportedVersion() { return !forcedUnsupported && (gameVersion() == 150500 || (gameVersion() == 150600 && (region == Region.JP || region == Region.TW))); }
+    /** Full editor validation covers the current 15.5 and 15.6 layouts in every region. */
+    public boolean isOfficiallySupportedVersion() { return !forcedUnsupported && (gameVersion() == 150500 || gameVersion() == 150600); }
     /** Import is intentionally allowed for these saves, but editing is not certified. */
     public boolean needsUnsupportedImportWarning() { return !isOfficiallySupportedVersion(); }
     /** True only for the newer save versions accepted by the warned upload path. */
@@ -460,7 +460,7 @@ public final class SaveDocument {
     public void convertGameVersion(int target) {
         int source=gameVersion();
         if(source==target)return;
-        if(target==150600&&region!=Region.JP&&region!=Region.TW)throw new UnsupportedOperationException("15.6.0 conversion is available for JP and TW saves only");
+        // BCData now has 15.6.0 snapshots for EN, JP, TW, and KR.
         if(source>=140300&&source<=150600&&target==140000){
             if(source>=140500)convert140500EmbeddedLayout(source,140000);
             if(source>=140100){
@@ -660,6 +660,22 @@ public final class SaveDocument {
     public String passwordRefreshToken() { ensureItemProfile(); return stringAt(passwordRefreshTokenOffset()); }
     public void setInquiryCode(String value) { ensureItemProfile();putFixedString(inquiryCodeOffset(),value);refreshHash(); }
     public void setPasswordRefreshToken(String value) { ensureItemProfile();putFixedString(passwordRefreshTokenOffset(),value);refreshHash(); }
+    /**
+     * Returns whether this save has the refresh-token field used by account
+     * transfer/authentication.  Some newer or force-inspection layouts still
+     * expose an item profile but move or omit this field; callers that are
+     * merely opening a received save must not let that optional update abort
+     * the import.
+     */
+    public boolean canSetPasswordRefreshToken() {
+        try {
+            if (!hasItemProfile()) return false;
+            passwordRefreshTokenOffset();
+            return true;
+        } catch (RuntimeException unavailable) {
+            return false;
+        }
+    }
     public long accountCreatedAt() { ensureItemProfile(); return longAt(accountCreatedAtOffset()); }
     public void setAccountCreatedAt(long value) { ensureItemProfile();putLong(accountCreatedAtOffset(),Double.doubleToRawLongBits((double)value));refreshHash(); }
     public int playTime() { ensureItemProfile(); return intAt(inquiryCodeOffset()+13); }
@@ -731,6 +747,7 @@ public final class SaveDocument {
     public void unlockEquipMenu() { ensureItemProfile(); int offset=menuUnlocksOffset()+8; putInt(offset,Math.max(1,intAt(offset))); refreshHash(); }
     public int catCount() { return catLayout().count; }
     public int catRarity(int index) { checkCat(index); return GameDataRules.catRarity(region,gameVersion(),index); }
+    public int catMaxPlusLevel(int index) { checkCat(index); return GameDataRules.catMaxPlus(region,gameVersion(),index); }
     public int catBaseLevel(int index) { checkCat(index); return ushortAt(catLayout().upgradeStart+index*4+2)+1; }
     public int catPlusLevel(int index) { checkCat(index); return ushortAt(catLayout().upgradeStart+index*4); }
     public boolean catUnlocked(int index) { checkCat(index); return intAt(catLayout().unlockedStart+index*4)!=0; }
@@ -1205,6 +1222,14 @@ public final class SaveDocument {
     public void unlockAllCats() { ensureCatProfile();for(int i=0;i<catCount();i++)unlockCatRaw(i);refreshHash(); }
     public void unlockAllObtainableCats() { ensureCatProfile();for(int i=0;i<catCount();i++)if(GameDataRules.catObtainable(region,gameVersion(),i))unlockCatRaw(i);refreshHash(); }
     public void removeAllCats() { ensureCatProfile();CatLayout l=catLayout(); for(int i=0;i<l.count;i++) putInt(l.unlockedStart+i*4,0);refreshHash(); }
+    /** Remove selected cats while retaining their levels, forms, guide and talent data. */
+    public void removeCats(boolean[] selected) {
+        ensureCatProfile();
+        if (selected == null || selected.length < catCount()) throw new IllegalArgumentException("Invalid cat selection");
+        CatLayout l=catLayout();
+        for (int i=0;i<l.count;i++) if (selected[i]) putInt(l.unlockedStart+i*4,0);
+        refreshHash();
+    }
     public void resetAllCats() { ensureCatProfile();CatLayout l=catLayout();for(int i=0;i<l.count;i++){putInt(l.unlockedStart+i*4,0);putShort(l.upgradeStart+i*4,0);putShort(l.upgradeStart+i*4+2,0);putInt(l.currentFormStart+i*4,0);putInt(l.gatyaSeenStart+i*4,0);putFormValue(i,0);bytes[l.guideStart+i]=0;putFourthValue(i,0);putInt(l.catseyesUsedStart+i*4,0);}int table=talentTableOffset(),records=intAt(table),talents=table+4;for(int r=0;r<records;r++){int count=intAt(talents+4);talents+=8;for(int i=0;i<count;i++)putInt(talents+i*8+4,0);talents+=count*8;}refreshHash(); }
     public void unlockTrueForms() { setTrueForms(false); }
     public void forceTrueForms() { setTrueForms(true); }

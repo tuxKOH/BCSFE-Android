@@ -124,6 +124,18 @@ public class SaveDocumentTest {
         }
     }
 
+    @Test public void selectedCatRemovalKeepsProgressionAndClearsOnlySelectedUnlocks() throws Exception {
+        byte[] source=java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
+        SaveDocument document=SaveDocument.open(source);
+        document.setCatUnlocked(10,true);document.setCatBaseLevel(10,20);document.setCatUnlocked(11,true);document.setCatBaseLevel(11,21);
+        int base=document.catBaseLevel(10), plus=document.catPlusLevel(10);
+        boolean[] selected=new boolean[document.catCount()];selected[10]=true;
+        document.removeCats(selected);
+        assertFalse(document.catUnlocked(10));assertEquals(base,document.catBaseLevel(10));assertEquals(plus,document.catPlusLevel(10));
+        assertTrue(document.catUnlocked(11));assertTrue(document.checksumValid());
+        assertThrows(IllegalArgumentException.class,()->document.removeCats(new boolean[1]));
+    }
+
     @Test public void cataminEditUsesTheSerializedListAndRemainsParsable() throws Exception {
         byte[] source = java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
         SaveDocument document = SaveDocument.open(source);
@@ -1122,6 +1134,20 @@ public class SaveDocumentTest {
         assertEquals(2,reopened.toBytes()[tokenOffset+45]&255);assertEquals(255,reopened.toBytes()[tokenOffset+46]&255);
     }
 
+    @Test public void unavailableRefreshTokenDoesNotLookLikeAnItemProfileFailure() throws Exception {
+        byte[] source=java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
+        SaveDocument baseline=SaveDocument.open(source);
+        java.lang.reflect.Method offsetMethod=SaveDocument.class.getDeclaredMethod("passwordRefreshTokenOffset");offsetMethod.setAccessible(true);
+        int tokenOffset=(int)offsetMethod.invoke(baseline);
+        // Keep the item profile intact while making the optional token marker
+        // unavailable, as in a force-inspection import of a newer layout.
+        putInt(source,tokenOffset+63,100001);refreshHash(source,SaveDocument.Region.TW);
+        SaveDocument document=SaveDocument.open(source);
+        assertTrue(document.hasItemProfile());
+        assertFalse(document.canSetPasswordRefreshToken());
+        assertArrayEquals(source,document.toBytes());
+    }
+
     @Test public void receivedVariableLengthSaveExposesNetworkCredentials() throws Exception {
         java.nio.file.Path path=java.nio.file.Path.of("/tmp/bcsfe-network-response.bin");Assume.assumeTrue(java.nio.file.Files.isRegularFile(path));
         SaveDocument document=SaveDocument.open(java.nio.file.Files.readAllBytes(path));
@@ -1301,10 +1327,44 @@ public class SaveDocumentTest {
         assertEquals(61,GameDataRules.catRankLimitPlus(150600,875,id->true));
     }
 
+    @Test public void all156RegionalRulesIncludeTheNewCatsAndActualPlusCaps() {
+        for (SaveDocument.Region region : SaveDocument.Region.values()) {
+            assertTrue(GameDataRules.catObtainable(region,150600,873));
+            assertEquals(4,GameDataRules.totalForms(region,150600,196));
+            assertEquals(3,GameDataRules.totalForms(region,150600,733));
+            assertEquals(80,GameDataRules.catMaxPlus(region,150600,37));
+            assertEquals(70,GameDataRules.catMaxPlus(region,150600,319));
+        }
+        assertEquals(270,GameDataRules.dropPairCount(SaveDocument.Region.EN,150600));
+        assertEquals(299,GameDataRules.dropPairCount(SaveDocument.Region.JP,150600));
+        assertEquals(277,GameDataRules.dropPairCount(SaveDocument.Region.TW,150600));
+        assertEquals(269,GameDataRules.dropPairCount(SaveDocument.Region.KR,150600));
+        assertEquals(875,GameDataRules.dropCat(SaveDocument.Region.EN,150600,269));
+        assertEquals(303,GameDataRules.dropSlot(SaveDocument.Region.EN,150600,269));
+        assertEquals(875,GameDataRules.dropCat(SaveDocument.Region.KR,150600,268));
+        assertEquals(303,GameDataRules.dropSlot(SaveDocument.Region.KR,150600,268));
+    }
+
     @Test public void contextual155LevelRulesPreserveLegacyTables() {
         for(int id=0;id<873;id++){
             assertEquals(id+" base",GameDataRules.catMaxBase(id),GameDataRules.catMaxBase(SaveDocument.Region.TW,150500,id));
             assertEquals(id+" plus",GameDataRules.catMaxPlus(id),GameDataRules.catMaxPlus(SaveDocument.Region.TW,150500,id));
+        }
+    }
+
+    @Test public void all156DropSequencesMatchBcDataSnapshots() {
+        // CRC32 of packed little-endian (cat ID, save slot) pairs from each
+        // upstream drop_chara.csv, including duplicates and regional ordering.
+        long[] expected={2536446233L,3800462911L,4195965414L,170938806L};
+        for(SaveDocument.Region region:SaveDocument.Region.values()){
+            java.util.zip.CRC32 crc=new java.util.zip.CRC32();
+            for(int row=0;row<GameDataRules.dropPairCount(region,150600);row++){
+                int cat=GameDataRules.dropCat(region,150600,row);
+                int slot=GameDataRules.dropSlot(region,150600,row);
+                crc.update(cat&255);crc.update((cat>>>8)&255);
+                crc.update(slot&255);crc.update((slot>>>8)&255);
+            }
+            assertEquals(region.code(),expected[region.ordinal()],crc.getValue());
         }
     }
 
@@ -1337,16 +1397,22 @@ public class SaveDocumentTest {
         assertEquals(123,reopened.normalTickets());assertEquals(45,reopened.rareTickets());assertEquals(9,reopened.platinumTickets());assertTrue(reopened.checksumValid());
     }
 
-    @Test public void twCanConvertTo156WhileUnreleasedRegionsRemainUnsupported() throws Exception {
-        byte[] tw=java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/tw.save"));
-        SaveDocument converted=SaveDocument.open(tw);converted.convertGameVersion(150600);
-        assertEquals(150600,converted.gameVersion());assertTrue(converted.isOfficiallySupportedVersion());assertTrue(converted.checksumValid());
-        for(SaveDocument.Region region:new SaveDocument.Region[]{SaveDocument.Region.EN,SaveDocument.Region.KR}){
-            byte[] unsupported=java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/"+region.code()+".save"));
-            putInt(unsupported,Offsets.offsets_23,150600);refreshHash(unsupported,region);
-            SaveDocument inspection=SaveDocument.open(unsupported);
-            assertFalse(inspection.isOfficiallySupportedVersion());assertFalse(inspection.hasItemProfile());
-            assertThrows(UnsupportedOperationException.class,()->inspection.setNormalTickets(1));assertArrayEquals(unsupported,inspection.toBytes());
+    @Test public void allRegionsCanConvertToOfficial156() throws Exception {
+        for(SaveDocument.Region region:SaveDocument.Region.values()){
+            byte[] source=java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/"+region.code()+".save"));
+            SaveDocument converted=SaveDocument.open(source);converted.convertGameVersion(150600);
+            assertEquals(region,converted.region());
+            assertEquals(150600,converted.gameVersion());assertTrue(converted.isOfficiallySupportedVersion());assertFalse(converted.needsUnsupportedImportWarning());assertTrue(converted.checksumValid());
+        }
+    }
+
+    @Test public void allRegionsCanOpenOfficial156Snapshots() throws Exception {
+        for(SaveDocument.Region region:SaveDocument.Region.values()){
+            byte[] source=java.nio.file.Files.readAllBytes(java.nio.file.Path.of("src/main/assets/new_saves/"+region.code()+".save"));
+            putInt(source,Offsets.offsets_23,150600);refreshHash(source,region);
+            SaveDocument document=SaveDocument.open(source);
+            assertTrue(document.isOfficiallySupportedVersion());assertFalse(document.needsUnsupportedImportWarning());assertFalse(document.canAttemptUnsafeUpload());
+            assertEquals(150600,document.gameVersion());assertTrue(document.hasItemProfile());
         }
     }
 
