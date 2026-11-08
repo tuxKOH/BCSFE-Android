@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayDeque;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -46,7 +47,9 @@ final class DebugReporter {
                     .append(hexWindow(save, offset)).append('\n');
         }
         String value = trim(report.toString(), MAX_ENTRY_CHARS);
-        Log.e(TAG, value);
+        // Save context stays in the opt-in report, never in device logs.
+        Log.e(TAG, "operation=" + safe(operation) + " error="
+                + (error == null ? "unknown" : error.getClass().getName()));
         synchronized (ENTRIES) {
             ENTRIES.addLast(value);
             while (ENTRIES.size() > MAX_ENTRIES) ENTRIES.removeFirst();
@@ -61,7 +64,11 @@ final class DebugReporter {
         synchronized (ENTRIES) {
             if (ENTRIES.isEmpty()) out.append("No captured application errors.\n");
             else {
-                for (String entry : ENTRIES) out.append(entry).append("\n\n");
+                // Reports are bounded; show the failure the user just hit first,
+                // rather than letting repeated older errors hide it at the end.
+                for (Iterator<String> entries = ENTRIES.descendingIterator(); entries.hasNext();) {
+                    out.append(entries.next()).append("\n\n");
+                }
             }
         }
         out.append("--- logcat (filtered) ---\n").append(captureLogcat());

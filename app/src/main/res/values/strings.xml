@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="replace_account_before_upload">Create a replacement account before uploading?</string>
+    <string name="replace_account_before_load">Create a replacement account before loading?</string>
+    <string name="root_read_confirm">Read a save copy from %1$s? The original game save will remain unchanged.</string>
+    <string name="root_read_action">Load</string>
+    <string name="root_reading">Reading a copy of the game save…</string>
     <string name="root_loading_replacement">Creating a replacement account, then loading the save into the installed game…</string>
     <string name="root_replacement_success">Replacement account created and the save loaded into the installed game. Updated credentials were saved in the editor.</string>
     <string name="root_replacement_failed">Could not create the replacement account. No game files were written and the working save was not changed.</string>
-    <string name="root_replacement_unsupported">This save is unsupported or damaged, so a replacement account cannot be created safely. No game files were written and the working save was not changed.</string>
-    <string name="root_replacement_session_failed">The save was loaded into the game with a replacement account, but its credentials could not be cached in the editor. Read the game save again before editing.</string>
+    <string name="root_replacement_unsupported">This save is unsupported or damaged and cannot be loaded safely. No game files were written and the working save was not changed.</string>
+    <string name="root_replacement_session_failed">The save was loaded into the game, but its session could not be cached in the editor. Read the game save again before editing.</string>
     <string name="root_replacement_write_confirm">A replacement account will be created first. After it succeeds, SAVE_DATA and SAVE_DATA.OLD will be removed, JSON cache files cleared, and the prepared save loaded into %1$s. The working save will receive the new credentials. Continue?</string>
     <string name="root_reading_replacement">Reading a copy of the game save and creating a replacement account before opening it… The installed game save will not be changed.</string>
     <string name="root_read_replacement_success">Replacement account created and the save copy opened as a new session. The installed game save was not changed.</string>
@@ -18,7 +23,7 @@
     <string name="update_notes_unavailable">No release notes were provided.</string>
     <string name="view_release">View release</string>
     <string name="open_release_failed">Could not open the release page.</string>
-    <string name="supported_versions_notice">Full editing targets EN, JP, TW, and KR 15.6 saves, plus 15.5 saves in all four regions. Older saves can be imported for inspection and export, but are not officially supported. Version conversion supports 14.0 and 14.3–15.6. Earlier save formats are not supported for full editing.</string>
+    <string name="supported_versions_notice">Full editing supports 15.5.0 through JP 15.7.4 or EN/TW/KR 15.7.0, including intermediate patch versions. Intermediate versions use compatible regional BCData without changing the save version. New saves use the latest supported version for their region. Other saves can be imported for inspection and export, but are not officially supported. Version conversion supports 14.0 and 14.3 through the latest supported regional version, including JP 15.7.1–15.7.3 and regional 15.6.1/15.5.1.</string>
     <string name="unsupported_import_warning_title">Version not officially supported</string>
     <string name="unsupported_import_warning">This version is not officially supported. The abnormal-cat list may be incomplete, and some values may appear garbled. If you see garbled values, do not edit them; this may trigger an in-game data error and could lead to a ban.</string>
     <string name="language">Language</string><string name="change_language">Change language</string><string name="choose_language">Choose language</string>
@@ -38,7 +43,7 @@
     <string name="receiving">Receiving save…</string>
     <string name="receive_failed">Could not receive the save. Check the codes, region and network.</string>
     <string name="upload_not_ready">Upload is available from the active editor session.</string>
-    <string name="upload_warning">This first creates a replacement account, then uploads the current working copy and creates a new transfer. Continue?</string><string name="upload_warning_with_ad">This first creates a replacement account, then uploads the current working copy and creates a new transfer. Continue?\n\nPressing Upload will open a pop-up ad to support me. Do not trust the ad content. The upload will continue in the background.</string><string name="upload_confirm">Upload</string><string name="uploading">Creating a replacement account and uploading…</string><string name="upload_failed">Upload failed. The save and account were not replaced locally.</string><string name="upload_success">Transfer created</string><string name="transfer_result">Transfer code: %1$s\nConfirmation code: %2$s</string><string name="copy_codes">Copy</string>
+    <string name="upload_warning">Upload the current working copy and create a new transfer? The option below controls whether a replacement account is created first.</string><string name="upload_warning_with_ad">Upload the current working copy and create a new transfer? The option below controls whether a replacement account is created first.\n\nPressing Upload will open a pop-up ad to support me. Do not trust the ad content. The upload will continue in the background.</string><string name="upload_confirm">Upload</string><string name="uploading">Uploading save…</string><string name="upload_failed">Upload failed. The save and account were not replaced locally.</string><string name="upload_success">Transfer created</string><string name="transfer_result">Transfer code: %1$s\nConfirmation code: %2$s</string><string name="copy_codes">Copy</string>
     <string name="editor_areas">Editor areas</string>
     <string name="safety_notice">Keep an untouched backup. Modified saves may be rejected by the game server or result in account restrictions.</string>
     <string name="search_features">Search categories and features</string>
@@ -135,7 +140,7 @@
     <string name="pass_restart_title">Gold Pass and Restart Pack</string><string-array name="pass_restart_actions"><item>Get a 30-day Gold Pass</item><item>Remove Gold Pass</item><item>Obtain Restart Pack</item></string-array>
     <string name="use_save">Use save</string><string-array name="use_save_actions"><item>Upload save and create transfer codes</item><item>Load this save into installed game (root)</item></string-array><string name="save_management_title">Save management</string><string-array name="save_management_actions"><item>Export working copy</item><item>Upload and create transfer codes</item><item>Exit editor</item></string-array>
     <string name="convert_region_title">Convert region</string><string name="convert_region_warning">This creates a new account in the target region and updates the working save. Keep an exported backup before continuing.</string><string name="current_suffix"> (current)</string><string name="converting_region">Converting region and creating account…</string><string name="convert_region_success">Region converted and the new account was saved permanently.</string><string name="convert_region_failed">Region conversion failed. The working save was not changed.</string><string name="jp_conversion_unavailable">JP region conversion currently requires a 15.5 save. The working save was not changed.</string>
-    <string name="game_version_title">Game version</string><string name="game_version_warning">Changing the serialized game version rewrites version-dependent fields. Export a backup before continuing.</string><string name="game_version_success">Game version converted and cached permanently.</string><string name="game_version_failed">Game version conversion failed. The working save was not changed.</string><string name="game_version_message">Current serialized version: %1$d. Conversion supports 14.0 and versions 14.3 through 15.6.</string>
+    <string name="game_version_title">Game version</string><string name="game_version_warning">Changing the serialized game version rewrites version-dependent fields. Export a backup before continuing.</string><string name="game_version_success">Game version converted and cached permanently.</string><string name="game_version_failed">Game version conversion failed. The working save was not changed.</string><string name="game_version_message">Current serialized version: %1$d. Conversion supports 14.0 and versions from 14.3 through the latest supported release for this region.</string>
     <string name="account_info_title">Account credentials</string><string-array name="account_info_actions"><item>View inquiry code</item><item>Edit inquiry code</item><item>View password refresh token</item><item>Edit password refresh token</item></string-array><string name="invalid_credential_length">The replacement credential must have exactly the same encoded length.</string>
     <string name="account_operations_title">Account operations</string><string-array name="account_operation_actions"><item>Create replacement account</item><item>Upload managed items only</item></string-array><string name="account_operations_warning">This creates a new server account and replaces the inquiry code and refresh token in the working save. Use it to move a save away from an unusable or banned account. The original account is not modified.</string><string name="create_account_confirm">Create account</string><string name="creating_account">Creating replacement account…</string><string name="create_account_success">Replacement account created and saved permanently.</string><string name="create_account_failed">Could not create the replacement account. The working save was not changed.</string><string name="upload_managed_items">Upload managed items</string><string name="upload_managed_warning">This authenticates the current account and synchronizes Cat Food, Rare Tickets, Platinum Tickets, and Legend Tickets without creating transfer codes.</string><string name="uploading_managed_items">Uploading managed items…</string><string name="upload_managed_success">Managed items uploaded and refreshed credentials saved permanently.</string><string name="upload_managed_failed">Managed item upload failed. The working save remains cached.</string>
     <string name="storage_skills_title">Storage and Basic Upgrades</string><string-array name="storage_skill_actions"><item>Add cats to storage</item><item>Add Basic Upgrades to storage</item><item>Remove a storage item</item><item>Clear storage</item><item>Edit Basic Upgrade levels</item></string-array><string name="storage_title">Storage</string><string name="storage_full">Storage is full.</string><string name="storage_empty">Storage is empty.</string><string name="storage_quantity_label">Quantity</string><string name="storage_add_cats">Add cats</string><string name="storage_add_skills">Add Basic Upgrades</string><string name="storage_remove">Remove storage item</string><string name="storage_item_row">Type %1$d · ID %2$d</string><string name="special_skill_id_label">Basic Upgrade ID (0-9)</string>
@@ -273,7 +278,7 @@
         <item>"Delinquent Cat / Angry Delinquent Cat / Ultra Delinquent Cat"</item>
         <item>"Hip Hop Cat / Dancing Flasher Cat / Can Can Cat"</item>
         <item>"Kotatsu Cat / Sadako Cat / Octopus Cat"</item>
-        <item>"Nekoluga / Unknown Cat / Ultralan Pasalan"</item>
+        <item>"Nekoluga / Kesalan Pasalan / Ultralan Pasalan"</item>
         <item>"Nerd Cat / Hacker Cat / Cyberpunk Cat"</item>
         <item>"Swimmer Cat / Butterfly Cat / Fishman Cat"</item>
         <item>"Pogo Cat / Masai Cat / Jiangshi Cat"</item>
@@ -640,7 +645,7 @@
         <item>" /  / "</item>
         <item>"Mentori / Mentori CC / Mentori CC"</item>
         <item>"Imoto / Imoto CC / Imoto CC"</item>
-        <item>"Voli / Volta / Gigavolta"</item>
+        <item>"Voli / Volta / Gigavolta / Teravolta"</item>
         <item>"Shinji &amp; Cat / Plug Suit Shinji / Plug Suit Shinji Black"</item>
         <item>"Gendo &amp; Fuyutsuki Cats / Moon Gendo &amp; Fuyutsuki Cats / Moon Gendo &amp; Fuyutsuki Cats"</item>
         <item>"Giraffe Unit-01 / Giraffe Unit-02 / Giraffe Unit-02"</item>
@@ -985,7 +990,7 @@
         <item>"Madhead / Madhead Cat / Madhead Cat"</item>
         <item>"Felix the Cat Duke Cat / Mercenary Leader Felix Cat / Mercenary Leader Felix Cat"</item>
         <item>"Dotty Cat / Birthday Dotty Cat / Birthday Dotty Cat"</item>
-        <item>"Kenshin Himura / Kenshin Himura CC / Kenshin Himura CC"</item>
+        <item>"Kenshin Himura / Kenshin Himura CC / "</item>
         <item>"Sanosuke Sagara / Sanosuke Sagara CC / Sanosuke Sagara CC"</item>
         <item>"Aoshi Shinomori / Aoshi Shinomori CC / Aoshi Shinomori CC"</item>
         <item>"Hajime Saito / Hajime Saito CC / Hajime Saito CC"</item>
@@ -993,7 +998,7 @@
         <item>"Li\'l Yahiko / Li\'l Yahiko CC / Li\'l Yahiko CC"</item>
         <item>"Kenshin Cat / Battosai Cat / Battosai Cat"</item>
         <item>"Kaoru Cat / Swordscat Kaoru / Swordscat Kaoru"</item>
-        <item>"Akechi Mitsuhide / Wargod Mitsuhide / Wargod Mitsuhide"</item>
+        <item>"Akechi Mitsuhide / Wargod Mitsuhide / Immortal Mitsuhide"</item>
         <item>"756_1"</item>
         <item>"Cake Machine / Wedding Cake Machine / Wedding Cake Machine"</item>
         <item>"Ancient Egg: N205 / Violet Egg: N205 / Bride Cat"</item>
@@ -1105,16 +1110,22 @@
         <item>"The Invisible Cat / Groom Cat / Groom Cat"</item>
         <item>"Shirou Emiya / Shirou Emiya CC / Shirou Emiya CC"</item>
         <item>"True Assassin / True Assassin CC / True Assassin CC"</item>
-        <item>" /  / "</item>
-        <item>" /  / "</item>
-        <item>" /  / "</item>
+        <item>"PAC-MAN / Cat PAC-MAN / Cat PAC-MAN"</item>
+        <item>"Blinky Cat / Blinky Cat CC / Blinky Cat CC"</item>
+        <item>"Inky Cat / Inky Cat CC / Inky Cat CC"</item>
         <item>"Akane Tounji / Let\'s Go! Akane / Let\'s Go! Akane"</item>
         <item>"Ancient Egg: N207 / Onyx Egg: N207 / Tycoon Cat"</item>
         <item>"Ancient Egg: N208 / Green Egg: N208 / Combat Crawfish Cat"</item>
         <item>"Jungle Gourmet Tomoe / Canopy Queen Tomoe / Canopy Queen Tomoe"</item>
         <item>"Metal Maiden Koneko / Sonic Siren Koneko / Sonic Siren Koneko"</item>
-        <item>""</item>
+        <item>"Ryuichi / Ryuichi &amp; Ryuji / Ryuichi &amp; Ryuji"</item>
         <item>"735_1"</item>
+        <item>"756-1"</item>
+        <item>"Hare of Inaba / Mega Shark vs. The White Hare / Mega Shark vs. The White Hare"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
     </string-array>
     <string-array name="cat_names_tw">
         <item>"貓咪 / 健美貓 / 摩西根貓"</item>
@@ -1518,7 +1529,7 @@
         <item>" /  / "</item>
         <item>"懶得鳥 / 懶得鳥CC / 懶得鳥CC"</item>
         <item>"直白妹 / 直白妹CC / 直白妹CC"</item>
-        <item>"雷精靈波特 / 天雷精靈皮卡波特 / 天雷精靈王基加波特"</item>
+        <item>"雷精靈波特 / 天雷精靈皮卡波特 / 天雷精靈王基加波特 / 天雷大精靈泰拉波特"</item>
         <item>"小小真嗣 / 作戰服小小真嗣 / 黑色作戰服小小真嗣"</item>
         <item>"源堂貓與冬月貓 / 月之源堂貓＆冬月貓 / 月之源堂貓＆冬月貓"</item>
         <item>"長頸鹿貓初號機 / 長頸鹿貓2號機 / 長頸鹿貓2號機"</item>
@@ -1863,7 +1874,7 @@
         <item>"瘋頭 / 瘋頭貓 / 瘋頭貓"</item>
         <item>"貓公爵 ‧ 費利克斯貓 / 傭兵貓團長 ‧ 費利克斯貓 / 傭兵貓團長 ‧ 費利克斯貓"</item>
         <item>"點點貓 / 生日派對點點貓 / 生日派對點點貓"</item>
-        <item>"緋村劍心 / 緋村劍心CC / 緋村劍心CC"</item>
+        <item>"緋村劍心 / 緋村劍心CC / "</item>
         <item>"相樂左之助 / 相樂左之助CC / 相樂左之助CC"</item>
         <item>"四乃森蒼紫 / 四乃森蒼紫CC / 四乃森蒼紫CC"</item>
         <item>"齋藤一 / 齋藤一CC / 齋藤一CC"</item>
@@ -1871,7 +1882,7 @@
         <item>"小小彌彥 / 小小彌彥CC / 小小彌彥CC"</item>
         <item>"劍心貓 / 拔刀齋貓 / 拔刀齋貓"</item>
         <item>"神谷薰貓 / 劍道之花神谷薰貓 / 劍道之花神谷薰貓"</item>
-        <item>"明智光秀 / 武神・明智光秀 / 武神・明智光秀"</item>
+        <item>"明智光秀 / 武神・明智光秀 / 智謀武神・明智光秀"</item>
         <item>"756_1"</item>
         <item>"婚禮蛋糕機器貓 / 婚禮蛋糕機器貓・祝 / 婚禮蛋糕機器貓・祝"</item>
         <item>"遠古的蛋：N205 / 紫色的蛋：N205 / 新娘貓"</item>
@@ -1982,17 +1993,23 @@
         <item>"婚禮・服部半藏 / 新郎・服部半藏 / 新郎・服部半藏"</item>
         <item>"透明貓 / 新郎貓 / 新郎貓"</item>
         <item>"衛宮士郎 / 衛宮士郎CC / 衛宮士郎CC"</item>
-        <item>"真Assassin / 真AssassinCC / 真AssassinCC"</item>
-        <item>" /  / "</item>
-        <item>" /  / "</item>
-        <item>" /  / "</item>
+        <item>"真Assassin / 真Assassin CC / 真Assassin CC"</item>
+        <item>"PAC-MAN / PAC-MAN貓 / PAC-MAN貓"</item>
+        <item>"Blinky貓 / Blinky貓CC / Blinky貓CC"</item>
+        <item>"Inky貓 / Inky貓CC / Inky貓CC"</item>
         <item>"鐵腕女孩東雲寺茜 / 打工女孩東雲寺茜 / 打工女孩東雲寺茜"</item>
         <item>"遠古的蛋：N207 / 黑色的蛋：N207 / 暴發戶貓"</item>
         <item>"遠古的蛋：N208 / 綠色的蛋：N208 / 突擊小龍蝦貓"</item>
         <item>"叢林獵人多萌耶 / 叢林大師多萌耶 / 叢林大師多萌耶"</item>
         <item>"搖滾俏喵 / 搖滾明星俏喵 / 搖滾明星俏喵"</item>
-        <item>""</item>
+        <item>"龍一 / 龍一＆龍二 / 龍一＆龍二"</item>
         <item>"735_1"</item>
+        <item>"756-1"</item>
+        <item>"因幡的白兔 / 巨鯊戰白兔 / 巨鯊戰白兔"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
     </string-array>
     <string-array name="cat_names_jp">
         <item>"ネコ / ネコビルダー / ネコモヒカン"</item>
@@ -2396,7 +2413,7 @@
         <item>"ハニトンくん / ハニトンくん＆にゃんこ / ハニトンくん＆にゃんこ"</item>
         <item>"めんトリ / めんトリCC / めんトリCC"</item>
         <item>"イモウト / イモウトCC / イモウトCC"</item>
-        <item>"雷の精霊ボルト / 天雷の精霊ピカボルト / 天雷の精霊王ギガボルト"</item>
+        <item>"雷の精霊ボルト / 天雷の精霊ピカボルト / 天雷の精霊王ギガボルト / 天雷の大精霊テラボルタ"</item>
         <item>"ちびシンジ / プラグスーツのちびシンジ / 黒プラグスーツのちびシンジ"</item>
         <item>"ネコゲンドウ＆ネコ冬月 / 月のネコゲンドウ＆ネコ冬月 / 月のネコゲンドウ＆ネコ冬月"</item>
         <item>"ネコキリン初号機 / ネコキリン２号機 / ネコキリン２号機"</item>
@@ -2741,7 +2758,7 @@
         <item>"744-1 / 744-2 / 744-2"</item>
         <item>"745-1 / 745-2 / 745-2"</item>
         <item>"746-1 / 746-2 / 746-2"</item>
-        <item>"緋村剣心 / 緋村剣心CC / 緋村剣心CC"</item>
+        <item>"緋村剣心 / 緋村剣心CC / 不殺の流浪人・緋村剣心"</item>
         <item>"相楽左之助 / 相楽左之助CC / 相楽左之助CC"</item>
         <item>"四乃森蒼紫 / 四乃森蒼紫CC / 四乃森蒼紫CC"</item>
         <item>"斎藤一 / 斎藤一CC / 斎藤一CC"</item>
@@ -2749,7 +2766,7 @@
         <item>"ちび弥彦 / ちび弥彦CC / ちび弥彦CC"</item>
         <item>"ネコ剣心 / ネコ抜刀斎 / ネコ抜刀斎"</item>
         <item>"ネコ薫 / 剣術小町ネコ薫 / 剣術小町ネコ薫"</item>
-        <item>"明智光秀 / 武神・明智光秀 / 武神・明智光秀"</item>
+        <item>"明智光秀 / 武神・明智光秀 / 智謀の武神・明智光秀"</item>
         <item>"756_1"</item>
         <item>"ネコケーキマシン挙式 / ネコケーキマシン挙式・寿 / ネコケーキマシン挙式・寿"</item>
         <item>"古びたタマゴ:N205 / 紫のタマゴ:N205 / ネコ花嫁"</item>
@@ -2871,6 +2888,12 @@
         <item>"ロックこねこ / ロックスターこねこ / ロックスターこねこ"</item>
         <item>"りゅういち / りゅういち＆りゅうじ / りゅういち＆りゅうじ"</item>
         <item>"735_1"</item>
+        <item>"756-1"</item>
+        <item>"いなばの白うさぎ / メガシャークVS白うさぎ / メガシャークVS白うさぎ"</item>
+        <item>"悠久山安慈 / 悠久山安慈CC / 悠久山安慈CC"</item>
+        <item>"瀬田宗次郎 / 瀬田宗次郎CC / 瀬田宗次郎CC"</item>
+        <item>"志々雄真実 / 志々雄真実CC / 志々雄真実CC"</item>
+        <item>"比古清十郎 / 比古清十郎CC / 比古清十郎CC"</item>
     </string-array>
     <string-array name="cat_names_kr">
         <item>"고양이 / 고양이 빌더 / 고양이 모히칸"</item>
@@ -3274,7 +3297,7 @@
         <item>" /  / "</item>
         <item>"Mentori / Mentori CC / Mentori CC"</item>
         <item>"Imoto / Imoto CC / Imoto CC"</item>
-        <item>"번개의 정령 볼트 / 벼락의 정령 피카볼트 / 벼락의 정령왕 기가볼트"</item>
+        <item>"번개의 정령 볼트 / 벼락의 정령 피카볼트 / 벼락의 정령왕 기가볼트 / 벼락의 대정령 테라볼타"</item>
         <item>"꼬맹이 신지 / 플러그 슈트 꼬맹이 신지 / 다크 플러그 슈트 꼬맹이 신지"</item>
         <item>"고양이 겐도&amp;후유츠키 / 달의 고양이 겐도&amp;후유츠키 / 달의 고양이 겐도&amp;후유츠키"</item>
         <item>"기린 고양이 초호기 / 기린 고양이 2호기 / 기린 고양이 2호기"</item>
@@ -3619,7 +3642,7 @@
         <item>"미친머리 / 냥코 미친머리 / 냥코 미친머리"</item>
         <item>"공작 펠릭스 고양이 / 용병단장 펠릭스 고양이 / 용병단장 펠릭스 고양이"</item>
         <item>"도티 고양이 / 버스데이 도티 고양이 / 버스데이 도티 고양이"</item>
-        <item>"히무라 켄신 / 히무라 켄신CC / 히무라 켄신CC"</item>
+        <item>"히무라 켄신 / 히무라 켄신CC / "</item>
         <item>"사가라 사노스케 / 사가라 사노스케CC / 사가라 사노스케CC"</item>
         <item>"시노모리 아오시 / 시노모리 아오시CC / 시노모리 아오시CC"</item>
         <item>"사이토 하지메 / 사이토 하지메CC / 사이토 하지메CC"</item>
@@ -3627,7 +3650,7 @@
         <item>"꼬맹이 야히코 / 꼬맹이 야히코CC / 꼬맹이 야히코CC"</item>
         <item>"고양이 켄신 / 고양이 발도재 / 고양이 발도재"</item>
         <item>"고양이 카미야 카오루 / 미녀 검술가 고양이 카오루 / 미녀 검술가 고양이 카오루"</item>
-        <item>"알리칸토 / 분노의 알리칸토 / 분노의 알리칸토"</item>
+        <item>"알리칸토 / 분노의 알리칸토 / 지략의 알리칸토"</item>
         <item>"756_1"</item>
         <item>"고양이 웨딩 케이크 머신 / 고양이 웨딩 케이크 머신・축 / 고양이 웨딩 케이크 머신・축"</item>
         <item>"오래된 알: N205 / 보라색 알: N205 / 고양이 신부"</item>
@@ -3739,16 +3762,22 @@
         <item>"투명 냥코 / 고양이 신랑 / 고양이 신랑"</item>
         <item>"에미야 시로 / 에미야 시로CC / 에미야 시로CC"</item>
         <item>"진 어새신 / 진 어새신CC / 진 어새신CC"</item>
-        <item>" /  / "</item>
-        <item>" /  / "</item>
-        <item>" /  / "</item>
+        <item>"PAC-MAN / PAC-MAN 고양이 / PAC-MAN 고양이"</item>
+        <item>"고양이 Blinky / 고양이 Blinky CC / 고양이 Blinky CC"</item>
+        <item>"고양이 Inky / 고양이 Inky CC / 고양이 Inky CC"</item>
         <item>"변신소녀 단 / 날아라 변신소녀 단 / 날아라 변신소녀 단"</item>
         <item>"오래된 알: N207 / 검은 알: N207 / 벼락부자 고양이"</item>
         <item>"오래된 알: N208 / 녹색 알: N208 / 어썰트 가재 고양이"</item>
         <item>"정글 헌터 토모에 / 정글 마스터 토모에 / 정글 마스터 토모에"</item>
         <item>"록 꼬꼬미 / 록 스타 꼬꼬미 / 록 스타 꼬꼬미"</item>
-        <item>""</item>
+        <item>"류이치 / 류이치 &amp; 류지 / 류이치 &amp; 류지"</item>
         <item>"735_1"</item>
+        <item>"756-1"</item>
+        <item>"이나바의 흰 토끼 / 메가 샤크 VS 흰 토끼 / 메가 샤크 VS 흰 토끼"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
     </string-array>
     <!-- END GENERATED CAT NAMES -->
 </resources>

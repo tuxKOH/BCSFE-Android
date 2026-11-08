@@ -18,14 +18,25 @@ items. Import/export, transfer-code reception, save upload with new transfer
 codes, replacement-account creation, and independent managed-item upload are
 implemented.
 
+Upload and root-load confirmations offer a replacement-account checkbox, enabled
+by default. Clearing it keeps the existing account; an upload failure never
+silently switches that choice back on.
+
 The in-app seed finder reads current pools through the HTTPS Seed API and asks
 for a one-time license key only when calculating a matching rare seed.
 
 The format core validates and rewrites the region-specific MD5 checksum and
-preserves unknown data. Current deep editors target 15.6 and 15.5 saves in JP,
-EN, TW, and KR. Region conversion is byte-tested for 15.5. Version conversion supports
-14.0 and 14.3 through 15.6, including the version-dependent Dojo, Enigma, and
+preserves unknown data. Current deep editors support 15.5.0 through JP 15.7.4 or
+EN/TW/KR 15.7.0, including intermediate patches such as JP 15.7.1–15.7.3.
+Intermediate patches use compatible regional BCData and keep their original save
+version. New saves use their region's latest supported
+version and initialize all current cat records. Region conversion is byte-tested
+for 15.5. Version conversion supports 14.0 and 14.3 through the latest regional
+version, including the version-dependent Dojo, Enigma, and
 tail record layouts.
+
+The offline regional BCData snapshots and repeatable sync/verification steps are
+documented in [docs/game-data-sync.md](docs/game-data-sync.md).
 
 The editor uses hierarchical navigation: select a category such as Basic
 Information, then select a concrete editor such as Cat Food or XP. English and

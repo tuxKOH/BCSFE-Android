@@ -1,0 +1,39 @@
+{
+  "checked_on": "2026-11-08",
+  "method": "APK extraction following the BCData README; these versions are not yet in upstream metadata",
+  "recipe": "https://git.battlecatsmodding.org/fieryhenry/BCData",
+  "bcdata_commit": "8644713249966c10a880e056c2f3e58fe21cd4a3",
+  "apkdown_commit": "32d32ebac89635f7d2c6c6b168c11dcfaefb1a21",
+  "tbctk_commit": "c21e94c4e51243f50dade44d137cd644c7b57e6d",
+  "apkeditor_sha256": "c242f5fc4591667a0084668320d0016a20e7c2abae102c1bd4d640e11d9f60ee",
+  "regions": {
+    "en": {
+      "version": "15.7.0",
+      "package_name": "jp.co.ponos.battlecatsen",
+      "version_code": 1507000,
+      "provider": "APKPure via apkdown",
+      "archive_sha256": "d5d18a7ddda050e67bc70c9b0a49a3ef09760e4c653fc08dfb045b9f84fb40f5"
+    },
+    "jp": {
+      "version": "15.7.4",
+      "package_name": "jp.co.ponos.battlecats",
+      "version_code": 1507040,
+      "provider": "APKPure via apkdown",
+      "archive_sha256": "40723b9e502a9a3b0d8c58757f2aa4879b73d8808e4acd5021a183bf78c5fb19"
+    },
+    "tw": {
+      "version": "15.7.0",
+      "package_name": "jp.co.ponos.battlecatstw",
+      "version_code": 1507000,
+      "provider": "APKPure via apkdown",
+      "archive_sha256": "21683c90234692ec2df80bdaaf0f0d7a46ba07e315f003bc1cd315f863f1ebb5"
+    },
+    "kr": {
+      "version": "15.7.0",
+      "package_name": "jp.co.ponos.battlecatskr",
+      "version_code": 1507000,
+      "provider": "APKPure via apkdown",
+      "archive_sha256": "971f0896b13e26a9a27926dea8acc2e4a21779ba574f461407f893900784a0ec"
+    }
+  }
+}

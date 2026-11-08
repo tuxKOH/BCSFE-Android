@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="replace_account_before_upload">是否创建替代账号再上传？</string>
+    <string name="replace_account_before_load">是否创建替代账号再加载？</string>
+    <string name="root_read_confirm">从%1$s读取存档副本？手机内的原存档不会被修改。</string>
+    <string name="root_read_action">加载</string>
+    <string name="root_reading">正在读取游戏存档副本…</string>
     <string name="root_loading_replacement">正在创建替代账号，成功后再加载进手机内游戏…</string>
     <string name="root_replacement_success">替代账号已创建，存档已加载进手机内游戏，新账号凭据已保存到编辑器。</string>
     <string name="root_replacement_failed">无法创建替代账号，未写入任何游戏文件，工作存档未更改。</string>
-    <string name="root_replacement_unsupported">此存档的版本未受支持或数据已损坏，无法安全创建替代账号。未写入任何游戏文件，工作存档未更改。</string>
-    <string name="root_replacement_session_failed">存档已使用替代账号加载进游戏，但编辑器未能缓存新账号凭据。请重新读取游戏存档后再编辑。</string>
+    <string name="root_replacement_unsupported">此存档的版本未受支持或数据已损坏，无法安全加载。未写入任何游戏文件，工作存档未更改。</string>
+    <string name="root_replacement_session_failed">存档已加载进游戏，但编辑器未能缓存会话。请重新读取游戏存档后再编辑。</string>
     <string name="root_replacement_write_confirm">会先创建替代账号。成功后才会删除 SAVE_DATA、SAVE_DATA.OLD 及 cache 下的 JSON 文件，并把准备好的存档加载进%1$s。工作存档也会保存新账号凭据。是否继续？</string>
     <string name="root_reading_replacement">正在读取游戏存档副本并创建替代账号，成功后再打开… 手机内游戏原存档不会被修改。</string>
     <string name="root_read_replacement_success">替代账号已创建，存档副本已作为新会话打开；手机内游戏原存档未更改。</string>
@@ -18,7 +23,7 @@
     <string name="update_notes_unavailable">此 Release 未提供更新日志。</string>
     <string name="view_release">查看 Release</string>
     <string name="open_release_failed">无法打开 Release 页面。</string>
-    <string name="supported_versions_notice">完整编辑面向 EN、日版、台版、韩版 15.6 存档，以及四个地区的 15.5 存档。更早的存档可以导入查看和导出，但未被正式支持。版本转换支持 14.0 和 14.3–15.6；更早的存档格式不提供完整编辑支持。</string>
+    <string name="supported_versions_notice">完整编辑支持 15.5.0 至日版 15.7.4、英版／台版／韩版 15.7.0，包含中间补丁版本。中间版本使用兼容的同地区 BCData，不更改存档原版本号。创建存档使用当前地区最新受支持版本。其他存档可以导入查看和导出，但未被正式支持。版本转换支持 14.0，以及 14.3 至当前地区最新受支持版本，包含日版 15.7.1 至 15.7.3 和各地区 15.6.1／15.5.1。</string>
     <string name="unsupported_import_warning_title">版本未被正式支持</string>
     <string name="unsupported_import_warning">版本未被正式支持！异常猫名单或许缺乏，部分值或许为乱码！ 如果看到乱码值 请勿修改 可能会触发游戏数据异常提示导致封号！</string>
     <string name="language">语言</string><string name="change_language">切换语言</string><string name="choose_language">选择语言</string>
@@ -38,7 +43,7 @@
     <string name="receiving">正在接收存档……</string>
     <string name="receive_failed">无法接收存档，请检查转移码、地区和网络。</string>
     <string name="upload_not_ready">上传功能可在当前编辑会话中使用。</string>
-    <string name="upload_warning">这将先创建替代账号，再上传当前工作副本并创建新的转移。是否继续？</string><string name="upload_warning_with_ad">这将先创建替代账号，再上传当前工作副本并创建新的转移。是否继续？\n\n按下上传会出现一个弹窗广告来支持我，请勿相信广告内容，上传将会在背景运行。</string><string name="upload_confirm">上传</string><string name="uploading">正在创建替代账号并上传存档……</string><string name="upload_failed">上传失败，本地存档和账号均未被替换。</string><string name="upload_success">转移已创建</string><string name="transfer_result">转移码：%1$s\n确认码：%2$s</string><string name="copy_codes">复制</string>
+    <string name="upload_warning">这将上传当前工作副本并创建新的转移。是否先创建替代账号由下方选项决定。</string><string name="upload_warning_with_ad">这将上传当前工作副本并创建新的转移。是否先创建替代账号由下方选项决定。\n\n按下上传会出现一个弹窗广告来支持我，请勿相信广告内容，上传将会在背景运行。</string><string name="upload_confirm">上传</string><string name="uploading">正在上传存档……</string><string name="upload_failed">上传失败，本地存档和账号均未被替换。</string><string name="upload_success">转移已创建</string><string name="transfer_result">转移码：%1$s\n确认码：%2$s</string><string name="copy_codes">复制</string>
     <string name="editor_areas">编辑功能</string>
     <string name="safety_notice">请保留一份未经修改的备份。游戏服务器可能拒绝修改后的存档，或对账号进行限制。</string>
     <string name="search_features">搜索分类和功能</string>
@@ -135,7 +140,7 @@
     <string name="pass_restart_title">金会员与重启礼包</string><string-array name="pass_restart_actions"><item>获得 30 天金会员</item><item>移除金会员</item><item>获得重启礼包</item></string-array>
     <string name="use_save">使用存档</string><string-array name="use_save_actions"><item>上传存档并创建转移码</item><item>将此存档加载进已安装的游戏（需 Root）</item></string-array><string name="save_management_title">存档管理</string><string-array name="save_management_actions"><item>导出工作副本</item><item>上传并创建转移码</item><item>退出编辑器</item></string-array>
     <string name="convert_region_title">转换地区</string><string name="convert_region_warning">此操作会在目标地区创建新账号并更新工作存档。继续前请先导出备份。</string><string name="current_suffix">（当前）</string><string name="converting_region">正在转换地区并创建账号…</string><string name="convert_region_success">地区已转换，新账号已永久保存。</string><string name="convert_region_failed">地区转换失败，工作存档未更改。</string><string name="jp_conversion_unavailable">JP 地区转换目前要求存档版本为 15.5，工作存档未更改。</string>
-    <string name="game_version_title">游戏版本</string><string name="game_version_warning">更改序列化游戏版本会重写版本相关字段，请先导出备份再继续。</string><string name="game_version_success">游戏版本已转换并永久缓存。</string><string name="game_version_failed">游戏版本转换失败，工作存档未更改。</string><string name="game_version_message">当前序列化版本：%1$d。支持 14.0，以及 14.3 至 15.6 版本之间转换。</string>
+    <string name="game_version_title">游戏版本</string><string name="game_version_warning">更改序列化游戏版本会重写版本相关字段，请先导出备份再继续。</string><string name="game_version_success">游戏版本已转换并永久缓存。</string><string name="game_version_failed">游戏版本转换失败，工作存档未更改。</string><string name="game_version_message">当前序列化版本：%1$d。支持 14.0，以及 14.3 至当前地区最新受支持版本之间转换。</string>
     <string name="account_info_title">账号凭据</string><string-array name="account_info_actions"><item>查看查询码</item><item>编辑查询码</item><item>查看密码刷新令牌</item><item>编辑密码刷新令牌</item></string-array><string name="invalid_credential_length">替换凭据的编码长度必须与原值完全相同。</string>
     <string name="account_operations_title">账号操作</string><string-array name="account_operation_actions"><item>创建替代账号</item><item>仅上传托管道具</item></string-array><string name="account_operations_warning">此操作会创建新的服务器账号，并替换工作存档中的查询码和刷新令牌。可用于将存档迁离无法使用或受限制的账号，原账号本身不会被修改。</string><string name="create_account_confirm">创建账号</string><string name="creating_account">正在创建替代账号…</string><string name="create_account_success">替代账号已创建并永久保存。</string><string name="create_account_failed">无法创建替代账号，工作存档未被更改。</string><string name="upload_managed_items">上传托管道具</string><string name="upload_managed_warning">此操作会认证当前账号，并同步猫罐头、稀有券、白金券和传说券，不会创建转移码。</string><string name="uploading_managed_items">正在上传托管道具…</string><string name="upload_managed_success">托管道具已上传，刷新后的凭据已永久保存。</string><string name="upload_managed_failed">托管道具上传失败，工作存档仍保留在缓存中。</string>
     <string name="storage_skills_title">储藏库与基础升级</string><string-array name="storage_skill_actions"><item>向储藏库添加猫咪</item><item>向储藏库添加基础升级</item><item>移除储藏库项目</item><item>清空储藏库</item><item>编辑基础升级等级</item></string-array><string name="storage_title">储藏库</string><string name="storage_full">储藏库已满。</string><string name="storage_empty">储藏库为空。</string><string name="storage_quantity_label">数量</string><string name="storage_add_cats">添加猫咪</string><string name="storage_add_skills">添加基础升级</string><string name="storage_remove">移除储藏库项目</string><string name="storage_item_row">类型 %1$d · ID %2$d</string><string name="special_skill_id_label">基础升级 ID（0-9）</string>
@@ -273,7 +278,7 @@
         <item>"Delinquent Cat / Angry Delinquent Cat / Ultra Delinquent Cat"</item>
         <item>"Hip Hop Cat / Dancing Flasher Cat / Can Can Cat"</item>
         <item>"Kotatsu Cat / Sadako Cat / Octopus Cat"</item>
-        <item>"Nekoluga / Unknown Cat / Ultralan Pasalan"</item>
+        <item>"Nekoluga / Kesalan Pasalan / Ultralan Pasalan"</item>
         <item>"Nerd Cat / Hacker Cat / Cyberpunk Cat"</item>
         <item>"Swimmer Cat / Butterfly Cat / Fishman Cat"</item>
         <item>"Pogo Cat / Masai Cat / Jiangshi Cat"</item>
@@ -640,7 +645,7 @@
         <item>" /  / "</item>
         <item>"Mentori / Mentori CC / Mentori CC"</item>
         <item>"Imoto / Imoto CC / Imoto CC"</item>
-        <item>"Voli / Volta / Gigavolta"</item>
+        <item>"Voli / Volta / Gigavolta / Teravolta"</item>
         <item>"Shinji &amp; Cat / Plug Suit Shinji / Plug Suit Shinji Black"</item>
         <item>"Gendo &amp; Fuyutsuki Cats / Moon Gendo &amp; Fuyutsuki Cats / Moon Gendo &amp; Fuyutsuki Cats"</item>
         <item>"Giraffe Unit-01 / Giraffe Unit-02 / Giraffe Unit-02"</item>
@@ -985,7 +990,7 @@
         <item>"Madhead / Madhead Cat / Madhead Cat"</item>
         <item>"Felix the Cat Duke Cat / Mercenary Leader Felix Cat / Mercenary Leader Felix Cat"</item>
         <item>"Dotty Cat / Birthday Dotty Cat / Birthday Dotty Cat"</item>
-        <item>"Kenshin Himura / Kenshin Himura CC / Kenshin Himura CC"</item>
+        <item>"Kenshin Himura / Kenshin Himura CC / "</item>
         <item>"Sanosuke Sagara / Sanosuke Sagara CC / Sanosuke Sagara CC"</item>
         <item>"Aoshi Shinomori / Aoshi Shinomori CC / Aoshi Shinomori CC"</item>
         <item>"Hajime Saito / Hajime Saito CC / Hajime Saito CC"</item>
@@ -993,7 +998,7 @@
         <item>"Li\'l Yahiko / Li\'l Yahiko CC / Li\'l Yahiko CC"</item>
         <item>"Kenshin Cat / Battosai Cat / Battosai Cat"</item>
         <item>"Kaoru Cat / Swordscat Kaoru / Swordscat Kaoru"</item>
-        <item>"Akechi Mitsuhide / Wargod Mitsuhide / Wargod Mitsuhide"</item>
+        <item>"Akechi Mitsuhide / Wargod Mitsuhide / Immortal Mitsuhide"</item>
         <item>"756_1"</item>
         <item>"Cake Machine / Wedding Cake Machine / Wedding Cake Machine"</item>
         <item>"Ancient Egg: N205 / Violet Egg: N205 / Bride Cat"</item>
@@ -1105,16 +1110,22 @@
         <item>"The Invisible Cat / Groom Cat / Groom Cat"</item>
         <item>"Shirou Emiya / Shirou Emiya CC / Shirou Emiya CC"</item>
         <item>"True Assassin / True Assassin CC / True Assassin CC"</item>
-        <item>" /  / "</item>
-        <item>" /  / "</item>
-        <item>" /  / "</item>
+        <item>"PAC-MAN / Cat PAC-MAN / Cat PAC-MAN"</item>
+        <item>"Blinky Cat / Blinky Cat CC / Blinky Cat CC"</item>
+        <item>"Inky Cat / Inky Cat CC / Inky Cat CC"</item>
         <item>"Akane Tounji / Let\'s Go! Akane / Let\'s Go! Akane"</item>
         <item>"Ancient Egg: N207 / Onyx Egg: N207 / Tycoon Cat"</item>
         <item>"Ancient Egg: N208 / Green Egg: N208 / Combat Crawfish Cat"</item>
         <item>"Jungle Gourmet Tomoe / Canopy Queen Tomoe / Canopy Queen Tomoe"</item>
         <item>"Metal Maiden Koneko / Sonic Siren Koneko / Sonic Siren Koneko"</item>
-        <item>""</item>
+        <item>"Ryuichi / Ryuichi &amp; Ryuji / Ryuichi &amp; Ryuji"</item>
         <item>"735_1"</item>
+        <item>"756-1"</item>
+        <item>"Hare of Inaba / Mega Shark vs. The White Hare / Mega Shark vs. The White Hare"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
     </string-array>
     <string-array name="cat_names_tw">
         <item>"貓咪 / 健美貓 / 摩西根貓"</item>
@@ -1518,7 +1529,7 @@
         <item>" /  / "</item>
         <item>"懶得鳥 / 懶得鳥CC / 懶得鳥CC"</item>
         <item>"直白妹 / 直白妹CC / 直白妹CC"</item>
-        <item>"雷精靈波特 / 天雷精靈皮卡波特 / 天雷精靈王基加波特"</item>
+        <item>"雷精靈波特 / 天雷精靈皮卡波特 / 天雷精靈王基加波特 / 天雷大精靈泰拉波特"</item>
         <item>"小小真嗣 / 作戰服小小真嗣 / 黑色作戰服小小真嗣"</item>
         <item>"源堂貓與冬月貓 / 月之源堂貓＆冬月貓 / 月之源堂貓＆冬月貓"</item>
         <item>"長頸鹿貓初號機 / 長頸鹿貓2號機 / 長頸鹿貓2號機"</item>
@@ -1863,7 +1874,7 @@
         <item>"瘋頭 / 瘋頭貓 / 瘋頭貓"</item>
         <item>"貓公爵 ‧ 費利克斯貓 / 傭兵貓團長 ‧ 費利克斯貓 / 傭兵貓團長 ‧ 費利克斯貓"</item>
         <item>"點點貓 / 生日派對點點貓 / 生日派對點點貓"</item>
-        <item>"緋村劍心 / 緋村劍心CC / 緋村劍心CC"</item>
+        <item>"緋村劍心 / 緋村劍心CC / "</item>
         <item>"相樂左之助 / 相樂左之助CC / 相樂左之助CC"</item>
         <item>"四乃森蒼紫 / 四乃森蒼紫CC / 四乃森蒼紫CC"</item>
         <item>"齋藤一 / 齋藤一CC / 齋藤一CC"</item>
@@ -1871,7 +1882,7 @@
         <item>"小小彌彥 / 小小彌彥CC / 小小彌彥CC"</item>
         <item>"劍心貓 / 拔刀齋貓 / 拔刀齋貓"</item>
         <item>"神谷薰貓 / 劍道之花神谷薰貓 / 劍道之花神谷薰貓"</item>
-        <item>"明智光秀 / 武神・明智光秀 / 武神・明智光秀"</item>
+        <item>"明智光秀 / 武神・明智光秀 / 智謀武神・明智光秀"</item>
         <item>"756_1"</item>
         <item>"婚禮蛋糕機器貓 / 婚禮蛋糕機器貓・祝 / 婚禮蛋糕機器貓・祝"</item>
         <item>"遠古的蛋：N205 / 紫色的蛋：N205 / 新娘貓"</item>
@@ -1982,17 +1993,23 @@
         <item>"婚禮・服部半藏 / 新郎・服部半藏 / 新郎・服部半藏"</item>
         <item>"透明貓 / 新郎貓 / 新郎貓"</item>
         <item>"衛宮士郎 / 衛宮士郎CC / 衛宮士郎CC"</item>
-        <item>"真Assassin / 真AssassinCC / 真AssassinCC"</item>
-        <item>" /  / "</item>
-        <item>" /  / "</item>
-        <item>" /  / "</item>
+        <item>"真Assassin / 真Assassin CC / 真Assassin CC"</item>
+        <item>"PAC-MAN / PAC-MAN貓 / PAC-MAN貓"</item>
+        <item>"Blinky貓 / Blinky貓CC / Blinky貓CC"</item>
+        <item>"Inky貓 / Inky貓CC / Inky貓CC"</item>
         <item>"鐵腕女孩東雲寺茜 / 打工女孩東雲寺茜 / 打工女孩東雲寺茜"</item>
         <item>"遠古的蛋：N207 / 黑色的蛋：N207 / 暴發戶貓"</item>
         <item>"遠古的蛋：N208 / 綠色的蛋：N208 / 突擊小龍蝦貓"</item>
         <item>"叢林獵人多萌耶 / 叢林大師多萌耶 / 叢林大師多萌耶"</item>
         <item>"搖滾俏喵 / 搖滾明星俏喵 / 搖滾明星俏喵"</item>
-        <item>""</item>
+        <item>"龍一 / 龍一＆龍二 / 龍一＆龍二"</item>
         <item>"735_1"</item>
+        <item>"756-1"</item>
+        <item>"因幡的白兔 / 巨鯊戰白兔 / 巨鯊戰白兔"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
     </string-array>
     <string-array name="cat_names_jp">
         <item>"ネコ / ネコビルダー / ネコモヒカン"</item>
@@ -2396,7 +2413,7 @@
         <item>"ハニトンくん / ハニトンくん＆にゃんこ / ハニトンくん＆にゃんこ"</item>
         <item>"めんトリ / めんトリCC / めんトリCC"</item>
         <item>"イモウト / イモウトCC / イモウトCC"</item>
-        <item>"雷の精霊ボルト / 天雷の精霊ピカボルト / 天雷の精霊王ギガボルト"</item>
+        <item>"雷の精霊ボルト / 天雷の精霊ピカボルト / 天雷の精霊王ギガボルト / 天雷の大精霊テラボルタ"</item>
         <item>"ちびシンジ / プラグスーツのちびシンジ / 黒プラグスーツのちびシンジ"</item>
         <item>"ネコゲンドウ＆ネコ冬月 / 月のネコゲンドウ＆ネコ冬月 / 月のネコゲンドウ＆ネコ冬月"</item>
         <item>"ネコキリン初号機 / ネコキリン２号機 / ネコキリン２号機"</item>
@@ -2741,7 +2758,7 @@
         <item>"744-1 / 744-2 / 744-2"</item>
         <item>"745-1 / 745-2 / 745-2"</item>
         <item>"746-1 / 746-2 / 746-2"</item>
-        <item>"緋村剣心 / 緋村剣心CC / 緋村剣心CC"</item>
+        <item>"緋村剣心 / 緋村剣心CC / 不殺の流浪人・緋村剣心"</item>
         <item>"相楽左之助 / 相楽左之助CC / 相楽左之助CC"</item>
         <item>"四乃森蒼紫 / 四乃森蒼紫CC / 四乃森蒼紫CC"</item>
         <item>"斎藤一 / 斎藤一CC / 斎藤一CC"</item>
@@ -2749,7 +2766,7 @@
         <item>"ちび弥彦 / ちび弥彦CC / ちび弥彦CC"</item>
         <item>"ネコ剣心 / ネコ抜刀斎 / ネコ抜刀斎"</item>
         <item>"ネコ薫 / 剣術小町ネコ薫 / 剣術小町ネコ薫"</item>
-        <item>"明智光秀 / 武神・明智光秀 / 武神・明智光秀"</item>
+        <item>"明智光秀 / 武神・明智光秀 / 智謀の武神・明智光秀"</item>
         <item>"756_1"</item>
         <item>"ネコケーキマシン挙式 / ネコケーキマシン挙式・寿 / ネコケーキマシン挙式・寿"</item>
         <item>"古びたタマゴ:N205 / 紫のタマゴ:N205 / ネコ花嫁"</item>
@@ -2871,6 +2888,12 @@
         <item>"ロックこねこ / ロックスターこねこ / ロックスターこねこ"</item>
         <item>"りゅういち / りゅういち＆りゅうじ / りゅういち＆りゅうじ"</item>
         <item>"735_1"</item>
+        <item>"756-1"</item>
+        <item>"いなばの白うさぎ / メガシャークVS白うさぎ / メガシャークVS白うさぎ"</item>
+        <item>"悠久山安慈 / 悠久山安慈CC / 悠久山安慈CC"</item>
+        <item>"瀬田宗次郎 / 瀬田宗次郎CC / 瀬田宗次郎CC"</item>
+        <item>"志々雄真実 / 志々雄真実CC / 志々雄真実CC"</item>
+        <item>"比古清十郎 / 比古清十郎CC / 比古清十郎CC"</item>
     </string-array>
     <string-array name="cat_names_kr">
         <item>"고양이 / 고양이 빌더 / 고양이 모히칸"</item>
@@ -3274,7 +3297,7 @@
         <item>" /  / "</item>
         <item>"Mentori / Mentori CC / Mentori CC"</item>
         <item>"Imoto / Imoto CC / Imoto CC"</item>
-        <item>"번개의 정령 볼트 / 벼락의 정령 피카볼트 / 벼락의 정령왕 기가볼트"</item>
+        <item>"번개의 정령 볼트 / 벼락의 정령 피카볼트 / 벼락의 정령왕 기가볼트 / 벼락의 대정령 테라볼타"</item>
         <item>"꼬맹이 신지 / 플러그 슈트 꼬맹이 신지 / 다크 플러그 슈트 꼬맹이 신지"</item>
         <item>"고양이 겐도&amp;후유츠키 / 달의 고양이 겐도&amp;후유츠키 / 달의 고양이 겐도&amp;후유츠키"</item>
         <item>"기린 고양이 초호기 / 기린 고양이 2호기 / 기린 고양이 2호기"</item>
@@ -3619,7 +3642,7 @@
         <item>"미친머리 / 냥코 미친머리 / 냥코 미친머리"</item>
         <item>"공작 펠릭스 고양이 / 용병단장 펠릭스 고양이 / 용병단장 펠릭스 고양이"</item>
         <item>"도티 고양이 / 버스데이 도티 고양이 / 버스데이 도티 고양이"</item>
-        <item>"히무라 켄신 / 히무라 켄신CC / 히무라 켄신CC"</item>
+        <item>"히무라 켄신 / 히무라 켄신CC / "</item>
         <item>"사가라 사노스케 / 사가라 사노스케CC / 사가라 사노스케CC"</item>
         <item>"시노모리 아오시 / 시노모리 아오시CC / 시노모리 아오시CC"</item>
         <item>"사이토 하지메 / 사이토 하지메CC / 사이토 하지메CC"</item>
@@ -3627,7 +3650,7 @@
         <item>"꼬맹이 야히코 / 꼬맹이 야히코CC / 꼬맹이 야히코CC"</item>
         <item>"고양이 켄신 / 고양이 발도재 / 고양이 발도재"</item>
         <item>"고양이 카미야 카오루 / 미녀 검술가 고양이 카오루 / 미녀 검술가 고양이 카오루"</item>
-        <item>"알리칸토 / 분노의 알리칸토 / 분노의 알리칸토"</item>
+        <item>"알리칸토 / 분노의 알리칸토 / 지략의 알리칸토"</item>
         <item>"756_1"</item>
         <item>"고양이 웨딩 케이크 머신 / 고양이 웨딩 케이크 머신・축 / 고양이 웨딩 케이크 머신・축"</item>
         <item>"오래된 알: N205 / 보라색 알: N205 / 고양이 신부"</item>
@@ -3739,16 +3762,22 @@
         <item>"투명 냥코 / 고양이 신랑 / 고양이 신랑"</item>
         <item>"에미야 시로 / 에미야 시로CC / 에미야 시로CC"</item>
         <item>"진 어새신 / 진 어새신CC / 진 어새신CC"</item>
-        <item>" /  / "</item>
-        <item>" /  / "</item>
-        <item>" /  / "</item>
+        <item>"PAC-MAN / PAC-MAN 고양이 / PAC-MAN 고양이"</item>
+        <item>"고양이 Blinky / 고양이 Blinky CC / 고양이 Blinky CC"</item>
+        <item>"고양이 Inky / 고양이 Inky CC / 고양이 Inky CC"</item>
         <item>"변신소녀 단 / 날아라 변신소녀 단 / 날아라 변신소녀 단"</item>
         <item>"오래된 알: N207 / 검은 알: N207 / 벼락부자 고양이"</item>
         <item>"오래된 알: N208 / 녹색 알: N208 / 어썰트 가재 고양이"</item>
         <item>"정글 헌터 토모에 / 정글 마스터 토모에 / 정글 마스터 토모에"</item>
         <item>"록 꼬꼬미 / 록 스타 꼬꼬미 / 록 스타 꼬꼬미"</item>
-        <item>""</item>
+        <item>"류이치 / 류이치 &amp; 류지 / 류이치 &amp; 류지"</item>
         <item>"735_1"</item>
+        <item>"756-1"</item>
+        <item>"이나바의 흰 토끼 / 메가 샤크 VS 흰 토끼 / 메가 샤크 VS 흰 토끼"</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
+        <item>" /  / "</item>
     </string-array>
     <!-- END GENERATED CAT NAMES -->
 </resources>

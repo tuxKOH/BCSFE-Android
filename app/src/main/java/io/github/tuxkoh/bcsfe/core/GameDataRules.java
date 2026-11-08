@@ -112,6 +112,8 @@ final class GameDataRules {
 
     static int totalForms(int catId) { return totalForms(SaveDocument.Region.TW, 150500, catId); }
     static int totalForms(SaveDocument.Region region, int gameVersion, int catId) {
+        UpstreamGameData.Snapshot snapshot = UpstreamGameData.matching(region, gameVersion);
+        if (snapshot != null) return catId < 0 ? 1 : catId >= snapshot.pictureBook.length ? -1 : snapshot.pictureBook[catId][1];
         String forms = switch (region) {
             case EN -> gameVersion == 150600 ? FORMS_EN_156 : FORMS_EN;
             case JP -> gameVersion == 150600 ? FORMS_JP_156_DATA : FORMS_JP;
@@ -132,6 +134,8 @@ final class GameDataRules {
     static int dropSlot(int index) { return dropSlot(SaveDocument.Region.TW,index); }
     static int dropPairCount(SaveDocument.Region region) { return dropPairCount(region, 150500); }
     static int dropPairCount(SaveDocument.Region region, int gameVersion) {
+        UpstreamGameData.Snapshot snapshot = UpstreamGameData.matching(region, gameVersion);
+        if (snapshot != null) return snapshot.drops.length;
         if (gameVersion == 150600) return switch (region) {
             case EN -> DROPS_EN_156.length;
             case JP -> DROPS_JP_156.length;
@@ -142,6 +146,8 @@ final class GameDataRules {
     }
     static int dropCat(SaveDocument.Region region,int index) { return dropCat(region, 150500, index); }
     static int dropCat(SaveDocument.Region region,int gameVersion,int index) {
+        UpstreamGameData.Snapshot snapshot = UpstreamGameData.matching(region, gameVersion);
+        if (snapshot != null) return snapshot.drops[index][0];
         if (gameVersion == 150600) return switch (region) {
             case EN -> DROPS_EN_156[index][0];
             case JP -> DROPS_JP_156[index][0];
@@ -152,6 +158,8 @@ final class GameDataRules {
     }
     static int dropSlot(SaveDocument.Region region,int index) { return dropSlot(region, 150500, index); }
     static int dropSlot(SaveDocument.Region region,int gameVersion,int index) {
+        UpstreamGameData.Snapshot snapshot = UpstreamGameData.matching(region, gameVersion);
+        if (snapshot != null) return snapshot.drops[index][1];
         if (gameVersion == 150600) return switch (region) {
             case EN -> DROPS_EN_156[index][1];
             case JP -> DROPS_JP_156[index][1];
@@ -189,6 +197,8 @@ final class GameDataRules {
     /** Legacy/default rule retained for callers that historically used TW data. */
     static boolean catObtainable(int id) { return catObtainable(OBTAINABLE_CATS_TW,id); }
     static boolean catObtainable(SaveDocument.Region region, int gameVersion, int id) {
+        UpstreamGameData.Snapshot snapshot = UpstreamGameData.matching(region, gameVersion);
+        if (snapshot != null) return id >= 0 && id < snapshot.pictureBook.length && snapshot.pictureBook[id][0] != 0;
         if (gameVersion != 150500 && gameVersion != 150600) return false;
         byte[] table = switch (region) {
             case EN -> gameVersion == 150600 ? OBTAINABLE_CATS_EN_156 : OBTAINABLE_CATS_EN;
@@ -201,8 +211,10 @@ final class GameDataRules {
     private static boolean catObtainable(byte[] table,int id) { return id>=0&&id<table.length*8&&(table[id/8]&(1<<(id%8)))!=0; }
     static int catRankLimitBase(int catId,java.util.function.IntPredicate claimed) { return catRankLimit(150500,catId,claimed,1000,1599); }
     static int catRankLimitBase(int gameVersion,int catId,java.util.function.IntPredicate claimed) { return catRankLimit(gameVersion,catId,claimed,1000,1599); }
+    static int catRankLimitBase(SaveDocument.Region region,int gameVersion,int catId,java.util.function.IntPredicate claimed) { return catRankLimit(region,gameVersion,catId,claimed,1000,1599); }
     static int catRankLimitPlus(int catId,java.util.function.IntPredicate claimed) { return catRankLimit(150500,catId,claimed,4000,4599); }
     static int catRankLimitPlus(int gameVersion,int catId,java.util.function.IntPredicate claimed) { return catRankLimit(gameVersion,catId,claimed,4000,4599); }
+    static int catRankLimitPlus(SaveDocument.Region region,int gameVersion,int catId,java.util.function.IntPredicate claimed) { return catRankLimit(region,gameVersion,catId,claimed,4000,4599); }
     static int catRarity(int id){return unitBuy(id,0);}
     static int catRarity(SaveDocument.Region region,int gameVersion,int id){return unitBuy(region,gameVersion,id,0);}
     static int catOriginalMaxBase(int id){return unitBuy(id,1);}
@@ -214,20 +226,60 @@ final class GameDataRules {
     static int catUnknown22(int id){return unitBuy(id,6);}
     static int catUnknown22(SaveDocument.Region region,int gameVersion,int id){return unitBuy(region,gameVersion,id,6);}
     private static int unitBuy(int id,int col){return id>=0&&id<UNIT_BUY.length&&col<UNIT_BUY[id].length?UNIT_BUY[id][col]:0;}
-    private static int unitBuy(SaveDocument.Region region,int gameVersion,int id,int col) { int[][] table=gameVersion==150600?(region==SaveDocument.Region.JP?UNIT_BUY_JP_156:UNIT_BUY_TW_156):UNIT_BUY;return id>=0&&id<table.length&&col<table[id].length?table[id][col]:0; }
-    private static int catRankLimit(int gameVersion,int catId,java.util.function.IntPredicate claimed,int minimum,int maximum) { int[][] limits=gameVersion==150600?UNIT_LIMITS_156:UNIT_LIMITS;if(catId<0||catId>=limits.length)return 0;int total=0;int[][] gifts=gameVersion==150600?RANK_GIFTS_156:RANK_GIFTS;for(int reward=0;reward<gifts.length;reward++){if(!claimed.test(reward))continue;int[] row=gifts[reward];for(int pair=1;pair+1<row.length&&row[pair]!=-1;pair+=2){int type=row[pair];if(type<minimum||type>maximum)continue;for(int unitType:limits[catId])if(unitType==type){total+=row[pair+1];break;}}}return total; }
+    private static int unitBuy(SaveDocument.Region region,int gameVersion,int id,int col) {
+        UpstreamGameData.Snapshot snapshot=UpstreamGameData.matching(region,gameVersion);
+        int[][] table=snapshot!=null?snapshot.unitBuy:gameVersion==150600?(region==SaveDocument.Region.JP?UNIT_BUY_JP_156:UNIT_BUY_TW_156):UNIT_BUY;
+        return id>=0&&id<table.length&&col<table[id].length?table[id][col]:0;
+    }
+    private static int catRankLimit(int gameVersion,int catId,java.util.function.IntPredicate claimed,int minimum,int maximum) { return catRankLimit(SaveDocument.Region.TW,gameVersion,catId,claimed,minimum,maximum); }
+    private static int catRankLimit(SaveDocument.Region region,int gameVersion,int catId,java.util.function.IntPredicate claimed,int minimum,int maximum) {
+        UpstreamGameData.Snapshot snapshot=UpstreamGameData.matching(region,gameVersion);
+        int[][] limits=snapshot!=null?snapshot.unitLimits:gameVersion==150600?UNIT_LIMITS_156:UNIT_LIMITS;
+        if(catId<0||catId>=limits.length)return 0;
+        int total=0;
+        int[][] gifts=snapshot!=null?snapshot.rankGifts:gameVersion==150600?RANK_GIFTS_156:RANK_GIFTS;
+        for(int reward=0;reward<gifts.length;reward++){
+            if(!claimed.test(reward))continue;
+            int[] row=gifts[reward];
+            for(int pair=1;pair+1<row.length&&row[pair]!=-1;pair+=2){
+                int type=row[pair];if(type<minimum||type>maximum)continue;
+                for(int unitType:limits[catId])if(unitType==type){total+=row[pair+1];break;}
+            }
+        }
+        return total;
+    }
     static int gamatotoHelperRarity(int id) { if(id>=1&&id<=53)return 0;if(id<=83&&id>=54)return 1;if(id<=108&&id>=84)return 2;if(id<=128&&id>=109)return 3;if(id<=148&&id>=129)return 4;return -1; }
     static int gamatotoFirstHelper(int rarity) { return switch(rarity){case 0->1;case 1->54;case 2->84;case 3->109;case 4->129;default->throw new IndexOutOfBoundsException();}; }
     static int gamatotoHelperRarityCapacity(int rarity) { return switch(rarity){case 0->53;case 1->30;case 2->25;case 3,4->20;default->throw new IndexOutOfBoundsException();}; }
     static int rankGiftCount() { return rankGiftCount(150500); }
+    static int rankGiftCount(SaveDocument.Region region,int gameVersion) {
+        UpstreamGameData.Snapshot snapshot=UpstreamGameData.matching(region,gameVersion);
+        return snapshot!=null?snapshot.rankGifts.length:rankGiftCount(gameVersion);
+    }
     static int rankGiftCount(int gameVersion) { return gameVersion == 150600 ? RANK_GIFTS_156.length : RANK_GIFT_THRESHOLDS.length / 2; }
     static int rankGiftThreshold(int index) { return rankGiftThreshold(150500, index); }
+    static int rankGiftThreshold(SaveDocument.Region region,int gameVersion,int index) {
+        UpstreamGameData.Snapshot snapshot=UpstreamGameData.matching(region,gameVersion);
+        return snapshot!=null?snapshot.rankGifts[index][0]:rankGiftThreshold(gameVersion,index);
+    }
     static int rankGiftThreshold(int gameVersion, int index) {
         if (index < 0 || index >= rankGiftCount(gameVersion)) throw new IndexOutOfBoundsException();
         if (gameVersion == 150600 && index >= RANK_GIFT_THRESHOLDS.length / 2) return 28000 + (index - (RANK_GIFT_THRESHOLDS.length / 2)) * 100;
         return ushort(RANK_GIFT_THRESHOLDS,index*2);
     }
     static int missionTarget(int missionId) { int id=0,offset=0;while(offset<MISSION_TARGETS.length){int delta=0,shift=0,value;do{value=MISSION_TARGETS[offset++]&255;delta|=(value&127)<<shift;shift+=7;}while((value&128)!=0);id+=delta;int target=MISSION_TARGETS[offset++]&255;if(id==missionId)return target;if(id>missionId)return -1;}return -1; }
+    static int missionTarget(SaveDocument.Region region,int gameVersion,int id) {
+        UpstreamGameData.Snapshot snapshot=UpstreamGameData.matching(region,gameVersion);
+        return snapshot!=null?snapshot.valueById(snapshot.missions,id,1,-1):missionTarget(id);
+    }
+    static boolean validSchemeItem(SaveDocument.Region region,int gameVersion,int id) {
+        UpstreamGameData.Snapshot snapshot=UpstreamGameData.matching(region,gameVersion);
+        return snapshot!=null?snapshot.valueById(snapshot.schemes,id,0,-1)>=0:validSchemeItem(id);
+    }
+    static int mapCrowns(SaveDocument.Region region,int gameVersion,int id) {
+        UpstreamGameData.Snapshot snapshot=UpstreamGameData.matching(region,gameVersion);
+        return snapshot!=null?snapshot.valueById(snapshot.maps,id,1,0):-1;
+    }
     static boolean validSchemeItem(int id) { return switch(id){case 3,47,48,49,50,51,87,88,89,90,91,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122->true;default->false;}; }
     static int talentMaxLevel(int catId,int talentId) {
         // A few serialized legacy records carry ability IDs that are not
@@ -245,6 +297,10 @@ final class GameDataRules {
             case 5,6,7,14,16,29,33,34,35,36,37,38,39,40,41,44,45,46,47,48,49,53,55,57,59,63,64,66,68,69->1;
             default->0;
         };
+    }
+    static int talentMaxLevel(SaveDocument.Region region,int gameVersion,int catId,int talentId) {
+        UpstreamGameData.Snapshot snapshot=UpstreamGameData.matching(region,gameVersion);
+        return snapshot!=null?snapshot.talentMaxLevel(catId,talentId):talentMaxLevel(catId,talentId);
     }
 
     private static int ushort(byte[] data,int offset) { return (data[offset]&255)|((data[offset+1]&255)<<8); }

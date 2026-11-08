@@ -111,6 +111,9 @@ final class TransferClient {
         JSONObject result=postTransferJson(endpoints.save+"/v2/transfers",metadata,headers);
         JSONObject out=result.optJSONObject("payload"); if(out==null)throw new IllegalStateException("Transfer code request failed");String transfer=out.optString("transferCode"),pin=out.optString("pin");if(transfer.isEmpty()||pin.isEmpty())throw new IllegalStateException("Transfer code request failed");return new UploadResult(transfer,pin,authentication.password,replacement.toBytes());
     }
+    static UploadResult upload(io.github.tuxkoh.bcsfe.core.SaveDocument document,String password,boolean createReplacement) throws Exception {
+        return createReplacement?uploadWithReplacementAccount(document):upload(document,password);
+    }
     static UploadResult uploadWithReplacementAccount(io.github.tuxkoh.bcsfe.core.SaveDocument document) throws Exception {
         byte[] source=document.toBytes();Exception lastFailure=null;
         for(int attempt=0;attempt<3;attempt++){
@@ -187,7 +190,9 @@ final class TransferClient {
     }
     private static void synchronizeManagedItems(io.github.tuxkoh.bcsfe.core.SaveDocument document,String auth) throws Exception {JSONObject body=new JSONObject().put("catfoodAmount",document.catFood()).put("isPaid",true).put("legendTicketAmount",document.legendTickets()).put("nonce",randomHex(32)).put("platinumTicketAmount",document.platinumTickets()).put("rareTicketAmount",document.rareTickets());String[] signed=accountHeaders(document.inquiryCode(),body.toString());String[] headers=new String[signed.length+1];System.arraycopy(signed,0,headers,0,signed.length);headers[headers.length-1]="Authorization: Bearer "+auth;JSONObject response=postJson(endpoints.managed+"/v1/managed-items",body,headers);if(response.optInt("statusCode",0)!=1)throw new IllegalStateException("Managed item upload failed");}
     private static JSONObject clientInfo(String region) throws Exception { return clientInfo(region,latestTransferVersion(region)); }
-    static int latestTransferVersion(String region) { return 150600; }
+    static int latestTransferVersion(String region) {
+        return io.github.tuxkoh.bcsfe.core.GameVersions.latest(io.github.tuxkoh.bcsfe.core.SaveDocument.Region.fromCode(region));
+    }
     private static JSONObject clientInfo(String region,int version) throws Exception { return new JSONObject().put("clientInfo",new JSONObject().put("client",new JSONObject().put("countryCode",region.equals("jp")?"ja":region).put("version",version)).put("device",new JSONObject().put("model","SM-G955F")).put("os",new JSONObject().put("type","android").put("version","9"))).put("nonce",randomHex(32)); }
     private static JSONObject postJson(String url,JSONObject body,String[] extra) throws Exception { HttpURLConnection c=(HttpURLConnection)new URL(url).openConnection();c.setRequestMethod("POST");c.setDoOutput(true);c.setConnectTimeout(15000);c.setReadTimeout(30000);c.setRequestProperty("Content-Type","application/json");c.setRequestProperty("Accept-Encoding","gzip");c.setRequestProperty("Connection","keep-alive");c.setRequestProperty("User-Agent",USER_AGENT);if(extra!=null)for(String h:extra){int p=h.indexOf(':');if(p>0)c.setRequestProperty(h.substring(0,p),h.substring(p+1).trim());}try(OutputStream o=c.getOutputStream()){o.write(body.toString().getBytes(StandardCharsets.UTF_8));}int status=c.getResponseCode();if(status/100!=2)throw new NetworkFailure(stage(url),status,c.getContentType());try(InputStream i=responseInput(c)){JSONObject response=new JSONObject(new String(io.github.tuxkoh.bcsfe.core.IoStreams.readAll(i),StandardCharsets.UTF_8));if(response.optInt("statusCode",0)!=1)throw new NetworkFailure(stage(url),status,"statusCode="+response.optInt("statusCode",0));return response;}finally{c.disconnect();}}
     private static JSONObject postTransferJson(String url,String body,String[] extra) throws Exception {

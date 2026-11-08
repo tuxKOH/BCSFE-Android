@@ -3,6 +3,7 @@ package io.github.tuxkoh.bcsfe;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Test;
+import org.json.JSONObject;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,16 +41,38 @@ public final class TransferClientTest {
             server.enqueue(new MockResponse().setResponseCode(200).setHeader("Content-Type","application/octet-stream").setHeader("Nyanko-Password-Refresh-Token","refresh-from-server").setHeader("Nyanko-Password","password-from-server").setBody(new okio.Buffer().write(save)));
             TransferClient.ReceivedSave result=TransferClient.receive("ABC 123","1234","tw");
             RecordedRequest request=take(server);String body=request.getBody().readUtf8();
-            assertEquals("/v2/transfers/ABC+123/reception",request.getPath());assertTrue(body.contains("\"countryCode\":\"tw\""));assertTrue(body.contains("\"version\":150600"));assertTrue(body.contains("\"pin\":\"1234\""));
+            assertEquals("/v2/transfers/ABC+123/reception",request.getPath());assertTrue(body.contains("\"countryCode\":\"tw\""));assertTrue(body.contains("\"version\":150700"));assertTrue(body.contains("\"pin\":\"1234\""));
             assertArrayEquals(save,result.data);assertEquals("refresh-from-server",result.passwordRefreshToken);assertEquals("password-from-server",result.password);
         }
     }
 
     @Test public void receiveClientVersionsFollowOfficialRegionalReleases() {
-        assertEquals(150600,TransferClient.latestTransferVersion("jp"));
-        assertEquals(150600,TransferClient.latestTransferVersion("tw"));
-        assertEquals(150600,TransferClient.latestTransferVersion("en"));
-        assertEquals(150600,TransferClient.latestTransferVersion("kr"));
+        assertEquals(150704,TransferClient.latestTransferVersion("jp"));
+        assertEquals(150700,TransferClient.latestTransferVersion("tw"));
+        assertEquals(150700,TransferClient.latestTransferVersion("en"));
+        assertEquals(150700,TransferClient.latestTransferVersion("kr"));
+    }
+
+    @Test public void latestNewSaveAccountCreationUsesTheSameRegionalVersion() throws Exception {
+        for (SaveDocument.Region region : SaveDocument.Region.values()) {
+            SaveDocument document=SaveDocument.fromNewSaveTemplate(Files.readAllBytes(Path.of("src/main/assets/new_saves/"+region.code()+".save")));
+            try(MockWebServer server=server()){
+                server.enqueue(json(200,"{\"accountId\":\"987654321\"}"));
+                server.enqueue(json(200,"{\"statusCode\":1,\"timestamp\":1700000002,\"payload\":{\"accountCode\":\"987654321\",\"passwordRefreshToken\":\"9876543210987654321098765432109876543210\",\"password\":\"replacement-password\"}}"));
+                server.enqueue(json(200,"{\"statusCode\":1,\"payload\":{\"token\":\"replacement-token\"}}"));
+                server.enqueue(json(200,"{\"statusCode\":1,\"payload\":{}}"));
+                server.enqueue(json(200,"{\"statusCode\":1,\"payload\":{\"key\":\"replacement-save-key\"}}"));
+                TransferClient.createNewAccount(document);
+                take(server); take(server);
+                JSONObject tokenRequest=new JSONObject(take(server).getBody().readUtf8());
+                JSONObject client=tokenRequest.getJSONObject("clientInfo").getJSONObject("client");
+                assertEquals(region==SaveDocument.Region.JP?"ja":region.code(),client.getString("countryCode"));
+                assertEquals(TransferClient.latestTransferVersion(region.code()),client.getInt("version"));
+                take(server); take(server);
+                assertTrue(document.checksumValid());
+                assertTrue(document.isOfficiallySupportedVersion());
+            }
+        }
     }
 
     @Test public void failedAuthenticationDoesNotPartiallyMutateDocumentCredentials() throws Exception {
@@ -200,12 +223,43 @@ public final class TransferClientTest {
         assertArrayEquals(before,source);
     }
 
+    @Test public void rootLoadAcceptsLatestAndIntermediateJapanWithEitherAccountChoice() throws Exception {
+        byte[] template=Files.readAllBytes(Path.of("src/main/assets/new_saves/jp.save"));
+        SaveDocument document=SaveDocument.fromNewSaveTemplate(template);
+        for(int version:new int[]{150704,150703,150702,150701,150700,150601,150501}){
+            document.convertGameVersion(version);
+            byte[] source=document.toBytes(),before=source.clone();
+            for(boolean replacement:new boolean[]{false,true}){
+                for(SaveDocument.Region hint:new SaveDocument.Region[]{null,SaveDocument.Region.JP}){
+                    try(MockWebServer server=server()){
+                        if(replacement)enqueueReplacementAccount(server);
+                        java.util.concurrent.atomic.AtomicInteger writes=new java.util.concurrent.atomic.AtomicInteger();
+                        TransferClient.ReplacementSave result=RootSaveLoader.load(source,hint,null,replacement,(region,data)->{
+                            SaveDocument written=SaveDocument.open(data);
+                            assertEquals(SaveDocument.Region.JP,region);
+                            assertEquals(version,written.gameVersion());
+                            assertTrue(written.isOfficiallySupportedVersion());
+                            assertTrue(written.hasItemProfile());
+                            assertTrue(written.checksumValid());
+                            if(!replacement)assertArrayEquals(before,data);
+                            writes.incrementAndGet();
+                        });
+                        assertEquals(1,writes.get());
+                        assertEquals(replacement?5:0,server.getRequestCount());
+                        assertEquals(version,result.document.gameVersion());
+                        assertArrayEquals(before,source);
+                    }
+                }
+            }
+        }
+    }
+
     @Test public void rootLoadRejectsUnknownVersionBeforeCreatingAccount() throws Exception {
         byte[] source=Files.readAllBytes(Path.of("src/main/assets/new_saves/tw.save"));
         SaveDocument template=SaveDocument.open(source);
         java.lang.reflect.Field field=SaveDocument.class.getDeclaredField("gameVersionOffset");
         field.setAccessible(true);
-        java.nio.ByteBuffer.wrap(source).order(java.nio.ByteOrder.LITTLE_ENDIAN).putInt(field.getInt(template),150601);
+        java.nio.ByteBuffer.wrap(source).order(java.nio.ByteOrder.LITTLE_ENDIAN).putInt(field.getInt(template),150702);
         java.security.MessageDigest md5=java.security.MessageDigest.getInstance("MD5");
         md5.update("battlecatstw".getBytes(java.nio.charset.StandardCharsets.UTF_8));
         md5.update(source,0,source.length-32);

@@ -222,7 +222,7 @@ public final class MainActivity extends AppCompatActivity {
         Toast.makeText(this,R.string.creating_new_save,Toast.LENGTH_LONG).show();
         networkExecutor.execute(()->{
             try(InputStream input=getAssets().open("new_saves/"+region.code()+".save")){
-                SaveDocument replacement=SaveDocument.open(io.github.tuxkoh.bcsfe.core.IoStreams.readAll(input));
+                SaveDocument replacement=SaveDocument.fromNewSaveTemplate(io.github.tuxkoh.bcsfe.core.IoStreams.readAll(input));
                 TransferClient.AccountResult account=TransferClient.createNewAccount(replacement);
                 byte[] data=replacement.toBytes();
                 runOnUiThread(()->{
@@ -259,8 +259,10 @@ public final class MainActivity extends AppCompatActivity {
     private boolean handleViewIntent(Intent intent){
         if(intent==null||!Intent.ACTION_VIEW.equals(intent.getAction()))return false;
         Uri uri=intent.getData();
-        if(uri==null){Toast.makeText(this,R.string.invalid_save_file,Toast.LENGTH_LONG).show();return true;}
-        loadExternalDocument(uri);intent.setData(null);return true;
+        if(uri==null){intent.setAction(null);Toast.makeText(this,R.string.invalid_save_file,Toast.LENGTH_LONG).show();return false;}
+        // A consumed VIEW intent must not suppress session restoration when
+        // the activity is recreated (for example after a locale change).
+        loadExternalDocument(uri);intent.setAction(null);intent.setData(null);return true;
     }
     private void loadExternalDocument(Uri uri){
         try(InputStream input=getContentResolver().openInputStream(uri)){
@@ -416,16 +418,25 @@ public final class MainActivity extends AppCompatActivity {
 
     private void loadLocalSave(String packageName, String displayName, SaveDocument.Region region) {
         if(rootReadInProgress)return;
+        android.widget.CheckBox replacementChoice=replacementAccountChoice(false);
+        new AlertDialog.Builder(this).setTitle(R.string.root_load_save)
+                .setMessage(getString(R.string.root_read_confirm,displayName)).setView(replacementChoice)
+                .setNegativeButton(R.string.close,null).setPositiveButton(R.string.root_read_action,
+                        (d,w)->readLocalSave(packageName,displayName,region,replacementChoice.isChecked())).show();
+    }
+
+    private void readLocalSave(String packageName,String displayName,SaveDocument.Region region,boolean createReplacement) {
+        if(rootReadInProgress)return;
         rootReadInProgress=true;
-        Toast.makeText(this,R.string.root_reading_replacement,Toast.LENGTH_LONG).show();
+        Toast.makeText(this,createReplacement?R.string.root_reading_replacement:R.string.root_reading,Toast.LENGTH_LONG).show();
         networkExecutor.execute(() -> {
             try {
                 byte[] data = RootAccess.readSave(packageName);
-                TransferClient.ReplacementSave imported=TransferClient.createReplacementCopy(data,region);
+                TransferClient.ReplacementSave imported=RootSaveLoader.prepareCopy(data,region,null,createReplacement);
                 runOnUiThread(() -> {
                     rootReadInProgress=false;
                     if(!activityActive())return;
-                    try { openImportedDocument(imported.document,data,"SAVE_DATA ("+displayName+")",imported.password); Toast.makeText(this,R.string.root_read_replacement_success,Toast.LENGTH_SHORT).show(); }
+                    try { openImportedDocument(imported.document,data,"SAVE_DATA ("+displayName+")",imported.password); Toast.makeText(this,createReplacement?R.string.root_read_replacement_success:R.string.root_load_success,Toast.LENGTH_SHORT).show(); }
                     catch (Exception error) { reportError("root-save-open", error, null); Toast.makeText(this,R.string.root_load_failed,Toast.LENGTH_LONG).show(); }
                 });
             } catch (UnsupportedOperationException | IllegalArgumentException error) {
@@ -438,7 +449,7 @@ public final class MainActivity extends AppCompatActivity {
                 logNetworkFailure("root-replacement-account",error,null);
                 runOnUiThread(() -> {
                     rootReadInProgress=false;
-                    if(activityActive())Toast.makeText(this,R.string.root_read_replacement_failed,Toast.LENGTH_LONG).show();
+                    if(activityActive())Toast.makeText(this,createReplacement?R.string.root_read_replacement_failed:R.string.root_load_failed,Toast.LENGTH_LONG).show();
                 });
             }
         });
@@ -650,7 +661,7 @@ public final class MainActivity extends AppCompatActivity {
             case 23 -> editGamatoto(); case 24 -> editOtoto(); case 25 -> editCatShrine(); case 26 -> editAccountInfo(); case 27 -> showAccountOperations(); case 28 -> editSeeds();
             case 29 -> editCrashFixes(); case 30 -> editMenuFixes(); case 31 -> editLineupsAndGambling(); case 32 -> editOtherGuide(); case 33 -> editRewardsMissionsMedals(); case 34 -> editPassAndRestart();
             default -> Toast.makeText(this,R.string.invalid_feature,Toast.LENGTH_SHORT).show();
-        }} catch (RuntimeException error) { showFieldError(); }
+        }} catch (RuntimeException error) { showFieldError(error); }
     }
     private void editRewardsMissionsMedals() { String[] choices=getResources().getStringArray(R.array.reward_mission_actions);new AlertDialog.Builder(this).setTitle(R.string.rewards_missions_title).setItems(choices,(d,i)->{if(i==0)editRewards();else if(i==1)editLabyrinthMedals();else if(i==2)editMissions();else showGameMedals();}).show(); }
     private void editLabyrinthMedals() { editArray(R.string.labyrinth_medals_title,R.string.labyrinth_medal_label,document.labyrinthMedals(),document::setLabyrinthMedal); }
@@ -743,8 +754,18 @@ public final class MainActivity extends AppCompatActivity {
     }
     private void beginUploadConfirmation() {
         if(BuildConfig.ADS_ENABLED){showAdActionConfirmation(true);return;}
+        android.widget.CheckBox replacementChoice=replacementAccountChoice(true);
         new AlertDialog.Builder(this).setTitle(R.string.upload_transfer).setMessage(R.string.upload_warning)
-                .setNegativeButton(R.string.close,null).setPositiveButton(R.string.upload_confirm,(d,w)->uploadAndShowTransferCodes()).show();
+                .setView(replacementChoice)
+                .setNegativeButton(R.string.close,null).setPositiveButton(R.string.upload_confirm,(d,w)->uploadAndShowTransferCodes(replacementChoice.isChecked())).show();
+    }
+    private android.widget.CheckBox replacementAccountChoice(boolean upload) {
+        android.widget.CheckBox choice=new android.widget.CheckBox(this);
+        choice.setText(upload?R.string.replace_account_before_upload:R.string.replace_account_before_load);
+        choice.setChecked(true);
+        choice.setMinHeight(dp(56));
+        choice.setPadding(dp(20),dp(8),dp(20),dp(8));
+        return choice;
     }
     private void confirmRootWrite() {
         if (document == null) return;
@@ -755,9 +776,10 @@ public final class MainActivity extends AppCompatActivity {
         }
         if (BuildConfig.ADS_ENABLED) { showAdActionConfirmation(false); return; }
         String target=rootWritePackage==null?regionDisplay(document.region()):rootWritePackage;
+        android.widget.CheckBox replacementChoice=replacementAccountChoice(false);
         new AlertDialog.Builder(this).setTitle(R.string.root_write_save)
-                .setMessage(getString(R.string.root_replacement_write_confirm, target))
-                .setNegativeButton(R.string.close, null).setPositiveButton(R.string.root_ad_action, (d,w)->writeCurrentSaveToGame()).show();
+                .setMessage(getString(R.string.root_write_confirm, target)).setView(replacementChoice)
+                .setNegativeButton(R.string.close, null).setPositiveButton(R.string.root_ad_action, (d,w)->writeCurrentSaveToGame(replacementChoice.isChecked())).show();
     }
 
     private void showAdActionConfirmation(boolean upload) {
@@ -768,7 +790,11 @@ public final class MainActivity extends AppCompatActivity {
         int adHeight=Math.min(dp(680),(int)(getResources().getDisplayMetrics().heightPixels*.78f));
         FrameLayout adContainer=new FrameLayout(this);adContainer.setMinimumHeight(adHeight);
         WebView adView=createAdWebView(adContainer);adContainer.addView(adView,new FrameLayout.LayoutParams(-1,adHeight));
-        AlertDialog dialog=new AlertDialog.Builder(this).setView(adContainer).setNegativeButton(R.string.close,null).create();
+        android.widget.CheckBox replacementChoice=replacementAccountChoice(upload);
+        LinearLayout adLayout=new LinearLayout(this);adLayout.setOrientation(LinearLayout.VERTICAL);
+        adLayout.addView(adContainer,new LinearLayout.LayoutParams(-1,0,1));
+        adLayout.addView(replacementChoice,new LinearLayout.LayoutParams(-1,-2));
+        AlertDialog dialog=new AlertDialog.Builder(this).setView(adLayout).setNegativeButton(R.string.close,null).create();
         dialog.setCanceledOnTouchOutside(false);
         final boolean[] uploadStarted={false};
         final float[] touchDown={0f,0f};
@@ -785,17 +811,18 @@ public final class MainActivity extends AppCompatActivity {
             adView.evaluateJavascript(hitTest,value->{
                 if(!dialog.isShowing()||uploadStarted[0]||!"true".equals(value))return;
                 uploadStarted[0]=true;adUploadInProgress=true;
-                boolean started=upload?uploadAndShowTransferCodes(dialog::dismiss,8000):writeCurrentSaveToGame(dialog::dismiss,8000);
-                if(!started){uploadStarted[0]=false;adUploadInProgress=false;}
+                replacementChoice.setEnabled(false);
+                boolean started=upload?uploadAndShowTransferCodes(dialog::dismiss,8000,replacementChoice.isChecked()):writeCurrentSaveToGame(dialog::dismiss,8000,replacementChoice.isChecked());
+                if(!started){uploadStarted[0]=false;adUploadInProgress=false;replacementChoice.setEnabled(true);}
             });
             return false;
         });
         dialog.setOnDismissListener(d->{android.util.Log.d(AD_LOG_TAG,"dialog dismissed childCount="+adContainer.getChildCount());adUploadInProgress=false;adScriptReady=false;adWindowCreated=false;for(int i=0;i<adContainer.getChildCount();i++){View child=adContainer.getChildAt(i);if(child instanceof WebView){((WebView)child).stopLoading();((WebView)child).destroy();}}adContainer.removeAllViews();});
         dialog.show();
-        String scriptUrl=android.text.TextUtils.htmlEncode(BuildConfig.ADSTERRA_SCRIPT_URL),titleText=android.text.TextUtils.htmlEncode(getString(upload?R.string.upload_transfer:R.string.root_write_save)),messageText=android.text.TextUtils.htmlEncode(upload?getString(R.string.upload_warning_with_ad):getString(R.string.root_replacement_write_confirm,rootWritePackage==null?regionDisplay(document.region()):rootWritePackage)+"\n\n"+getString(R.string.root_ad_warning)),uploadText=android.text.TextUtils.htmlEncode(getString(upload?R.string.upload_confirm:R.string.root_ad_action));
+        String scriptUrl=android.text.TextUtils.htmlEncode(BuildConfig.ADSTERRA_SCRIPT_URL),titleText=android.text.TextUtils.htmlEncode(getString(upload?R.string.upload_transfer:R.string.root_write_save)),messageText=android.text.TextUtils.htmlEncode(upload?getString(R.string.upload_warning_with_ad):getString(R.string.root_write_confirm,rootWritePackage==null?regionDisplay(document.region()):rootWritePackage)+"\n\n"+getString(R.string.root_ad_warning)),uploadText=android.text.TextUtils.htmlEncode(getString(upload?R.string.upload_confirm:R.string.root_ad_action));
         String bannerDocument="<!doctype html><html><head><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>html,body{margin:0;height:60px;overflow:hidden}</style></head><body><script>atOptions={key:'"+AD_BANNER_KEY+"',format:'iframe',height:60,width:468,params:{}};</script><script src=\""+AD_BANNER_SCRIPT_URL+"\"></script></body></html>";
         String banner="<div class=\"banner\"><iframe title=\"Advertisement\" sandbox=\"allow-scripts allow-popups\" style=\"border:0;width:100%;height:60px\" srcdoc=\""+android.text.TextUtils.htmlEncode(bannerDocument)+"\"></iframe></div>";
-        String html="<!doctype html><html><head><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\"><style>html,body{width:100%;min-height:100%;margin:0;background:#fff;color:#202124;font-family:system-ui,sans-serif}body{box-sizing:border-box;padding:24px;overflow-y:auto}h1{font-size:22px;margin:0 0 18px}p{font-size:16px;line-height:1.5;white-space:pre-line;margin:0}.banner{width:468px;max-width:100%;height:60px;margin:22px auto;overflow:hidden}.actions{display:flex;justify-content:flex-end;align-items:center;margin-top:24px;padding-bottom:8px}#ad-trigger{box-sizing:border-box;min-height:48px;padding:14px 20px;border-radius:6px;font-size:15px;font-weight:600;background:#1f5eff;color:#fff;cursor:pointer}#ad-trigger.disabled{opacity:.45}</style></head><body><h1>"+titleText+"</h1><p>"+messageText+"</p>"+banner+"<div class=\"actions\"><div id=\"ad-trigger\" class=\"disabled\" role=\"button\" aria-disabled=\"true\">"+uploadText+"</div></div><script src=\""+scriptUrl+"\"></script></body></html>";
+        String html="<!doctype html><html><head><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\"><style>html{height:100%}html,body{width:100%;min-height:100%;margin:0;background:#fff;color:#202124;font-family:system-ui,sans-serif}body{box-sizing:border-box;display:flex;flex-direction:column;padding:24px;overflow-y:auto}h1{font-size:22px;margin:0 0 18px}p{font-size:16px;line-height:1.5;white-space:pre-line;margin:0}.banner{width:468px;max-width:100%;height:60px;flex-shrink:0;margin:22px auto;overflow:hidden}.actions{display:flex;justify-content:flex-end;align-items:center;margin-top:auto;padding-top:24px;padding-bottom:8px}#ad-trigger{box-sizing:border-box;min-height:48px;padding:14px 20px;border-radius:6px;font-size:15px;font-weight:600;background:#1f5eff;color:#fff;cursor:pointer}#ad-trigger.disabled{opacity:.45}</style></head><body><h1>"+titleText+"</h1><p>"+messageText+"</p>"+banner+"<div class=\"actions\"><div id=\"ad-trigger\" class=\"disabled\" role=\"button\" aria-disabled=\"true\">"+uploadText+"</div></div><script src=\""+scriptUrl+"\"></script></body></html>";
         adView.loadDataWithBaseURL("https://appassets.androidplatform.net/",html,"text/html","UTF-8",null);
     }
     private WebView createAdWebView(FrameLayout container) {
@@ -839,21 +866,23 @@ public final class MainActivity extends AppCompatActivity {
         }
         return true;
     }
-    private boolean uploadAndShowTransferCodes() {
-        return uploadAndShowTransferCodes(null,0);
+    private boolean uploadAndShowTransferCodes(boolean createReplacement) {
+        return uploadAndShowTransferCodes(null,0,createReplacement);
     }
-    private boolean uploadAndShowTransferCodes(Runnable completed,long minimumDisplayMillis) {
+    private boolean uploadAndShowTransferCodes(Runnable completed,long minimumDisplayMillis,boolean createReplacement) {
         if(!persistSession(true))return false;
         long startedAt=android.os.SystemClock.elapsedRealtime();
         Toast.makeText(this,R.string.uploading,Toast.LENGTH_SHORT).show();
         byte[] source=document.toBytes();
-        networkExecutor.execute(()->{try{SaveDocument uploadSource=SaveDocument.openForUpload(source, document.region());TransferClient.UploadResult result=TransferClient.uploadWithReplacementAccount(uploadSource);SaveDocument replacement=uploadSource.canAttemptUnsafeUpload() ? SaveDocument.openForInspection(result.updatedSave, uploadSource.region()) : SaveDocument.open(result.updatedSave);runAfterMinimumDelay(startedAt,minimumDisplayMillis,()->{document=replacement;workingCopy=result.updatedSave;accountPassword=result.password;persistSession(true);if(completed!=null)completed.run();showTransferCodes(result);});}catch(Exception e){logNetworkFailure("upload",e,source);runAfterMinimumDelay(startedAt,minimumDisplayMillis,()->{if(completed!=null)completed.run();Toast.makeText(this,R.string.upload_failed,Toast.LENGTH_LONG).show();});}});
+        SaveDocument.Region sourceRegion=document.region();
+        String savedPassword=accountPassword;
+        networkExecutor.execute(()->{try{SaveDocument uploadSource=SaveDocument.openForUpload(source, sourceRegion);TransferClient.UploadResult result=TransferClient.upload(uploadSource,savedPassword,createReplacement);SaveDocument replacement=uploadSource.canAttemptUnsafeUpload() ? SaveDocument.openForInspection(result.updatedSave, uploadSource.region()) : SaveDocument.open(result.updatedSave);runAfterMinimumDelay(startedAt,minimumDisplayMillis,()->{document=replacement;workingCopy=result.updatedSave;accountPassword=result.password;persistSession(true);if(completed!=null)completed.run();showTransferCodes(result);});}catch(Exception e){logNetworkFailure("upload",e,source);runAfterMinimumDelay(startedAt,minimumDisplayMillis,()->{if(completed!=null)completed.run();Toast.makeText(this,R.string.upload_failed,Toast.LENGTH_LONG).show();});}});
         return true;
     }
 
-    private void writeCurrentSaveToGame() { writeCurrentSaveToGame(null, 0); }
+    private void writeCurrentSaveToGame(boolean createReplacement) { writeCurrentSaveToGame(null, 0,createReplacement); }
 
-    private boolean writeCurrentSaveToGame(Runnable completed, long minimumDisplayMillis) {
+    private boolean writeCurrentSaveToGame(Runnable completed, long minimumDisplayMillis,boolean createReplacement) {
         if (!rootAvailable || document == null) { Toast.makeText(this, R.string.root_not_detected, Toast.LENGTH_SHORT).show(); return false; }
         if(rootWriteInProgress)return false;
         if (!persistSession(true)) return false;
@@ -863,12 +892,13 @@ public final class MainActivity extends AppCompatActivity {
         SaveDocument sourceDocument=document;
         String sourceSession=sessionId;
         String sourceName=openedName;
+        String sourcePassword=accountPassword;
         SaveDocument.Region sourceRegion=sourceDocument.region();
         byte[] source = sourceDocument.toBytes();
-        Toast.makeText(this, R.string.root_loading_replacement, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, createReplacement?R.string.root_loading_replacement:R.string.root_writing, Toast.LENGTH_LONG).show();
         networkExecutor.execute(() -> {
             try {
-                TransferClient.ReplacementSave replacement=RootSaveLoader.load(source,sourceRegion,(region,data)->{
+                TransferClient.ReplacementSave replacement=RootSaveLoader.load(source,sourceRegion,sourcePassword,createReplacement,(region,data)->{
                     if(targetPackage==null)RootAccess.writeSave(region,data);else RootAccess.writeSave(targetPackage,data);
                 });
                 // Cache on the worker even if the activity is subsequently destroyed.
@@ -892,7 +922,7 @@ public final class MainActivity extends AppCompatActivity {
                             sessionId=saved.id;document=replacement.document;workingCopy=saved.save;accountPassword=replacement.password;
                         }
                         refreshSessionList();
-                        Toast.makeText(this,R.string.root_replacement_success,Toast.LENGTH_LONG).show();
+                        Toast.makeText(this,createReplacement?R.string.root_replacement_success:R.string.root_write_success,Toast.LENGTH_LONG).show();
                     } catch(Exception error) {
                         reportError("root-replacement-session",error,null);
                         Toast.makeText(this,R.string.root_replacement_session_failed,Toast.LENGTH_LONG).show();
@@ -952,7 +982,7 @@ public final class MainActivity extends AppCompatActivity {
             }
         });
     }
-    private void editVersion() { int[] versions={150600,150500,150400,150300,150200,150100,150000,140700,140500,140300,140000};String[] labels=new String[versions.length];for(int i=0;i<labels.length;i++)labels[i]=formatVersion(versions[i])+(versions[i]==document.gameVersion()?getString(R.string.current_suffix):"");new AlertDialog.Builder(this).setTitle(R.string.game_version_title).setItems(labels,(d,i)->{if(versions[i]==document.gameVersion())return;new AlertDialog.Builder(this).setTitle(R.string.game_version_title).setMessage(R.string.game_version_warning).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(x,w)->convertVersion(versions[i])).show();}).setNegativeButton(R.string.close,null).show(); }
+    private void editVersion() { int[] versions=io.github.tuxkoh.bcsfe.core.GameVersions.conversionTargets(document.region());String[] labels=new String[versions.length];for(int i=0;i<labels.length;i++)labels[i]=formatVersion(versions[i])+(versions[i]==document.gameVersion()?getString(R.string.current_suffix):"");new AlertDialog.Builder(this).setTitle(R.string.game_version_title).setItems(labels,(d,i)->{if(versions[i]==document.gameVersion())return;new AlertDialog.Builder(this).setTitle(R.string.game_version_title).setMessage(R.string.game_version_warning).setNegativeButton(R.string.close,null).setPositiveButton(android.R.string.ok,(x,w)->convertVersion(versions[i])).show();}).setNegativeButton(R.string.close,null).show(); }
     private void convertVersion(int target) { try{SaveDocument replacement=SaveDocument.open(document.toBytes());replacement.convertGameVersion(target);sessionStore.save(replacement.toBytes(),openedName,accountPassword);document=replacement;workingCopy=replacement.toBytes();showEditor();Toast.makeText(this,R.string.game_version_success,Toast.LENGTH_LONG).show();}catch(UnsupportedOperationException error){new AlertDialog.Builder(this).setTitle(R.string.game_version_title).setMessage(getString(R.string.game_version_message,document.gameVersion())).setPositiveButton(R.string.close,null).show();}catch(Exception error){reportError("version-convert",error);Toast.makeText(this,R.string.game_version_failed,Toast.LENGTH_LONG).show();} }
     private static String formatVersion(int value) { return (value/10000)+"."+((value/100)%100)+"."+(value%100); }
     private void editAccountInfo() { String[] actions=getResources().getStringArray(R.array.account_info_actions);new AlertDialog.Builder(this).setTitle(R.string.account_info_title).setItems(actions,(d,i)->{boolean inquiry=i<2;String value=inquiry?document.inquiryCode():document.passwordRefreshToken();if(i%2==1)editString(actions[i],value,inquiry?document::setInquiryCode:document::setPasswordRefreshToken);else new AlertDialog.Builder(this).setTitle(actions[i]).setMessage(value).setNegativeButton(R.string.close,null).setPositiveButton(R.string.copy_codes,(x,w)->((android.content.ClipboardManager)getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(android.content.ClipData.newPlainText(actions[i],value))).show();}).setNegativeButton(R.string.close,null).show(); }
@@ -1928,7 +1958,7 @@ public final class MainActivity extends AppCompatActivity {
     }
     private void showFieldError() { showFieldError(new IllegalStateException("Save field parsing failed")); }
     private void showFieldError(Throwable error) {
-        reportError("editor-field", error);
+        reportError(activeFeatureId < 0 ? "editor-field" : "editor-field-" + activeFeatureId, error);
         Toast.makeText(this,R.string.field_parse_failed,Toast.LENGTH_LONG).show();
     }
 

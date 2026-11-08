@@ -15,15 +15,30 @@ final class RootSaveLoader {
     }
 
     static TransferClient.ReplacementSave load(byte[] source,SaveDocument.Region region,SaveWriter writer) throws Exception {
-        TransferClient.ReplacementSave replacement;
+        return load(source,region,null,true,writer);
+    }
+
+    static TransferClient.ReplacementSave load(byte[] source,SaveDocument.Region region,String password,
+                                               boolean createReplacement,SaveWriter writer) throws Exception {
+        TransferClient.ReplacementSave prepared=prepareCopy(source,region,password,createReplacement);
+        if(!prepared.document.isOfficiallySupportedVersion()||!prepared.document.hasItemProfile())
+            throw new UnsupportedOperationException("Root load requires a supported save layout");
+        writer.write(prepared.document.region(),prepared.document.toBytes());
+        return prepared;
+    }
+
+    static TransferClient.ReplacementSave prepareCopy(byte[] source,SaveDocument.Region region,String password,
+                                                       boolean createReplacement) throws Exception {
+        if(!createReplacement){
+            SaveDocument copy=region==null?SaveDocument.open(source):SaveDocument.open(source,region);
+            return new TransferClient.ReplacementSave(copy,password);
+        }
         try {
-            replacement=TransferClient.createReplacementCopy(source,region);
+            return TransferClient.createReplacementCopy(source,region);
         } catch(UnsupportedOperationException | IllegalArgumentException unsupported){
             throw unsupported;
         } catch(Exception failed){
             throw new AccountCreationFailure(failed);
         }
-        writer.write(replacement.document.region(),replacement.document.toBytes());
-        return replacement;
     }
 }

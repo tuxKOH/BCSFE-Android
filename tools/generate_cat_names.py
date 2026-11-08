@@ -1,16 +1,19 @@
 """Generate display-only regional names from the upstream BCData cache."""
 import csv
 import sys
+import json
 from pathlib import Path
 from xml.sax.saxutils import escape
 
 cache = Path(sys.argv[1])
 root = Path(__file__).resolve().parents[1]
 arrays = []
+versions = json.loads((root / 'tools/game_data_manifest.json').read_text())['regions']
+count = max(region['cat_count'] for region in versions.values())
 for region, lang in [('en', 'en'), ('tw', 'tw'), ('jp', 'ja'), ('kr', 'ko')]:
     names = []
-    for index in range(876):
-        path = cache / region / '15.5.0' / 'resLocal' / f'Unit_Explanation{index + 1}_{lang}.csv'
+    for index in range(count):
+        path = cache / region / versions[region]['version'] / 'resLocal' / f'Unit_Explanation{index + 1}_{lang}.csv'
         forms = []
         if path.is_file():
             with path.open(encoding='utf-8-sig', newline='') as stream:
