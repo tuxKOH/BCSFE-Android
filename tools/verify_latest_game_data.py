@@ -50,10 +50,11 @@ def main():
         core.set_config_path(core.Path(str(Path(temp) / "config.json")))
         for region, snapshot in versions.items():
             directory = args.cache / region / snapshot["version"]
+            active_directory = directory
 
             class CachedData:
                 def download(self, pack, name):
-                    path = directory / pack / name
+                    path = active_directory / pack / name
                     return core.Data(path.read_bytes()) if path.is_file() else None
 
             def reset():
@@ -79,11 +80,14 @@ def main():
                 target = int(path.stem.rsplit("-", 1)[1])
                 save.set_gv(core.GameVersion(target))
                 equal(region + " convert " + str(target), save.to_data().get_bytes(), path.read_bytes())
-            for version in (150501, 150601, 150700, 150701, 150702, 150703):
+            for version in (150501, 150601, 150700, 150701, 150702, 150703, 150704, 160000):
                 major, minor, patch = map(int, snapshot["version"].split("."))
                 ceiling = major * 10000 + minor * 100 + patch
                 if version >= ceiling:
                     continue
+                historical = json.loads((ROOT / "tools/game_data_manifest.json").read_text()).get("historical", {}).get("jp_157")
+                use_historical = region == "jp" and version <= 150704 and historical is not None
+                active_directory = args.cache / region / historical["version"] if use_historical else directory
                 fixture = out / f"{region}-intermediate-{version}.save"
                 edited = out / f"{region}-intermediate-{version}-edited.save"
                 save = load(raw)
@@ -92,7 +96,8 @@ def main():
                 equal(region + f" intermediate {version} serializer", save.to_data().get_bytes(), intermediate)
                 equal(region + f" intermediate {version} round trip", load(intermediate).to_data().get_bytes(), intermediate)
                 save.normal_tickets, save.rare_tickets = 123, 234
-                cat = save.cats.cats[-1]
+                cat_count = historical["cat_count"] if use_historical else snapshot["cat_count"]
+                cat = save.cats.cats[min(len(save.cats.cats), cat_count) - 1]
                 helper = core.PowerUpHelper(cat, save)
                 helper.reset_upgrade()
                 helper.upgrade_by(9)
@@ -100,6 +105,7 @@ def main():
                 cat.set_upgrade(save, core.Upgrade(3, -1), True)
                 cat.set_form(1, save)
                 equal(region + f" intermediate {version} edits", save.to_data().get_bytes(), edited.read_bytes())
+                active_directory = directory
             save = load(raw)
             save.normal_tickets, save.rare_tickets = 123, 234
             equal(region + " tickets", save.to_data().get_bytes(), (out / (region + "-tickets.save")).read_bytes())

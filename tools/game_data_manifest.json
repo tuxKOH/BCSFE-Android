@@ -1,8 +1,8 @@
 {
   "source": "https://git.battlecatsmodding.org/fieryhenry/BCData",
-  "upstream_parser": "a54abdeae8399cdb50c3f153f4c7ad1a6f315530",
+  "upstream_parser": "85fb94cbf00c6a74dbef58932610fb94ec8f7495",
   "provenance": {
-    "checked_on": "2026-11-08",
+    "checked_on": "2026-11-11",
     "method": "APK extraction following the BCData README; these versions are not yet in upstream metadata",
     "recipe": "https://git.battlecatsmodding.org/fieryhenry/BCData",
     "bcdata_commit": "8644713249966c10a880e056c2f3e58fe21cd4a3",
@@ -18,11 +18,11 @@
         "archive_sha256": "d5d18a7ddda050e67bc70c9b0a49a3ef09760e4c653fc08dfb045b9f84fb40f5"
       },
       "jp": {
-        "version": "15.7.4",
+        "version": "16.0.1",
         "package_name": "jp.co.ponos.battlecats",
-        "version_code": 1507040,
+        "version_code": 1600010,
         "provider": "APKPure via apkdown",
-        "archive_sha256": "40723b9e502a9a3b0d8c58757f2aa4879b73d8808e4acd5021a183bf78c5fb19"
+        "archive_sha256": "f2e593ed4b84aafde240420fe59286aaacc0813cd93021e182067f9153240a51"
       },
       "tw": {
         "version": "15.7.0",
@@ -38,12 +38,26 @@
         "provider": "APKPure via apkdown",
         "archive_sha256": "971f0896b13e26a9a27926dea8acc2e4a21779ba574f461407f893900784a0ec"
       }
-    }
+    },
+    "historical": {
+      "jp": {
+        "15.7.4": {
+          "version": "15.7.4",
+          "package_name": "jp.co.ponos.battlecats",
+          "version_code": 1507040,
+          "provider": "APKPure via apkdown",
+          "archive_sha256": "40723b9e502a9a3b0d8c58757f2aa4879b73d8808e4acd5021a183bf78c5fb19"
+        }
+      }
+    },
+    "upstream_parser": "85fb94cbf00c6a74dbef58932610fb94ec8f7495",
+    "extraction_note": "16.0.1: BCData APKEditor merge, then the unmodified tbctk-asset extract_some API (DataLocal/resLocal); standalone Rust wrapper bypasses unavailable local CLI dependencies."
   },
   "regions": {
     "en": {
       "version": "15.7.0",
       "cat_count": 882,
+      "orb_count": 310,
       "sha256": {
         "unitbuy.csv": "24f78de501ee0506fe8919bfe658f49f5f32cd176088a0c7b66f3ec827eede1b",
         "nyankoPictureBookData.csv": "2aa1748ef4678d4636a9da8709cae20c3acd96a4c4f6bc975aa58a10d53263ec",
@@ -53,27 +67,31 @@
         "SkillAcquisition.csv": "b1c2491fb78161cff77d9750400d635e37766a832feffd70512b11ff660578c7",
         "Mission_Condition.csv": "7c40fe6f5650d7d8dcba2cc37c0f19ef4f1677c028dfbe126b5904bcfe4c96c8",
         "Map_option.csv": "072cfe26551cad1e5bb4920ba592f64d3e76b6261cbc4aa44aff8073786a9563",
-        "schemeItemData.tsv": "82e8dae60499b953a2bc75717ab79119109c715df6ad7099374eeb8bcdb97d8d"
+        "schemeItemData.tsv": "82e8dae60499b953a2bc75717ab79119109c715df6ad7099374eeb8bcdb97d8d",
+        "equipmentlist.json": "da6340b98ee605687f2225ec5a0b8b1f3109e2b801107fed4773cdfe7b419ca2"
       }
     },
     "jp": {
-      "version": "15.7.4",
-      "cat_count": 882,
+      "version": "16.0.1",
+      "cat_count": 888,
+      "orb_count": 310,
       "sha256": {
-        "unitbuy.csv": "bc1adab2fc6ad79f3b8198a8a4d40786756d586af846fdbdeccdbaec55226daf",
-        "nyankoPictureBookData.csv": "bc3f233d2d8b7c3e69229464c1da4eb7d6dcd886de55feaccf44f0c6394f1aee",
-        "drop_chara.csv": "91928cca3e2b7586440d8447220255733adcb48aabba8fcfcc240572e41214e0",
-        "unitlimit.csv": "7fc5a232a44fab800f4aba18337ddb2bd39e41e5855fd7b5e7e99628079dc488",
-        "rankGift.csv": "f32c2f20716baa1d21d8fd3af10410cd939b9907d749093d30c4a7e63e46ca7c",
-        "SkillAcquisition.csv": "866788d7ecb6a8c821086ed0f876fc5b294054799b1dfdd83db935513899b1c9",
-        "Mission_Condition.csv": "5617a3f409c7426cc58888fd10e167f339ae6161256efcd839368d334808b9d0",
-        "Map_option.csv": "1245863d40d2d97cfac06e5b7374350fa316145279471088f5721f9755faaf59",
-        "schemeItemData.tsv": "a61d90a92e06c9f53b9012f84ce0f3b62f06816748559f54300e96242bce2387"
+        "unitbuy.csv": "b062854b5dd5a9372db9a255e2d7c9895c8d68b294b4f18fbc42d343483350a3",
+        "nyankoPictureBookData.csv": "84f2eaa977b454de67aba0c7aa521607c062750d583c5c861443d4f7d6a15550",
+        "drop_chara.csv": "cfc0163d798aa4357767c97e884864c04efedebd954a678bc19f30edb95647f9",
+        "unitlimit.csv": "fe20fdfe5805c13699adce4883065c67802ac0e9b5d98d287be8d8aec5275292",
+        "rankGift.csv": "6c4054bafd373a30e1a0ffdae9d8498bea6333a81944946f52057386489e695c",
+        "SkillAcquisition.csv": "9bbd7a98bdb4d06ef4f65316141c6aad22c2fbb2054dfea10a441d78a1001106",
+        "Mission_Condition.csv": "96f160b5ad86eccc570bb60bcaba0e0f5be29778864f5c1b9ec9d29b5b9e2b7f",
+        "Map_option.csv": "04754f34771a658a760746324d0389fa829fdb8b35ef3b7f6d193623b829e0cd",
+        "schemeItemData.tsv": "a61d90a92e06c9f53b9012f84ce0f3b62f06816748559f54300e96242bce2387",
+        "equipmentlist.json": "da6340b98ee605687f2225ec5a0b8b1f3109e2b801107fed4773cdfe7b419ca2"
       }
     },
     "tw": {
       "version": "15.7.0",
       "cat_count": 882,
+      "orb_count": 310,
       "sha256": {
         "unitbuy.csv": "9290ecb94dc88af700faa4b8c14ceefb6c69732ab20abdc76bccc9fa815d98fa",
         "nyankoPictureBookData.csv": "5e2c0a1bd1c8ae753ab09f765004e33604680a54f6737a9eecea01c45b58167e",
@@ -83,12 +101,14 @@
         "SkillAcquisition.csv": "b1c2491fb78161cff77d9750400d635e37766a832feffd70512b11ff660578c7",
         "Mission_Condition.csv": "2cf63875e04a0becf221921363728c89b5cc2e71cfaec4fc10be635828db5464",
         "Map_option.csv": "072cfe26551cad1e5bb4920ba592f64d3e76b6261cbc4aa44aff8073786a9563",
-        "schemeItemData.tsv": "f2f04552ba9bda4a9ec2da234980750e38aa7ee6ae9c0960c3f6282bd4a64d17"
+        "schemeItemData.tsv": "f2f04552ba9bda4a9ec2da234980750e38aa7ee6ae9c0960c3f6282bd4a64d17",
+        "equipmentlist.json": "da6340b98ee605687f2225ec5a0b8b1f3109e2b801107fed4773cdfe7b419ca2"
       }
     },
     "kr": {
       "version": "15.7.0",
       "cat_count": 882,
+      "orb_count": 310,
       "sha256": {
         "unitbuy.csv": "e70436e1342c362aa29cbd5c3fc65e369a81a1c0fffa2f822846108fddbffd7d",
         "nyankoPictureBookData.csv": "c0c59f2ae181ca2ede662270563bf42bcd906e48ceb2e86c5afc507950cdd6a6",
@@ -98,7 +118,27 @@
         "SkillAcquisition.csv": "b1c2491fb78161cff77d9750400d635e37766a832feffd70512b11ff660578c7",
         "Mission_Condition.csv": "81f9fc690d6a4526408686eea86f5582e1e35f91241aab1168215468d74ec0fd",
         "Map_option.csv": "072cfe26551cad1e5bb4920ba592f64d3e76b6261cbc4aa44aff8073786a9563",
-        "schemeItemData.tsv": "16a5187ce8e5de78d761cf44298e5f8af1ce38ffc68ed975138f878ac2f3a071"
+        "schemeItemData.tsv": "16a5187ce8e5de78d761cf44298e5f8af1ce38ffc68ed975138f878ac2f3a071",
+        "equipmentlist.json": "da6340b98ee605687f2225ec5a0b8b1f3109e2b801107fed4773cdfe7b419ca2"
+      }
+    }
+  },
+  "historical": {
+    "jp_157": {
+      "version": "15.7.4",
+      "cat_count": 882,
+      "orb_count": 310,
+      "sha256": {
+        "unitbuy.csv": "bc1adab2fc6ad79f3b8198a8a4d40786756d586af846fdbdeccdbaec55226daf",
+        "nyankoPictureBookData.csv": "bc3f233d2d8b7c3e69229464c1da4eb7d6dcd886de55feaccf44f0c6394f1aee",
+        "drop_chara.csv": "91928cca3e2b7586440d8447220255733adcb48aabba8fcfcc240572e41214e0",
+        "unitlimit.csv": "7fc5a232a44fab800f4aba18337ddb2bd39e41e5855fd7b5e7e99628079dc488",
+        "rankGift.csv": "f32c2f20716baa1d21d8fd3af10410cd939b9907d749093d30c4a7e63e46ca7c",
+        "SkillAcquisition.csv": "866788d7ecb6a8c821086ed0f876fc5b294054799b1dfdd83db935513899b1c9",
+        "Mission_Condition.csv": "5617a3f409c7426cc58888fd10e167f339ae6161256efcd839368d334808b9d0",
+        "Map_option.csv": "1245863d40d2d97cfac06e5b7374350fa316145279471088f5721f9755faaf59",
+        "schemeItemData.tsv": "a61d90a92e06c9f53b9012f84ce0f3b62f06816748559f54300e96242bce2387",
+        "equipmentlist.json": "da6340b98ee605687f2225ec5a0b8b1f3109e2b801107fed4773cdfe7b419ca2"
       }
     }
   }

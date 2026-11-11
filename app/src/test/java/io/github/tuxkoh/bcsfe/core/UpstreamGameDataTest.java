@@ -15,7 +15,7 @@ public class UpstreamGameDataTest {
             byte[] source=template(region), before=source.clone();
             SaveDocument legacy=SaveDocument.open(source);
             SaveDocument created=SaveDocument.fromNewSaveTemplate(source);
-            int count=882;
+            int count=region==SaveDocument.Region.JP?888:882;
             assertArrayEquals(before,source);
             assertEquals(region,created.region());
             assertEquals(GameVersions.latest(region),created.gameVersion());
@@ -23,7 +23,7 @@ public class UpstreamGameDataTest {
             assertFalse(created.needsUnsupportedImportWarning());
             assertTrue(created.hasItemProfile());
             assertEquals(count,created.catCount());
-            assertEquals(349,created.knownUserRankRewardCount());
+            assertEquals(region==SaveDocument.Region.JP?352:349,created.knownUserRankRewardCount());
             assertEquals(legacy.normalTickets(),created.normalTickets());
             assertEquals(legacy.rareTickets(),created.rareTickets());
             assertArrayEquals(legacy.catfruit(),created.catfruit());
@@ -80,7 +80,8 @@ public class UpstreamGameDataTest {
     }
 
     @Test public void currentSnapshotsRespectRegionalAvailabilityAndLegacyTables() {
-        assertEquals(882,UpstreamGameData.forRegion(SaveDocument.Region.JP).unitBuy.length);
+        assertEquals(888,UpstreamGameData.forRegion(SaveDocument.Region.JP).unitBuy.length);
+        assertEquals(882,UpstreamGameData.forVersion(SaveDocument.Region.JP,150704).unitBuy.length);
         assertEquals(2,GameDataRules.totalForms(SaveDocument.Region.JP,150704,881));
         assertTrue(GameDataRules.catObtainable(SaveDocument.Region.JP,150704,881));
         assertEquals(5,GameDataRules.catRarity(SaveDocument.Region.JP,150704,881));
@@ -101,8 +102,9 @@ public class UpstreamGameDataTest {
             }
         }
         assertFalse(GameVersions.supported(SaveDocument.Region.TW,150704));
-        assertFalse(GameVersions.supported(SaveDocument.Region.JP,150705));
-        assertArrayEquals(new int[]{150704,150703,150702,150701,150700,150601,150600},
+        assertFalse(GameVersions.supported(SaveDocument.Region.JP,160002));
+        assertFalse(GameVersions.supported(SaveDocument.Region.JP,150800));
+        assertArrayEquals(new int[]{160001,160000,150704,150703,150702,150701,150700},
                 java.util.Arrays.copyOf(GameVersions.conversionTargets(SaveDocument.Region.JP),7));
         for(SaveDocument.Region region:new SaveDocument.Region[]{SaveDocument.Region.EN,
                 SaveDocument.Region.TW,SaveDocument.Region.KR}){
@@ -124,6 +126,7 @@ public class UpstreamGameDataTest {
             }
             SaveDocument save=SaveDocument.open(raw);
             assertThrows(UnsupportedOperationException.class,()->save.convertGameVersion(GameVersions.latest(region)+1));
+            assertThrows(UnsupportedOperationException.class,()->save.convertGameVersion(150800));
             assertArrayEquals(raw,save.toBytes());
         }
     }
@@ -132,7 +135,7 @@ public class UpstreamGameDataTest {
         for(SaveDocument.Region region:SaveDocument.Region.values()){
             byte[] latest=SaveDocument.fromNewSaveTemplate(template(region)).toBytes();
             int[] versions=region==SaveDocument.Region.JP
-                    ?new int[]{150501,150601,150700,150701,150702,150703}:new int[]{150501,150601};
+                    ?new int[]{150501,150601,150700,150701,150702,150703,150704,160000}:new int[]{150501,150601};
             for(int version:versions){
                 SaveDocument save=SaveDocument.open(latest);
                 save.convertGameVersion(version);
@@ -145,8 +148,8 @@ public class UpstreamGameDataTest {
                 assertTrue(save.hasItemProfile());
                 assertTrue(save.hasCatProfile());
                 assertArrayEquals(imported,save.toBytes());
-                assertSame(UpstreamGameData.forRegion(region),UpstreamGameData.matching(region,version));
-                assertEquals(GameDataRules.totalForms(region,GameVersions.latest(region),0),
+                assertSame(UpstreamGameData.forVersion(region,version),UpstreamGameData.matching(region,version));
+                assertEquals(GameDataRules.totalForms(region,version,0),
                         GameDataRules.totalForms(region,version,0));
                 save.setNormalTickets(123);
                 save.setRareTickets(23);

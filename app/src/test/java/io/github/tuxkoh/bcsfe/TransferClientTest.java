@@ -47,10 +47,49 @@ public final class TransferClientTest {
     }
 
     @Test public void receiveClientVersionsFollowOfficialRegionalReleases() {
-        assertEquals(150704,TransferClient.latestTransferVersion("jp"));
+        assertEquals(160001,TransferClient.latestTransferVersion("jp"));
         assertEquals(150700,TransferClient.latestTransferVersion("tw"));
         assertEquals(150700,TransferClient.latestTransferVersion("en"));
         assertEquals(150700,TransferClient.latestTransferVersion("kr"));
+    }
+
+    @Test public void replacementUploadAndReceptionPreserveCullingProgressAndEditedItems()throws Exception {
+        for(SaveDocument.Region region:SaveDocument.Region.values()){
+            SaveDocument source=SaveDocument.fromNewSaveTemplate(Files.readAllBytes(
+                    Path.of("src/main/assets/new_saves/"+region.code()+".save")));
+            source.setRareSeed(80200);source.setNormalSeed(100300);
+            source.setLeadership(117);source.setEndlessBattleDurationMinutes(0,90);
+            source.setTalentOrbsAtGrade(4,1);
+            for(int map=0;map<3;map++)source.setStageMapClearTimes(SaveDocument.StageMap.BEHEMOTH,map,0,0,map+3);
+            byte[] before=source.toBytes();
+            try(MockWebServer server=server()){
+                enqueueReplacementAccount(server);
+                server.enqueue(json(200,"{\"statusCode\":1,\"payload\":{\"token\":\"upload-token\"}}"));
+                server.enqueue(json(200,"{\"statusCode\":1,\"payload\":{\"url\":\""+server.url("/s3")+"\",\"key\":\"save-key\"}}"));
+                server.enqueue(new MockResponse().setResponseCode(204));
+                server.enqueue(json(200,"{\"statusCode\":1,\"payload\":{\"transferCode\":\"TEST\",\"pin\":\"1234\"}}"));
+                TransferClient.UploadResult uploaded=TransferClient.upload(source,null,true);
+                assertArrayEquals(before,source.toBytes());
+                String token="0123456789012345678901234567890123456789";
+                server.enqueue(new MockResponse().setResponseCode(200)
+                        .setHeader("Content-Type","application/octet-stream")
+                        .setHeader("Nyanko-Password-Refresh-Token",token)
+                        .setBody(new okio.Buffer().write(uploaded.updatedSave)));
+                TransferClient.ReceivedSave received=TransferClient.receive("TEST","1234",region.code());
+                assertArrayEquals(uploaded.updatedSave,received.data);
+                SaveDocument opened=SaveDocument.open(received.data);
+                opened.setPasswordRefreshToken(received.passwordRefreshToken);
+                SaveDocument reopened=SaveDocument.open(opened.toBytes());
+                assertEquals(117,reopened.leadership());
+                assertEquals(90,reopened.endlessBattleDurationMinutes(0),0.001);
+                assertEquals(62,reopened.talentOrbCount());
+                for(int i=0;i<62;i++){assertEquals(i*5+4,reopened.talentOrbId(i));assertEquals(1,reopened.talentOrbAmount(i));}
+                for(int map=0;map<3;map++)assertEquals(map+3,
+                        reopened.stageMapClearTimes(SaveDocument.StageMap.BEHEMOTH,map,0,0));
+                assertEquals(80200,reopened.rareSeed());assertEquals(100300,reopened.normalSeed());
+                assertEquals(10,server.getRequestCount());assertTrue(reopened.checksumValid());
+            }
+        }
     }
 
     @Test public void latestNewSaveAccountCreationUsesTheSameRegionalVersion() throws Exception {

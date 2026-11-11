@@ -46,6 +46,19 @@ public final class SaveDocument {
     private CatLayout catLayoutCache;
     private int battleItemsBaseCache = -1;
     private int unitDropsBaseCache = -1;
+    private AkuLayout akuLayoutCache;
+
+    private static final class AkuLayout {
+        final int base,chapters,stages,stars;
+        AkuLayout(int base,int chapters,int stages,int stars) {
+            this.base=base;this.chapters=chapters;this.stages=stages;this.stars=stars;
+        }
+        int stageOffset(int chapter,int star,int stage) {
+            if(chapter<0||chapter>=chapters||star<0||star>=stars||stage<0||stage>=stages)
+                throw new IndexOutOfBoundsException();
+            return base+4+chapters*stars+((chapter*stars+star)*stages+stage)*2;
+        }
+    }
 
     private static final int TEMPLATE_CAT_COUNT = 861;
     private static final int MAX_CAT_COUNT = UpstreamGameData.MAX_CAT_COUNT;
@@ -503,7 +516,10 @@ public final class SaveDocument {
     public void convertGameVersion(int target) {
         int source=gameVersion();
         if(source==target)return;
-        // Upstream 15.6/15.7 keep the 15.5 serialization gates. Regional
+        if((source>=150500&&!GameVersions.supported(region,source))
+                ||(target>=150500&&!GameVersions.supported(region,target)))
+            throw new UnsupportedOperationException("Version conversion requires a validated game series");
+        // Upstream through 16.0 keeps the 15.5 serialization gates. Regional
         // rules and the new-save factory handle changing list capacities.
         int latest=GameVersions.latest(region);
         if(source>=140300&&source<=latest&&target==140000){
@@ -620,7 +636,7 @@ public final class SaveDocument {
     public int legendTickets() { return profiledInt(ProfileField.LEGEND_TICKETS); }
     public int platinumShards() { return profiledInt(ProfileField.PLATINUM_SHARDS); }
     public int np() { return profiledInt(ProfileField.NP); }
-    public int leadership() { ensureItemProfile();return ushortAt(findInt(80200)-6); }
+    public int leadership() { ensureItemProfile();return ushortAt(officerPassCatOffset()-2); }
 
     public void setMuteBgm(boolean value) { bytes[integerStart] = (byte) (value ? 1 : 0); refreshHash(); }
     public void setMuteSe(boolean value) { bytes[integerStart + Offsets.offsets_123] = (byte) (value ? 1 : 0); refreshHash(); }
@@ -665,7 +681,7 @@ public final class SaveDocument {
     public void setLegendTickets(int value) { checkAmount("Legend Tickets",value,4);setProfiledInt(ProfileField.LEGEND_TICKETS, value); }
     public void setPlatinumShards(int value) { checkAmount("Platinum Shards",value,Math.max(0,(9-platinumTickets())*10+9));setProfiledInt(ProfileField.PLATINUM_SHARDS, value); }
     public void setNp(int value) { checkAmount("NP",value,9999);setProfiledInt(ProfileField.NP, value); }
-    public void setLeadership(int value) { ensureItemProfile();checkAmount("Leadership",value,9999);putShort(findInt(80200)-6,value);refreshHash(); }
+    public void setLeadership(int value) { ensureItemProfile();checkAmount("Leadership",value,9999);putShort(officerPassCatOffset()-2,value);refreshHash(); }
     public boolean hasItemProfile() { return profileOffset(ProfileField.NORMAL_TICKETS) >= 0; }
     public int[] battleItems() { return intArray(battleItemsOffset(), 6); }
     public int[] catseyes() { CatLayout l=catLayout(); return intArray(l.catseyesStart, 6); }
@@ -1018,13 +1034,28 @@ public final class SaveDocument {
     public void setStoryTreasure(int chapter,int stage,int value) { int raw=storyInternalChapter(chapter);checkStoryStage(stage);if(value<0||value>3)throw new IllegalArgumentException("Invalid treasure grade");putInt(fixed(Offsets.offsets_67)+(raw*49+stage)*4,value);refreshHash(); }
     public void clearStoryChapter(int chapter,boolean cleared) { int raw=storyInternalChapter(chapter);for(int i=0;i<48;i++)putInt(fixed(Offsets.offsets_28)+(raw*51+i)*4,cleared?1:0);putInt(fixed(Offsets.offsets_68)+raw*4,cleared?48:0);refreshHash(); }
     public void setStoryChapterTreasures(int chapter,int value) { int raw=storyInternalChapter(chapter);if(value<0||value>3)throw new IllegalArgumentException("Invalid treasure grade");for(int i=0;i<48;i++)putInt(fixed(Offsets.offsets_67)+(raw*49+i)*4,value);refreshHash(); }
-    public int akuChapterCount() { ensureItemProfile(); return ushortAt(akuTableOffset()); }
-    public int akuStageCount() { ensureItemProfile(); return byteAt(akuTableOffset()+2); }
-    public int akuStarCount() { ensureItemProfile(); return byteAt(akuTableOffset()+3); }
+    public int akuChapterCount() { return akuLayout().chapters; }
+    public int akuStageCount() { return akuLayout().stages; }
+    public int akuStarCount() { return akuLayout().stars; }
     public int akuClearTimes(int chapter,int star,int stage) { return ushortAt(akuStageOffset(chapter,star,stage)); }
     public void setAkuClearTimes(int chapter,int star,int stage,int value) { if(value<0||value>32767)throw new IllegalArgumentException("Invalid clears");putShort(akuStageOffset(chapter,star,stage),value);refreshHash(); }
-    public void setAkuProgress(int progress,int clearCount) { ensureItemProfile();int stages=akuStageCount();if(akuChapterCount()==0||akuStarCount()==0)throw new IllegalStateException("Aku data is unavailable");if(progress<0||progress>stages||clearCount<0||clearCount>32767)throw new IllegalArgumentException("Invalid Aku progress");for(int i=0;i<stages;i++)putShort(akuStageOffset(0,0,i),i<progress?clearCount:0);refreshHash(); }
-    public void clearAkuChapter(int chapter,int star,boolean cleared) { int stages=akuStageCount();for(int i=0;i<stages;i++)putShort(akuStageOffset(chapter,star,i),cleared?1:0);refreshHash(); }
+    public void setAkuProgress(int progress,int clearCount) {
+        AkuLayout layout=akuLayout();
+        if(layout.chapters==0||layout.stars==0)throw new IllegalStateException("Aku data is unavailable");
+        if(progress<0||progress>layout.stages||clearCount<0||clearCount>32767)
+            throw new IllegalArgumentException("Invalid Aku progress");
+        int base=layout.base+4+layout.chapters*layout.stars;
+        for(int i=0;i<layout.stages;i++)putShort(base+i*2,i<progress?clearCount:0);
+        refreshHash();
+    }
+    public void clearAkuChapter(int chapter,int star,boolean cleared) {
+        AkuLayout layout=akuLayout();
+        if(chapter<0||chapter>=layout.chapters||star<0||star>=layout.stars)
+            throw new IndexOutOfBoundsException();
+        int base=layout.base+4+layout.chapters*layout.stars+(chapter*layout.stars+star)*layout.stages*2;
+        for(int i=0;i<layout.stages;i++)putShort(base+i*2,cleared?1:0);
+        refreshHash();
+    }
     public int missionCount() { ensureItemProfile(); return intAt(afterCannons(Offsets.offsets_69)); }
     public int[] missionIds() { return dictionaryKeys(missionDictionaryOffset(0)); }
     public int missionClearState(int missionId) { return dictionaryValue(missionDictionaryOffset(0),missionId); }
@@ -1175,6 +1206,38 @@ public final class SaveDocument {
     public int medalId(int index) { int count=medalCount(),base=medalBaseOffset()+14;if(index<0||index>=count)throw new IndexOutOfBoundsException();return ushortAt(base+index*2); }
     public void addMedal(int id) { ensureItemProfile();if(id<0||id>=127)throw new IllegalArgumentException("Invalid medal");for(int i=0;i<medalCount();i++)if(medalId(i)==id)return;int medalBase=medalBaseOffset(),count=ushortAt(medalBase+12),list=medalBase+14;splice(list+count*2,0,2);putShort(list+count*2,id);putShort(medalBase+12,count+1);int dictionary=list+(count+1)*2,entries=ushortAt(dictionary),end=dictionary+2+entries*3;splice(end,0,3);putShort(end,id);bytes[end+2]=0;putShort(dictionary,entries+1);refreshHash(); }
     public void removeMedal(int index) { int medalBase=medalBaseOffset(),count=ushortAt(medalBase+12),list=medalBase+14;if(index<0||index>=count)throw new IndexOutOfBoundsException();int id=ushortAt(list+index*2);splice(list+index*2,2,0);putShort(medalBase+12,count-1);int dictionary=list+(count-1)*2,entries=ushortAt(dictionary);for(int i=0;i<entries;i++)if(ushortAt(dictionary+2+i*3)==id){splice(dictionary+2+i*3,3,0);putShort(dictionary,entries-1);break;}refreshHash(); }
+    /** Catalog IDs come from the same regional snapshot for every orb action. */
+    public int talentOrbCatalogSize() { ensureItemProfile();return UpstreamGameData.forVersion(region,gameVersion()).orbs.length; }
+    private int orbComponent(int id,int component) {
+        int[][] catalog=UpstreamGameData.forVersion(region,gameVersion()).orbs;
+        return id>=0&&id<catalog.length?catalog[id][component]:-1;
+    }
+    public int talentOrbGrade(int id) { return orbComponent(id,0); }
+    public int talentOrbEffect(int id) { return orbComponent(id,1); }
+    public int talentOrbAttribute(int id) { return orbComponent(id,2); }
+    public int[] talentOrbCatalogIds(int grade) {
+        if(grade < -1 || grade > 4)throw new IllegalArgumentException("Invalid orb grade");
+        return java.util.stream.IntStream.range(0,talentOrbCatalogSize())
+                .filter(id->grade<0||talentOrbGrade(id)==grade).toArray();
+    }
+    public void setTalentOrbsAtGrade(int grade,int amount) {
+        checkAmount("Talent Orb",amount,998);
+        int[] ids=talentOrbCatalogIds(grade);
+        int table=talentOrbTableOffset(),count=ushortAt(table);
+        java.util.LinkedHashMap<Integer,Integer> values=new java.util.LinkedHashMap<>();
+        for(int i=0;i<count;i++)values.put(ushortAt(table+2+i*4),ushortAt(table+4+i*4));
+        for(int id:ids)values.put(id,amount);
+        if(values.size()>2048)throw new IllegalStateException("Too many Talent Orbs");
+        // One resize keeps the following dictionaries intact and avoids
+        // hundreds of complete save scans on the UI thread.
+        splice(table+2,count*4,values.size()*4);
+        putShort(table,values.size());
+        int p=table+2;
+        for(java.util.Map.Entry<Integer,Integer> entry:values.entrySet()){
+            putShort(p,entry.getKey());putShort(p+2,entry.getValue());p+=4;
+        }
+        refreshHash();
+    }
     public int talentOrbCount() { ensureItemProfile();return ushortAt(talentOrbTableOffset()); }
     public int talentOrbId(int index) { int table=talentOrbTableOffset(),count=ushortAt(table);if(index<0||index>=count)throw new IndexOutOfBoundsException();return ushortAt(table+2+index*4); }
     public int talentOrbAmount(int index) { int table=talentOrbTableOffset(),count=ushortAt(table);if(index<0||index>=count)throw new IndexOutOfBoundsException();return ushortAt(table+4+index*4); }
@@ -1400,7 +1463,7 @@ public final class SaveDocument {
         try {
             int offset = switch (field) {
                 case NORMAL_TICKETS -> catLayoutUnchecked().gatyaSeenCountOffset-8; case RARE_TICKETS -> catLayoutUnchecked().gatyaSeenCountOffset-4; case PLATINUM_TICKETS -> gamatotoSkinOffset()+4;
-                case LEGEND_TICKETS -> legendTicketOffset(); case PLATINUM_SHARDS -> platinumShardOffset(); case NP -> findInt(80000)-5; case LEADERSHIP -> findInt(80200)-6;
+                case LEGEND_TICKETS -> legendTicketOffset(); case PLATINUM_SHARDS -> platinumShardOffset(); case NP -> findInt(80000)-5; case LEADERSHIP -> officerPassCatOffset()-2;
             };
             return offset >= 0 && offset + 4 <= bytes.length-Offsets.offsets_130 ? offset : -1;
         } catch (RuntimeException malformedLayout) {
@@ -1587,23 +1650,19 @@ public final class SaveDocument {
         return best >= 0 ? best : expected;
     }
 
-    /** Marker 80200 is followed by ub7, leadership short, and the two cat shorts. */
+    /** Validate the complete 8.0 -> 8.2 -> 8.3 record, not an arbitrary integer. */
     private int officerPassCatOffset() {
-        int expected = fixed(Offsets.offsets_77) - 4;
-        int from = Math.max(0, expected - 65536), to = Math.min(bytes.length - Offsets.offsets_130 - 16, expected + 65536);
-        int best = -1, distance = Integer.MAX_VALUE;
-        for (int marker = from; marker <= to; marker++) {
+        int found=-1,limit=bytes.length-Offsets.offsets_130;
+        for (int marker = 0; marker <= limit-21; marker++) {
             if (rawIntAt(marker) != 80000 || byteAt(marker + 4) > 1) continue;
-            int end = marker + 11;
-            if (rawIntAt(end) != 80200) continue;
-            int leadership = ushortAt(marker + 5);
-            if (leadership > 9999) continue;
-            int d = Math.abs(marker - expected);
+            if (rawIntAt(marker+11)!=80200 || byteAt(marker+16)>1
+                    || rawIntAt(marker+17)!=80300) continue;
             // [80000][ub7][leadership(short)][cat id(short)][cat form(short)][80200].
-            // The cat pair starts seven bytes after the 80000 marker.
-            if (d < distance) { best = marker + 7; distance = d; }
+            if(found>=0)throw new IllegalStateException("Ambiguous Leadership field");
+            found=marker+7;
         }
-        return best >= 0 ? best : fixed(Offsets.offsets_77);
+        if(found<0)throw new IllegalStateException("Leadership field is unavailable");
+        return found;
     }
 
     /** The Dojo ranking record starts after marker 66 and ends at marker 67. */
@@ -1740,33 +1799,40 @@ public final class SaveDocument {
         throw new IllegalStateException("Base material table is unavailable");
     }
     private int talentOrbTableOffset() {
-        int marker90700;
-        try { marker90700 = findInt(90700); }
-        catch (IllegalStateException missingMarker) { return afterEnigma(Offsets.offsets_93); }
-        // The table is variable-length and the generated 15.5 estimate can
-        // be thousands of bytes away after earlier records grow.  Anchor the
-        // search to the self-delimiting 90700 marker instead of a fixed
-        // offset, then require the parsed dictionary/toggle to end exactly at
-        // that marker.
-        int from=Math.max(4,marker90700-131072),to=Math.min(marker90700-5,bytes.length-40);
-        for(int table=from;table<=to;table++){
-            int count=(bytes[table]&255)|((bytes[table+1]&255)<<8);
+        // The orb dictionary starts immediately after marker 90500. Searching
+        // backwards from 90700 also accepts false headers inside the previous
+        // record (especially with amount=1), silently dropping real entries.
+        int limit=bytes.length-Offsets.offsets_130,found=-1;
+        for(int marker=0;marker<=limit-9;marker++){
+            if(rawIntAt(marker)!=90500)continue;
+            int table=marker+4,count=ushortAt(table);
             if(count>2048)continue;
             int offset=table+2+count*4;
-            if(offset+3>=bytes.length-Offsets.offsets_130)continue;
-            int dictionaries=(bytes[offset]&255)|((bytes[offset+1]&255)<<8);offset+=2;
-            if(dictionaries>2048)continue;
+            if(offset+2>limit)continue;
+            java.util.HashSet<Integer> ids=new java.util.HashSet<>();
             boolean valid=true;
+            for(int i=0;i<count;i++)if(!ids.add(ushortAt(table+2+i*4))){valid=false;break;}
+            if(!valid)continue;
+            int dictionaries=ushortAt(offset);offset+=2;
+            if(dictionaries>2048)continue;
             for(int i=0;i<dictionaries;i++){
-                if(offset+3>=bytes.length-Offsets.offsets_130){valid=false;break;}
+                if(offset+3>limit){valid=false;break;}
                 offset+=2;int inner=bytes[offset++]&255;
-                if(offset+inner*3+5>bytes.length-Offsets.offsets_130){valid=false;break;}
+                if(offset+inner*3+5>limit){valid=false;break;}
                 offset+=inner*3;
             }
-            if(valid&&offset+1==marker90700&&(bytes[offset]&255)<=1)return table;
+            if(!valid||offset+5>limit||byteAt(offset)>1||rawIntAt(offset+1)!=90700)continue;
+            // The following 9.8 list and ten booleans end at marker 90800.
+            int next=offset+5;
+            if(next+2>limit)continue;
+            next+=2+ushortAt(next)*4;
+            if(next+14>limit)continue;
+            for(int i=0;i<10;i++)if(byteAt(next+i)>1)valid=false;
+            if(!valid||rawIntAt(next+10)!=90800)continue;
+            if(found>=0)throw new IllegalStateException("Ambiguous Talent Orb table");
+            found=table;
         }
-        int legacy=afterEnigma(Offsets.offsets_93),count=ushortAt(legacy);
-        if(count<=2048)return legacy;
+        if(found>=0)return found;
         throw new IllegalStateException("Talent Orb table is unavailable");
     }
     private int rawIntAt(int offset) { return (bytes[offset]&255)|((bytes[offset+1]&255)<<8)|((bytes[offset+2]&255)<<16)|(bytes[offset+3]<<24); }
@@ -2143,7 +2209,7 @@ public final class SaveDocument {
         if (twOffset >= Offsets.offsets_132) return twOffset - 1;
         return twOffset;
     }
-    private void splice(int offset,int remove,int insert) { if(offset<0||remove<0||insert<0||offset+remove>bytes.length-Offsets.offsets_130)throw new IllegalArgumentException("Invalid splice at offset="+offset+" remove="+remove+" insert="+insert+" length="+bytes.length);byte[] out=new byte[bytes.length-remove+insert];System.arraycopy(bytes,0,out,0,offset);System.arraycopy(bytes,offset+remove,out,offset+insert,bytes.length-offset-remove);bytes=out;catLayoutCache=null;battleItemsBaseCache=-1;unitDropsBaseCache=-1;scratcherBaseCache=-1;if(cannonBaseCache>=0&&offset<cannonBaseCache)cannonBaseCache+=insert-remove;if(goldPassBaseCache>=0&&offset<goldPassBaseCache)goldPassBaseCache+=insert-remove;if(talentTableBaseCache>=0&&offset<talentTableBaseCache)talentTableBaseCache+=insert-remove;if(storageTableBaseCache>=0&&offset<storageTableBaseCache)storageTableBaseCache+=insert-remove;if(enigmaBaseCache>=0&&offset<enigmaBaseCache)enigmaBaseCache+=insert-remove;if(eventTableBaseCache>=0&&offset<eventTableBaseCache)eventTableBaseCache+=insert-remove;if(itfTimedScoreBaseCache>=0){if(offset+remove<=itfTimedScoreBaseCache&&offset<itfTimedScoreBaseCache)itfTimedScoreBaseCache+=insert-remove;else if(offset<=itfTimedScoreBaseCache+3*51*4&&offset+remove>=itfTimedScoreBaseCache)itfTimedScoreBaseCache=-1;} }
+    private void splice(int offset,int remove,int insert) { if(offset<0||remove<0||insert<0||offset+remove>bytes.length-Offsets.offsets_130)throw new IllegalArgumentException("Invalid splice at offset="+offset+" remove="+remove+" insert="+insert+" length="+bytes.length);byte[] out=new byte[bytes.length-remove+insert];System.arraycopy(bytes,0,out,0,offset);System.arraycopy(bytes,offset+remove,out,offset+insert,bytes.length-offset-remove);bytes=out;akuLayoutCache=null;catLayoutCache=null;battleItemsBaseCache=-1;unitDropsBaseCache=-1;scratcherBaseCache=-1;if(cannonBaseCache>=0&&offset<cannonBaseCache)cannonBaseCache+=insert-remove;if(goldPassBaseCache>=0&&offset<goldPassBaseCache)goldPassBaseCache+=insert-remove;if(talentTableBaseCache>=0&&offset<talentTableBaseCache)talentTableBaseCache+=insert-remove;if(storageTableBaseCache>=0&&offset<storageTableBaseCache)storageTableBaseCache+=insert-remove;if(enigmaBaseCache>=0&&offset<enigmaBaseCache)enigmaBaseCache+=insert-remove;if(eventTableBaseCache>=0&&offset<eventTableBaseCache)eventTableBaseCache+=insert-remove;if(itfTimedScoreBaseCache>=0){if(offset+remove<=itfTimedScoreBaseCache&&offset<itfTimedScoreBaseCache)itfTimedScoreBaseCache+=insert-remove;else if(offset<=itfTimedScoreBaseCache+3*51*4&&offset+remove>=itfTimedScoreBaseCache)itfTimedScoreBaseCache=-1;} }
     private void ensureItemProfile() { if (!hasItemProfile()) throw new UnsupportedOperationException("No item profile for this save version"); }
     private void ensureCatProfile() { ensureItemProfile(); }
     private int charaNewFlagsOffset() {
@@ -2863,21 +2929,66 @@ public final class SaveDocument {
     private void checkDisplayedLevel(int value) { if(value<1||value>65536)throw new IllegalArgumentException("Invalid level"); }
     private void checkCatLevel(int index,int value) { checkCat(index);checkLevel(value); }
     private int specialSkillUpgradeOffset(int index) { ensureCatProfile();if(index<0||index>=10)throw new IndexOutOfBoundsException();int raw=index==0?0:index+1;return catLayout().currentFormEnd+raw*4; }
-    private int endlessBattleOffset(int index) { if(index<0||index>=6)throw new IndexOutOfBoundsException();int marker=findIntNear(100300,afterOrbs(Offsets.offsets_104)+6*19,65536);return marker-6*19+index*19; }
+    private int endlessBattleOffset(int index) {
+        ensureItemProfile();
+        if(index<0||index>=6)throw new IndexOutOfBoundsException();
+        // Walk from the validated account/date record. A 100300 integer in
+        // map data must never become the target of an endless-item write.
+        int base=passwordRefreshTokenOffset()+75;
+        if(intAt(base-4)!=100100||intAt(base+6*19)!=100300)
+            throw new IllegalStateException("Endless item table is unavailable");
+        for(int i=0;i<6;i++)if(byteAt(base+i*19)>1||byteAt(base+i*19+1)>1)
+            throw new IllegalStateException("Invalid endless item flags");
+        return base+index*19;
+    }
     private int storyInternalChapter(int chapter) { ensureItemProfile();if(chapter<0||chapter>=9)throw new IndexOutOfBoundsException();return chapter<3?chapter:chapter+1; }
     private void checkStoryStage(int stage) { if(stage<0||stage>=48)throw new IndexOutOfBoundsException(); }
     private int akuTableOffset() {
-        int expected=lateOffset(Offsets.offsets_105),markerEstimate=expected-4;
-        int best=-1,distance=Integer.MAX_VALUE;
-        for(int marker=4;marker+8<bytes.length-Offsets.offsets_130;marker++)if(intAt(marker)==100700&&validAkuTable(marker+4)){int d=Math.abs(marker-markerEstimate);if(d<distance){best=marker+4;distance=d;}}
-        if(best>=0)return best;
-        for(int base=4;base+8<bytes.length-Offsets.offsets_130;base++)if(validAkuTableFallback(base)){int d=Math.abs(base-expected);if(d<distance){best=base;distance=d;}}
-        if(best>=0)return best;
-        throw new IllegalStateException("Aku data is unavailable");
+        return akuLayout().base;
     }
-    private boolean validAkuTable(int base) { if(base<0||base+4>bytes.length-Offsets.offsets_130)return false;int chapters=ushortAt(base),stages=byteAt(base+2),stars=byteAt(base+3);long end=(long)base+4+(long)chapters*stars+(long)chapters*stars*stages*2;return chapters>0&&chapters<=16&&stages>0&&stages<=100&&stars>0&&stars<=16&&end<=bytes.length-Offsets.offsets_130; }
-    private boolean validAkuTableFallback(int base) { if(!validAkuTable(base))return false;int chapters=ushortAt(base),stages=byteAt(base+2),stars=byteAt(base+3),tail=base+4+chapters*stars+chapters*stars*stages*2;if(tail+4>bytes.length-Offsets.offsets_130||byteAt(tail)>1||byteAt(tail+1)>1)return false;int dictionaryCount=ushortAt(tail+2);return dictionaryCount<=1024&&tail+4L+dictionaryCount*4L<=bytes.length-Offsets.offsets_130; }
-    private int akuStageOffset(int chapter,int star,int stage) { ensureItemProfile();int base=akuTableOffset(),chapters=ushortAt(base),stages=byteAt(base+2),stars=byteAt(base+3);if(chapters>100||stages>100||stars>16||chapter<0||chapter>=chapters||star<0||star>=stars||stage<0||stage>=stages)throw new IndexOutOfBoundsException();return base+4+chapters*stars+((chapter*stars+star)*stages+stage)*2; }
+    private AkuLayout akuLayout() {
+        ensureItemProfile();
+        if(akuLayoutCache!=null)return akuLayoutCache;
+        // No template-offset calculation: it recursively scans several
+        // unrelated variable tables and used to run once per edited stage.
+        // Require the native 10.7 -> Aku/dictionaries -> 10.9 -> 10.10 chain.
+        AkuLayout found=null;
+        int limit=bytes.length-Offsets.offsets_130;
+        for(int marker=4;marker+8<=limit;marker++){
+            if(rawIntAt(marker)!=100700)continue;
+            AkuLayout candidate=parseAkuLayout(marker+4,limit);
+            if(candidate==null)continue;
+            if(found!=null)throw new IllegalStateException("Ambiguous Aku data");
+            found=candidate;
+        }
+        if(found==null)throw new IllegalStateException("Aku data is unavailable");
+        return akuLayoutCache=found;
+    }
+    private AkuLayout parseAkuLayout(int base,int limit) {
+        int chapters=ushortAt(base),stages=byteAt(base+2),stars=byteAt(base+3);
+        if(chapters>16||stages>100||stars>16||(chapters==0&&(stages!=0||stars!=0)))return null;
+        long end=(long)base+4+(long)chapters*stars*(1+stages*2);
+        if(end+4>limit)return null;
+        int p=(int)end;
+        if(byteAt(p)>1||byteAt(p+1)>1)return null;
+        p+=2;
+        int lists=ushortAt(p);p+=2;
+        for(int i=0;i<lists;i++){
+            if(p+4>limit)return null;
+            int count=ushortAt(p+2);p+=4;
+            if(p+(long)count*2>limit)return null;
+            p+=count*2;
+        }
+        for(int i=0;i<2;i++){
+            if(p+2>limit)return null;
+            int count=ushortAt(p);p+=2;
+            if(p+(long)count*10>limit)return null;
+            p+=count*10;
+        }
+        if(p+10>limit||byteAt(p)>1||rawIntAt(p+1)!=100900||rawIntAt(p+6)!=101000)return null;
+        return new AkuLayout(base,chapters,stages,stars);
+    }
+    private int akuStageOffset(int chapter,int star,int stage) { return akuLayout().stageOffset(chapter,star,stage); }
     private int missionDictionaryOffset(int dictionary) { ensureItemProfile();if(dictionary<0||dictionary>=8)throw new IndexOutOfBoundsException();int offset=afterCannons(Offsets.offsets_69);for(int d=0;d<dictionary;d++){int count=intAt(offset);if(count<0||count>10000)throw new IllegalStateException("Invalid mission dictionary");offset+=4+count*8;}return offset; }
     /** Locate the first of the four event-stage dictionaries.  Received
      * saves can have an unaligned, variable prefix (the current JP/TW
@@ -3297,11 +3408,30 @@ public final class SaveDocument {
         case ENIGMA_CLEARS -> compactLayout(findInt(90300)+4);
         case COLLAB_GAUNTLETS -> compactLayout(compactTableOffset(afterEnigma(Offsets.offsets_117),26,28,90500));
         case EVENT -> eventLayout(eventTableOffset());
-        case BEHEMOTH -> compactLayout(findInt(110000)+4);
+        case BEHEMOTH -> compactLayout(behemothTableOffset());
         case LEGEND_QUEST -> legendQuestLayout(legendQuestTableOffset());
         case ZERO_LEGENDS -> variableLayout(findInt(111000)+4,true);
         case DOJO -> dojoLayout(variableTableOffset(lateOffset(Offsets.offsets_118),12));
     }; }
+    private int behemothTableOffset() {
+        int limit=bytes.length-Offsets.offsets_130,found=-1;
+        // Walk 10.10's byte and 11.0's variable dictionary to the culling
+        // table, then require both its trailing flag and version markers.
+        for(int marker=0;marker<=limit-11;marker++){
+            if(rawIntAt(marker)!=101000)continue;
+            int p=marker+4,count=ushortAt(p);p+=2+count*6;
+            if(p+8>limit||rawIntAt(p)!=110000)continue;
+            int base=p+4,maps=ushortAt(base),stages=byteAt(base+2),stars=byteAt(base+3);
+            if(maps>1000||stages>100||stars>16||(maps>0&&(stages==0||stars==0)))continue;
+            long end=(long)base+4+(long)maps*stars*(3+stages*2)+maps;
+            if(end+10>limit||byteAt((int)end)>1||rawIntAt((int)end+1)!=110500
+                    ||byteAt((int)end+5)>1||rawIntAt((int)end+6)!=110600)continue;
+            if(found>=0)throw new IllegalStateException("Ambiguous Behemoth Culling table");
+            found=base;
+        }
+        if(found<0)throw new IllegalStateException("Behemoth Culling table is unavailable");
+        return found;
+    }
     private int compactTableOffset(int expected,int expectedMaps){return compactTableOffset(expected,expectedMaps,expectedMaps,-1);}
     private int compactTableOffset(int expected,int minMaps,int maxMaps,int nextMarkerValue){
         int limit=bytes.length-Offsets.offsets_130,marker=-1;

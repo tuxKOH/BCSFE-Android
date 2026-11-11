@@ -6,6 +6,35 @@ import java.nio.file.Path;
 /** Offline integration probe; inputs are bundled scrubbed templates only. */
 public final class GameDataProbe {
     public static void main(String[] args) throws Exception {
+        if(args.length==3&&"--items".equals(args[0])){
+            byte[] source=Files.readAllBytes(Path.of(args[1]));
+            Path out=Path.of(args[2]);Files.createDirectories(out);
+            SaveDocument save=SaveDocument.open(source);
+            Files.write(out.resolve("roundtrip.save"),save.toBytes());
+            save.setLeadership(117);
+            Files.write(out.resolve("leadership.save"),save.toBytes());
+            for(int grade:new int[]{3,4,-1}){
+                save=SaveDocument.open(source);save.setTalentOrbsAtGrade(grade,1);
+                Files.write(out.resolve("orbs-"+grade+".save"),save.toBytes());
+            }
+            save=SaveDocument.open(source);
+            for(int item=0;item<6;item++)save.setEndlessBattleDurationMinutes(item,
+                    item==5?Double.POSITIVE_INFINITY:90+item);
+            Files.write(out.resolve("endless.save"),save.toBytes());
+            save=SaveDocument.open(source);
+            save.setPasswordRefreshToken("0123456789012345678901234567890123456789");
+            Files.write(out.resolve("received.save"),save.toBytes());
+            save=SaveDocument.open(source);
+            save.setStageMapClearTimes(SaveDocument.StageMap.BEHEMOTH,2,0,0,7);
+            Files.write(out.resolve("behemoth.save"),save.toBytes());
+            save=SaveDocument.open(source);save.setAkuProgress(10,5);
+            Files.write(out.resolve("aku-progress.save"),save.toBytes());
+            save=SaveDocument.open(source);save.clearAkuChapter(0,0,true);
+            Files.write(out.resolve("aku-clear.save"),save.toBytes());
+            save=SaveDocument.open(source);save.setAkuClearTimes(0,0,48,7);
+            Files.write(out.resolve("aku-stage.save"),save.toBytes());
+            return;
+        }
         if(args.length==3&&"--tickets".equals(args[0])){
             byte[] source=Files.readAllBytes(Path.of(args[1]));
             SaveDocument save=SaveDocument.open(source);
@@ -68,7 +97,7 @@ public final class GameDataProbe {
             for(int i=0;i<GameDataRules.dropPairCount(region,gv);i++)rules.append("drop,").append(GameDataRules.dropCat(region,gv,i)).append(',').append(GameDataRules.dropSlot(region,gv,i)).append('\n');
             for(int i=0;i<GameDataRules.rankGiftCount(region,gv);i++)rules.append("gift,").append(i).append(',').append(GameDataRules.rankGiftThreshold(region,gv,i)).append('\n');
             Files.writeString(out.resolve(code+"-rules.csv"),rules);
-            for(int version:new int[]{150501,150601,150700,150701,150702,150703}){
+            for(int version:new int[]{150501,150601,150700,150701,150702,150703,150704,160000}){
                 if(!GameVersions.supported(region,version)||version==gv)continue;
                 SaveDocument intermediate=SaveDocument.open(source);
                 intermediate.convertGameVersion(version);
@@ -79,13 +108,15 @@ public final class GameDataProbe {
                     throw new AssertionError("Intermediate import failed: "+code+" "+version);
                 Files.write(out.resolve(code+"-intermediate-"+version+".save"),imported);
                 intermediate.setNormalTickets(123);intermediate.setRareTickets(234);
-                intermediate.setCatBaseLevel(intermediate.catCount()-1,10);
-                intermediate.setCatPlusLevel(intermediate.catCount()-1,3);
-                intermediate.setCatCurrentForm(intermediate.catCount()-1,1);
+                int editedCat=Math.min(intermediate.catCount(),UpstreamGameData.forVersion(region,version).unitBuy.length)-1;
+                intermediate.setCatBaseLevel(editedCat,10);
+                intermediate.setCatPlusLevel(editedCat,3);
+                intermediate.setCatCurrentForm(editedCat,1);
                 if(intermediate.gameVersion()!=version||!intermediate.checksumValid())
                     throw new AssertionError("Intermediate edit changed version or checksum");
                 Files.write(out.resolve(code+"-intermediate-"+version+"-edited.save"),intermediate.toBytes());
-                for(int id=0;id<intermediate.catCount();id++){
+                for(int id=0;id<Math.min(intermediate.catCount(),UpstreamGameData.forVersion(region,version).unitBuy.length);id++){
+                    if(UpstreamGameData.forVersion(region,version)!=UpstreamGameData.forRegion(region))break;
                     if(GameDataRules.totalForms(region,version,id)!=GameDataRules.totalForms(region,gv,id)
                             ||GameDataRules.catMaxPlus(region,version,id)!=GameDataRules.catMaxPlus(region,gv,id)
                             ||GameDataRules.catObtainable(region,version,id)!=GameDataRules.catObtainable(region,gv,id))

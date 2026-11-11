@@ -15,7 +15,7 @@ import hashlib
 import json
 from pathlib import Path
 
-VERSIONS = {"en": "15.7.0", "jp": "15.7.4", "tw": "15.7.0", "kr": "15.7.0"}
+VERSIONS = {"en": "15.7.0", "jp": "16.0.1", "tw": "15.7.0", "kr": "15.7.0"}
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -35,10 +35,11 @@ def generate(cache: Path):
     if {region: source["version"] for region, source in provenance["regions"].items()} != VERSIONS:
         raise ValueError("Update extraction provenance before changing the regional versions")
     manifest = {"source": "https://git.battlecatsmodding.org/fieryhenry/BCData",
-                "upstream_parser": "a54abdeae8399cdb50c3f153f4c7ad1a6f315530",
-                "provenance": provenance, "regions": {}}
+                "upstream_parser": provenance["upstream_parser"],
+                "provenance": provenance, "regions": {}, "historical": {}}
     max_cats = 0
-    for region, version in VERSIONS.items():
+    for key, version in list(VERSIONS.items()) + [("jp_157", "15.7.4")]:
+        region = key.split("_")[0]
         directory = cache / region / version / "DataLocal"
         hashes = {}
 
@@ -76,11 +77,16 @@ def generate(cache: Path):
         missions = pack([[row[0], row[3]] for row in read("Mission_Condition.csv", header=True)])
         maps = pack([[row[0], row[1]] for row in read("Map_option.csv", header=True)])
         schemes = pack([[row[0]] for row in read("schemeItemData.tsv", delimiter="\t", header=True)])
+        orb_path = directory / "equipmentlist.json"
+        hashes["equipmentlist.json"] = hashlib.sha256(orb_path.read_bytes()).hexdigest()
+        orb_rows = json.loads(orb_path.read_text())["ID"]
+        orbs = pack([[row["gradeID"], row["content"], row.get("attribute", -1)] for row in orb_rows])
         major, minor, patch = map(int, version.split("."))
         value = major * 10000 + minor * 100 + patch
-        snapshots.append(f"    private static final Snapshot {region.upper()} = new Snapshot({value}, "
-                         + ", ".join((buy, picture, drops, limits, gifts, talents, missions, maps, schemes)) + ");")
-        manifest["regions"][region] = {"version": version, "cat_count": len(unit), "sha256": hashes}
+        snapshots.append(f"    private static final Snapshot {key.upper()} = new Snapshot({value}, "
+                         + ", ".join((buy, picture, drops, limits, gifts, talents, missions, maps, schemes, orbs)) + ");")
+        destination = manifest["regions"] if key == region else manifest["historical"]
+        destination[key] = {"version": version, "cat_count": len(unit), "orb_count": len(orb_rows), "sha256": hashes}
 
     source = '''package io.github.tuxkoh.bcsfe.core;
 
@@ -96,8 +102,12 @@ final class UpstreamGameData {
         return switch (region) { case EN -> EN; case JP -> JP; case TW -> TW; case KR -> KR; };
     }
 
+    static Snapshot forVersion(SaveDocument.Region region, int version) {
+        return region == SaveDocument.Region.JP && version <= JP_157.version ? JP_157 : forRegion(region);
+    }
+
     static Snapshot matching(SaveDocument.Region region, int version) {
-        Snapshot snapshot = forRegion(region);
+        Snapshot snapshot = forVersion(region, version);
         // Keep the existing exact 15.5.0/15.6.0 tables. Other compatible
         // revisions use the next regional BCData snapshot, like upstream's
         // GameDataGetter.get_version, without rewriting the save version.
@@ -107,13 +117,13 @@ final class UpstreamGameData {
 
     static final class Snapshot {
         final int version;
-        final int[][] unitBuy, pictureBook, drops, unitLimits, rankGifts, talents, missions, maps, schemes;
+        final int[][] unitBuy, pictureBook, drops, unitLimits, rankGifts, talents, missions, maps, schemes, orbs;
 
         Snapshot(int version, int[][] unitBuy, int[][] pictureBook, int[][] drops, int[][] unitLimits,
-                 int[][] rankGifts, int[][] talents, int[][] missions, int[][] maps, int[][] schemes) {
+                 int[][] rankGifts, int[][] talents, int[][] missions, int[][] maps, int[][] schemes, int[][] orbs) {
             this.version=version; this.unitBuy=unitBuy; this.pictureBook=pictureBook;
             this.drops=drops; this.unitLimits=unitLimits; this.rankGifts=rankGifts;
-            this.talents=talents; this.missions=missions; this.maps=maps; this.schemes=schemes;
+            this.talents=talents; this.missions=missions; this.maps=maps; this.schemes=schemes; this.orbs=orbs;
         }
 
         int talentMaxLevel(int cat, int ability) {

@@ -807,9 +807,15 @@ public class SaveDocumentTest {
 
     @Test public void verifiedTwProfileEditsStoryAkuAndMissions() throws Exception {
         byte[] bytes=fixture(SaveDocument.Region.TW,5,507008);
+        // Include the native empty orb record rather than relying on a
+        // parser fallback into this otherwise zero-filled synthetic save.
+        putInt(bytes,Offsets.offsets_93-4,90500);
+        putInt(bytes,Offsets.offsets_93+5,90700);
+        putInt(bytes,Offsets.offsets_93+21,90800);
         putInt(bytes,415665,1);putInt(bytes,415669,42);putInt(bytes,415673,0);
         putInt(bytes,415677,1);putInt(bytes,415681,42);putInt(bytes,415685,5);
         bytes[494327]=1;bytes[494329]=49;bytes[494330]=1;
+        putInt(bytes,494323,100700);putInt(bytes,494439,100900);putInt(bytes,494444,101000);
         refreshHash(bytes,SaveDocument.Region.TW);
         SaveDocument document=SaveDocument.open(bytes);
         document.setStoryClearTimes(2,47,3);document.setStoryTreasure(2,47,3);

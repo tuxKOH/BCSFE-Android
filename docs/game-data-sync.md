@@ -1,6 +1,6 @@
 # Regional BCData snapshots
 
-Snapshot checked on 2026-11-08, against BCSFE-Python `a54abde` and BCData commit
+Snapshot checked on 2026-11-11, against BCSFE-Python `85fb94c` and BCData commit
 `8644713249966c10a880e056c2f3e58fe21cd4a3`. These releases were extracted from
 the official regional APKs using the BCData README workflow because upstream
 metadata has not listed them yet. Upstream source checkouts and caches stay
@@ -8,7 +8,7 @@ outside this repository.
 
 | Region | Version | unitbuy cat records | Known rank gifts |
 | --- | --- | --- | --- |
-| JP | 15.7.4 | 882 | 349 |
+| JP | 16.0.1 | 888 | 352 |
 | EN | 15.7.0 | 882 | 349 |
 | TW | 15.7.0 | 882 | 349 |
 | KR | 15.7.0 | 882 | 349 |
@@ -22,9 +22,11 @@ player accounts or save files.
 
 `tools/sync_game_data.py` emits compact Java tables for unitbuy, picture-book
 availability/forms, drop slots, unit limits, rank gifts, talents, mission targets,
-map crowns, and scheme items. Identical regional tables are deduplicated. Names
+map crowns, scheme items, and Talent Orb grades/effects/attributes. Identical regional tables are deduplicated. Names
 are regenerated independently into both Android locales. Historical 15.5/15.6
-rules remain intact and are selected for saves of those versions.
+rules remain intact and are selected for saves of those versions. The previous
+JP 15.7.4 snapshot is also retained: JP saves through 15.7.4 use its 882-cat and
+349-reward tables, while 16.0.0/16.0.1 use the new 888-cat/352-reward snapshot.
 
 The shared 15.5 serialization layout is also supported for intermediate patch
 versions, bounded by each region's latest snapshot above. As in upstream
@@ -32,7 +34,7 @@ versions, bounded by each region's latest snapshot above. As in upstream
 regional BCData snapshot. The original 15.5.0/15.6.0 rule tables remain selected
 for those exact versions; intermediate patches use the bundled newer snapshot.
 Importing or editing does not rewrite the save version. The conversion menu
-includes JP 15.7.1 through 15.7.3, regional 15.6.1 and 15.5.1, with checksum and layout checks
+includes JP 15.7.1 through 15.7.4 and 16.0.0, regional 15.6.1 and 15.5.1, with checksum and layout checks
 retained. Future regional versions above the verified ceiling remain unsupported.
 
 ## Updating
@@ -48,6 +50,7 @@ retained. Future regional versions above the verified ceiling remain unsupported
    python3 tools/generate_cat_names.py ~/.local/share/bcsfe/game_data
    ./gradlew test assembleDebug
    python3 tools/verify_latest_game_data.py
+   python3 tools/verify_item_records.py
    ```
 
 4. Check the diff, supported-version notices in both locales, and emulator flows.
@@ -87,6 +90,61 @@ upgrade succeeds and uses the same regional version in its requests.
 
 Normal import does not invoke the factory or resize/relabel an existing save.
 The format core stays independent of Android UI classes.
+
+## Verification on 2026-11-11 (1.4.2)
+
+JP 16.0.1 was downloaded from the APKPure version API used by `apkdown`, merged
+with BCData's APKEditor, and decrypted with `tbctk-asset` at `c21e94c`. A small
+standalone Rust wrapper calls the same `BCApk::new`, `GamePacks::from_pkg`, and
+`extract_some` APIs as `tbctk-cli extract pkg`, selecting `DataLocal` and
+`resLocal`; the CLI itself references unavailable developer-local Lua paths.
+The archive hash and tool revisions are recorded in `tools/game_data_sources.json`.
+Upstream `save.py` is unchanged from the previously verified revision and adds
+no 16.0 serialization gate. New-save creation, conversions, intermediate-patch
+editing and all current regional rules pass 20,398 upstream comparisons.
+
+`./gradlew test assembleDebug` passes: 102 tests pass per build variant, with
+97 historical tests skipped because their external fixtures are absent.
+The item-record verifier adds 88 independent byte comparisons across four
+regions, including 100 KB dictionaries, decoy version integers, all 62 S-grade
+orbs, all 310 orbs, Leadership, all six endless items, reception token updates,
+and Behemoth Culling edits. Every untouched culling stage is checked against
+the upstream parser. Mock-server tests additionally cover replacement-account
+creation followed by upload and reception without losing those edits/progress.
+The additional Aku checks include nonempty adjacent dictionaries, progress,
+single-stage and chapter edits. Aku layout lookup validates the complete
+100700/100900/101000 record chain and caches the parsed dimensions; any save
+splice invalidates that cache. Batch writes resolve it once, eliminating the
+per-stage recursive offset scans that froze the editor. On the same desktop
+JP fixture, a 49-stage update dropped from about 5.8 seconds to 2.3 milliseconds.
+
+The orb parser now walks the native 90500/90700/90800 record boundaries rather
+than searching for a plausible header in preceding data. Leadership requires
+the complete 80000/80200/80300 record. Endless items follow the validated
+refresh-token/date record; Behemoth Culling validates its dictionary, table and
+110500/110600 continuation. Missing or ambiguous records reject edits before
+writing. Batch orb actions use one resize and retain unknown orb IDs and the
+following dictionaries.
+
+English UI QA on emulator-5554 and Simplified Chinese QA on emulator-5556
+imported JP 16.0.1, set all S orbs to one, opened the individual-orb editor and
+exported through the system document picker. Both exports contain all 62 S
+orbs and match each other and the upstream serializer byte for byte. The
+Chinese export was reimported through the system document picker. The final
+Chinese batch dialog displays “S级本能玉” rather than the internal grade number.
+The Chinese UI also set Leadership to 117 and all six endless items to 90
+minutes; the exported fields and complete bytes matched the upstream serializer
+and retained the S orbs and culling records.
+Aku Realm UI QA on emulator-5556 opened the editor and applied 49 clears at
+count seven in Chinese, then ten clears at count one in English. Both exports
+matched the upstream serializer byte for byte, with no ANR during either edit.
+These are offline/template and mock-server checks; the reported reset after
+reception has not been reproduced with a real affected account on game servers.
+
+The process-start coffee notice was checked in English and Simplified Chinese:
+the link opens the browser, dismissal survives navigation and locale recreation,
+and a fresh process displays it again. System document export/import and a second
+export preserve the working save byte for byte with the notice present.
 
 ## Verification on 2026-11-08
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="coffee_notice">If you find this useful, buy me a coffee~ https://ifdian.net/a/tuxjhtd</string>
     <string name="replace_account_before_upload">Create a replacement account before uploading?</string>
     <string name="replace_account_before_load">Create a replacement account before loading?</string>
     <string name="root_read_confirm">Read a save copy from %1$s? The original game save will remain unchanged.</string>
@@ -23,7 +24,7 @@
     <string name="update_notes_unavailable">No release notes were provided.</string>
     <string name="view_release">View release</string>
     <string name="open_release_failed">Could not open the release page.</string>
-    <string name="supported_versions_notice">Full editing supports 15.5.0 through JP 15.7.4 or EN/TW/KR 15.7.0, including intermediate patch versions. Intermediate versions use compatible regional BCData without changing the save version. New saves use the latest supported version for their region. Other saves can be imported for inspection and export, but are not officially supported. Version conversion supports 14.0 and 14.3 through the latest supported regional version, including JP 15.7.1–15.7.3 and regional 15.6.1/15.5.1.</string>
+    <string name="supported_versions_notice">Full editing supports 15.5.0 through JP 16.0.1 or EN/TW/KR 15.7.0, including intermediate patch versions. Intermediate versions use compatible regional BCData without changing the save version. New saves use the latest supported version for their region. Other saves can be imported for inspection and export, but are not officially supported. Version conversion supports 14.0 and 14.3 through the latest supported regional version, including JP 15.7.1–15.7.4 and 16.0.0 and regional 15.6.1/15.5.1.</string>
     <string name="unsupported_import_warning_title">Version not officially supported</string>
     <string name="unsupported_import_warning">This version is not officially supported. The abnormal-cat list may be incomplete, and some values may appear garbled. If you see garbled values, do not edit them; this may trigger an in-game data error and could lead to a ban.</string>
     <string name="language">Language</string><string name="change_language">Change language</string><string name="choose_language">Choose language</string>
@@ -213,7 +214,7 @@
     <string name="talent_orb_grade_title">Choose grade</string><string name="talent_orb_attribute_title">Choose target attribute</string><string name="talent_orb_effect_title">Choose effect</string>
     <string name="no_matching_talent_orb">No Talent Orb matches this grade and attribute.</string>
     <string name="talent_orb_set_all">Set all Talent Orbs</string>
-    <string name="talent_orb_batch_grade_title">Choose grade to batch edit</string><string name="talent_orb_all_grade">All Talent Orbs</string><string name="talent_orb_grade_label">Grade %1$d Talent Orbs</string>
+    <string name="talent_orb_batch_grade_title">Choose grade to batch edit</string><string name="talent_orb_all_grade">All Talent Orbs</string><string name="talent_orb_grade_label">%1$s Talent Orbs</string>
     <string name="root_no_any_game">Could not detect a Battle Cats installation for any region on this phone.</string><string name="root_custom_package">Custom package</string><string name="root_custom_package_hint">e.g. jp.co.ponos.battlecats</string><string name="root_invalid_package">Enter a valid Android package name.</string><string name="root_write_target">Choose write target</string>
     <string name="session_current_badge">CURRENT</string>
     <string name="session_meta">Edited %1$s · %2$d bytes</string>
@@ -1126,6 +1127,12 @@
         <item>" /  / "</item>
         <item>" /  / "</item>
         <item>" /  / "</item>
+        <item>""</item>
+        <item>""</item>
+        <item>""</item>
+        <item>""</item>
+        <item>""</item>
+        <item>""</item>
     </string-array>
     <string-array name="cat_names_tw">
         <item>"貓咪 / 健美貓 / 摩西根貓"</item>
@@ -2010,6 +2017,12 @@
         <item>" /  / "</item>
         <item>" /  / "</item>
         <item>" /  / "</item>
+        <item>""</item>
+        <item>""</item>
+        <item>""</item>
+        <item>""</item>
+        <item>""</item>
+        <item>""</item>
     </string-array>
     <string-array name="cat_names_jp">
         <item>"ネコ / ネコビルダー / ネコモヒカン"</item>
@@ -2171,7 +2184,7 @@
         <item>"ドラリー剣士 / ドラリー魔法使い / ドラリー魔法使い"</item>
         <item>"ヌボボ / ゴールボ / ゴールボ"</item>
         <item>"上杉謙信 / 武神・上杉謙信 / 暴威の武神・上杉謙信 / 毘沙門軍神・上杉謙信"</item>
-        <item>"冥界のカリファ / 冥界のＸカリファ / 冥界のＸＸカリファ"</item>
+        <item>"冥界のカリファ / 冥界のＸカリファ / 冥界のＸＸカリファ / アルティメットＸＸカリファ"</item>
         <item>"ユーリンチー / 転生霊鳥ユーリンチー / ゲキリンチー"</item>
         <item>"狂乱のケリ姫 / 狂乱のケリ姫CC / 大狂乱のケリ姫"</item>
         <item>"綾小路 翔 / 翔やん＆にゃんこ / 翔やん＆にゃんこ"</item>
@@ -2782,19 +2795,19 @@
         <item>"イカ / イカCC / イカCC"</item>
         <item>"たいてんき / たいてんきCC / たいてんきCC"</item>
         <item>"花咲かじいさん / 暴食怪樹オオザクラ / 暴食怪樹オオザクラ"</item>
-        <item>"771-1"</item>
+        <item>"771_1"</item>
         <item>"生命の賢者Dr.ノーヴァ / 生命の賢者ネコノーヴァ / 生命の賢者ネコノーヴァ"</item>
         <item>"パンプキンソドム / ソドム・オー・ランタン / ソドム・オー・ランタン"</item>
         <item>"スモウ・ザ・ミイラ / マミー・ザ・ハロウィン / マミー・ザ・ハロウィン"</item>
         <item>"特命機動アクセル / ダーティー・アクセル / ダーティー・アクセル"</item>
-        <item>"776-1"</item>
+        <item>"776_1"</item>
         <item>"見習い武者ネコ / 武将ネコ / 武将ネコ"</item>
         <item>"冬将軍・成田甲斐 / 冬大将軍・成田甲斐 / 冬大将軍・成田甲斐"</item>
         <item>"ネコまどか＆ほむら / 魔法結社にゃんこ☆マギカ / 魔法結社にゃんこ☆マギカ"</item>
         <item>"幼天女ルーナ / 救済の天女ルナーシャ / 救済の天女ルナーシャ"</item>
         <item>"ネコボウラー / ネコドッジボウラー / ネコドッジボウラー"</item>
         <item>"マモルガ / マモランパサラン / マモランパサラン"</item>
-        <item>"783-1"</item>
+        <item>"783_1"</item>
         <item>"こねこ / 超スターこねこ / 超スターこねこ"</item>
         <item>"チョコサプネコC / チョコサプネコF / チョコサプネコF"</item>
         <item>"殺意のキモネコ / 真・殺意のキモネコ / 真・殺意のキモネコ"</item>
@@ -2812,9 +2825,9 @@
         <item>"ネコ海王 / ネコ海王CC / ネコ海王CC"</item>
         <item>"ネコ独歩 / ネコ独歩CC / ネコ独歩CC"</item>
         <item>"曲射砲台ランチャーズ / 迎撃砲隊ガンハウザー / 迎撃砲隊ガンハウザー"</item>
-        <item>"801-1"</item>
+        <item>"801_1"</item>
         <item>"理の賢者ニュトーン / 理の賢者ニャトーン / 理の賢者ニャトーン"</item>
-        <item>"802-1"</item>
+        <item>"803_1"</item>
         <item>"ソニック / ソニック＆ネコ / ソニック＆ネコ"</item>
         <item>"テイルス / テイルス＆ネコ / テイルス＆ネコ"</item>
         <item>"ナックルズ / ナックルズ＆ネコ / ナックルズ＆ネコ"</item>
@@ -2824,20 +2837,20 @@
         <item>"ネコシャドウ / ネコシャドウCC / ネコシャドウCC"</item>
         <item>"エージェント・スタール / エッジマスター・スタール / エッジマスター・スタール"</item>
         <item>"韋駄天スカンダ / スカンダゼタ / スカンダゼタ"</item>
-        <item>"812-1"</item>
+        <item>"813_1"</item>
         <item>"タスマニアオオガニ / タスマニアオオガニCC / タスマニアオオガニCC"</item>
         <item>"エヴァ量産機 / エヴァネコ量産機 / エヴァネコ量産機"</item>
         <item>"月影の少年カヲル / 落月のシ者カヲル / 落月のシ者カヲル"</item>
-        <item>"817-1"</item>
+        <item>"817_1"</item>
         <item>"樹の精霊コモリ / 樹木の精霊モリリン / 樹木の精霊モリリン"</item>
-        <item>"819-1"</item>
+        <item>"819_1"</item>
         <item>"ネコ大工 / ネコラッパー / ネコラッパー"</item>
         <item>"シーサイドペガサ / シーサイドペガサν / シーサイドペガサν"</item>
         <item>"822_1"</item>
         <item>"ネココンサルタント / ネコビジネスパートナー / ネコビジネスパートナー"</item>
         <item>"ネコ店長＆ネコ店員 / ネコ店長＆ネコ店員CC / ネコ店長＆ネコ店員CC"</item>
         <item>"魔導師シドミ / 炎の大魔導師シドミ / 炎の大魔導師シドミ"</item>
-        <item>"826-1"</item>
+        <item>"826_1"</item>
         <item>"キャミィ / キャミィCC / キャミィCC"</item>
         <item>"ジュリ / ジュリCC / ジュリCC"</item>
         <item>"ネコザンギエフ / ネコザンギエフCC / ネコザンギエフCC"</item>
@@ -2850,8 +2863,8 @@
         <item>"リボンにゃんこ / モモにゃんこ / モモにゃんこ"</item>
         <item>"ニャンコオー / 超グレートニャンコオーDX / 超グレートニャンコオーDX"</item>
         <item>"幼騎士ルーノ / 満月の騎士ルーノス / 満月の騎士ルーノス"</item>
-        <item>"839-1"</item>
-        <item>"840-1"</item>
+        <item>"839_1"</item>
+        <item>"840_1"</item>
         <item>"竈門炭治郎 / 竈門炭治郎CC / 竈門炭治郎CC"</item>
         <item>"竈門禰󠄀豆子 / 竈門禰󠄀豆子CC / 竈門禰󠄀豆子CC"</item>
         <item>"我妻善逸 / 我妻善逸CC / 我妻善逸CC"</item>
@@ -2887,13 +2900,19 @@
         <item>"ジャングルハンタートモエ / ジャングルマスタートモエ / ジャングルマスタートモエ"</item>
         <item>"ロックこねこ / ロックスターこねこ / ロックスターこねこ"</item>
         <item>"りゅういち / りゅういち＆りゅうじ / りゅういち＆りゅうじ"</item>
-        <item>"735_1"</item>
-        <item>"756-1"</item>
+        <item>"876_1"</item>
+        <item>"877_1"</item>
         <item>"いなばの白うさぎ / メガシャークVS白うさぎ / メガシャークVS白うさぎ"</item>
         <item>"悠久山安慈 / 悠久山安慈CC / 悠久山安慈CC"</item>
         <item>"瀬田宗次郎 / 瀬田宗次郎CC / 瀬田宗次郎CC"</item>
         <item>"志々雄真実 / 志々雄真実CC / 志々雄真実CC"</item>
         <item>"比古清十郎 / 比古清十郎CC / 比古清十郎CC"</item>
+        <item>"監獄ネコ / 脱獄ネコ / 脱獄ネコ"</item>
+        <item>"監獄ネコガール / 脱獄ネコガール / 脱獄ネコガール"</item>
+        <item>"監獄タンクネコ / 脱獄ネコカベ / 脱獄ネコカベ"</item>
+        <item>"監獄ちびネコ / 脱獄ちびネコアーマー / 脱獄ちびネコアーマー"</item>
+        <item>"悠久の冒険者エターニス / 真理の探究者エターニス / 真理の探究者エターニス"</item>
+        <item>"888_1"</item>
     </string-array>
     <string-array name="cat_names_kr">
         <item>"고양이 / 고양이 빌더 / 고양이 모히칸"</item>
@@ -3778,6 +3797,12 @@
         <item>" /  / "</item>
         <item>" /  / "</item>
         <item>" /  / "</item>
+        <item>""</item>
+        <item>""</item>
+        <item>""</item>
+        <item>""</item>
+        <item>""</item>
+        <item>""</item>
     </string-array>
     <!-- END GENERATED CAT NAMES -->
 </resources>
