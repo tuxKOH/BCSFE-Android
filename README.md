@@ -96,6 +96,9 @@ removed after each comparison.
 
 ## Verification status
 
+Advertising has been removed. Upload and root loading use native confirmation
+dialogs without banners, pop-ups or an advertising delay.
+
 The About page's sponsor list is maintained in [sponsors.json](sponsors.json).
 Opening the list fetches the GitHub Raw file again; names are not compiled into
 the APK. Edit that JSON on the default branch to update the list without a release.

@@ -4,18 +4,11 @@ plugins {
     id("com.android.application")
 }
 
-val envValues = rootProject.file(".env").takeIf { it.isFile }?.readLines()?.mapNotNull { line ->
-    val clean = line.substringBefore('#').trim()
-    if (clean.isEmpty() || !clean.contains('=')) null else clean.substringBefore('=').trim() to clean.substringAfter('=').trim()
-}?.toMap().orEmpty()
-val adsEnabled = envValues["Ads"]?.equals("true", ignoreCase = true) == true
 val localProperties = Properties().apply {
     val file = rootProject.file("local.properties")
     if (file.isFile) file.inputStream().use { load(it) }
 }
-val adsterraScriptUrl = localProperties.getProperty("adsterra.scriptUrl", "").trim()
 val seedApiUrl = localProperties.getProperty("seedApi.url", "https://bcsfe.cutefireflyuwu.sbs/api/seed").trim()
-require(!adsEnabled || adsterraScriptUrl.startsWith("https://")) { "Ads=True requires an https:// adsterra.scriptUrl in local.properties" }
 fun quotedBuildConfig(value: String) = "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
 val generatedOffsetsDir = layout.buildDirectory.dir("generated/source/offsets/java")
@@ -61,8 +54,6 @@ android {
         versionName = "1.4.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("boolean", "ADS_ENABLED", adsEnabled.toString())
-        buildConfigField("String", "ADSTERRA_SCRIPT_URL", quotedBuildConfig(adsterraScriptUrl))
         buildConfigField("String", "SEED_API_URL", quotedBuildConfig(seedApiUrl))
     }
 

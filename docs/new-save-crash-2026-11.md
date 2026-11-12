@@ -70,3 +70,10 @@ requests and malformed/oversized HTTP responses. Both locales fetch and refresh
 all 11 remote sponsor names. Emulator batch checks cover selections retained
 across ID searches, restored checked rows, expandable titles and form edits.
 Exported saves match the intended individual edits byte for byte.
+
+Advertising was removed before publication: upload/root loading use native
+confirmation dialogs, without advertising scripts, banners or a minimum
+advertising display delay. The sponsor notice and remote directory remain.
+The ad-free APK was checked for former advertising references. Emulator checks
+verified native upload/root confirmations and the default replacement-account
+checkbox; an actual upload completed and displayed transfer codes successfully.

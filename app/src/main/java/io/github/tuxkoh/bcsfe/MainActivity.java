@@ -20,12 +20,6 @@ import android.widget.Toast;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.AdapterView;
-import android.webkit.WebChromeClient;
-import android.webkit.WebResourceError;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebResourceResponse;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -66,9 +60,6 @@ public final class MainActivity extends AppCompatActivity {
     /** Dismissal lasts for this process, including Activity/locale recreation. */
     private static boolean coffeeNoticeDismissed;
     private String incompleteTailWarningKey;
-    private static final String AD_LOG_TAG="BCSFE-Ad";
-    private static final String AD_BANNER_KEY="07ba53153a8f351bc72f09591c4df8d1";
-    private static final String AD_BANNER_SCRIPT_URL="https://www.highrevenueformat.com/07ba53153a8f351bc72f09591c4df8d1/invoke.js";
     private FrameLayout content;
     private TextView title;
     private byte[] workingCopy;
@@ -85,9 +76,6 @@ public final class MainActivity extends AppCompatActivity {
     private View sessionScrim;
     private ListView sessionList;
     private Screen screenBeforeAbout = Screen.HOME;
-    private boolean adUploadInProgress;
-    private boolean adScriptReady;
-    private boolean adWindowCreated;
     private final ExecutorService networkExecutor=Executors.newSingleThreadExecutor();
     private final ExecutorService seedExecutor=Executors.newSingleThreadExecutor();
     private boolean seedRequestInFlight;
@@ -786,7 +774,6 @@ public final class MainActivity extends AppCompatActivity {
         beginUploadConfirmation();
     }
     private void beginUploadConfirmation() {
-        if(BuildConfig.ADS_ENABLED){showAdActionConfirmation(true);return;}
         android.widget.CheckBox replacementChoice=replacementAccountChoice(true);
         new AlertDialog.Builder(this).setTitle(R.string.upload_transfer).setMessage(R.string.upload_warning)
                 .setView(replacementChoice)
@@ -808,120 +795,28 @@ public final class MainActivity extends AppCompatActivity {
             new AlertDialog.Builder(this).setTitle(R.string.root_write_save).setMessage(R.string.root_replacement_unsupported)
                     .setPositiveButton(R.string.close,null).show();return;
         }
-        if (BuildConfig.ADS_ENABLED) { showAdActionConfirmation(false); return; }
         String target=rootWritePackage==null?regionDisplay(document.region()):rootWritePackage;
         android.widget.CheckBox replacementChoice=replacementAccountChoice(false);
         new AlertDialog.Builder(this).setTitle(R.string.root_write_save)
                 .setMessage(getString(R.string.root_write_confirm, target)).setView(replacementChoice)
-                .setNegativeButton(R.string.close, null).setPositiveButton(R.string.root_ad_action, (d,w)->writeCurrentSaveToGame(replacementChoice.isChecked())).show();
+                .setNegativeButton(R.string.close, null).setPositiveButton(R.string.root_write_action, (d,w)->writeCurrentSaveToGame(replacementChoice.isChecked())).show();
     }
 
-    private void showAdActionConfirmation(boolean upload) {
-        if(BuildConfig.ADSTERRA_SCRIPT_URL.isEmpty())return;
-        adUploadInProgress=false;
-        adScriptReady=false;
-        adWindowCreated=false;
-        int adHeight=Math.min(dp(680),(int)(getResources().getDisplayMetrics().heightPixels*.78f));
-        FrameLayout adContainer=new FrameLayout(this);adContainer.setMinimumHeight(adHeight);
-        WebView adView=createAdWebView(adContainer);adContainer.addView(adView,new FrameLayout.LayoutParams(-1,adHeight));
-        android.widget.CheckBox replacementChoice=replacementAccountChoice(upload);
-        LinearLayout adLayout=new LinearLayout(this);adLayout.setOrientation(LinearLayout.VERTICAL);
-        adLayout.addView(adContainer,new LinearLayout.LayoutParams(-1,0,1));
-        adLayout.addView(replacementChoice,new LinearLayout.LayoutParams(-1,-2));
-        AlertDialog dialog=new AlertDialog.Builder(this).setView(adLayout).setNegativeButton(R.string.close,null).create();
-        dialog.setCanceledOnTouchOutside(false);
-        final boolean[] uploadStarted={false};
-        final float[] touchDown={0f,0f};
-        adView.setOnTouchListener((view,event)->{
-            if(event.getActionMasked()==android.view.MotionEvent.ACTION_DOWN){
-                touchDown[0]=event.getX();touchDown[1]=event.getY();
-            }
-            if(event.getActionMasked()!=android.view.MotionEvent.ACTION_UP||uploadStarted[0]||!adScriptReady)return false;
-            int slop=android.view.ViewConfiguration.get(this).getScaledTouchSlop();
-            if(Math.abs(event.getX()-touchDown[0])>slop||Math.abs(event.getY()-touchDown[1])>slop)return false;
-            float x=event.getX()/Math.max(1f,view.getWidth()),y=event.getY()/Math.max(1f,view.getHeight());
-            // Query the live DOM after scrolling or asynchronous banner layout changes.
-            String hitTest="(function(){var e=document.getElementById('ad-trigger');if(!e)return false;var b=e.getBoundingClientRect();var x="+x+"*innerWidth,y="+y+"*innerHeight;return x>=b.left&&x<=b.right&&y>=b.top&&y<=b.bottom;})()";
-            adView.evaluateJavascript(hitTest,value->{
-                if(!dialog.isShowing()||uploadStarted[0]||!"true".equals(value))return;
-                uploadStarted[0]=true;adUploadInProgress=true;
-                replacementChoice.setEnabled(false);
-                boolean started=upload?uploadAndShowTransferCodes(dialog::dismiss,8000,replacementChoice.isChecked()):writeCurrentSaveToGame(dialog::dismiss,8000,replacementChoice.isChecked());
-                if(!started){uploadStarted[0]=false;adUploadInProgress=false;replacementChoice.setEnabled(true);}
-            });
-            return false;
-        });
-        dialog.setOnDismissListener(d->{android.util.Log.d(AD_LOG_TAG,"dialog dismissed childCount="+adContainer.getChildCount());adUploadInProgress=false;adScriptReady=false;adWindowCreated=false;for(int i=0;i<adContainer.getChildCount();i++){View child=adContainer.getChildAt(i);if(child instanceof WebView){((WebView)child).stopLoading();((WebView)child).destroy();}}adContainer.removeAllViews();});
-        dialog.show();
-        String scriptUrl=android.text.TextUtils.htmlEncode(BuildConfig.ADSTERRA_SCRIPT_URL),titleText=android.text.TextUtils.htmlEncode(getString(upload?R.string.upload_transfer:R.string.root_write_save)),messageText=android.text.TextUtils.htmlEncode(upload?getString(R.string.upload_warning_with_ad):getString(R.string.root_write_confirm,rootWritePackage==null?regionDisplay(document.region()):rootWritePackage)+"\n\n"+getString(R.string.root_ad_warning)),uploadText=android.text.TextUtils.htmlEncode(getString(upload?R.string.upload_confirm:R.string.root_ad_action));
-        String bannerDocument="<!doctype html><html><head><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>html,body{margin:0;height:60px;overflow:hidden}</style></head><body><script>atOptions={key:'"+AD_BANNER_KEY+"',format:'iframe',height:60,width:468,params:{}};</script><script src=\""+AD_BANNER_SCRIPT_URL+"\"></script></body></html>";
-        String banner="<div class=\"banner\"><iframe title=\"Advertisement\" sandbox=\"allow-scripts allow-popups\" style=\"border:0;width:100%;height:60px\" srcdoc=\""+android.text.TextUtils.htmlEncode(bannerDocument)+"\"></iframe></div>";
-        String html="<!doctype html><html><head><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\"><style>html{height:100%}html,body{width:100%;min-height:100%;margin:0;background:#fff;color:#202124;font-family:system-ui,sans-serif}body{box-sizing:border-box;display:flex;flex-direction:column;padding:24px;overflow-y:auto}h1{font-size:22px;margin:0 0 18px}p{font-size:16px;line-height:1.5;white-space:pre-line;margin:0}.banner{width:468px;max-width:100%;height:60px;flex-shrink:0;margin:22px auto;overflow:hidden}.actions{display:flex;justify-content:flex-end;align-items:center;margin-top:auto;padding-top:24px;padding-bottom:8px}#ad-trigger{box-sizing:border-box;min-height:48px;padding:14px 20px;border-radius:6px;font-size:15px;font-weight:600;background:#1f5eff;color:#fff;cursor:pointer}#ad-trigger.disabled{opacity:.45}</style></head><body><h1>"+titleText+"</h1><p>"+messageText+"</p>"+banner+"<div class=\"actions\"><div id=\"ad-trigger\" class=\"disabled\" role=\"button\" aria-disabled=\"true\">"+uploadText+"</div></div><script src=\""+scriptUrl+"\"></script></body></html>";
-        adView.loadDataWithBaseURL("https://appassets.androidplatform.net/",html,"text/html","UTF-8",null);
-    }
-    private WebView createAdWebView(FrameLayout container) {
-        WebView webView=new WebView(this);webView.setWebViewClient(new WebViewClient(){
-            @Override public WebResourceResponse shouldInterceptRequest(WebView view,WebResourceRequest request){if(BuildConfig.ADSTERRA_SCRIPT_URL.equals(request.getUrl().toString()))android.util.Log.d(AD_LOG_TAG,"ad script resource requested");return super.shouldInterceptRequest(view,request);}
-            @Override public boolean shouldOverrideUrlLoading(WebView view,WebResourceRequest request){return handleAdNavigation(view,request.getUrl().toString());}
-            @Override public boolean shouldOverrideUrlLoading(WebView view,String url){return handleAdNavigation(view,url);}
-            @Override public void onPageStarted(WebView view,String url,android.graphics.Bitmap favicon){android.util.Log.d(AD_LOG_TAG,"page started scheme="+safeScheme(url));}
-            @Override public void onPageFinished(WebView view,String url){android.util.Log.d(AD_LOG_TAG,"page finished scheme="+safeScheme(url));if(!adUploadInProgress){adScriptReady=true;view.evaluateJavascript("var b=document.getElementById('ad-trigger');if(b){b.classList.remove('disabled');b.setAttribute('aria-disabled','false')}",null);android.util.Log.d(AD_LOG_TAG,"script ready");}promoteAdPageIfReady(container,view,url);}
-            @Override public void onReceivedError(WebView view,WebResourceRequest request,WebResourceError error){android.util.Log.w(AD_LOG_TAG,"resource error main="+request.isForMainFrame()+" code="+error.getErrorCode()+" scheme="+safeScheme(request.getUrl().toString()));}
-            @Override public void onReceivedHttpError(WebView view,WebResourceRequest request,WebResourceResponse response){android.util.Log.w(AD_LOG_TAG,"resource HTTP main="+request.isForMainFrame()+" status="+response.getStatusCode()+" scheme="+safeScheme(request.getUrl().toString()));}
-        });
-        android.webkit.CookieManager cookies=android.webkit.CookieManager.getInstance();
-        cookies.setAcceptCookie(true);cookies.setAcceptThirdPartyCookies(webView,true);
-        android.webkit.WebSettings settings=webView.getSettings();
-        settings.setJavaScriptEnabled(true);settings.setDomStorageEnabled(true);settings.setDatabaseEnabled(true);
-        settings.setCacheMode(android.webkit.WebSettings.LOAD_DEFAULT);settings.setLoadWithOverviewMode(false);settings.setUseWideViewPort(true);
-        settings.setJavaScriptCanOpenWindowsAutomatically(true);settings.setSupportMultipleWindows(true);
-        settings.setAllowFileAccess(false);settings.setAllowContentAccess(false);settings.setMediaPlaybackRequiresUserGesture(true);
-        if(android.os.Build.VERSION.SDK_INT>=android.os.Build.VERSION_CODES.O)settings.setSafeBrowsingEnabled(true);
-        webView.setWebChromeClient(new WebChromeClient(){@Override public boolean onCreateWindow(WebView view,boolean isDialog,boolean isUserGesture,android.os.Message resultMsg){android.util.Log.d(AD_LOG_TAG,"window requested userGesture="+isUserGesture);if(!isUserGesture||adWindowCreated){android.util.Log.d(AD_LOG_TAG,"window rejected");return false;}adWindowCreated=true;WebView popup=createAdWebView(container);popup.setVisibility(View.INVISIBLE);container.addView(popup,new FrameLayout.LayoutParams(-1,container.getHeight()>0?container.getHeight():dp(480)));WebView.WebViewTransport transport=(WebView.WebViewTransport)resultMsg.obj;transport.setWebView(popup);resultMsg.sendToTarget();return true;}});
-        return webView;
-    }
-    private void promoteAdPageIfReady(FrameLayout container,WebView candidate,String url){
-        if(!adUploadInProgress||url==null)return;
-        String scheme=Uri.parse(url).getScheme();if(!"http".equalsIgnoreCase(scheme)&&!"https".equalsIgnoreCase(scheme))return;
-        candidate.evaluateJavascript("document.getElementById('ad-trigger')!==null",value->{android.util.Log.d(AD_LOG_TAG,"page classified warning="+value);if(!adUploadInProgress||!"false".equals(value))return;for(int i=0;i<container.getChildCount();i++){View child=container.getChildAt(i);if(child instanceof WebView)child.setVisibility(child==candidate?View.VISIBLE:View.INVISIBLE);}candidate.bringToFront();android.util.Log.d(AD_LOG_TAG,"ad page promoted");});
-    }
-    private static String safeScheme(String url){if(url==null)return "none";String scheme=Uri.parse(url).getScheme();return scheme==null?"none":scheme;}
-    private boolean handleAdNavigation(WebView view,String url) {
-        if(url==null)return true;
-        Uri uri=Uri.parse(url);String scheme=uri.getScheme();
-        if(scheme==null||scheme.equalsIgnoreCase("http")||scheme.equalsIgnoreCase("https")||scheme.equalsIgnoreCase("about")||scheme.equalsIgnoreCase("data"))return false;
-        android.util.Log.d(AD_LOG_TAG,"blocked navigation scheme="+scheme);
-        if(scheme.equalsIgnoreCase("intent")){
-            try{
-                Intent intent=Intent.parseUri(url,Intent.URI_INTENT_SCHEME);
-                String fallback=intent.getStringExtra("browser_fallback_url");
-                if(fallback!=null&&"https".equalsIgnoreCase(Uri.parse(fallback).getScheme()))view.loadUrl(fallback);
-            }catch(Exception ignored){}
-        }
-        return true;
-    }
     private boolean uploadAndShowTransferCodes(boolean createReplacement) {
-        return uploadAndShowTransferCodes(null,0,createReplacement);
-    }
-    private boolean uploadAndShowTransferCodes(Runnable completed,long minimumDisplayMillis,boolean createReplacement) {
         if(!persistSession(true))return false;
-        long startedAt=android.os.SystemClock.elapsedRealtime();
         Toast.makeText(this,R.string.uploading,Toast.LENGTH_SHORT).show();
         byte[] source=document.toBytes();
         SaveDocument.Region sourceRegion=document.region();
         String savedPassword=accountPassword;
-        networkExecutor.execute(()->{try{SaveDocument uploadSource=SaveDocument.openForUpload(source, sourceRegion);TransferClient.UploadResult result=TransferClient.upload(uploadSource,savedPassword,createReplacement);SaveDocument replacement=uploadSource.canAttemptUnsafeUpload() ? SaveDocument.openForInspection(result.updatedSave, uploadSource.region()) : SaveDocument.open(result.updatedSave);runAfterMinimumDelay(startedAt,minimumDisplayMillis,()->{document=replacement;workingCopy=result.updatedSave;accountPassword=result.password;persistSession(true);if(completed!=null)completed.run();showTransferCodes(result);});}catch(Exception e){logNetworkFailure("upload",e,source);runAfterMinimumDelay(startedAt,minimumDisplayMillis,()->{if(completed!=null)completed.run();Toast.makeText(this,R.string.upload_failed,Toast.LENGTH_LONG).show();});}});
+        networkExecutor.execute(()->{try{SaveDocument uploadSource=SaveDocument.openForUpload(source, sourceRegion);TransferClient.UploadResult result=TransferClient.upload(uploadSource,savedPassword,createReplacement);SaveDocument replacement=uploadSource.canAttemptUnsafeUpload() ? SaveDocument.openForInspection(result.updatedSave, uploadSource.region()) : SaveDocument.open(result.updatedSave);runOnUiThread(()->{document=replacement;workingCopy=result.updatedSave;accountPassword=result.password;persistSession(true);showTransferCodes(result);});}catch(Exception e){logNetworkFailure("upload",e,source);runOnUiThread(()->{Toast.makeText(this,R.string.upload_failed,Toast.LENGTH_LONG).show();});}});
         return true;
     }
 
-    private void writeCurrentSaveToGame(boolean createReplacement) { writeCurrentSaveToGame(null, 0,createReplacement); }
-
-    private boolean writeCurrentSaveToGame(Runnable completed, long minimumDisplayMillis,boolean createReplacement) {
+    private boolean writeCurrentSaveToGame(boolean createReplacement) {
         if (!rootAvailable || document == null) { Toast.makeText(this, R.string.root_not_detected, Toast.LENGTH_SHORT).show(); return false; }
         if(rootWriteInProgress)return false;
         if (!persistSession(true)) return false;
         rootWriteInProgress=true;
-        long startedAt = android.os.SystemClock.elapsedRealtime();
         String targetPackage = rootWritePackage;
         SaveDocument sourceDocument=document;
         String sourceSession=sessionId;
@@ -944,9 +839,8 @@ public final class MainActivity extends AppCompatActivity {
                     android.util.Log.e("BCSFE-Network","root-replacement-session failed: "+TransferClient.safeError(cacheError));
                 }
                 SessionStore.Session saved=cached;
-                runAfterMinimumDelay(startedAt, minimumDisplayMillis, () -> {
+                runOnUiThread(() -> {
                     rootWriteInProgress=false;
-                    if(completed!=null)completed.run();
                     if(!activityActive())return;
                     try {
                         if(saved==null){Toast.makeText(this,R.string.root_replacement_session_failed,Toast.LENGTH_LONG).show();return;}
@@ -963,31 +857,27 @@ public final class MainActivity extends AppCompatActivity {
                     }
                 });
             } catch (UnsupportedOperationException | IllegalArgumentException error) {
-                runAfterMinimumDelay(startedAt,minimumDisplayMillis,()->{
+                runOnUiThread(()->{
                     rootWriteInProgress=false;
-                    if(completed!=null)completed.run();
                     if(activityActive())new AlertDialog.Builder(this).setTitle(R.string.root_write_save)
                             .setMessage(R.string.root_replacement_unsupported).setPositiveButton(R.string.close,null).show();
                 });
             } catch (RootSaveLoader.AccountCreationFailure error) {
                 logNetworkFailure("root-replacement-account",error,null);
-                runAfterMinimumDelay(startedAt,minimumDisplayMillis,()->{
+                runOnUiThread(()->{
                     rootWriteInProgress=false;
-                    if(completed!=null)completed.run();
                     if(activityActive())Toast.makeText(this,R.string.root_replacement_failed,Toast.LENGTH_LONG).show();
                 });
             } catch (Exception error) {
                 reportError("root-save-write", error, null);
-                runAfterMinimumDelay(startedAt, minimumDisplayMillis, () -> {
+                runOnUiThread(() -> {
                     rootWriteInProgress=false;
-                    if (completed != null) completed.run();
                     if(activityActive())Toast.makeText(this, R.string.root_write_failed, Toast.LENGTH_LONG).show();
                 });
             }
         });
         return true;
     }
-    private void runAfterMinimumDelay(long startedAt,long minimumDelayMillis,Runnable action){long elapsed=android.os.SystemClock.elapsedRealtime()-startedAt;content.postDelayed(action,Math.max(0,minimumDelayMillis-elapsed));}
     private void showTransferCodes(TransferClient.UploadResult result) {
         String text=getString(R.string.transfer_result,result.transferCode,result.pin);
         AlertDialog codes = new AlertDialog.Builder(this).setTitle(R.string.upload_success).setMessage(text).setNegativeButton(R.string.close,null)
