@@ -1,6 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="sponsors_title">Sponsors</string>
+    <string name="sponsors_unranked">Names are listed in no particular order.</string>
+    <string name="sponsors_loading">Loading sponsors…</string>
+    <string name="sponsors_failed">Could not load the sponsor list. Check your connection and retry.</string>
+    <string name="sponsors_empty">No sponsors are listed yet.</string>
+    <string name="sponsors_retry">Refresh</string>
+    <string name="cat_batch_select">Batch</string>
+    <string name="cat_batch_done">Done (%1$d)</string>
+    <string name="cat_batch_cancel">Cancel selection</string>
+    <string name="cat_batch_title">%1$s… · %2$d cats</string>
+    <string name="cat_batch_separator">, </string>
+    <string name="cat_batch_show_selection">View all %1$d selected cats</string>
+    <string name="cat_batch_selection">Selected cats (%1$d)</string>
+    <string name="cat_batch_unlocked">Set unlocked state</string>
+    <string name="cat_batch_base">Set base level</string>
+    <string name="cat_batch_plus">Set plus level</string>
+    <string name="cat_batch_reset_confirm">Remove and fully reset these %1$d selected cats? Levels, forms, Cat Guide rewards, Catseyes and talents will be cleared.</string>
+    <string-array name="cat_batch_actions"><item>Set unlocked state</item><item>Set base level</item><item>Set plus level</item><item>Choose current form</item><item>Remove and fully reset selected cats</item></string-array>
     <string name="coffee_notice">If you find this useful, buy me a coffee~ https://ifdian.net/a/tuxjhtd</string>
+    <string name="incomplete_tail_title">Incomplete save records</string>
+    <string name="incomplete_tail_message">This save is missing native records after version 15.3. Older BCSFE versions could create this incomplete layout, causing the game to use excessive memory or close when loading it. Repair appends the missing default records while preserving your existing edits. The original and edit history remain available. Repair is required before uploading, loading into the game or exporting this working copy.</string>
+    <string name="incomplete_tail_repair">Repair missing records</string>
     <string name="replace_account_before_upload">Create a replacement account before uploading?</string>
     <string name="replace_account_before_load">Create a replacement account before loading?</string>
     <string name="root_read_confirm">Read a save copy from %1$s? The original game save will remain unchanged.</string>

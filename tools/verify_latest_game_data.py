@@ -72,6 +72,11 @@ def main():
             expected = load(template)
             expected.set_gv(core.GameVersion.from_string(snapshot["version"]))
             expected.cats.cats.extend(core.Cat.init(i) for i in range(len(expected.cats.cats), snapshot["cat_count"]))
+            # Upstream stops at marker 150300 and preserves its remaining bytes.
+            # The native game needs the newer records, even for a brand-new save.
+            native_fixture = "jp-16.0.1" if snapshot["version"].startswith("16.") else "tw-15.7.0"
+            native_tail = bytes.fromhex((ROOT / f"app/src/test/resources/native_tails/{native_fixture}-default-continuation.hex").read_text())
+            expected.remaining_data += native_tail
             raw = (out / (region + "-new.save")).read_bytes()
             equal(region + " new save vs upstream serializer", expected.to_data().get_bytes(), raw)
             equal(region + " parsed round trip", load(raw).to_data().get_bytes(), raw)

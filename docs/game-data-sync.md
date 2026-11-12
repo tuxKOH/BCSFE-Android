@@ -85,11 +85,19 @@ The bundled scrubbed 15.5 templates remain immutable regression fixtures.
 version, and expands all nine per-cat serialized lists using upstream
 `Cat.init` defaults. Existing template cat states and unknown bytes are preserved;
 new cats start locked at level 1. The existing rank reward capacity is retained
-or expanded as necessary. Account creation runs only after this structural
+or expanded as necessary. Native records after marker `150300` are generated
+for the target version as well; Python upstream treats this area as opaque, so
+serializer agreement alone cannot validate a new save. Account creation runs only after this structural
 upgrade succeeds and uses the same regional version in its requests.
 
 Normal import does not invoke the factory or resize/relabel an existing save.
 The format core stays independent of Android UI classes.
+
+The 1.4.3 investigation corrected incomplete trailers in earlier generated saves.
+See [the native loading investigation](new-save-crash-2026-11.md) for the
+version-specific fixtures and explicit repair behavior, and
+[the emulator CLI](battlecats-cli.md) for reproducible game loading checks.
+Future format updates must include native loading, beyond upstream comparisons.
 
 ## Verification on 2026-11-11 (1.4.2)
 

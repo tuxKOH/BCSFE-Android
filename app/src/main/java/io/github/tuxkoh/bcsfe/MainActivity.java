@@ -65,6 +65,7 @@ public final class MainActivity extends AppCompatActivity {
     private static final boolean LOCAL_API_ENABLED = false;
     /** Dismissal lasts for this process, including Activity/locale recreation. */
     private static boolean coffeeNoticeDismissed;
+    private String incompleteTailWarningKey;
     private static final String AD_LOG_TAG="BCSFE-Ad";
     private static final String AD_BANNER_KEY="07ba53153a8f351bc72f09591c4df8d1";
     private static final String AD_BANNER_SCRIPT_URL="https://www.highrevenueformat.com/07ba53153a8f351bc72f09591c4df8d1/invoke.js";
@@ -509,6 +510,29 @@ public final class MainActivity extends AppCompatActivity {
 
         showEditorCategories(view);
         showUnsupportedImportWarningIfNeeded();
+        if (document.hasIncompleteModernTail() && !String.valueOf(sessionId).equals(incompleteTailWarningKey)) {
+            incompleteTailWarningKey = String.valueOf(sessionId);
+            requestModernTailRepair(null);
+        }
+    }
+
+    private boolean requestModernTailRepair(Runnable next) {
+        if (document == null || !document.hasIncompleteModernTail()) return false;
+        SaveDocument expected = document;
+        new AlertDialog.Builder(this).setTitle(R.string.incomplete_tail_title)
+                .setMessage(R.string.incomplete_tail_message)
+                .setNegativeButton(R.string.close, null)
+                .setPositiveButton(R.string.incomplete_tail_repair, (dialog, which) -> {
+                    if (document != expected) return;
+                    try {
+                        document.repairIncompleteModernTail();
+                        workingCopy = document.toBytes();
+                        if (!persistSession(true, "repair_native_tail")) return;
+                        showEditor();
+                        if (next != null) next.run();
+                    } catch (Exception error) { showFieldError(error); }
+                }).show();
+        return true;
     }
 
     private void showUnsupportedImportWarningIfNeeded() {
@@ -752,6 +776,7 @@ public final class MainActivity extends AppCompatActivity {
     }
     private void confirmUpload() {
         if (document == null || (!document.hasItemProfile() && !document.canAttemptUnsafeUpload())) { unsupportedVersion(); return; }
+        if (requestModernTailRepair(this::confirmUpload)) return;
         if (document.canAttemptUnsafeUpload()) {
             new AlertDialog.Builder(this).setTitle(R.string.force_upload_title)
                     .setMessage(R.string.force_upload_message).setNegativeButton(R.string.close, null)
@@ -777,6 +802,7 @@ public final class MainActivity extends AppCompatActivity {
     }
     private void confirmRootWrite() {
         if (document == null) return;
+        if (requestModernTailRepair(this::confirmRootWrite)) return;
         if(rootWriteInProgress)return;
         if(!document.isOfficiallySupportedVersion()||!document.hasItemProfile()){
             new AlertDialog.Builder(this).setTitle(R.string.root_write_save).setMessage(R.string.root_replacement_unsupported)
@@ -1008,6 +1034,7 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     private void launchCreateDocument(String suggestedName) {
+        if (requestModernTailRepair(() -> launchCreateDocument(suggestedName))) return;
         try {
             createDocument.launch(suggestedName);
         } catch (ActivityNotFoundException | IllegalStateException error) {
@@ -1037,6 +1064,7 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     private void shareWorkingCopy() {
+        if (requestModernTailRepair(this::shareWorkingCopy)) return;
         if (workingCopy == null) return;
         try {
             File dir = new File(getCacheDir(), "exports");
@@ -1403,6 +1431,10 @@ public final class MainActivity extends AppCompatActivity {
         boolean[] hideAbnormal = {false};
         boolean[] ownedOnly = {false};
         boolean[] rarities = {true,true,true,true,true,true};
+        boolean[] batchMode = {false};
+        java.util.LinkedHashSet<Integer> selection = new java.util.LinkedHashSet<>();
+        MaterialButton batch = new MaterialButton(this);
+        batch.setText(R.string.cat_batch_select);
         EditText search = new EditText(this);
         search.setSingleLine(true);
         search.setHint(R.string.cat_search_hint);
@@ -1414,7 +1446,9 @@ public final class MainActivity extends AppCompatActivity {
         body.addView(empty);
         list.setEmptyView(empty);
         ArrayList<Integer> ids = new ArrayList<>();
-        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,new ArrayList<>());
+        ArrayList<CharSequence> rows = new ArrayList<>();
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,rows);
+        ArrayAdapter<CharSequence> batchAdapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_multiple_choice,rows);
         list.setAdapter(adapter);
         int count = document.catCount();
         String[] searchable = new String[count];
@@ -1448,6 +1482,9 @@ public final class MainActivity extends AppCompatActivity {
                 adapter.add(display);
             }
             adapter.notifyDataSetChanged();
+            batchAdapter.notifyDataSetChanged();
+            list.clearChoices();
+            if (batchMode[0]) for (int i=0;i<ids.size();i++) list.setItemChecked(i,selection.contains(ids.get(i)));
         };
         search.addTextChangedListener(new TextWatcher() {
             public void beforeTextChanged(CharSequence s,int start,int count,int after) {}
@@ -1461,6 +1498,7 @@ public final class MainActivity extends AppCompatActivity {
         title.setText(R.string.cat_picker_title);
         title.setTextSize(20);
         header.addView(title,new LinearLayout.LayoutParams(0,-2,1));
+        header.addView(batch,new LinearLayout.LayoutParams(-2,dp(48)));
         MaterialButton filters = new MaterialButton(this);
         filters.setIconResource(android.R.drawable.ic_menu_sort_by_size);
         filters.setIconTint(android.content.res.ColorStateList.valueOf(getColor(R.color.primary)));
@@ -1550,9 +1588,37 @@ public final class MainActivity extends AppCompatActivity {
             scroll.addView(options);
             new AlertDialog.Builder(this).setTitle(R.string.cat_filters).setView(scroll).setPositiveButton(R.string.close,null).show();
         });
-        AlertDialog picker = new AlertDialog.Builder(this).setCustomTitle(header).setView(body).setNegativeButton(R.string.close,null).create();
+        AlertDialog picker = new AlertDialog.Builder(this).setCustomTitle(header).setView(body)
+                .setNeutralButton(R.string.cat_batch_cancel,null).setNegativeButton(R.string.close,null).create();
+        batch.setOnClickListener(v -> {
+            if (!batchMode[0]) {
+                batchMode[0]=true;
+                list.setAdapter(batchAdapter);
+                list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+                batch.setText(getString(R.string.cat_batch_done,0));
+                batch.setEnabled(false);
+                picker.getButton(AlertDialog.BUTTON_NEUTRAL).setVisibility(View.VISIBLE);
+                filter.run();
+                return;
+            }
+            int[] chosen=selection.stream().mapToInt(Integer::intValue).toArray();
+            String[] chosenNames=new String[chosen.length];
+            for(int i=0;i<chosen.length;i++) {
+                int id=chosen[i];
+                String name=stage[0]<forms[id].length?forms[id][stage[0]]:"";
+                chosenNames[i]=getString(R.string.cat_named_title,name.isEmpty()?getString(R.string.cat_abnormal):name,id);
+            }
+            picker.dismiss();
+            new CatBatchEditor(this,document,chosen,chosenNames,this::persistApplied,this::showFieldError).show();
+        });
         list.setOnItemClickListener((parent,view,position,id)->{
             int selected=ids.get(position);
+            if(batchMode[0]) {
+                if(list.isItemChecked(position))selection.add(selected);else selection.remove(selected);
+                batch.setText(getString(R.string.cat_batch_done,selection.size()));
+                batch.setEnabled(!selection.isEmpty());
+                return;
+            }
             String selectedName = stage[0]<forms[selected].length ? forms[selected][stage[0]] : "";
             String editorTitle = getString(R.string.cat_named_title,selectedName.isEmpty()?getString(R.string.cat_abnormal):selectedName,selected);
             picker.dismiss();
@@ -1560,6 +1626,14 @@ public final class MainActivity extends AppCompatActivity {
         });
         filter.run();
         picker.show();
+        picker.getButton(AlertDialog.BUTTON_NEUTRAL).setVisibility(View.GONE);
+        picker.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v->{
+            batchMode[0]=false;selection.clear();list.clearChoices();
+            list.setChoiceMode(ListView.CHOICE_MODE_NONE);list.setAdapter(adapter);
+            batch.setText(R.string.cat_batch_select);batch.setEnabled(true);
+            picker.getButton(AlertDialog.BUTTON_NEUTRAL).setVisibility(View.GONE);
+            filter.run();
+        });
         picker.getWindow().setLayout(-1,(int)(getResources().getDisplayMetrics().heightPixels*0.8f));
         picker.getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
     }
@@ -2030,10 +2104,11 @@ public final class MainActivity extends AppCompatActivity {
         catch(Exception error){reportError("history-restore",error);Toast.makeText(this,R.string.history_restore_failed,Toast.LENGTH_LONG).show();}
     }
     private String historyDisplayLabel(String label) {
+        if("repair_native_tail".equals(label))return getString(R.string.incomplete_tail_repair);
         if(label!=null&&label.startsWith("feature:")){try{int id=Integer.parseInt(label.substring(8));String[] features=getResources().getStringArray(R.array.feature_names);if(id>=0&&id<features.length)return features[id];}catch(NumberFormatException ignored){}}
         if("batch".equals(label))return getString(R.string.history_batch_edit);if("edit".equals(label))return getString(R.string.history_generic_edit);return label==null||label.isEmpty()?getString(R.string.history_generic_edit):label;
     }
-    private String stableHistoryLabel(String requested) { if(activeFeatureId>=0)return "feature:"+activeFeatureId;return "batch".equals(requested)?"batch":"edit"; }
+    private String stableHistoryLabel(String requested) { if("repair_native_tail".equals(requested))return requested;if(activeFeatureId>=0)return "feature:"+activeFeatureId;return "batch".equals(requested)?"batch":"edit"; }
 
     private void showAbout() {
         screenBeforeAbout = screen;
@@ -2041,6 +2116,7 @@ public final class MainActivity extends AppCompatActivity {
         title.setText(R.string.about);
         View view = inflate(R.layout.screen_about);
         ((TextView) view.findViewById(R.id.version)).setText(getString(R.string.version_format, BuildConfig.VERSION_NAME));
+        view.findViewById(R.id.sponsorsButton).setOnClickListener(v -> SponsorsDialog.show(this,networkExecutor));
         view.findViewById(R.id.officialWebsite).setOnClickListener(v -> openUrl("https://bcsfe.cutefireflyuwu.sbs"));
         view.findViewById(R.id.qqGroup).setOnClickListener(v -> copyToClipboard("QQ", "760083692"));
         view.findViewById(R.id.discordServer).setOnClickListener(v -> copyToClipboard("Discord", "EE5HceeqYsS"));

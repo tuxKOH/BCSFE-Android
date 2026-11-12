@@ -3,9 +3,19 @@ package io.github.tuxkoh.bcsfe.core;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-/** Offline integration probe; inputs are bundled scrubbed templates only. */
+/** Offline format probe; --repair-tail also accepts local saves without logging their contents. */
 public final class GameDataProbe {
     public static void main(String[] args) throws Exception {
+        if(args.length==3&&"--repair-tail".equals(args[0])){
+            SaveDocument save=SaveDocument.open(Files.readAllBytes(Path.of(args[1])));
+            if(!save.repairIncompleteModernTail())throw new IllegalStateException("Not a recognized incomplete trailer");
+            Path output=Path.of(args[2]);
+            Files.createFile(output,java.nio.file.attribute.PosixFilePermissions.asFileAttribute(
+                    java.nio.file.attribute.PosixFilePermissions.fromString("rw-------")));
+            Files.write(output,save.toBytes());
+            System.out.println("Repaired native trailer: region="+save.region().code()+", version="+save.gameVersion());
+            return;
+        }
         if(args.length==3&&"--items".equals(args[0])){
             byte[] source=Files.readAllBytes(Path.of(args[1]));
             Path out=Path.of(args[2]);Files.createDirectories(out);

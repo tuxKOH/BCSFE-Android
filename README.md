@@ -96,6 +96,15 @@ removed after each comparison.
 
 ## Verification status
 
+The About page's sponsor list is maintained in [sponsors.json](sponsors.json).
+Opening the list fetches the GitHub Raw file again; names are not compiled into
+the APK. Edit that JSON on the default branch to update the list without a release.
+
+Native game regression testing uses the [Battle Cats emulator CLI](docs/battlecats-cli.md),
+which combines Android controls and local OCR, save backups and process diagnostics.
+See the [new-save loading investigation](docs/new-save-crash-2026-11.md) for the
+version-specific native trailer repair.
+
 - JVM tests cover region checksums, persistent sessions, item/cat/account
   editors, variable-length tables, game-version and region conversion, and
   fixed protocol signature vectors.

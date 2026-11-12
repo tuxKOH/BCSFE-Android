@@ -1,6 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="sponsors_title">赞助者名单</string>
+    <string name="sponsors_unranked">排名不分先后</string>
+    <string name="sponsors_loading">正在获取赞助者名单…</string>
+    <string name="sponsors_failed">获取赞助者名单失败，请检查网络后重试。</string>
+    <string name="sponsors_empty">暂无赞助者名单。</string>
+    <string name="sponsors_retry">刷新</string>
+    <string name="cat_batch_select">批量</string>
+    <string name="cat_batch_done">完成（%1$d）</string>
+    <string name="cat_batch_cancel">取消多选</string>
+    <string name="cat_batch_title">%1$s… · 共 %2$d 只</string>
+    <string name="cat_batch_separator">、</string>
+    <string name="cat_batch_show_selection">查看全部 %1$d 只已选猫咪</string>
+    <string name="cat_batch_selection">已选猫咪（%1$d）</string>
+    <string name="cat_batch_unlocked">设置解锁状态</string>
+    <string name="cat_batch_base">设置基础等级</string>
+    <string name="cat_batch_plus">设置加值等级</string>
+    <string name="cat_batch_reset_confirm">移除并完全重置选中的 %1$d 只猫咪？这将清除等级、形态、图鉴奖励、猫眼和本能等数据。</string>
+    <string-array name="cat_batch_actions"><item>设置解锁状态</item><item>设置基础等级</item><item>设置加值等级</item><item>选择当前形态</item><item>移除并完全重置所选猫咪</item></string-array>
     <string name="coffee_notice">觉得好用的话 给我买杯咖啡吧~ https://ifdian.net/a/tuxjhtd</string>
+    <string name="incomplete_tail_title">存档记录不完整</string>
+    <string name="incomplete_tail_message">此存档缺少 15.3 之后的原生记录。旧版 BCSFE 创建的存档可能存在此问题，导致游戏加载时内存异常增长或闪退。修复仅补齐缺失的默认记录，保留已有修改；原稿和操作历史仍可查看。上传、加载到游戏或导出工作副本前需要先修复。</string>
+    <string name="incomplete_tail_repair">修复缺失记录</string>
     <string name="replace_account_before_upload">是否创建替代账号再上传？</string>
     <string name="replace_account_before_load">是否创建替代账号再加载？</string>
     <string name="root_read_confirm">从%1$s读取存档副本？手机内的原存档不会被修改。</string>

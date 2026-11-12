@@ -28,6 +28,8 @@ public final class SaveDocument {
     }
 
     private byte[] bytes;
+    /** Only enabled on a private batch draft; its checksum is finalized once. */
+    private boolean deferHash;
     private Region region;
     private final int integerStart;
     private final int gameVersionOffset;
@@ -149,7 +151,28 @@ public final class SaveDocument {
         }
         document.convertGameVersion(GameVersions.latest(document.region));
         document.initializeLatestTemplateLists();
+        document.repairIncompleteModernTail();
         return document;
+    }
+
+    /** Recognizes the exact unfinished legacy trailer without changing imported bytes. */
+    public boolean hasIncompleteModernTail() {
+        if (!GameVersions.supported(region, gameVersion())) return false;
+        int end = bytes.length - Offsets.offsets_130, start = end - 112;
+        return start >= 0 && rawIntAt(start + 41) == 150000
+                && rawIntAt(start + 77) == 150100 && rawIntAt(start + 103) == 150200
+                && rawIntAt(start + 108) == 150300;
+    }
+
+    /** Explicit repair: append only missing native defaults; retain every existing field. */
+    public boolean repairIncompleteModernTail() {
+        if (!hasIncompleteModernTail()) return false;
+        byte[] continuation = ModernSaveTail.emptyContinuation(gameVersion());
+        int end = bytes.length - Offsets.offsets_130;
+        splice(end, 0, continuation.length);
+        System.arraycopy(continuation, 0, bytes, end, continuation.length);
+        refreshHash();
+        return true;
     }
 
     private void initializeLatestTemplateLists() {
@@ -519,8 +542,8 @@ public final class SaveDocument {
         if((source>=150500&&!GameVersions.supported(region,source))
                 ||(target>=150500&&!GameVersions.supported(region,target)))
             throw new UnsupportedOperationException("Version conversion requires a validated game series");
-        // Upstream through 16.0 keeps the 15.5 serialization gates. Regional
-        // rules and the new-save factory handle changing list capacities.
+        // Known prefix gates match upstream; the native trailer also needs its
+        // later records when an old, incomplete template is upgraded.
         int latest=GameVersions.latest(region);
         if(source>=140300&&source<=latest&&target==140000){
             if(source>=140500)convert140500EmbeddedLayout(source,140000);
@@ -537,7 +560,7 @@ public final class SaveDocument {
                 }
             }
             int start=findInt(140000)+4,end=findInt(140300)+4;splice(start,end-start,0);
-            putInt(gameVersionOffset,target);refreshHash();return;
+            putInt(gameVersionOffset,target);refreshHash();repairIncompleteModernTail();return;
         }
         if(source==140000&&target>=140300&&target<=latest){
             if(target>=140500)convert140500EmbeddedLayout(source,target);
@@ -548,7 +571,7 @@ public final class SaveDocument {
             tail[p++]=0;tail[p++]=0;p+=4;writeInt(tail,p,140200);p+=4;
             tail[p++]=0;p+=extra;tail[p++]=0;tail[p++]=0;p+=4;p+=2;tail[p++]=0;writeInt(tail,p,140300);
             splice(marker140000+4,0,tail.length);System.arraycopy(tail,0,bytes,marker140000+4,tail.length);
-            putInt(gameVersionOffset,target);refreshHash();return;
+            putInt(gameVersionOffset,target);refreshHash();repairIncompleteModernTail();return;
         }
         if(source<140300||source>latest||target<140300||target>latest)throw new UnsupportedOperationException("Version conversion exceeds the validated regional range");
         convert140500EmbeddedLayout(source,target);
@@ -561,6 +584,7 @@ public final class SaveDocument {
         else if(targetExtra>sourceExtra){splice(fields+sourceExtra,0,targetExtra-sourceExtra);Arrays.fill(bytes,fields+sourceExtra,fields+targetExtra,(byte)0);}
         putInt(gameVersionOffset,target);
         refreshHash();
+        repairIncompleteModernTail();
     }
     private void convert140500EmbeddedLayout(int source,int target) {
         boolean sourceLegacy=source<140500,targetLegacy=target<140500;
@@ -816,6 +840,35 @@ public final class SaveDocument {
     public int catUnlockedForms(int index) { checkCat(index); return intAt(catLayout().unlockedFormsStart+index*4); }
     public int catFourthForm(int index) { checkCat(index); return intAt(catLayout().fourthStart+index*4); }
     public boolean catGuideCollected(int index) { checkCat(index); return byteAt(catLayout().guideStart+index)!=0; }
+    public enum CatBatchEdit { UNLOCKED, BASE_LEVEL, PLUS_LEVEL, CURRENT_FORM, RESET }
+
+    /** Apply single-cat semantics to a selection, committing only after every cat succeeds. */
+    public void editSelectedCats(int[] ids, CatBatchEdit edit, int value) {
+        if (ids == null || ids.length == 0 || edit == null) throw new IllegalArgumentException("Empty cat edit");
+        ensureCatProfile();
+        for (int id : ids) checkCat(id);
+        if (edit == CatBatchEdit.UNLOCKED && value != 0 && value != 1)
+            throw new IllegalArgumentException("Invalid unlock state");
+        SaveDocument draft = new SaveDocument(bytes.clone(), region, integerStart, gameVersionOffset,
+                hashOffset, forcedUnsupported, uploadMode);
+        draft.deferHash = true;
+        for (int id : Arrays.stream(ids).distinct().toArray()) {
+            switch (edit) {
+                case UNLOCKED -> draft.setCatUnlocked(id, value == 1);
+                case BASE_LEVEL -> draft.setCatBaseLevel(id, value);
+                case PLUS_LEVEL -> draft.setCatPlusLevel(id, value);
+                case CURRENT_FORM -> draft.setCatCurrentForm(id, value);
+                case RESET -> draft.resetCat(id);
+            }
+        }
+        draft.deferHash = false;
+        draft.refreshHash();
+        bytes = draft.bytes;
+        catLayoutCache = null; akuLayoutCache = null;
+        cannonBaseCache = goldPassBaseCache = talentTableBaseCache = storageTableBaseCache = -1;
+        enigmaBaseCache = eventTableBaseCache = itfTimedScoreBaseCache = scratcherBaseCache = -1;
+        battleItemsBaseCache = unitDropsBaseCache = -1;
+    }
     public void setCatBaseLevel(int index,int value) {
         checkCat(index);
         checkDisplayedLevel(value);
@@ -1436,6 +1489,7 @@ public final class SaveDocument {
     }
 
     private void refreshHash() {
+        if (deferHash) return;
         int position = hashPosition();
         byte[] digestInput = Arrays.copyOf(bytes, position);
         byte[] digest = md5Bytes(region.salt(), digestInput);
