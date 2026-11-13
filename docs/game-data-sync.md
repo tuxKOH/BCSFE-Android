@@ -1,6 +1,6 @@
 # Regional BCData snapshots
 
-Snapshot checked on 2026-11-11, against BCSFE-Python `85fb94c` and BCData commit
+Snapshot checked on 2026-11-13, against BCSFE-Python `85fb94c` and BCData commit
 `8644713249966c10a880e056c2f3e58fe21cd4a3`. These releases were extracted from
 the official regional APKs using the BCData README workflow because upstream
 metadata has not listed them yet. Upstream source checkouts and caches stay
@@ -8,7 +8,7 @@ outside this repository.
 
 | Region | Version | unitbuy cat records | Known rank gifts |
 | --- | --- | --- | --- |
-| JP | 16.0.1 | 888 | 352 |
+| JP | 16.0.3 | 888 | 352 |
 | EN | 15.7.0 | 882 | 349 |
 | TW | 15.7.0 | 882 | 349 |
 | KR | 15.7.0 | 882 | 349 |
@@ -26,7 +26,7 @@ map crowns, scheme items, and Talent Orb grades/effects/attributes. Identical re
 are regenerated independently into both Android locales. Historical 15.5/15.6
 rules remain intact and are selected for saves of those versions. The previous
 JP 15.7.4 snapshot is also retained: JP saves through 15.7.4 use its 882-cat and
-349-reward tables, while 16.0.0/16.0.1 use the new 888-cat/352-reward snapshot.
+349-reward tables, while 16.0.0 through 16.0.3 use the new 888-cat/352-reward snapshot.
 
 The shared 15.5 serialization layout is also supported for intermediate patch
 versions, bounded by each region's latest snapshot above. As in upstream
@@ -34,7 +34,7 @@ versions, bounded by each region's latest snapshot above. As in upstream
 regional BCData snapshot. The original 15.5.0/15.6.0 rule tables remain selected
 for those exact versions; intermediate patches use the bundled newer snapshot.
 Importing or editing does not rewrite the save version. The conversion menu
-includes JP 15.7.1 through 15.7.4 and 16.0.0, regional 15.6.1 and 15.5.1, with checksum and layout checks
+includes JP 15.7.1 through 15.7.4 and 16.0.0 through 16.0.3, regional 15.6.1 and 15.5.1, with checksum and layout checks
 retained. Future regional versions above the verified ceiling remain unsupported.
 
 ## Updating
@@ -99,6 +99,44 @@ See [the native loading investigation](new-save-crash-2026-11.md) for the
 version-specific fixtures and explicit repair behavior, and
 [the emulator CLI](battlecats-cli.md) for reproducible game loading checks.
 Future format updates must include native loading, beyond upstream comparisons.
+
+## JP 16.0.3 update on 2026-11-13 (1.5.1)
+
+Upstream BCData metadata and BCSFE-Python's save parser still have no newer
+revision. JP 16.0.3 (APK version code 1600030) was therefore downloaded and
+extracted using the same BCData APKEditor/tbctk workflow. Both DataLocal and
+resLocal are byte-identical to the previously verified JP 16.0.1 packs: 888 cats,
+352 rank gifts, and the existing names, talents, medals, maps and 310 orb rules
+remain applicable. Archive provenance is recorded in game_data_sources.json.
+EN/TW/KR remain at 15.7.0.
+
+Native code does change the save format: after marker 160000, 16.0.3 serializes
+two short-counted int lists and marker 160003. New saves now include their empty
+defaults; conversion from a verified 16.0.0–16.0.2 trailer appends exactly eight
+bytes. Existing 16.0.3 lists, including populated lists, are preserved through
+editing and downgrade/re-upgrade. An upgrade with an unknown or malformed
+native trailer is rejected before any mutation. Python's remaining_data is
+opaque, so the new fixture is independently based on the native writer (see
+native_tails/README.md), rather than inferring the format from Python agreement.
+
+Debug and Release builds, including release lint checks, pass. Each JVM variant
+has 126 passing tests and 97 skipped cases for unavailable historical fixtures,
+with no failures. The independent tools pass 20,406 upstream/data comparisons
+and 88 item-record comparisons. English/Simplified Chinese debug UI checks
+cover JP 16.0.3 import, Cat Food edits, 16.0.3 → 16.0.1 → 16.0.3 conversion,
+and system-picker export/reimport; full exported bytes match expected saves.
+The JP 16.0.3 game also rewrites the new record with both empty lists intact.
+A fresh QA account was created from the completed factory save, uploaded and
+received through the native game's transfer form. Starting the received save
+reaches the cat base with battle controls and its welcome message; the game
+writes both new lists and marker 160003 normally. This uses a separate QA game
+package, without replacing the original installed game or any player's save.
+The game-written save imports losslessly into the Android core; seven item
+values match the Python reader. The optimized Release APK also passes English
+upgrade of a 16.0 trailer (ending at 160000), Cat Food editing and
+system-picker export with exact expected bytes, plus Simplified Chinese
+16.0.3 import/support-notice/export checks. The package retains the previous
+signing certificate and installs over the debug build.
 
 ## Verification on 2026-11-11 (1.4.2)
 

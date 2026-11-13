@@ -49,7 +49,7 @@
     <string name="update_notes_unavailable">此 Release 未提供更新日志。</string>
     <string name="view_release">查看 Release</string>
     <string name="open_release_failed">无法打开 Release 页面。</string>
-    <string name="supported_versions_notice">完整编辑支持 15.5.0 至日版 16.0.1、英版／台版／韩版 15.7.0，包含中间补丁版本。中间版本使用兼容的同地区 BCData，不更改存档原版本号。创建存档使用当前地区最新受支持版本。其他存档可以导入查看和导出，但未被正式支持。版本转换支持 14.0，以及 14.3 至当前地区最新受支持版本，包含日版 15.7.1 至 15.7.4 和 16.0.0 和各地区 15.6.1／15.5.1。</string>
+    <string name="supported_versions_notice">完整编辑支持 15.5.0 至日版 16.0.3、英版／台版／韩版 15.7.0，包含中间补丁版本。中间版本使用兼容的同地区 BCData，不更改存档原版本号。创建存档使用当前地区最新受支持版本。其他存档可以导入查看和导出，但未被正式支持。版本转换支持 14.0，以及 14.3 至当前地区最新受支持版本，包含日版 15.7.1 至 15.7.4 和 16.0.0 至 16.0.2，以及各地区 15.6.1／15.5.1。</string>
     <string name="unsupported_import_warning_title">版本未被正式支持</string>
     <string name="unsupported_import_warning">版本未被正式支持！异常猫名单或许缺乏，部分值或许为乱码！ 如果看到乱码值 请勿修改 可能会触发游戏数据异常提示导致封号！</string>
     <string name="language">语言</string><string name="change_language">切换语言</string><string name="choose_language">选择语言</string>

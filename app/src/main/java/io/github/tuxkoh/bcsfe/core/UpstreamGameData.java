@@ -606,7 +606,7 @@ final class UpstreamGameData {
             "7Nvatd73G9R7C1QUsf0Wsf8BMX+sjqcgAAA=");
 
     private static final Snapshot EN = new Snapshot(150700, TABLE_0, TABLE_1, TABLE_2, TABLE_3, TABLE_4, TABLE_5, TABLE_6, TABLE_7, TABLE_8, TABLE_9);
-    private static final Snapshot JP = new Snapshot(160001, TABLE_10, TABLE_11, TABLE_12, TABLE_13, TABLE_14, TABLE_15, TABLE_16, TABLE_17, TABLE_18, TABLE_9);
+    private static final Snapshot JP = new Snapshot(160003, TABLE_10, TABLE_11, TABLE_12, TABLE_13, TABLE_14, TABLE_15, TABLE_16, TABLE_17, TABLE_18, TABLE_9);
     private static final Snapshot TW = new Snapshot(150700, TABLE_0, TABLE_19, TABLE_20, TABLE_3, TABLE_4, TABLE_5, TABLE_21, TABLE_7, TABLE_22, TABLE_9);
     private static final Snapshot KR = new Snapshot(150700, TABLE_0, TABLE_23, TABLE_24, TABLE_3, TABLE_4, TABLE_5, TABLE_25, TABLE_7, TABLE_26, TABLE_9);
     private static final Snapshot JP_157 = new Snapshot(150704, TABLE_27, TABLE_28, TABLE_29, TABLE_3, TABLE_4, TABLE_30, TABLE_31, TABLE_7, TABLE_18, TABLE_9);

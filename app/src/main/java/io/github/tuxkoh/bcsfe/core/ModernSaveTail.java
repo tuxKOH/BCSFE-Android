@@ -3,14 +3,14 @@ package io.github.tuxkoh.bcsfe.core;
 import java.io.ByteArrayOutputStream;
 
 /** Native records after the 15.3 marker, absent from the legacy bundled templates.
- * Verified against game-written JP 16.0.1/TW 15.7.0 records and the native serializer.
+ * Verified against JP 16.0.1/16.0.3 and TW 15.7.0 native serializers.
  * Defaults contain no account identifiers, device values or timestamps.
  */
 final class ModernSaveTail {
     private ModernSaveTail() {}
 
     static byte[] emptyContinuation(int version) {
-        if (version < 150500 || version > 160001)
+        if (version < 150500 || version > 160003)
             throw new IllegalArgumentException("Unverified modern save trailer version");
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         // Markers terminate records. After marker 15.3 comes 15.4's boolean,
@@ -44,7 +44,40 @@ final class ModernSaveTail {
             zeros(out, 23); // 16.0's empty native records and final double
             integer(out, 160000);
         }
+        if (version >= 160003) {
+            // JP 16.0.3 adds two short-counted int lists (native 0x6b1448).
+            shortValue(out, 0); shortValue(out, 0);
+            integer(out, 160003);
+        }
         return out.toByteArray();
+    }
+
+    static byte[] version160003Defaults() {
+        return new byte[]{0, 0, 0, 0, 3, 0x71, 2, 0};
+    }
+
+    /** Validate the terminal record, including nonempty lists; reject ambiguous anchors. */
+    static boolean hasVersion160003Record(byte[] bytes, int end) {
+        if (end < 12 || integerAt(bytes, end - 4) != 160003) return false;
+        int matches = 0;
+        for (int start = Math.max(0, end - 262148); start <= end - 12; start++) {
+            if (integerAt(bytes, start) != 160000) continue;
+            int first = shortAt(bytes, start + 4);
+            if (first > 32767) continue;
+            int secondOffset = start + 6 + first * 4;
+            if (secondOffset > end - 6) continue;
+            int second = shortAt(bytes, secondOffset);
+            if (second <= 32767 && secondOffset + 2 + second * 4 == end - 4) matches++;
+        }
+        if (matches > 1) throw new IllegalStateException("Ambiguous 16.0.3 save trailer");
+        return matches == 1;
+    }
+
+    private static int shortAt(byte[] bytes, int offset) {
+        return (bytes[offset] & 255) | ((bytes[offset + 1] & 255) << 8);
+    }
+    private static int integerAt(byte[] bytes, int offset) {
+        return shortAt(bytes, offset) | (shortAt(bytes, offset + 2) << 16);
     }
 
     private static void zeros(ByteArrayOutputStream out, int count) {

@@ -2,7 +2,7 @@
   "source": "https://git.battlecatsmodding.org/fieryhenry/BCData",
   "upstream_parser": "85fb94cbf00c6a74dbef58932610fb94ec8f7495",
   "provenance": {
-    "checked_on": "2026-11-11",
+    "checked_on": "2026-11-13",
     "method": "APK extraction following the BCData README; these versions are not yet in upstream metadata",
     "recipe": "https://git.battlecatsmodding.org/fieryhenry/BCData",
     "bcdata_commit": "8644713249966c10a880e056c2f3e58fe21cd4a3",
@@ -18,11 +18,11 @@
         "archive_sha256": "d5d18a7ddda050e67bc70c9b0a49a3ef09760e4c653fc08dfb045b9f84fb40f5"
       },
       "jp": {
-        "version": "16.0.1",
+        "version": "16.0.3",
         "package_name": "jp.co.ponos.battlecats",
-        "version_code": 1600010,
+        "version_code": 1600030,
         "provider": "APKPure via apkdown",
-        "archive_sha256": "f2e593ed4b84aafde240420fe59286aaacc0813cd93021e182067f9153240a51"
+        "archive_sha256": "56b487c5c0c61a64344fb89198e86fd794aa2ef7219ea6e95b9c5dbb2e0bc1b6"
       },
       "tw": {
         "version": "15.7.0",
@@ -51,7 +51,7 @@
       }
     },
     "upstream_parser": "85fb94cbf00c6a74dbef58932610fb94ec8f7495",
-    "extraction_note": "16.0.1: BCData APKEditor merge, then the unmodified tbctk-asset extract_some API (DataLocal/resLocal); standalone Rust wrapper bypasses unavailable local CLI dependencies."
+    "extraction_note": "16.0.3: BCData APKEditor merge and tbctk-asset extract_some (DataLocal/resLocal). Both packs are byte-identical to the previously verified JP 16.0.1 snapshot."
   },
   "regions": {
     "en": {
@@ -72,7 +72,7 @@
       }
     },
     "jp": {
-      "version": "16.0.1",
+      "version": "16.0.3",
       "cat_count": 888,
       "orb_count": 310,
       "sha256": {

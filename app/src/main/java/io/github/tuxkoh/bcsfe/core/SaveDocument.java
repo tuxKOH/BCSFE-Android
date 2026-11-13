@@ -543,6 +543,9 @@ public final class SaveDocument {
         if((source>=150500&&!GameVersions.supported(region,source))
                 ||(target>=150500&&!GameVersions.supported(region,target)))
             throw new UnsupportedOperationException("Version conversion requires a validated game series");
+        // Resolve this before any mutation. Existing opaque native records are
+        // retained on downgrade, just as upstream retains remaining_data.
+        boolean append160003 = needsVersion160003Defaults(target);
         // Known prefix gates match upstream; the native trailer also needs its
         // later records when an old, incomplete template is upgraded.
         int latest=GameVersions.latest(region);
@@ -561,7 +564,7 @@ public final class SaveDocument {
                 }
             }
             int start=findInt(140000)+4,end=findInt(140300)+4;splice(start,end-start,0);
-            putInt(gameVersionOffset,target);refreshHash();repairIncompleteModernTail();return;
+            putInt(gameVersionOffset,target);refreshHash();repairIncompleteModernTail();appendVersion160003Defaults(append160003);return;
         }
         if(source==140000&&target>=140300&&target<=latest){
             if(target>=140500)convert140500EmbeddedLayout(source,target);
@@ -572,7 +575,7 @@ public final class SaveDocument {
             tail[p++]=0;tail[p++]=0;p+=4;writeInt(tail,p,140200);p+=4;
             tail[p++]=0;p+=extra;tail[p++]=0;tail[p++]=0;p+=4;p+=2;tail[p++]=0;writeInt(tail,p,140300);
             splice(marker140000+4,0,tail.length);System.arraycopy(tail,0,bytes,marker140000+4,tail.length);
-            putInt(gameVersionOffset,target);refreshHash();repairIncompleteModernTail();return;
+            putInt(gameVersionOffset,target);refreshHash();repairIncompleteModernTail();appendVersion160003Defaults(append160003);return;
         }
         if(source<140300||source>latest||target<140300||target>latest)throw new UnsupportedOperationException("Version conversion exceeds the validated regional range");
         convert140500EmbeddedLayout(source,target);
@@ -586,6 +589,22 @@ public final class SaveDocument {
         putInt(gameVersionOffset,target);
         refreshHash();
         repairIncompleteModernTail();
+        appendVersion160003Defaults(append160003);
+    }
+    private boolean needsVersion160003Defaults(int target) {
+        if (target < 160003 || hasIncompleteModernTail()) return false;
+        int end = bytes.length - Offsets.offsets_130;
+        if (ModernSaveTail.hasVersion160003Record(bytes, end)) return false;
+        if (end >= 4 && rawIntAt(end - 4) == 160000) return true;
+        throw new UnsupportedOperationException("Unverified native trailer for 16.0.3 conversion");
+    }
+    private void appendVersion160003Defaults(boolean required) {
+        if (!required) return;
+        byte[] defaults = ModernSaveTail.version160003Defaults();
+        int end = bytes.length - Offsets.offsets_130;
+        splice(end, 0, defaults.length);
+        System.arraycopy(defaults, 0, bytes, end, defaults.length);
+        refreshHash();
     }
     private void convert140500EmbeddedLayout(int source,int target) {
         boolean sourceLegacy=source<140500,targetLegacy=target<140500;

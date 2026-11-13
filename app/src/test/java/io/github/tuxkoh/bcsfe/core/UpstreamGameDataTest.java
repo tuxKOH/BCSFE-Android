@@ -109,10 +109,12 @@ public class UpstreamGameDataTest {
             }
         }
         assertFalse(GameVersions.supported(SaveDocument.Region.TW,150704));
-        assertFalse(GameVersions.supported(SaveDocument.Region.JP,160002));
+        assertTrue(GameVersions.supported(SaveDocument.Region.JP,160002));
+        assertTrue(GameVersions.supported(SaveDocument.Region.JP,160003));
+        assertFalse(GameVersions.supported(SaveDocument.Region.JP,160004));
         assertFalse(GameVersions.supported(SaveDocument.Region.JP,150800));
-        assertArrayEquals(new int[]{160001,160000,150704,150703,150702,150701,150700},
-                java.util.Arrays.copyOf(GameVersions.conversionTargets(SaveDocument.Region.JP),7));
+        assertArrayEquals(new int[]{160003,160002,160001,160000,150704,150703,150702,150701,150700},
+                java.util.Arrays.copyOf(GameVersions.conversionTargets(SaveDocument.Region.JP),9));
         for(SaveDocument.Region region:new SaveDocument.Region[]{SaveDocument.Region.EN,
                 SaveDocument.Region.TW,SaveDocument.Region.KR}){
             assertArrayEquals(new int[]{150700,150601,150600,150501,150500},
@@ -142,7 +144,7 @@ public class UpstreamGameDataTest {
         for(SaveDocument.Region region:SaveDocument.Region.values()){
             byte[] latest=SaveDocument.fromNewSaveTemplate(template(region)).toBytes();
             int[] versions=region==SaveDocument.Region.JP
-                    ?new int[]{150501,150601,150700,150701,150702,150703,150704,160000}:new int[]{150501,150601};
+                    ?new int[]{150501,150601,150700,150701,150702,150703,150704,160000,160001,160002}:new int[]{150501,150601};
             for(int version:versions){
                 SaveDocument save=SaveDocument.open(latest);
                 save.convertGameVersion(version);

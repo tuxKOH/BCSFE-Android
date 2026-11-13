@@ -107,7 +107,7 @@ public final class GameDataProbe {
             for(int i=0;i<GameDataRules.dropPairCount(region,gv);i++)rules.append("drop,").append(GameDataRules.dropCat(region,gv,i)).append(',').append(GameDataRules.dropSlot(region,gv,i)).append('\n');
             for(int i=0;i<GameDataRules.rankGiftCount(region,gv);i++)rules.append("gift,").append(i).append(',').append(GameDataRules.rankGiftThreshold(region,gv,i)).append('\n');
             Files.writeString(out.resolve(code+"-rules.csv"),rules);
-            for(int version:new int[]{150501,150601,150700,150701,150702,150703,150704,160000}){
+            for(int version:new int[]{150501,150601,150700,150701,150702,150703,150704,160000,160001,160002}){
                 if(!GameVersions.supported(region,version)||version==gv)continue;
                 SaveDocument intermediate=SaveDocument.open(source);
                 intermediate.convertGameVersion(version);

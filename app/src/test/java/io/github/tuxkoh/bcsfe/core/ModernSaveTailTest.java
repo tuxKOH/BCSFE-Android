@@ -34,7 +34,14 @@ public class ModernSaveTailTest {
                 "src/test/resources/native_tails/jp-16.0.1-default-continuation.hex")),
                 StandardCharsets.US_ASCII).replaceAll("\\s", ""));
         assertEquals(695, nativeDefault.length);
-        assertArrayEquals(nativeDefault, ModernSaveTail.emptyContinuation(160001));
+        for(int version:new int[]{160000,160001,160002})
+            assertArrayEquals(nativeDefault, ModernSaveTail.emptyContinuation(version));
+        byte[] native160003 = HexFormat.of().parseHex(new String(Files.readAllBytes(Path.of(
+                "src/test/resources/native_tails/jp-16.0.3-default-continuation.hex")),
+                StandardCharsets.US_ASCII).replaceAll("\\s", ""));
+        assertEquals(703, native160003.length);
+        assertArrayEquals(native160003, ModernSaveTail.emptyContinuation(160003));
+        assertThrows(IllegalArgumentException.class,()->ModernSaveTail.emptyContinuation(160004));
         byte[] twDefault = HexFormat.of().parseHex(new String(Files.readAllBytes(Path.of(
                 "src/test/resources/native_tails/tw-15.7.0-default-continuation.hex")),
                 StandardCharsets.US_ASCII).replaceAll("\\s", ""));
@@ -42,6 +49,48 @@ public class ModernSaveTailTest {
         assertArrayEquals(twDefault, ModernSaveTail.emptyContinuation(150700));
         assertArrayEquals(Arrays.copyOf(twDefault, 171), ModernSaveTail.emptyContinuation(150600));
         assertArrayEquals(Arrays.copyOf(twDefault, 18), ModernSaveTail.emptyContinuation(150500));
+    }
+
+    @Test public void upgradingNative160001AppendsOnlyNewRecordAndDowngradeRetainsIt() throws Exception {
+        byte[] latest = SaveDocument.fromNewSaveTemplate(template(SaveDocument.Region.JP)).toBytes();
+        byte[] older = Arrays.copyOf(latest, latest.length - 8);
+        ByteBuffer.wrap(older).order(ByteOrder.LITTLE_ENDIAN).putInt(160001);
+        rehash(older, SaveDocument.Region.JP);
+        SaveDocument upgraded = SaveDocument.open(older);
+        upgraded.convertGameVersion(160003);
+        assertArrayEquals(latest, upgraded.toBytes());
+        upgraded.convertGameVersion(160001);
+        assertEquals(latest.length, upgraded.toBytes().length);
+        upgraded.convertGameVersion(160003);
+        assertArrayEquals(latest, upgraded.toBytes());
+    }
+
+    @Test public void populated160003RecordIsPreservedAcrossEditsAndConversions() throws Exception {
+        byte[] latest = SaveDocument.fromNewSaveTemplate(template(SaveDocument.Region.JP)).toBytes();
+        // Nonempty lists with a version-like value must not be mistaken for markers.
+        byte[] record = HexFormat.of().parseHex("0200007102002a00000001000700000003710200");
+        int start = latest.length - 32 - 8;
+        byte[] populated = Arrays.copyOf(latest, latest.length + record.length - 8);
+        System.arraycopy(record, 0, populated, start, record.length);
+        rehash(populated, SaveDocument.Region.JP);
+        SaveDocument save = SaveDocument.open(populated);
+        assertArrayEquals(populated, save.toBytes());
+        save.convertGameVersion(160002);
+        save.convertGameVersion(160003);
+        assertArrayEquals(populated, save.toBytes());
+        save.setCatFood(123);
+        byte[] edited = save.toBytes();
+        assertArrayEquals(record, Arrays.copyOfRange(edited, start, edited.length - 32));
+    }
+
+    @Test public void malformed160003RecordRejectsUpgradeBeforeMutation() throws Exception {
+        byte[] raw = SaveDocument.fromNewSaveTemplate(template(SaveDocument.Region.JP)).toBytes();
+        ByteBuffer.wrap(raw).order(ByteOrder.LITTLE_ENDIAN).putInt(160001);
+        raw[raw.length - 32 - 8] = 1; // First list claims a missing int.
+        rehash(raw, SaveDocument.Region.JP);
+        SaveDocument save = SaveDocument.open(raw);
+        assertThrows(UnsupportedOperationException.class, () -> save.convertGameVersion(160003));
+        assertArrayEquals(raw, save.toBytes());
     }
 
     @Test public void importingIsLosslessAndExplicitRepairPreservesEveryExistingByteAndEdit() throws Exception {

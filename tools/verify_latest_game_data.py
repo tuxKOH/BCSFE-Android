@@ -74,7 +74,7 @@ def main():
             expected.cats.cats.extend(core.Cat.init(i) for i in range(len(expected.cats.cats), snapshot["cat_count"]))
             # Upstream stops at marker 150300 and preserves its remaining bytes.
             # The native game needs the newer records, even for a brand-new save.
-            native_fixture = "jp-16.0.1" if snapshot["version"].startswith("16.") else "tw-15.7.0"
+            native_fixture = "jp-16.0.3" if snapshot["version"] == "16.0.3" else "jp-16.0.1" if snapshot["version"].startswith("16.") else "tw-15.7.0"
             native_tail = bytes.fromhex((ROOT / f"app/src/test/resources/native_tails/{native_fixture}-default-continuation.hex").read_text())
             expected.remaining_data += native_tail
             raw = (out / (region + "-new.save")).read_bytes()
@@ -85,7 +85,7 @@ def main():
                 target = int(path.stem.rsplit("-", 1)[1])
                 save.set_gv(core.GameVersion(target))
                 equal(region + " convert " + str(target), save.to_data().get_bytes(), path.read_bytes())
-            for version in (150501, 150601, 150700, 150701, 150702, 150703, 150704, 160000):
+            for version in (150501, 150601, 150700, 150701, 150702, 150703, 150704, 160000, 160001, 160002):
                 major, minor, patch = map(int, snapshot["version"].split("."))
                 ceiling = major * 10000 + minor * 100 + patch
                 if version >= ceiling:

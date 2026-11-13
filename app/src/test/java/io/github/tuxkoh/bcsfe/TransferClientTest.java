@@ -47,7 +47,7 @@ public final class TransferClientTest {
     }
 
     @Test public void receiveClientVersionsFollowOfficialRegionalReleases() {
-        assertEquals(160001,TransferClient.latestTransferVersion("jp"));
+        assertEquals(160003,TransferClient.latestTransferVersion("jp"));
         assertEquals(150700,TransferClient.latestTransferVersion("tw"));
         assertEquals(150700,TransferClient.latestTransferVersion("en"));
         assertEquals(150700,TransferClient.latestTransferVersion("kr"));

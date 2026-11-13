@@ -15,7 +15,7 @@ import hashlib
 import json
 from pathlib import Path
 
-VERSIONS = {"en": "15.7.0", "jp": "16.0.1", "tw": "15.7.0", "kr": "15.7.0"}
+VERSIONS = {"en": "15.7.0", "jp": "16.0.3", "tw": "15.7.0", "kr": "15.7.0"}
 ROOT = Path(__file__).resolve().parents[1]
 
 

@@ -26,7 +26,7 @@ The in-app seed finder reads current pools through the HTTPS Seed API and asks
 for a one-time license key only when calculating a matching rare seed.
 
 The format core validates and rewrites the region-specific MD5 checksum and
-preserves unknown data. Current deep editors support 15.5.0 through JP 16.0.1 or
+preserves unknown data. Current deep editors support 15.5.0 through JP 16.0.3 or
 EN/TW/KR 15.7.0, including intermediate patches such as JP 15.7.1–15.7.4 and 16.0.0.
 Intermediate patches use compatible regional BCData and keep their original save
 version. New saves use their region's latest supported
