@@ -40,6 +40,7 @@ public final class SaveDocument {
     private int cannonBaseCache = -1;
     private int goldPassBaseCache = -1;
     private int talentTableBaseCache = -1;
+    private int medalBaseCache = -1;
     private int storageTableBaseCache = -1;
     private int enigmaBaseCache = -1;
     private int eventTableBaseCache = -1;
@@ -865,7 +866,7 @@ public final class SaveDocument {
         draft.refreshHash();
         bytes = draft.bytes;
         catLayoutCache = null; akuLayoutCache = null;
-        cannonBaseCache = goldPassBaseCache = talentTableBaseCache = storageTableBaseCache = -1;
+        cannonBaseCache = goldPassBaseCache = talentTableBaseCache = storageTableBaseCache = medalBaseCache = -1;
         enigmaBaseCache = eventTableBaseCache = itfTimedScoreBaseCache = scratcherBaseCache = -1;
         battleItemsBaseCache = unitDropsBaseCache = -1;
     }
@@ -1048,11 +1049,21 @@ public final class SaveDocument {
             bytes[co + 2] = (byte)(catseyes >>> 16); bytes[co + 3] = (byte)(catseyes >>> 24);
     }
     public void setAllCatPlusLevels(int value) { ensureCatProfile();checkLevel(value);CatLayout l=catLayout();for(int i=0;i<l.count;i++){if(!catUnlocked(i))continue;unlockCatForPlusUpgrade(i);putShort(l.upgradeStart+i*4,value);}refreshHash(); }
+    /** Commit only a complete bulk edit; parser failures leave the source untouched. */
     public void maxAllCatTalents() {
+        ensureItemProfile();
+        SaveDocument draft=new SaveDocument(bytes.clone(),region,integerStart,gameVersionOffset,
+                hashOffset,forcedUnsupported,uploadMode);
+        draft.maxAllCatTalentsInPlace();
+        bytes=draft.bytes;
+    }
+    private void maxAllCatTalentsInPlace() {
         ensureItemProfile();
         int table=talentTableOffset(),records=intAt(table),offset=table+4;
         for(int r=0;r<records;r++){
             int cat=intAt(offset),count=intAt(offset+4); offset+=8;
+            // Preserve records for cats absent from this save's roster.
+            if(cat>=catCount()){offset+=count*8;continue;}
             boolean hasAvailable=false;
             for(int i=0;i<count;i++) if(GameDataRules.talentMaxLevel(region,gameVersion(),cat,intAt(offset+i*8))>0) { hasAvailable=true; break; }
             // The upstream bulk editor honors unlock_cat_on_edit and unlocks
@@ -1078,6 +1089,16 @@ public final class SaveDocument {
     public int knownUserRankRewardCount() { return Math.min(userRankRewardCount(),GameDataRules.rankGiftCount(region,gameVersion())); }
     public boolean userRankRewardEligible(int index) { if(index<0||index>=knownUserRankRewardCount())throw new IndexOutOfBoundsException();return GameDataRules.rankGiftThreshold(region,gameVersion(), index)<=userRank(); }
     public void setEligibleUserRankRewardClaimed(int index,boolean value) { if(!userRankRewardEligible(index))throw new IllegalArgumentException("Reward is not unlocked");setUserRankRewardClaimed(index,value); }
+    /** Mark only known, currently eligible rewards; never grant inventory items. */
+    public int markAllEligibleUserRankRewardsClaimed() {
+        ensureItemProfile();
+        int rank=userRank(),count=knownUserRankRewardCount(),offset=userRankRewardFlagsOffset(),changed=0;
+        for(int i=0;i<count;i++) if(bytes[offset+i]==0 && GameDataRules.rankGiftThreshold(region,gameVersion(),i)<=rank) {
+            bytes[offset+i]=1; changed++;
+        }
+        if(changed>0)refreshHash();
+        return changed;
+    }
     public void fixUserRankRewards() { int rank=userRank(),count=knownUserRankRewardCount(),offset=userRankRewardFlagsOffset();for(int i=0;i<count;i++)if(GameDataRules.rankGiftThreshold(region,gameVersion(), i)>rank)bytes[offset+i]=0;refreshHash(); }
     public int storyChapterCount() { ensureItemProfile(); return 9; }
     public int storyStageCount() { ensureItemProfile(); return 48; }
@@ -1122,6 +1143,13 @@ public final class SaveDocument {
     public int stageMapMaxStarCount(StageMap type,int map) { MapLayout l=mapLayout(type);checkMap(l,map,0,0,false);return l.starsAt(map); }
     public int stageMapStageCount(StageMap type,int map,int star) { MapLayout l=mapLayout(type);checkVisibleMap(type,l,map,star,0,false);return l.stagesAt(map,star); }
     public int stageMapClearTimes(StageMap type,int map,int star,int stage) { MapLayout l=mapLayout(type);checkVisibleMap(type,l,map,star,stage,true);return l.shortValues?ushortAt(l.stageOffset(map,star,stage)):intAt(l.stageOffset(map,star,stage)); }
+    /** Read a crown's stage counts with one layout parse for visual editors. */
+    public int[] stageMapClearTimes(StageMap type,int map,int star) {
+        MapLayout l=mapLayout(type);checkVisibleMap(type,l,map,star,0,false);
+        int[] result=new int[l.stagesAt(map,star)];
+        for(int stage=0;stage<result.length;stage++)result[stage]=l.shortValues?ushortAt(l.stageOffset(map,star,stage)):intAt(l.stageOffset(map,star,stage));
+        return result;
+    }
     public void setStageMapClearTimes(StageMap type,int map,int star,int stage,int value) { MapLayout l=mapLayout(type);checkVisibleMap(type,l,map,star,stage,true);if(value<0||(l.shortValues&&value>65535))throw new IllegalArgumentException("Invalid clears");if(l.shortValues)putShort(l.stageOffset(map,star,stage),value);else putInt(l.stageOffset(map,star,stage),value);if(l.mirrorStageBase>=0)putShort(l.mirrorOffset(map,star,stage),value);l.updateProgress(map,star,stage,value);refreshHash(); }
     public void clearStageMap(StageMap type,int map,boolean cleared) { MapLayout l=mapLayout(type);checkMap(l,map,0,0,false);clearStageMapInternal(l,map,cleared,stageMapStarCount(type,map));refreshHash(); }
     /** Clears or resets the first {@code crownCount} crowns of one map. */
@@ -1255,6 +1283,13 @@ public final class SaveDocument {
     public void setOfficerPassCatId(int value) { ensureItemProfile();if(value< -1||value>65534)throw new IllegalArgumentException("Invalid cat ID");putShort(officerPassCatOffset(),value<0?65535:value);refreshHash(); }
     public int officerPassCatForm() { ensureItemProfile();return ushortAt(officerPassCatOffset()+2); }
     public void setOfficerPassCatForm(int value) { ensureItemProfile();if(value<0||value>65535)throw new IllegalArgumentException("Invalid cat form");putShort(officerPassCatOffset()+2,value);refreshHash(); }
+    /** Read the complete owned list with one validated table lookup. */
+    public int[] medalIds() {
+        ensureItemProfile();int base=medalBaseOffset(),count=ushortAt(base+12);
+        int[] result=new int[count];
+        for(int i=0;i<count;i++)result[i]=ushortAt(base+14+i*2);
+        return result;
+    }
     public int medalCount() { ensureItemProfile();return ushortAt(medalBaseOffset()+12); }
     public int medalId(int index) { int count=medalCount(),base=medalBaseOffset()+14;if(index<0||index>=count)throw new IndexOutOfBoundsException();return ushortAt(base+index*2); }
     public void addMedal(int id) { ensureItemProfile();if(id<0||id>=127)throw new IllegalArgumentException("Invalid medal");for(int i=0;i<medalCount();i++)if(medalId(i)==id)return;int medalBase=medalBaseOffset(),count=ushortAt(medalBase+12),list=medalBase+14;splice(list+count*2,0,2);putShort(list+count*2,id);putShort(medalBase+12,count+1);int dictionary=list+(count+1)*2,entries=ushortAt(dictionary),end=dictionary+2+entries*3;splice(end,0,3);putShort(end,id);bytes[end+2]=0;putShort(dictionary,entries+1);refreshHash(); }
@@ -1397,8 +1432,11 @@ public final class SaveDocument {
     private void setTrueForms(boolean force) {
         ensureCatProfile();CatLayout l=catLayout();
         for(int i=0;i<l.count;i++){
+            if(force&&!GameDataRules.catObtainable(region,gameVersion(),i)) continue;
             if(!force&&!catUnlocked(i)) continue;
             int forms=GameDataRules.totalForms(region,gameVersion(),i);
+            // A forced nonexistent form is rendered as a fallback cat by the game.
+            if(force&&forms<3) continue;
             if(!force&&forms<0) continue;
             if(force){
                 unlockCatRaw(i);putFormValue(i,3);putInt(l.currentFormStart+i*4,2);
@@ -1418,8 +1456,11 @@ public final class SaveDocument {
     private void setFourthForms(boolean force) {
         ensureCatProfile();CatLayout l=catLayout();
         for(int i=0;i<l.count;i++){
+            if(force&&!GameDataRules.catObtainable(region,gameVersion(),i)) continue;
             if(!force&&!catUnlocked(i)) continue;
             int forms=GameDataRules.totalForms(region,gameVersion(),i);
+            // A forced nonexistent form is rendered as a fallback cat by the game.
+            if(force&&forms<4) continue;
             if(!force&&forms<0) continue;
             if(force){
                 unlockCatRaw(i);putFormValue(i,3);putInt(l.currentFormStart+i*4,3);putInt(l.fourthStart+i*4,2);
@@ -1997,6 +2038,7 @@ public final class SaveDocument {
         return afterCannonsWithoutRegion(original) + regionDelta(original);
     }
     private int medalBaseOffset() {
+        if(medalBaseCache>=0)return medalBaseCache;
         int limit = bytes.length - Offsets.offsets_130;
         int expected;
         try { expected = afterCannons(Offsets.offsets_97); }
@@ -2020,7 +2062,7 @@ public final class SaveDocument {
             int candidateDistance = Math.abs(base - expected);
             if (candidateDistance < bestDistance) { best = base; bestDistance = candidateDistance; }
         }
-        if (best >= 0) return best;
+        if (best >= 0) return medalBaseCache=best;
         // Minimal synthetic/legacy profiles may omit the Wildcat continuation
         // marker even though their medal block is still at the derived
         // location. Preserve the historical fallback for those saves.
@@ -2030,7 +2072,7 @@ public final class SaveDocument {
             int dictionary = legacy + 14 + count * 2;
             if (count <= 1000 && dictionary + 3 <= limit) {
                 int entries = ushortAt(dictionary), end = dictionary + 2 + entries * 3 + 1;
-                if (entries <= 1000 && end <= limit && byteAt(end - 1) <= 1) return legacy;
+                if (entries <= 1000 && end <= limit && byteAt(end - 1) <= 1) return medalBaseCache=legacy;
             }
         }
         throw new IllegalStateException("Medal table is unavailable");
@@ -2263,7 +2305,7 @@ public final class SaveDocument {
         if (twOffset >= Offsets.offsets_132) return twOffset - 1;
         return twOffset;
     }
-    private void splice(int offset,int remove,int insert) { if(offset<0||remove<0||insert<0||offset+remove>bytes.length-Offsets.offsets_130)throw new IllegalArgumentException("Invalid splice at offset="+offset+" remove="+remove+" insert="+insert+" length="+bytes.length);byte[] out=new byte[bytes.length-remove+insert];System.arraycopy(bytes,0,out,0,offset);System.arraycopy(bytes,offset+remove,out,offset+insert,bytes.length-offset-remove);bytes=out;akuLayoutCache=null;catLayoutCache=null;battleItemsBaseCache=-1;unitDropsBaseCache=-1;scratcherBaseCache=-1;if(cannonBaseCache>=0&&offset<cannonBaseCache)cannonBaseCache+=insert-remove;if(goldPassBaseCache>=0&&offset<goldPassBaseCache)goldPassBaseCache+=insert-remove;if(talentTableBaseCache>=0&&offset<talentTableBaseCache)talentTableBaseCache+=insert-remove;if(storageTableBaseCache>=0&&offset<storageTableBaseCache)storageTableBaseCache+=insert-remove;if(enigmaBaseCache>=0&&offset<enigmaBaseCache)enigmaBaseCache+=insert-remove;if(eventTableBaseCache>=0&&offset<eventTableBaseCache)eventTableBaseCache+=insert-remove;if(itfTimedScoreBaseCache>=0){if(offset+remove<=itfTimedScoreBaseCache&&offset<itfTimedScoreBaseCache)itfTimedScoreBaseCache+=insert-remove;else if(offset<=itfTimedScoreBaseCache+3*51*4&&offset+remove>=itfTimedScoreBaseCache)itfTimedScoreBaseCache=-1;} }
+    private void splice(int offset,int remove,int insert) { if(offset<0||remove<0||insert<0||offset+remove>bytes.length-Offsets.offsets_130)throw new IllegalArgumentException("Invalid splice at offset="+offset+" remove="+remove+" insert="+insert+" length="+bytes.length);byte[] out=new byte[bytes.length-remove+insert];System.arraycopy(bytes,0,out,0,offset);System.arraycopy(bytes,offset+remove,out,offset+insert,bytes.length-offset-remove);bytes=out;if(medalBaseCache>=0){if(offset+remove<=medalBaseCache&&offset<medalBaseCache)medalBaseCache+=insert-remove;else if(offset<=medalBaseCache&&offset+remove>medalBaseCache)medalBaseCache=-1;}akuLayoutCache=null;catLayoutCache=null;battleItemsBaseCache=-1;unitDropsBaseCache=-1;scratcherBaseCache=-1;if(cannonBaseCache>=0&&offset<cannonBaseCache)cannonBaseCache+=insert-remove;if(goldPassBaseCache>=0&&offset<goldPassBaseCache)goldPassBaseCache+=insert-remove;if(talentTableBaseCache>=0&&offset<talentTableBaseCache)talentTableBaseCache+=insert-remove;if(storageTableBaseCache>=0&&offset<storageTableBaseCache)storageTableBaseCache+=insert-remove;if(enigmaBaseCache>=0&&offset<enigmaBaseCache)enigmaBaseCache+=insert-remove;if(eventTableBaseCache>=0&&offset<eventTableBaseCache)eventTableBaseCache+=insert-remove;if(itfTimedScoreBaseCache>=0){if(offset+remove<=itfTimedScoreBaseCache&&offset<itfTimedScoreBaseCache)itfTimedScoreBaseCache+=insert-remove;else if(offset<=itfTimedScoreBaseCache+3*51*4&&offset+remove>=itfTimedScoreBaseCache)itfTimedScoreBaseCache=-1;} }
     private void ensureItemProfile() { if (!hasItemProfile()) throw new UnsupportedOperationException("No item profile for this save version"); }
     private void ensureCatProfile() { ensureItemProfile(); }
     private int charaNewFlagsOffset() {

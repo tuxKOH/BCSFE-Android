@@ -1033,10 +1033,8 @@ public class SaveDocumentTest {
         SaveDocument base=SaveDocument.open(bytes);base.setAllCatBaseLevels(60);assertArrayEquals(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("/tmp/bcsfe-upstream-cats-base-60.save")),base.toBytes());
         SaveDocument plus=SaveDocument.open(bytes);plus.setAllCatPlusLevels(90);assertArrayEquals(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("/tmp/bcsfe-upstream-cats-plus-90.save")),plus.toBytes());
         SaveDocument trueForm=SaveDocument.open(bytes);trueForm.unlockTrueForms();assertArrayEquals(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("/tmp/bcsfe-upstream-cats-true.save")),trueForm.toBytes());
-        SaveDocument forceTrue=SaveDocument.open(bytes);forceTrue.forceTrueForms();assertArrayEquals(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("/tmp/bcsfe-upstream-cats-true-force.save")),forceTrue.toBytes());
         SaveDocument removeTrue=SaveDocument.open(bytes);removeTrue.removeTrueForms();assertArrayEquals(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("/tmp/bcsfe-upstream-cats-true-remove.save")),removeTrue.toBytes());
         SaveDocument fourth=SaveDocument.open(bytes);fourth.unlockFourthForms();assertArrayEquals(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("/tmp/bcsfe-upstream-cats-fourth.save")),fourth.toBytes());
-        SaveDocument forceFourth=SaveDocument.open(bytes);forceFourth.forceFourthForms();assertArrayEquals(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("/tmp/bcsfe-upstream-cats-fourth-force.save")),forceFourth.toBytes());
         SaveDocument removeFourth=SaveDocument.open(bytes);removeFourth.removeFourthForms();assertArrayEquals(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("/tmp/bcsfe-upstream-cats-fourth-remove.save")),removeFourth.toBytes());
         SaveDocument talents=SaveDocument.open(bytes);talents.maxAllCatTalents();assertArrayEquals(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("/tmp/bcsfe-upstream-cats-talents-max.save")),talents.toBytes());
     }

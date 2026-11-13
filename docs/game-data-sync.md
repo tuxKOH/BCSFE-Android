@@ -48,6 +48,7 @@ retained. Future regional versions above the verified ceiling remain unsupported
    ```sh
    python3 tools/sync_game_data.py
    python3 tools/generate_cat_names.py ~/.local/share/bcsfe/game_data
+   python3 tools/generate_editor_catalog.py
    ./gradlew test assembleDebug
    python3 tools/verify_latest_game_data.py
    python3 tools/verify_item_records.py
@@ -181,3 +182,22 @@ was imported through the document picker, converted to 15.7.0, and its ticket
 editor opened with the expected values before converting back to 15.7.2.
 JVM tests also cover intermediate-patch root loading with both replacement
 account choices and both explicit and auto-detected JP regions.
+
+## Medal and stage display catalog
+
+`tools/generate_editor_catalog.py` reads `medalname.tsv`, `Map_Name.csv` and
+regional `StageName*.csv` from the same pinned caches. It generates
+`res/values/editor_catalog.xml`; the source game region determines names,
+independently of the app language. `tools/editor_catalog_manifest.json` records
+versions and hashes of these public inputs. All 127 medal IDs include names and
+requirements. Blank and unknown stage names fall back to the serialized ID.
+Story labels use upstream's stage-ID order (reverse 0–45, preserve 46–47).
+No game backgrounds or interactive battle simulation are included.
+
+Bulk forced True/Fourth Form actions now skip cats hidden by picture-book
+availability and cats without the requested form. Upstream's raw force mode can
+produce fallback cat appearances when a form does not exist; those two force
+actions intentionally differ and are covered by `BulkProgressEditTest` instead
+of the historical upstream byte fixtures. Existing hidden-cat data is preserved.
+Individual form editing remains available. Bulk User Rank reward marking only
+updates known eligible claim flags and does not add inventory items.

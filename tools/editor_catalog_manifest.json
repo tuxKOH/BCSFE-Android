@@ -1,0 +1,94 @@
+{
+  "en": {
+    "version": "15.7.0",
+    "sha256": {
+      "medalname.tsv": "ecaf6f74db773f5ef183f48f1d7d743e70487994713c4da977e36d3dc1ecf8a0",
+      "Map_Name.csv": "4b3b2d57832baa98ef87f06737ddabda11db255178adfac4161c2e864df35370",
+      "StageName0_en.csv": "94529e7d2cf55f30963ee3c77ac71f1c6dfc7783bf21aa0843cc39f7cbbd6131",
+      "StageName1_en.csv": "13ddfa7cac040da4b199bd55a82a646c011d938d147c46075a2dfd4b469a59a8",
+      "StageName2_en.csv": "0c3c74a208beab5d01b605abd82b380ea97715f815e150252487c26062e88af4",
+      "StageName_RN_en.csv": "d9c458aa5b2b86ed17ef1bb3eebc4d1ebc4d0cf0d9a7293ab3d6c203ce4e6a49",
+      "StageName_RS_en.csv": "4503bfc937169b440876d3969dc272f95a0edf338ab4fc341bdd5eaeec8457d9",
+      "StageName_RC_en.csv": "6fadbfe64ade29335206894407330b43f53511625d0663005aa6eb40a354c32c",
+      "StageName_RNA_en.csv": "7daf0e9caa8ee930f4ef82c1feb64e6a9a2ccff139d95c271a8d5e9d0a516d52",
+      "StageName_RB_en.csv": "c4254c6e862493131ff65907f57ed988089b7839ecebcde6a036127c8f6cad3f",
+      "StageName_RV_en.csv": "2e678802a469438cb6f2c7ced9957a9b1d9c1ec71eded576e065e2e9bf61db86",
+      "StageName_RA_en.csv": "0afde8e72d9e5cee1062d8ce0ae3eb836dd02b05d59d54f72e747cf498a5e8e2",
+      "StageName_RH_en.csv": "b20fe50d1ae973d1188907c2355c85356648a2aa3a978fbbd211a621584076ef",
+      "StageName_RCA_en.csv": "ba8ab99e91a2953f0f206d6e1d632ea853984a7ac1dccc7d333bc0e7c3df1cb3",
+      "StageName_RND_en.csv": "23375f16f4438ccee9032450a87eb7cb73e0f3f6528b4d4e84fe43e186645f80",
+      "StageName_RD_en.csv": "60dbe1a4f636ea945fb288b51379d0566a10f12d6b0e4094b7ac526f7127be78",
+      "StageName_RQ_en.csv": "19aa735ac0671a1fbe4b2f7e86a8a7fb1194fe67eed6594579cf3b014dff6b1b",
+      "StageName_RSR_en.csv": "bd55c7866c9269eaa46ab9092a795d5c7bc92376da400dc20dc5598a4523a810"
+    }
+  },
+  "tw": {
+    "version": "15.7.0",
+    "sha256": {
+      "medalname.tsv": "39d8d3dcc5ff6a21764bcc951ceef71437876c811e9ce614e70993d02e9d1ccd",
+      "Map_Name.csv": "82b6898982356069ebcaf0135dec3f55bddc170199908b7ea6c95663bd4620c4",
+      "StageName0_tw.csv": "4bd47507b311c735ac923cb99898da565607ecbbc3224ee5be97bc29f73e8366",
+      "StageName1_tw.csv": "0c80013386b868361bdf2aefd925de972ca7000c4968b13246e43c624b297ef6",
+      "StageName2_tw.csv": "53379a183fcfdd1f9fb89547a1e3de11c713df986b4e4e67d72b9cabae50cf79",
+      "StageName_RN_tw.csv": "1c18397f7d9158f9ba7be363536af406ef35da60265573bf32e68423b8d59173",
+      "StageName_RS_tw.csv": "9cb6d2dffe4a64da7f4f0df4e85ae45f96b117dc94e14427e6161f17b66ac965",
+      "StageName_RC_tw.csv": "5858531cf162cd2898a181000ff36529937ffa413ffa76bbd7e7bb496438f7da",
+      "StageName_RNA_tw.csv": "d507ef5ff3c9b7c78e0f10113c05abe2558ae1b4660e6d63f116d8e7828ce547",
+      "StageName_RB_tw.csv": "101fee1fb77f70995a27fc9414d27e66753ccb113328a452593ced99da6f5fd9",
+      "StageName_RV_tw.csv": "fbda626744d134afddfce2a1afd0a4a26ae44df9b22eff8655aa12773942af94",
+      "StageName_RA_tw.csv": "0fc1ca6f2cde9ea20d60dba8ac35a9592447e56ae6f78620314c4a013661ed34",
+      "StageName_RH_tw.csv": "e298dd4f51a032665599b529c24727fd5135bb8650a55016f2ae6e47c57e70e4",
+      "StageName_RCA_tw.csv": "4d0a22309c43ea74a2a8ca0477e2962b854391ec2c18d62c5d9d06bc6550f999",
+      "StageName_RND_tw.csv": "1fcb699befcb2c4455bfc0e7a07f2ee1c98d544748903c154fe684182153da58",
+      "StageName_RD_tw.csv": "475b2335dc4d851022a506e264076e19a4dd816e8f5fe5452569c16f472d978e",
+      "StageName_RQ_tw.csv": "7f0bafc8be970f45f09247c775410dad612cb1843f7a24dff2e62e9c445c8d08",
+      "StageName_RSR_tw.csv": "bd55c7866c9269eaa46ab9092a795d5c7bc92376da400dc20dc5598a4523a810"
+    }
+  },
+  "jp": {
+    "version": "16.0.1",
+    "sha256": {
+      "medalname.tsv": "aa2e99087e89a8776aed3430990626cf3070ad6b9d94928bf99dde125fe25fce",
+      "Map_Name.csv": "054fec43086dd9331b3c513c95a675b293e19246d5689de640e1edf06f5f3019",
+      "StageName0_ja.csv": "a64f9348c20d232626d05eaf0d2550c44d04dea4b60726de78321478a45c4656",
+      "StageName1_ja.csv": "d6e79f6cdfe7e2627fe1e42f96a8b2e530c4744ba486a4fab3e89c7524deb069",
+      "StageName2_ja.csv": "5ec050c3989f2fc411ccd44b949da9c250c1294752ae11f2fb173d706085f378",
+      "StageName_RN_ja.csv": "44b5b346aa262aba3719cb7e8d707e7cde170970f4eebd66681d260669a4807b",
+      "StageName_RS_ja.csv": "177013fbb4476d2afc693577b1df095eeceb91486da9c57ac32964b2c22ba77d",
+      "StageName_RC_ja.csv": "259959cdabd8e870898fbcf736e261ab9ae2253b8243271f3e923c370ca956fc",
+      "StageName_RNA_ja.csv": "0b09967e0b4d19d930d3eb33bf268daff3d49c33342d9e0542d28ad2d2f989b1",
+      "StageName_RB_ja.csv": "6ca4a8b600c25b86e2bae7439e5032e329b4f9b96091ba9f7b7f8009eaeeb9d5",
+      "StageName_RV_ja.csv": "e043e0d789633b8219aadbe028323c48c0ee8e596e0e5278989eb6cdbed53bec",
+      "StageName_RA_ja.csv": "ed776151cf8f2cef827478fd149ffb811788010aadbdfca50c31a5cfe582961d",
+      "StageName_RH_ja.csv": "51c6697ea8bb111e55ab39f16d01a6a462f265cb80bc1f017cbdaf5596310323",
+      "StageName_RCA_ja.csv": "49d5686cab1880ef9c3a4c0cf13da7b9dbd291911d71f0e4580643bdb67ca1d0",
+      "StageName_RND_ja.csv": "5fb6f2e17c5ac7a149d4dcbebd5b6f25bfb5846da67725bc225069d920ecc838",
+      "StageName_RD_ja.csv": "a89a81aefe3ef9bbde8a169ce089d000952e63b972132a455cc4eb8d73cf852a",
+      "StageName_RQ_ja.csv": "3469022c8c8338b4ea3ba4a4e89943930d507894eb1f81536fa8a27ac18f31bd",
+      "StageName_RSR_ja.csv": "ea1ec2db3242fee7d920bc0932905868de34e71d0fe07a33a4df6b41e5523512"
+    }
+  },
+  "kr": {
+    "version": "15.7.0",
+    "sha256": {
+      "medalname.tsv": "89431d6224589cbd85824f968123bbba820d102ba7f81e01c0ab1add42199067",
+      "Map_Name.csv": "414cbda704ee29dc0838d35ac81501e715ddcb9b0574cc4fea189da14f4d2b76",
+      "StageName0_ko.csv": "bd986424b6e1b510f1a47db0bdbd12327e57fce6b755ce7625b146e637d4b9fd",
+      "StageName1_ko.csv": "ef0a1ea0e2d8867305b5837c614d713e447643aa672cf84150477256d79b9cc5",
+      "StageName2_ko.csv": "b77872624bf27a84c2fd18c050f5bdcfd42b1617f655fecc052022b12d04bb87",
+      "StageName_RN_ko.csv": "fc42f06bf0b8720d0158e21a8977bec82497eac84660bbbec999430f517d9579",
+      "StageName_RS_ko.csv": "906ac062f217b2a86cc4bbe14b8812143421d8d2ac252c3afe563dbc80260674",
+      "StageName_RC_ko.csv": "3578820ac3b4499537b68ff8c95496005630b3685e283abc7af980888363b4c6",
+      "StageName_RNA_ko.csv": "2493ffc02f2c2ced7702a3be87748e22a4c8973b65ea36eb57c56823a0727a09",
+      "StageName_RB_ko.csv": "e9c47ad7be05b33266a715f5fabfc91964b524dfba72f94d84d7428b7dfea3c8",
+      "StageName_RV_ko.csv": "4dd72c3bad2754af26f76677ed74c1cb3659ec71290405b57c5032fb717a5b05",
+      "StageName_RA_ko.csv": "3737e665ddbf1c88c014dd28178d439a1302c4fb59e9d784e157e1f6628047d7",
+      "StageName_RH_ko.csv": "e7f664d1811d3e8b61335eb089f19b55e543946e7c736640abe86a1df667db2e",
+      "StageName_RCA_ko.csv": "dc8b2ade79e31c3182bd5a9a4cb690d5fa2d73c726fddf60c237cbc245ca981b",
+      "StageName_RND_ko.csv": "49ff9a91df1f31c254d5c2aa1bb4d34e429a290315e66e6cedc44aee25adff17",
+      "StageName_RD_ko.csv": "25ea0ad78ad5ad81b1c17177dec848cfb092013276e5fe77b92f3b13b3854ac8",
+      "StageName_RQ_ko.csv": "42f21c90c5ceadbcd7c8ba464d2798d9c58598a1230d8ae68cec9d3afe6bea02",
+      "StageName_RSR_ko.csv": "bd55c7866c9269eaa46ab9092a795d5c7bc92376da400dc20dc5598a4523a810"
+    }
+  }
+}

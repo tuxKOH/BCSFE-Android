@@ -62,6 +62,11 @@ Gradle 8.x installation:
 gradle assembleDebug
 ```
 
+For an optimized APK, run `gradle assembleRelease`. The release build enables
+R8 and resource shrinking and uses the existing debug certificate so it can
+replace previous APKs without clearing app data. Keep using the same local
+keystore when rebuilding. Catalog arrays resolved by name are explicitly retained.
+
 The project requires Android SDK 34 or newer and Java 17.
 
 ## Local automation API (development only)

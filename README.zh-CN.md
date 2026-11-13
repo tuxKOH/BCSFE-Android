@@ -28,6 +28,8 @@ Android 版已经覆盖 BCSFE 的主要编辑功能，包括基础货币与券�
 gradle assembleDebug
 ```
 
+需要优化版 APK 时运行 `gradle assembleRelease`。Release 构建启用 R8 和资源缩减，沿用现有 debug 证书，可直接覆盖旧 APK 并保留应用数据；重新构建时继续使用同一份本地密钥库。按名称加载的游戏文案数组已显式保留。
+
 项目要求 Android SDK 34 或更高版本，以及 Java 17。
 
 ## 本机自动化 API（仅开发测试）

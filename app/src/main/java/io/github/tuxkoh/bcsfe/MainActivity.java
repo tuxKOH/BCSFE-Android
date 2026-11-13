@@ -60,6 +60,9 @@ public final class MainActivity extends AppCompatActivity {
     /** Dismissal lasts for this process, including Activity/locale recreation. */
     private static boolean coffeeNoticeDismissed;
     private String incompleteTailWarningKey;
+    private SaveDocument rankTrackedDocument;
+    private UserRankIncreaseTracker rankIncreaseTracker;
+    private boolean rankIncreasePromptPending;
     private FrameLayout content;
     private TextView title;
     private byte[] workingCopy;
@@ -475,6 +478,7 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     private void showEditor() throws Exception {
+        initializeRankIncreaseTracking();
         screen = Screen.EDITOR;
         title.setText(openedName);
         View view = inflate(R.layout.screen_editor);
@@ -502,6 +506,50 @@ public final class MainActivity extends AppCompatActivity {
             incompleteTailWarningKey = String.valueOf(sessionId);
             requestModernTailRepair(null);
         }
+    }
+
+    private void initializeRankIncreaseTracking() {
+        if (rankTrackedDocument == document) return;
+        rankTrackedDocument = document;
+        rankIncreaseTracker = null;
+        try {
+            if (document != null && document.hasCatProfile())
+                rankIncreaseTracker = new UserRankIncreaseTracker(document.userRank());
+        } catch (RuntimeException unavailable) { /* Optional notice must not block import. */ }
+    }
+
+    private void checkRankIncreaseAfterEdit() {
+        if (rankTrackedDocument != document) { initializeRankIncreaseTracking(); return; }
+        if (rankIncreaseTracker == null || rankIncreasePromptPending) return;
+        try {
+            if (!rankIncreaseTracker.record(document.userRank())) return;
+        } catch (RuntimeException unavailable) { return; }
+        SaveDocument expected = document;
+        rankIncreasePromptPending = true;
+        // Editors may reopen their own dialog after saving. Show the notice
+        // afterwards so it stays above the batch editor rather than behind it.
+        content.post(() -> {
+            if (!activityActive() || document != expected || screen != Screen.EDITOR) {
+                rankIncreasePromptPending = false;
+                return;
+            }
+            AlertDialog prompt = new AlertDialog.Builder(this).setTitle(R.string.rank_increase_title)
+                    .setMessage(R.string.rank_increase_message)
+                    .setNegativeButton(R.string.close, null)
+                    .setPositiveButton(R.string.clear_rank_notifications, (dialog, which) -> {
+                        if (document == expected) runFieldAction(this::clearRankNotifications);
+                    }).create();
+            prompt.setOnDismissListener(dialog -> rankIncreasePromptPending = false);
+            prompt.show();
+        });
+    }
+
+    private void clearRankNotifications() {
+        document.closeUserRankNotifications();
+        rankIncreaseTracker = new UserRankIncreaseTracker(document.userRank());
+        rankTrackedDocument = document;
+        if (persistSession(true, "clear_rank_notifications"))
+            Toast.makeText(this, R.string.edit_applied, Toast.LENGTH_SHORT).show();
     }
 
     private boolean requestModernTailRepair(Runnable next) {
@@ -685,8 +733,11 @@ public final class MainActivity extends AppCompatActivity {
     }
     private void editRewardsMissionsMedals() { String[] choices=getResources().getStringArray(R.array.reward_mission_actions);new AlertDialog.Builder(this).setTitle(R.string.rewards_missions_title).setItems(choices,(d,i)->{if(i==0)editRewards();else if(i==1)editLabyrinthMedals();else if(i==2)editMissions();else showGameMedals();}).show(); }
     private void editLabyrinthMedals() { editArray(R.string.labyrinth_medals_title,R.string.labyrinth_medal_label,document.labyrinthMedals(),document::setLabyrinthMedal); }
-    private void showGameMedals() { String[] actions=getResources().getStringArray(R.array.game_medal_actions);new AlertDialog.Builder(this).setTitle(R.string.game_medals_title).setItems(actions,(d,i)->{if(i==0)editNumberText(getString(R.string.game_medal_id_label),0,document::addMedal);else chooseMedalToRemove();}).setNegativeButton(R.string.close,null).show(); }
-    private void chooseMedalToRemove() { int count=document.medalCount();if(count==0){Toast.makeText(this,R.string.no_game_medals,Toast.LENGTH_SHORT).show();return;}String[] rows=new String[count];for(int i=0;i<count;i++)rows[i]=getString(R.string.game_medal_row,document.medalId(i));new AlertDialog.Builder(this).setTitle(R.string.game_medals_title).setItems(rows,(d,i)->{document.removeMedal(i);persistApplied();}).setNegativeButton(R.string.close,null).show(); }
+    private void showGameMedals() {
+        new AlertDialog.Builder(this).setTitle(R.string.game_medals_title).setItems(R.array.game_medal_actions,
+                (d,choice)->runFieldAction(()->GameMedalEditor.show(this,document,choice==0,this::persistApplied,this::showFieldError)))
+                .setNegativeButton(R.string.close,null).show();
+    }
 
     private void configureEditorActions(View view) {
         view.findViewById(R.id.exportButton).setOnClickListener(v ->
@@ -1329,6 +1380,12 @@ public final class MainActivity extends AppCompatActivity {
         search.setSingleLine(true);
         search.setHint(R.string.cat_search_hint);
         body.addView(search,new LinearLayout.LayoutParams(-1,dp(52)));
+        TextView dragHint = new TextView(this);
+        dragHint.setText(R.string.cat_batch_drag_hint);
+        dragHint.setTextColor(getColor(R.color.muted));
+        dragHint.setTextSize(12);
+        dragHint.setPadding(0,0,0,dp(8));
+        body.addView(dragHint);
         ListView list = new ListView(this);
         body.addView(list,new LinearLayout.LayoutParams(-1,0,1));
         TextView empty = new TextView(this);
@@ -1345,7 +1402,9 @@ public final class MainActivity extends AppCompatActivity {
         String[][] forms = new String[count][];
         for(int id=0;id<count;id++) forms[id]=(id<names.length?names[id]:"").split(" / ",-1);
         for(int id=0;id<count;id++) searchable[id]=normalizeSearch(id<names.length?names[id]:"");
+        DragSelectionController[] drag = {null};
         Runnable filter = () -> {
+            if (drag[0] != null) drag[0].cancel();
             String query = normalizeSearch(search.getText().toString());
             boolean numericQuery = query.matches("[0-9]+");
             String normalizedId = numericQuery ? query.replaceFirst("^0+(?!$)","") : "";
@@ -1480,17 +1539,30 @@ public final class MainActivity extends AppCompatActivity {
         });
         AlertDialog picker = new AlertDialog.Builder(this).setCustomTitle(header).setView(body)
                 .setNeutralButton(R.string.cat_batch_cancel,null).setNegativeButton(R.string.close,null).create();
-        batch.setOnClickListener(v -> {
-            if (!batchMode[0]) {
-                batchMode[0]=true;
-                list.setAdapter(batchAdapter);
-                list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-                batch.setText(getString(R.string.cat_batch_done,0));
-                batch.setEnabled(false);
-                picker.getButton(AlertDialog.BUTTON_NEUTRAL).setVisibility(View.VISIBLE);
-                filter.run();
-                return;
+        Runnable beginBatch = () -> {
+            if (batchMode[0]) return;
+            int first = list.getFirstVisiblePosition();
+            int top = list.getChildCount() == 0 ? 0 : list.getChildAt(0).getTop();
+            batchMode[0]=true;
+            list.setAdapter(batchAdapter);
+            list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+            batch.setText(getString(R.string.cat_batch_done,selection.size()));
+            batch.setEnabled(!selection.isEmpty());
+            picker.getButton(AlertDialog.BUTTON_NEUTRAL).setVisibility(View.VISIBLE);
+            filter.run();
+            list.setSelectionFromTop(first,top);
+        };
+        drag[0] = new DragSelectionController(list,beginBatch,(first,last)->{
+            for (int position=Math.max(0,first);position<=last && position<ids.size();position++) {
+                selection.add(ids.get(position));
+                list.setItemChecked(position,true);
             }
+            batch.setText(getString(R.string.cat_batch_done,selection.size()));
+            batch.setEnabled(!selection.isEmpty());
+        });
+        picker.setOnDismissListener(d -> drag[0].cancel());
+        batch.setOnClickListener(v -> {
+            if (!batchMode[0]) { beginBatch.run(); return; }
             int[] chosen=selection.stream().mapToInt(Integer::intValue).toArray();
             String[] chosenNames=new String[chosen.length];
             for(int i=0;i<chosen.length;i++) {
@@ -1565,26 +1637,16 @@ public final class MainActivity extends AppCompatActivity {
                 .setNegativeButton(R.string.close,null).setPositiveButton(R.string.execute_anyway,(d,w)->runFieldAction(()->documentAction(document::unlockAllCats))).show();
     }
     private void editIndividualCat(int index,String title) {
-            int[] values={document.catBaseLevel(index),document.catPlusLevel(index)};
-            String[] labels=getResources().getStringArray(R.array.cat_detail_labels);
-            String[] rows={labels[0]+": "+(document.catUnlocked(index)?getString(R.string.yes):getString(R.string.no)),labels[1]+": "+values[0],labels[2]+": "+values[1],getString(R.string.cat_current_form_label,document.catCurrentForm(index)),labels[3]};
-            new AlertDialog.Builder(this).setTitle(title).setItems(rows,(d,item)->{
-                if(item==0){document.setCatUnlocked(index,!document.catUnlocked(index));persistApplied();}
-                else if(item==1)editCatLevelText(labels[1],values[0],v->document.setCatBaseLevel(index,v),1,60);
-                else if(item==2)editCatLevelText(labels[2],values[1],v->document.setCatPlusLevel(index,v),0,catPlusLevelMaximum(index));
-                else if(item==3)chooseCatCurrentForm(index); else confirmCatReset(index);
-            }).setNegativeButton(R.string.close,null).show();
+        new IndividualCatEditor(this,document,index,title,
+                (label,current,change,minimum,maximum) ->
+                        editCatLevelText(label,current,change::accept,minimum,maximum),
+                this::persistApplied,this::showFieldError).show();
     }
-    private void chooseCatCurrentForm(int cat) {
-        String[] forms=getResources().getStringArray(R.array.cat_form_stages);
-        new AlertDialog.Builder(this).setTitle(R.string.cat_current_form_title).setSingleChoiceItems(forms,document.catCurrentForm(cat),(dialog,which)->{try{document.setCatCurrentForm(cat,which);persistApplied();dialog.dismiss();}catch(RuntimeException error){showFieldError(error);}}).setNegativeButton(R.string.close,null).show();
-    }
-    private int catPlusLevelMaximum(int index) { return document.catMaxPlusLevel(index); }
     private void confirmCatReset(int cat) { int message=cat<0?R.string.cat_reset_all_confirm:R.string.cat_reset_confirm;new AlertDialog.Builder(this).setTitle(R.string.cat_reset_title).setMessage(message).setNegativeButton(R.string.close,null).setPositiveButton(R.string.cat_reset_action,(d,w)->{if(cat<0)document.resetAllCats();else document.resetCat(cat);persistApplied();}).show(); }
     private void editCatExtras() {
         String[] actions=getResources().getStringArray(R.array.cat_extra_actions);
         new AlertDialog.Builder(this).setTitle(R.string.cat_extras_title).setItems(actions,(d,choice)->{
-            if(choice>=2){editAllCatExtras(choice);return;}
+            if(choice>=2){runFieldAction(()->editAllCatExtras(choice));return;}
             requestIndex(R.string.cat_id_label,document.catCount(),index->{
                 if(choice==0){document.setCatGuideCollected(index,!document.catGuideCollected(index));persistApplied();}
                 else editTalents(index);
@@ -1623,7 +1685,13 @@ public final class MainActivity extends AppCompatActivity {
         new AlertDialog.Builder(this).setTitle(R.string.rewards_title).setItems(actions,(d,index)->{
             if(index<2)requestIndex(R.string.reward_id_label,document.knownUserRankRewardCount(),id->{try{document.setEligibleUserRankRewardClaimed(id,index==0);persistApplied();}catch(IllegalArgumentException error){Toast.makeText(this,R.string.reward_not_unlocked,Toast.LENGTH_LONG).show();}});
             else if(index==2) {document.fixUserRankRewards();persistApplied();}
-            else {document.closeUserRankNotifications();persistApplied();}
+            else if(index==3)clearRankNotifications();
+            else new AlertDialog.Builder(this).setTitle(R.string.reward_mark_all_title).setMessage(R.string.reward_mark_all_message)
+                    .setNegativeButton(R.string.close,null).setPositiveButton(R.string.reward_mark_all_action,(dialog,which)->runFieldAction(()->{
+                        int changed=document.markAllEligibleUserRankRewardsClaimed();
+                        persistApplied();
+                        Toast.makeText(this,getString(R.string.reward_mark_all_result,changed),Toast.LENGTH_LONG).show();
+                    })).show();
         }).setNegativeButton(R.string.close,null).show();
     }
     private void editStory() {
@@ -1631,6 +1699,7 @@ public final class MainActivity extends AppCompatActivity {
         new AlertDialog.Builder(this).setTitle(R.string.story_title).setItems(actions,(d,choice)->{
             if(choice==0){document.clearTutorial();persistApplied();}
             else if(choice==1){for(int chapter=0;chapter<document.storyChapterCount();chapter++)document.clearStoryChapter(chapter,true);persistApplied();}
+            else if(choice==6)chooseStoryChapter(chapter->stageProgressEditor().showStory(chapter));
             else if(choice==5){document.enableFilibusterStage(new java.util.Random().nextInt(48));persistApplied();}
             else chooseStoryChapter(chapter->{
                 if(choice==2)requestIndex(R.string.stage_id_label,document.storyStageCount(),stage->editNumberText(getString(R.string.clear_times_label),document.storyClearTimes(chapter,stage),v->document.setStoryClearTimes(chapter,stage,v)));
@@ -1737,7 +1806,8 @@ public final class MainActivity extends AppCompatActivity {
         new AlertDialog.Builder(this).setTitle(name).setItems(actions,(d,choice)->{
             if(choice==0)requestNumberRange(R.string.map_id_label,min,max,id->editStageMapAt(type,mapBase+id,name));
             else if(choice==1)editStageMapBatch(type,name,min,max,mapBase);
-            else chooseBatchCrownCount(type,name,mapBase+min,mapBase+max);
+            else if(choice==2)chooseBatchCrownCount(type,name,mapBase+min,mapBase+max);
+            else runFieldAction(()->stageProgressEditor().showMaps(type,name,min,max,mapBase));
         }).setNegativeButton(R.string.close,null).show();
     }
     private void editStageMapAt(SaveDocument.StageMap type,int map,String name) {
@@ -1745,8 +1815,14 @@ public final class MainActivity extends AppCompatActivity {
             new AlertDialog.Builder(this).setTitle(name).setItems(actions,(d,choice)->{
                 if(choice==0)requestIndex(R.string.star_id_label,document.stageMapStarCount(type,map),star->requestIndex(R.string.stage_id_label,document.stageMapStageCount(type,map,star),stage->editNumberText(getString(R.string.clear_times_label),document.stageMapClearTimes(type,map,star,stage),v->document.setStageMapClearTimes(type,map,star,stage,v))));
                 else if(choice==1)chooseMapCrownCount(type,map,name);
-                else runFieldAction(()->{if(usesExpandedCrownRange(type,map))document.clearStageMap(type,map,false,document.stageMapMaxStarCount(type,map));else document.clearStageMap(type,map,false);persistApplied();});
+                else if(choice==2)runFieldAction(()->{if(usesExpandedCrownRange(type,map))document.clearStageMap(type,map,false,document.stageMapMaxStarCount(type,map));else document.clearStageMap(type,map,false);persistApplied();});
+                else stageProgressEditor().showMap(type,map,name);
             }).setNegativeButton(R.string.close,null).show();
+    }
+    private StageProgressEditor stageProgressEditor() {
+        return new StageProgressEditor(this,document,(title,current,change)->
+                editNumberText(title,current,change::accept,false,0,65535,false,R.string.stage_zero_clear_hint),
+                this::persistApplied,this::showFieldError);
     }
     private boolean usesExpandedCrownRange(SaveDocument.StageMap type,int map) { return type==SaveDocument.StageMap.UNCANNY||(type==SaveDocument.StageMap.EVENT&&map>=1&&map<=48); }
     private int completionCrownLimit(SaveDocument.StageMap type,int map) {
@@ -1875,8 +1951,11 @@ public final class MainActivity extends AppCompatActivity {
         editNumberText(label,current,change,true,minimum,maximum,true);
     }
     private void editNumberText(String label,int current,NumberChange change,boolean safetyCheck,int minimum,int maximum,boolean catLevel) {
+        editNumberText(label,current,change,safetyCheck,minimum,maximum,catLevel,0);
+    }
+    private void editNumberText(String label,int current,NumberChange change,boolean safetyCheck,int minimum,int maximum,boolean catLevel,int message) {
         EditText field = new EditText(this); field.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_SIGNED); field.setText(String.valueOf(current));
-        AlertDialog dialog = new AlertDialog.Builder(this).setTitle(label).setView(dialogInput(field)).setNegativeButton(R.string.close, null).setPositiveButton(android.R.string.ok, (window, which) -> {
+        AlertDialog dialog = new AlertDialog.Builder(this).setTitle(label).setMessage(message==0?null:getString(message)).setView(dialogInput(field)).setNegativeButton(R.string.close, null).setPositiveButton(android.R.string.ok, (window, which) -> {
             final int value;
             try { value=Integer.parseInt(field.getText().toString().trim()); } catch (NumberFormatException ignored) { Toast.makeText(this,R.string.invalid_number,Toast.LENGTH_SHORT).show();return; }
             // A range violation is ordinary user input (for example,
@@ -1995,10 +2074,11 @@ public final class MainActivity extends AppCompatActivity {
     }
     private String historyDisplayLabel(String label) {
         if("repair_native_tail".equals(label))return getString(R.string.incomplete_tail_repair);
+        if("clear_rank_notifications".equals(label))return getString(R.string.clear_rank_notifications);
         if(label!=null&&label.startsWith("feature:")){try{int id=Integer.parseInt(label.substring(8));String[] features=getResources().getStringArray(R.array.feature_names);if(id>=0&&id<features.length)return features[id];}catch(NumberFormatException ignored){}}
         if("batch".equals(label))return getString(R.string.history_batch_edit);if("edit".equals(label))return getString(R.string.history_generic_edit);return label==null||label.isEmpty()?getString(R.string.history_generic_edit):label;
     }
-    private String stableHistoryLabel(String requested) { if("repair_native_tail".equals(requested))return requested;if(activeFeatureId>=0)return "feature:"+activeFeatureId;return "batch".equals(requested)?"batch":"edit"; }
+    private String stableHistoryLabel(String requested) { if("repair_native_tail".equals(requested)||"clear_rank_notifications".equals(requested))return requested;if(activeFeatureId>=0)return "feature:"+activeFeatureId;return "batch".equals(requested)?"batch":"edit"; }
 
     private void showAbout() {
         screenBeforeAbout = screen;
@@ -2076,7 +2156,20 @@ public final class MainActivity extends AppCompatActivity {
     private void deleteSession(SessionStore.Session session){new AlertDialog.Builder(this).setTitle(R.string.delete_session).setMessage(R.string.delete_session_confirm).setNegativeButton(R.string.close,null).setPositiveButton(R.string.delete_session,(d,w)->{try{boolean current=session.id.equals(sessionId);sessionStore.delete(session.id);if(current){sessionId=null;document=null;workingCopy=null;openedName=null;accountPassword=null;SessionStore.Session next=sessionStore.load();if(next==null)showHome();else openSession(next);}refreshSessionList();}catch(Exception error){Toast.makeText(this,R.string.session_discard_failed,Toast.LENGTH_LONG).show();}}).show();}
     private boolean persistSession() { return persistSession(false,null); }
     private boolean persistSession(boolean reportFailure) { return persistSession(reportFailure,null); }
-    private boolean persistSession(boolean reportFailure,String historyLabel) { if(document==null)return true;try{workingCopy=document.toBytes();if(sessionId==null){SessionStore.Session session=sessionStore.create(workingCopy,openedName,accountPassword);sessionId=session.id;}else sessionStore.save(sessionId,workingCopy,openedName,accountPassword,stableHistoryLabel(historyLabel));refreshSessionList();return true;}catch(Exception error){if(reportFailure){reportError("session-save",error,workingCopy);Toast.makeText(this,R.string.session_save_failed,Toast.LENGTH_LONG).show();}return false;} }
+    private boolean persistSession(boolean reportFailure,String historyLabel) {
+        if(document==null)return true;
+        try {
+            workingCopy=document.toBytes();
+            if(sessionId==null){SessionStore.Session session=sessionStore.create(workingCopy,openedName,accountPassword);sessionId=session.id;}
+            else sessionStore.save(sessionId,workingCopy,openedName,accountPassword,stableHistoryLabel(historyLabel));
+            refreshSessionList();
+        } catch(Exception error) {
+            if(reportFailure){reportError("session-save",error,workingCopy);Toast.makeText(this,R.string.session_save_failed,Toast.LENGTH_LONG).show();}
+            return false;
+        }
+        checkRankIncreaseAfterEdit();
+        return true;
+    }
     private boolean restoreSession() { try { SessionStore.Session session=sessionStore.load();if(session==null)return false;sessionId=session.id;workingCopy=session.save;document=SaveDocument.open(workingCopy);synchronized(apiDocumentLock){apiInitialCopy=workingCopy.clone();}openedName=session.name;accountPassword=session.password;showEditor();refreshSessionList();Toast.makeText(this,R.string.session_restored,Toast.LENGTH_SHORT).show();return true;}catch(Exception e){reportError("session-restore",e,workingCopy);return false;} }
     private void confirmExit() { new AlertDialog.Builder(this).setTitle(R.string.exit_confirm_title).setMessage(R.string.exit_confirm_message).setNegativeButton(R.string.close,null).setPositiveButton(R.string.exit_keep,(d,w)->{if(persistSession(true))finishAndRemoveTask();}).setNeutralButton(R.string.discard_session,(d,w)->confirmDiscard()).show(); }
     private void confirmDiscard() { new AlertDialog.Builder(this).setTitle(R.string.discard_session).setMessage(R.string.discard_confirm).setNegativeButton(R.string.close,null).setPositiveButton(R.string.discard_session,(d,w)->{try{if(sessionId!=null)sessionStore.delete(sessionId);sessionId=null;document=null;workingCopy=null;openedName=null;accountPassword=null;SessionStore.Session next=sessionStore.load();if(next==null)showHome();else openSession(next);refreshSessionList();}catch(Exception error){Toast.makeText(this,R.string.session_discard_failed,Toast.LENGTH_LONG).show();}}).show(); }

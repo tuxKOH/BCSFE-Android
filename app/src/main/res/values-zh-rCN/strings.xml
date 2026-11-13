@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="rank_increase_title">等级排行提升提醒</string>
+    <string name="rank_increase_message">检测到等级排行提升过多 是否使用“清除等级排行弹窗”避免游戏内等级排行弹窗？</string>
+    <string name="clear_rank_notifications">清除等级排行弹窗</string>
     <string name="sponsors_title">赞助者名单</string>
     <string name="sponsors_unranked">排名不分先后</string>
     <string name="sponsors_loading">正在获取赞助者名单…</string>
     <string name="sponsors_failed">获取赞助者名单失败，请检查网络后重试。</string>
     <string name="sponsors_empty">暂无赞助者名单。</string>
     <string name="sponsors_retry">刷新</string>
+    <string name="cat_batch_drag_hint">长按猫咪后滑动可连续多选，停留在列表边缘可自动滚动。</string>
     <string name="cat_batch_select">批量</string>
     <string name="cat_batch_done">完成（%1$d）</string>
     <string name="cat_batch_cancel">取消多选</string>
@@ -119,7 +123,7 @@
     <string name="cats_title">角色</string><string name="forms_title">角色形态</string><string name="edit_applied">修改已应用。</string>
     <string name="cat_reset_title">重置角色数据？</string><string name="cat_reset_confirm">这会移除该角色，并清除等级、形态、图鉴奖励、猫眼、本能和关联掉落解锁。</string><string name="cat_reset_all_confirm">这会移除全部角色，并清除全部等级、形态、图鉴奖励、猫眼、本能和关联掉落解锁。</string><string name="cat_reset_action">重置</string>
     <string-array name="cat_actions"><item>解锁全部角色</item><item>移除全部角色（保留养成）</item><item>移除并重置全部角色</item></string-array>
-    <string-array name="form_actions"><item>解锁可用三阶形态</item><item>强制解锁全部三阶形态</item><item>移除三阶形态</item><item>解锁可用四阶形态</item><item>强制解锁全部四阶形态</item><item>移除四阶形态</item></string-array>
+    <string-array name="form_actions"><item>解锁可用三阶形态</item><item>强制解锁有三阶的全部正常猫咪</item><item>移除三阶形态</item><item>解锁可用四阶形态</item><item>强制解锁有四阶的全部正常猫咪</item><item>移除四阶形态</item></string-array>
     <string name="back">返回</string>
     <string name="yes">是</string><string name="no">否</string><string name="cat_id_label">猫咪 ID</string><string name="cat_number">猫咪 %1$d</string><string name="index_range">有效范围：0–%1$d</string>
 <string-array name="cat_editor_actions"><item>按id和名字单独编辑猫咪</item><item>获取全部可正常获取的猫咪</item><item>解锁全部猫咪</item><item>移除全部猫咪（保留养成）</item><item>设置全部基础等级</item><item>设置全部加值等级</item><item>移除全部异常猫咪（保留养成）</item><item>移除并完整重置全部猫咪</item></string-array><string name="all_cat_base_level">全部猫咪的基础等级</string><string name="all_cat_plus_level">全部猫咪的加值等级</string>
@@ -134,17 +138,17 @@
     <string name="talents_title">本能</string><string name="max_all_talents">全部本能满级</string><string name="no_talents">这只猫没有本能记录。</string><string name="talent_row">本能 %1$d · 等级 %2$d</string><string name="talent_id">本能 %1$d</string>
     <string name="special_skills_title">基础升级</string><string name="special_skill_row">%1$s（ID %2$d）· 基础 %3$d · 加值 %4$d</string><string-array name="special_skill_names"><item>攻击力</item><item>射程</item><item>充电</item><item>工作</item><item>钱包</item><item>耐力</item><item>研究</item><item>会计</item><item>学习</item><item>统率力</item></string-array><string-array name="skill_level_labels"><item>基础等级</item><item>加值等级</item></string-array>
     <string name="other_guide_title">游玩时间与敌人图鉴</string><string name="current_energy_label">当前统率力</string><string name="enemy_id_label">敌人 ID</string><string name="enemy_id_hint">有效范围：%1$d–%2$d</string><string-array name="other_guide_actions"><item>编辑游玩时间</item><item>切换单个敌人图鉴</item><item>解锁全部敌人图鉴</item><item>重置全部敌人图鉴</item></string-array>
-    <string name="rewards_title">用户等级奖励</string><string name="reward_id_label">奖励 ID</string><string name="reward_not_unlocked">该奖励高于当前用户等级。</string><string-array name="reward_actions"><item>领取一个已解锁奖励</item><item>取消领取一个已解锁奖励</item><item>修复高于当前等级的错误领取状态</item><item>关闭所有等级排行通知</item></string-array>
+    <string name="rewards_title">用户等级奖励</string><string name="reward_id_label">奖励 ID</string><string name="reward_not_unlocked">该奖励高于当前用户等级。</string><string-array name="reward_actions"><item>标记一个已解锁奖励为已领取</item><item>取消一个奖励的领取标记</item><item>修复高于当前等级的错误领取状态</item><item>关闭所有等级排行通知</item><item>一键标记全部已解锁奖励为已领取</item></string-array>
     <string name="story_title">教学与主线</string><string name="chapter_id_label">章节</string><string name="stage_id_label">关卡 ID</string><string name="clear_times_label">通关次数</string><string-array name="story_chapter_names"><item>世界篇 第1章</item><item>世界篇 第2章</item><item>世界篇 第3章</item><item>未来篇 第1章</item><item>未来篇 第2章</item><item>未来篇 第3章</item><item>宇宙篇 第1章</item><item>宇宙篇 第2章</item><item>宇宙篇 第3章</item></string-array>
-    <string-array name="story_actions"><item>完成教学</item><item>通关所有主线</item><item>编辑单个主线关卡</item><item>通关一个主线章节</item><item>重置一个主线章节</item><item>允许宇宙神关卡再次通关</item></string-array>
+    <string-array name="story_actions"><item>完成教学</item><item>通关所有主线</item><item>编辑单个主线关卡</item><item>通关一个主线章节</item><item>重置一个主线章节</item><item>允许宇宙神关卡再次通关</item><item>可视化操作修改关卡</item></string-array>
     <string name="treasure_aku_title">宝物与魔界篇</string><string name="treasure_grade_label">宝物等级</string><string-array name="treasure_grades"><item>无(0)</item><item>铜(1)</item><item>银(2)</item><item>金(3)</item></string-array><string name="aku_chapter_label">魔界篇章节 ID</string><string name="star_id_label">星级难度 ID</string><string name="aku_title">魔界篇</string><string name="no_aku_data">此存档没有魔界篇数据。</string><string name="aku_progress_label">魔界篇进度（0–49）</string>
     <string-array name="treasure_aku_actions"><item>编辑单个主线宝物</item><item>设置章节内全部宝物</item><item>获得所有主线宝物</item><item>编辑不死生物袭击</item><item>解锁魔界篇</item><item>编辑魔界篇进度</item></string-array><string-array name="clear_reset_actions"><item>通关全部关卡</item><item>重置全部关卡</item></string-array>
     <string name="outbreak_chapter_label">不死生物袭击章节</string><string name="outbreak_chapter_title">不死生物袭击章节 ID %1$d</string><string name="outbreak_stage_label">不死生物袭击关卡</string><string name="outbreak_chapter_row">章节 ID %1$d · %2$d 个关卡</string><string name="outbreak_stage_row">关卡 ID %1$d · %2$s</string><string name="state_cleared">已完成</string><string name="state_uncleared">未完成</string><string-array name="outbreak_actions"><item>切换单个袭击状态</item><item>完成本章全部袭击</item><item>重置本章全部袭击</item></string-array>
-    <string name="rewards_missions_title">奖励、勋章与任务</string><string-array name="reward_mission_actions"><item>用户等级奖励</item><item>迷宫勋章</item><item>任务</item><item>游戏勋章</item></string-array><string name="labyrinth_medals_title">迷宫勋章</string><string name="labyrinth_medal_label">勋章 %1$d</string><string name="game_medals_title">游戏勋章</string><string-array name="game_medal_actions"><item>按 ID 新增勋章</item><item>移除已有勋章</item></string-array><string name="game_medal_id_label">勋章 ID</string><string name="game_medal_row">勋章 %1$d</string><string name="no_game_medals">此存档没有已获得的游戏勋章。</string>
+    <string name="rewards_missions_title">奖励、勋章与任务</string><string-array name="reward_mission_actions"><item>用户等级奖励</item><item>迷宫勋章</item><item>任务</item><item>游戏勋章</item></string-array><string name="labyrinth_medals_title">迷宫勋章</string><string name="labyrinth_medal_label">勋章 %1$d</string><string name="game_medals_title">游戏勋章</string><string-array name="game_medal_actions"><item>新增奖章（名称 / ID）</item><item>移除已有奖章（名称 / ID）</item></string-array><string name="game_medal_id_label">勋章 ID</string><string name="game_medal_row">勋章 %1$d</string><string name="no_game_medals">此存档没有已获得的游戏勋章。</string>
     <string name="missions_title">任务（%1$d 条记录）</string><string name="mission_id_label">任务 ID</string><string name="mission_id_hint">输入此存档中已有的 ID</string><string name="invalid_mission_id">此存档中没有该任务 ID。</string><string-array name="mission_actions"><item>完成，待领取奖励</item><item>完成，已领取奖励</item><item>设为未完成</item></string-array>
     <string name="challenge_dojo_title">挑战与猫咪道场</string><string name="dojo_score_label">猫咪道场分数</string><string name="timed_score_label">未来篇限时分数</string><string-array name="challenge_actions"><item>编辑挑战分数</item><item>编辑猫咪道场分数</item><item>编辑未来篇限时分数</item><item>编辑猫咪道场晋段测验</item></string-array>
     <string name="enigma_gauntlet_title">发掘关卡与强袭</string><string name="enigma_stages_title">当前发掘关卡</string><string name="no_enigma_stages">当前没有发掘关卡记录。</string><string name="enigma_stage_row">关卡 %1$d · 等级 %2$d</string><string-array name="enigma_gauntlet_actions"><item>按 ID 添加发掘关卡（0-72）</item><item>清空当前发掘关卡</item><item>编辑强袭关卡</item><item>编辑联动强袭</item><item>编辑已通关的发掘地图</item></string-array>
-    <string name="map_editor_title">地图编辑器</string><string name="map_id_label">地图 ID</string><string name="number_range">有效范围：%1$d-%2$d</string><string name="no_map_data">此存档没有该地图类型的数据。</string><string-array name="stage_map_actions"><item>编辑单个关卡</item><item>通关此地图</item><item>重置此地图</item></string-array>
+    <string name="map_editor_title">地图编辑器</string><string name="map_id_label">地图 ID</string><string name="number_range">有效范围：%1$d-%2$d</string><string name="no_map_data">此存档没有该地图类型的数据。</string><string-array name="stage_map_actions"><item>编辑单个关卡</item><item>通关此地图</item><item>重置此地图</item><item>可视化操作修改关卡</item></string-array>
     <string-array name="gauntlet_map_names"><item>强袭关卡</item><item>联动强袭</item></string-array><string-array name="uncanny_map_names"><item>真传奇</item><item>猫薄荷关卡</item><item>超兽讨伐</item></string-array><string name="event_maps_name">传奇故事与活动地图</string><string-array name="event_map_types"><item>传奇故事</item><item>活动地图</item><item>联动地图</item></string-array><string-array name="legend_map_names"><item>传说寻宝</item><item>传说之塔</item><item>零传奇</item></string-array>
     <string name="gamatoto_title">加码多多</string><string name="gamatoto_level_label">加码多多等级（1–130）</string><string name="gamatoto_helpers_title">加码多多助手</string><string name="helper_amount_label">助手数量</string><string name="invalid_helper_amounts">请输入五个非负数量，总数最多为 10。</string><string-array name="gamatoto_helper_rarities"><item>小角色</item><item>中坚</item><item>老手</item><item>精英</item><item>传说</item></string-array><string-array name="gamatoto_actions"><item>编辑等级</item><item>编辑经验</item><item>编辑各稀有度助手数量</item></string-array>
     <string name="material_set_all">批量设置全部城堡素材</string>
@@ -204,7 +208,7 @@
     <string name="shared_import_failed">分享的文件不是有效的猫咪大战争存档。</string>
     <string name="invalid_save_file">所选文件不是有效的猫咪大战争存档。</string><string name="debug_export_title">分享除错 ZIP</string><string name="debug_export_unavailable">打开存档后才能导出除错信息。</string><string name="debug_export_failed">无法创建除错 ZIP。</string><string name="debug_export_confirm">确认并分享</string><string name="debug_bundle_readme">BCSFE Android 除错包。仅包含存档快照和操作历史，密码、刷新令牌、转移码及其他认证信息已排除。请只分享给可信任的人。</string>
     <string name="shared_import_success">已将分享的存档作为新会话打开。</string>
-    <string-array name="map_scope_actions"><item>编辑单个地图</item><item>批量修改地图</item><item>一键通关全部地图</item></string-array>
+    <string-array name="map_scope_actions"><item>编辑单个地图</item><item>批量修改地图</item><item>一键通关全部地图</item><item>可视化操作修改关卡</item></string-array>
     <string-array name="stage_map_batch_actions"><item>批量通关所选地图</item><item>批量重置所选地图</item></string-array>
     <string name="batch_map_title">批量编辑%1$s</string>
     <string name="batch_start_map">起始地图 ID</string>
@@ -3826,4 +3830,22 @@
         <item>""</item>
     </string-array>
     <!-- END GENERATED CAT NAMES -->
+    <string name="catalog_named_id">%1$s（ID %2$d）</string>
+    <string name="medal_search_hint">搜索奖章名称、条件或 ID</string>
+    <string name="no_available_medals">没有匹配的未获得奖章。</string>
+    <string name="medal_add_title">新增游戏奖章</string>
+    <string name="medal_remove_title">移除游戏奖章</string>
+    <string name="reward_mark_all_title">将全部已解锁奖励标记为已领取？</string>
+    <string name="reward_mark_all_message">仅将当前等级已解锁的奖励批量标记为已领取，不会增加奖励道具数量。</string>
+    <string name="reward_mark_all_action">标记为已领取</string>
+    <string name="reward_mark_all_result">已将 %1$d 项奖励标记为已领取。</string>
+    <string name="visual_map_search">搜索地图名称或 ID</string>
+    <string name="visual_no_matches">没有匹配的地图。</string>
+    <string name="visual_map_id">地图 ID %1$d</string>
+    <string name="visual_stage_id">关卡 ID %1$d</string>
+    <string name="visual_stage_hint">未通关关卡点一下即通关；已通关关卡点击修改次数。</string>
+    <string name="visual_stage_summary">已通关 %1$d / %2$d 个关卡</string>
+    <string name="visual_stage_tile">%1$s\n%2$s · 通关 %3$d 次</string>
+    <string name="visual_crown_option">★ %1$d</string>
+    <string name="stage_zero_clear_hint">0为取消通关</string>
 </resources>
